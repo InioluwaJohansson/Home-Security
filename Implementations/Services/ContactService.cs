@@ -43,6 +43,7 @@ public class ContactService : IContactService
                 FirstName = createContactDto.FirstName,
                 LastName = createContactDto.LastName,
                 ContactCategory = createContactDto.ContactCategory,
+                Gender = createContactDto.Gender,
                 ImageUrl = imagePath,
             };
             var getContact = await _contactRepo.Create(contact);
@@ -190,6 +191,7 @@ public class ContactService : IContactService
             contact.FirstName = updateContactDto.FirstName ?? contact.FirstName;
             contact.LastName = updateContactDto.LastName ?? contact.LastName;
             contact.ImageUrl = imagePath ?? contact.ImageUrl;
+            contact.Gender = updateContactDto.Gender;
             contact.LastModifiedOn = DateTime.Now;
             contact.LastModifiedBy = updateContactDto.personId;
             contact.ContactCategory = updateContactDto.ContactCategory;
@@ -429,6 +431,7 @@ public class ContactService : IContactService
             FirstName = contact.FirstName,
             LastName = contact.LastName,
             ImageUrl = contact.ImageUrl,
+            Gender = contact.Gender,
             GetContactCategoryDto = new GetContactCategoryDto()
             {
                 Id = contact.Category.Id,

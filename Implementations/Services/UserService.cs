@@ -36,13 +36,13 @@ public class UserService : IUserService
             Status = false
         };
     }
-    public async Task<BaseResponse> UpdateUser(UpdateUserDto updateUserDto)
+    public async Task<BaseResponse> UpdateUserRole(UpdateUserDto updateUserDto)
     {
         var user = await _userRepo.GetUserById(updateUserDto.Id);
         if (user != null && BCrypt.Net.BCrypt.Verify(updateUserDto.Password, user.Password))
         {
             user.UserRole.Role = updateUserDto.Role;
-            user.UserName = updateUserDto.UserName;
+            user.UserName = updateUserDto.UserName ?? user.UserName;
             user.LastModifiedOn = DateTime.Now;
             await _userRepo.Update(user);
             return new BaseResponse()

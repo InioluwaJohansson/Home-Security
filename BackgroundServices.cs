@@ -11,7 +11,7 @@ public class BackgroundServices : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var scope = _serviceScopeFactory.CreateScope();
-        var contaxt = scope.ServiceProvider.GetRequiredService<HomeSecurityContext>();
+        var context = scope.ServiceProvider.GetRequiredService<HomeSecurityContext>();
         await Task.CompletedTask;
     }
 }

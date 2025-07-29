@@ -23,10 +23,10 @@ public class UserController : Controller
         return Ok(user);
     }
 
-    [HttpPut("UpdateUser")]
-    public async Task<IActionResult> UpdateUser(UpdateUserDto updateUserDto)
+    [HttpPut("UpdateUserRole")]
+    public async Task<IActionResult> UpdateUserRole(UpdateUserDto updateUserDto)
     {
-        var user = await _userService.UpdateUser(updateUserDto);
+        var user = await _userService.UpdateUserRole(updateUserDto);
         if (user.Status == true)
         {
             return Ok(user);

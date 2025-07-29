@@ -138,6 +138,7 @@ public class ContactCategoryService : IContactCategoryService
             LastModifiedOn = contactCategory.LastModifiedOn,
             CreatedOn = contactCategory.CreatedOn,
             IsDeleted = contactCategory.IsDeleted,
+            Description = contactCategory.Description,
         };
     }
 }

@@ -116,7 +116,7 @@ public class LogService : ILogService
     public async Task<GetLogDto> GetDetails(Logs log)
     {
         var person = await _personRepo.GetById(log.PersonId);
-        GetPersonDto getPerson = null;
+        GetPersonDto getPerson = new GetPersonDto();
         if (person != null)
         {
             getPerson = new GetPersonDto()

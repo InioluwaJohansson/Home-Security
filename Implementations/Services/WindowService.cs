@@ -40,7 +40,7 @@ public class WindowService : IWindowService
             };
         }
         return new BaseResponse()
-        {
+        { 
             Status = false,
             Message = "Unable To Add Window!"
         };

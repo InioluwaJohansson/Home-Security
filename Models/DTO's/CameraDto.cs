@@ -2,13 +2,11 @@
 public class CreateCameraDto : CreateBaseDefaultDto
 {
     public string CameraName { get; set; }
-    public string CameraId { get; set; }
 }
 public class UpdateCameraDto : CreateBaseDefaultDto
 {
     public int Id { get; set; }
     public string CameraName { get; set; }
-    public string CameraId { get; set; }
 }
 public class GetCameraDto : BaseDefaultDto
 {
