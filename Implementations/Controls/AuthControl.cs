@@ -1,10 +1,8 @@
 ﻿using BCrypt.Net;
 using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
-using Home_Security.Implementations.Controls.Defaults;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Models.DTOs;
-using Home_Security.Interfaces.Controls.Defaults;
 
 namespace Home_Security.Implementations.Controls;
 public class AuthControl : IAuthControl
