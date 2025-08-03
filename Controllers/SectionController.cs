@@ -34,7 +34,7 @@ public class SectionController : Controller
         return Ok(section);
     }
 
-    [HttpGet("GetSectionById")]
+    [HttpPost("GetSectionById")]
     public async Task<IActionResult> GetSectionById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
     {
         var section = await _sectionControl.GetSectionById(getAuthControlInfoDto, id);
@@ -45,7 +45,7 @@ public class SectionController : Controller
         return Ok(section);
     }
 
-    [HttpGet("GetSectionBySectionName")]
+    [HttpPost("GetSectionBySectionName")]
     public async Task<IActionResult> GetSectionBySectionName(GetAuthControlInfoDto getAuthControlInfoDto, string sectionName)
     {
         var section = await _sectionControl.GetSectionBySectionName(getAuthControlInfoDto, sectionName);
@@ -56,7 +56,7 @@ public class SectionController : Controller
         return Ok(section);
     }
 
-    [HttpGet("GetAllSections")]
+    [HttpPost("GetAllSections")]
     public async Task<IActionResult> GetAllSections(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var section = await _sectionControl.GetAllSections(getAuthControlInfoDto);

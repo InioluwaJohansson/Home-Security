@@ -57,7 +57,7 @@ public class WindowController : Controller
         return Ok(window);
     }
 
-    [HttpGet("GetWindowById")]
+    [HttpPost("GetWindowById")]
     public async Task<IActionResult> GetWindowById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
     {
         var window = await _windowControl.GetWindowById(getAuthControlInfoDto, id);
@@ -68,7 +68,7 @@ public class WindowController : Controller
         return Ok(window);
     }
 
-    [HttpGet("GetAllWindowsBySectionId")]
+    [HttpPost("GetAllWindowsBySectionId")]
     public async Task<IActionResult> GetAllWindowsBySectionId(GetAuthControlInfoDto getAuthControlInfoDto, int sectionId)
     {
         var window = await _windowControl.GetAllWindowsBySectionId(getAuthControlInfoDto, sectionId);
@@ -79,7 +79,7 @@ public class WindowController : Controller
         return Ok(window);
     }
 
-    [HttpGet("GetAllWindowsByRoomId")]
+    [HttpPost("GetAllWindowsByRoomId")]
     public async Task<IActionResult> GetAllWindowsByRoomId(GetAuthControlInfoDto getAuthControlInfoDto, int roomId)
     {
         var window = await _windowControl.GetAllWindowsByRoomId(getAuthControlInfoDto, roomId);
@@ -90,7 +90,7 @@ public class WindowController : Controller
         return Ok(window);
     }
 
-    [HttpGet("GetAllWindows")]
+    [HttpPost("GetAllWindows")]
     public async Task<IActionResult> GetAllWindows(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var window = await _windowControl.GetAllWindows(getAuthControlInfoDto);

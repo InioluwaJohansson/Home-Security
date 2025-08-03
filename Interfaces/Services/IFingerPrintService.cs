@@ -2,5 +2,5 @@
 namespace Home_Security.Interfaces.Services;
 public interface IFingerPrintService
 {
-    public Task<FingerPrintResponseModel> VerifyFingerPrint(BinaryData data);
+    public Task<FingerPrintResponseModel> VerifyFingerPrint(byte [] data);
 }

@@ -9,9 +9,9 @@ public class FingerPrintService : IFingerPrintService
     {
         _fingerPrintRepo = fingerPrintRepo;
     }
-    public async Task<FingerPrintResponseModel> VerifyFingerPrint(BinaryData data)
+    public async Task<FingerPrintResponseModel> VerifyFingerPrint(byte [] data)
     {
-        var fingerprint = await _fingerPrintRepo.Get(x => x.FingerPrintEncoding.Equals(data.ToString()) && x.IsDeleted == false);
+        var fingerprint = await _fingerPrintRepo.Get(x => x.FingerPrintEncoding.Equals(data) && x.IsDeleted == false);
         if (data != null)
         {
             return new FingerPrintResponseModel

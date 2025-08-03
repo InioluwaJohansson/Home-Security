@@ -34,7 +34,7 @@ public class RoomController : Controller
         return Ok(room);
     }
 
-    [HttpGet("GetRoomById")]
+    [HttpPost("GetRoomById")]
     public async Task<IActionResult> GetRoomById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
     {
         var room = await _roomControl.GetRoomById(getAuthControlInfoDto, id);
@@ -45,7 +45,7 @@ public class RoomController : Controller
         return Ok(room);
     }
 
-    [HttpGet("GetAllRoomsBySectionId")]
+    [HttpPost("GetAllRoomsBySectionId")]
     public async Task<IActionResult> GetAllRoomsBySectionId(GetAuthControlInfoDto getAuthControlInfoDto, int sectionId)
     {
         var room = await _roomControl.GetAllRoomsBySectionId(getAuthControlInfoDto, sectionId);
@@ -56,7 +56,7 @@ public class RoomController : Controller
         return Ok(room);
     }
 
-    [HttpGet("GetRoomByRoomName")]
+    [HttpPost("GetRoomByRoomName")]
     public async Task<IActionResult> GetRoomByRoomName(GetAuthControlInfoDto getAuthControlInfoDto, string roomName)
     {
         var room = await _roomControl.GetRoomByRoomName(getAuthControlInfoDto, roomName);
@@ -67,7 +67,7 @@ public class RoomController : Controller
         return Ok(room);
     }
 
-    [HttpGet("GetAllRooms")]
+    [HttpPost("GetAllRooms")]
     public async Task<IActionResult> GetAllRooms(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var room = await _roomControl.GetAllRooms(getAuthControlInfoDto);

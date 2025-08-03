@@ -5,5 +5,5 @@ namespace Home_Security.Interfaces.Repositories;
 public interface IFingerPrintRepo : IRepo<FingerPrint>
 {
     public Task<FingerPrint> GetFingerPrintById(int id);
-    public Task<FingerPrint> GetFingerPrintByBinaryData(BinaryData data);
+    public Task<FingerPrint> GetFingerPrintByBinaryData(byte [] data);
 }

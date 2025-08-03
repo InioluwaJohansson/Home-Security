@@ -59,6 +59,7 @@ builder.Services.AddScoped<IContactCategoryControl, ContactCategoryControl>();
 builder.Services.AddScoped<IContactControl, ContactControl>();
 builder.Services.AddScoped<IDoorControl, DoorControl>();
 builder.Services.AddScoped<ILightControl, LightControl>();
+builder.Services.AddScoped<ILogControl, LogControl>();
 builder.Services.AddScoped<IPersonControl, PersonControl>();
 builder.Services.AddScoped<IRoomControl, RoomControl>();
 builder.Services.AddScoped<ISectionControl, SectionControl>();

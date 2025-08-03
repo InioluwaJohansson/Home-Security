@@ -34,7 +34,7 @@ public class CameraController : Controller
         return Ok(camera);
     }
 
-    [HttpGet("GetCameraById")]
+    [HttpPost("GetCameraById")]
     public async Task<IActionResult> GetCameraById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
     {
         var camera = await _cameraControl.GetCameraById(getAuthControlInfoDto, id);
@@ -45,7 +45,7 @@ public class CameraController : Controller
         return Ok(camera);
     }
 
-    [HttpGet("GetAllCamerasBySectionId")]
+    [HttpPost("GetAllCamerasBySectionId")]
     public async Task<IActionResult> GetAllCamerasBySectionId(GetAuthControlInfoDto getAuthControlInfoDto, int sectionId)
     {
         var camera = await _cameraControl.GetAllCamerasBySectionId(getAuthControlInfoDto, sectionId);
@@ -55,7 +55,7 @@ public class CameraController : Controller
         }
         return Ok(camera);
     }
-    [HttpGet("GetAllCamerasByRoomId")]
+    [HttpPost("GetAllCamerasByRoomId")]
     public async Task<IActionResult> GetAllCamerasByRoomId(GetAuthControlInfoDto getAuthControlInfoDto, int roomId)
     {
         var camera = await _cameraControl.GetAllCamerasByRoomId(getAuthControlInfoDto, roomId);
@@ -66,7 +66,7 @@ public class CameraController : Controller
         return Ok(camera);
     }
 
-    [HttpGet("GetAllCameras")]
+    [HttpPost("GetAllCameras")]
     public async Task<IActionResult> GetAllCameras(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var camera = await _cameraControl.GetAllCameras(getAuthControlInfoDto);

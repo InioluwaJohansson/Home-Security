@@ -66,7 +66,7 @@ public class LogService : ILogService
         {
             return new LogsResponseModel()
             {
-                Data = ((ICollection<GetLogDto>)logs.Select(async x => await GetDetails(x))).OrderBy(x => x.TimeOfAction).ToList(),
+                Data = await Task.WhenAll(logs.Select(async x => await GetDetails(x))).ContinueWith(t => t.Result.OrderBy(x => x.TimeOfAction).ToList()),
                 Status = true,
                 Message = "Logs Retrieved Successfully!"
             };
@@ -84,7 +84,7 @@ public class LogService : ILogService
         {
             return new LogsResponseModel()
             {
-                Data = ((ICollection<GetLogDto>)logs.Select(async x => await GetDetails(x))).OrderBy(x => x.TimeOfAction).ToList(),
+                Data = await Task.WhenAll(logs.Select(async x => await GetDetails(x))).ContinueWith(t => t.Result.OrderBy(x => x.TimeOfAction).ToList()),
                 Status = true,
                 Message = "Logs Retrieved Successfully!"
             };
@@ -102,7 +102,7 @@ public class LogService : ILogService
         {
             return new LogsResponseModel()
             {
-                Data = ((ICollection<GetLogDto>)logs.Select(async x => await GetDetails(x))).OrderBy(x => x.TimeOfAction).ToList(),
+                Data = await Task.WhenAll(logs.Select(async x => await GetDetails(x))).ContinueWith(t => t.Result.OrderBy(x => x.TimeOfAction).ToList()),
                 Status = true,
                 Message = "Logs Retrieved Successfully!"
             };

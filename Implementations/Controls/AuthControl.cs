@@ -15,7 +15,7 @@ public class AuthControl : IAuthControl
     public async Task<GetAuthControlDto> GetAuthDetails(int personId, string authorizationCode)
     {
         var person = await _personRepo.GetById(personId);
-        if (person != null && BCrypt.Net.BCrypt.EnhancedVerify(person.User.AuthorizationCode, authorizationCode) && person.Disabled == false)
+        if (person != null && BCrypt.Net.BCrypt.EnhancedVerify(authorizationCode, person.User.AuthorizationCode) && person.Disabled == false)
         {
             return new GetAuthControlDto
             {

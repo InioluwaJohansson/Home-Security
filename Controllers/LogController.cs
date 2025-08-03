@@ -13,7 +13,7 @@ public class LogController : Controller
         _logControl = logControl;
     }
 
-    [HttpGet("GetLogById")]
+    [HttpPost("GetLogById")]
     public async Task<IActionResult> GetLogById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
     {
         var log = await _logControl.GetLogById(getAuthControlInfoDto, id);
@@ -24,7 +24,7 @@ public class LogController : Controller
         return Ok(log);
     }
 
-    [HttpGet("GetAllLogsByPersonId")]
+    [HttpPost("GetAllLogsByPersonId")]
     public async Task<IActionResult> GetAllLogsBySectionId(GetAuthControlInfoDto getAuthControlInfoDto, int personId)
     {
         var log = await _logControl.GetAllLogsByPersonId(getAuthControlInfoDto, personId);
@@ -35,7 +35,7 @@ public class LogController : Controller
         return Ok(log);
     }
 
-    [HttpGet("GetAllLogsByActionType")]
+    [HttpPost("GetAllLogsByActionType")]
     public async Task<IActionResult> GetAllLogsByActionType(GetAuthControlInfoDto getAuthControlInfoDto, string actionType)
     {
         var log = await _logControl.GetAllLogsByActionType(getAuthControlInfoDto, actionType);
@@ -46,7 +46,7 @@ public class LogController : Controller
         return Ok(log);
     }
 
-    [HttpGet("GetAllLogs")]
+    [HttpPost("GetAllLogs")]
     public async Task<IActionResult> GetAllLogs(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var log = await _logControl.GetAllLogs(getAuthControlInfoDto);

@@ -34,7 +34,7 @@ public class LightController : Controller
         return Ok(light);
     }
 
-    [HttpGet("GetLightById")]
+    [HttpPost("GetLightById")]
     public async Task<IActionResult> GetLightById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
     {
         var light = await _lightControl.GetLightById(getAuthControlInfoDto, id);
@@ -45,7 +45,7 @@ public class LightController : Controller
         return Ok(light);
     }
 
-    [HttpGet("GetAllLightsBySectionId")]
+    [HttpPost("GetAllLightsBySectionId")]
     public async Task<IActionResult> GetAllLightsBySectionId(GetAuthControlInfoDto getAuthControlInfoDto, int sectionId)
     {
         var light = await _lightControl.GetAllLightsBySectionId(getAuthControlInfoDto, sectionId);
@@ -56,7 +56,7 @@ public class LightController : Controller
         return Ok(light);
     }
 
-    [HttpGet("GetAllLightsByRoomId")]
+    [HttpPost("GetAllLightsByRoomId")]
     public async Task<IActionResult> GetAllLightsByRoomId(GetAuthControlInfoDto getAuthControlInfoDto, int roomId)
     {
         var light = await _lightControl.GetAllLightsByRoomId(getAuthControlInfoDto, roomId);
@@ -67,7 +67,7 @@ public class LightController : Controller
         return Ok(light);
     }
 
-    [HttpGet("GetAllLights")]
+    [HttpPost("GetAllLights")]
     public async Task<IActionResult> GetAllLights(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var light = await _lightControl.GetAllLights(getAuthControlInfoDto);

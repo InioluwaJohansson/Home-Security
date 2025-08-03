@@ -6,9 +6,11 @@ namespace Home_Security.Implementations.Services;
 public class UserService : IUserService
 {
     IUserRepo _userRepo;
-    public UserService(IUserRepo userRepo)
+    IPersonRepo _personRepo;
+    public UserService(IUserRepo userRepo, IPersonRepo personRepo)
     {
         _userRepo = userRepo;
+        _personRepo = personRepo;
     }
     public async Task<UserLoginResponse> Login(string userName, string password)
     {
@@ -23,7 +25,7 @@ public class UserService : IUserService
                     UserName = user.UserName,
                     RoleName = user.UserRole.Role.ToString(),
                     Role = user.UserRole.Role,
-                    PersonId = user.PersonId
+                    PersonId = (await _personRepo.Get(x => x.UserId == user.Id))?.Id ?? 0,
                 },
                 Message = "Login Successful",
                 Status = true,
@@ -39,7 +41,7 @@ public class UserService : IUserService
     public async Task<BaseResponse> UpdateUserRole(UpdateUserDto updateUserDto)
     {
         var user = await _userRepo.GetUserById(updateUserDto.Id);
-        if (user != null && BCrypt.Net.BCrypt.Verify(updateUserDto.Password, user.Password))
+        if (user != null)
         {
             user.UserRole.Role = updateUserDto.Role;
             user.UserName = updateUserDto.UserName ?? user.UserName;

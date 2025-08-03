@@ -13,7 +13,7 @@ public class FingerPrintController : Controller
         _fingerPrintServiceService = fingerPrintServiceService;
     }
     [HttpPost("VerifyFingerPrint")]
-    public async Task<IActionResult> VerifyFingerPrint(BinaryData data)
+    public async Task<IActionResult> VerifyFingerPrint(byte [] data)
     {
         var fingerPrintService = await _fingerPrintServiceService.VerifyFingerPrint(data);
         if (fingerPrintService.Status == true)

@@ -7,5 +7,5 @@ public class FingerPrint : AuditableEntity
     public Person Person { get; set; }
     public int PersonId { get; set; }
     public string FingerPrintId { get; set; }
-    public string FingerPrintEncoding { get; set; }
+    public byte [] FingerPrintEncoding { get; set; }
 }

@@ -56,7 +56,7 @@ public class PersonController : Controller
         return Ok(person);
     }
 
-    [HttpGet("GetPersonById")]
+    [HttpPost("GetPersonById")]
     public async Task<IActionResult> GetPersonById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
     {
         var person = await _personControl.GetPersonById(getAuthControlInfoDto, id);
@@ -67,7 +67,7 @@ public class PersonController : Controller
         return Ok(person);
     }
 
-    [HttpGet("GetAllPersons")]
+    [HttpPost("GetAllPersons")]
     public async Task<IActionResult> GetAllPersons(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var person = await _personControl.GetAllPersons(getAuthControlInfoDto);

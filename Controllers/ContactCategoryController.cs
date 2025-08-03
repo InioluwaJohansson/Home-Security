@@ -34,7 +34,7 @@ public class ContactCategoryController : Controller
         return Ok(contactCategory);
     }
 
-    [HttpGet("GetContactCategoryById")]
+    [HttpPost("GetContactCategoryById")]
     public async Task<IActionResult> GetContactCategoryById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
     {
         var contactCategory = await _contactCategoryControl.GetContactCategoryById(getAuthControlInfoDto, id);
@@ -45,7 +45,7 @@ public class ContactCategoryController : Controller
         return Ok(contactCategory);
     }
 
-    [HttpGet("GetAllContactCategories")]
+    [HttpPost("GetAllContactCategories")]
     public async Task<IActionResult> GetAllContactCategories(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var contactCategory = await _contactCategoryControl.GetAllContactCategories(getAuthControlInfoDto);

@@ -34,7 +34,7 @@ public class ApplianceController : Controller
         return Ok(appliance);
     }
 
-    [HttpGet("GetApplianceById")]
+    [HttpPost("GetApplianceById")]
     public async Task<IActionResult> GetApplianceById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
     {
         var appliance = await _applianceControl.GetApplianceById(getAuthControlInfoDto, id);
@@ -45,7 +45,7 @@ public class ApplianceController : Controller
         return Ok(appliance);
     }
 
-    [HttpGet("GetAllAppliancesBySectionId")]
+    [HttpPost("GetAllAppliancesBySectionId")]
     public async Task<IActionResult> GetAllAppliancesBySectionId(GetAuthControlInfoDto getAuthControlInfoDto, int sectionId)
     {
         var appliance = await _applianceControl.GetAllAppliancesBySectionId(getAuthControlInfoDto, sectionId);
@@ -56,7 +56,7 @@ public class ApplianceController : Controller
         return Ok(appliance);
     }
 
-    [HttpGet("GetAllAppliancesByRoomId")]
+    [HttpPost("GetAllAppliancesByRoomId")]
     public async Task<IActionResult> GetAllAppliancesByRoomId(GetAuthControlInfoDto getAuthControlInfoDto, int roomId)
     {
         var appliance = await _applianceControl.GetAllAppliancesByRoomId(getAuthControlInfoDto, roomId);
@@ -67,7 +67,7 @@ public class ApplianceController : Controller
         return Ok(appliance);
     }
 
-    [HttpGet("GetAllAppliances")]
+    [HttpPost("GetAllAppliances")]
     public async Task<IActionResult> GetAllAppliances(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var appliance = await _applianceControl.GetAllAppliances(getAuthControlInfoDto);
