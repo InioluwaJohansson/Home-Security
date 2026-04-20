@@ -47,6 +47,25 @@ public class AuthControl : IAuthControl
             Status = false
         };
     }
+    public async Task<List<UserPerson>> GetAllPersons()
+    {
+        var persons = await _personRepo.GetAll();
+        if (persons != null && persons.Any())
+        {
+            var userPersons = new List<UserPerson>();
+            foreach (var person in persons)
+            {
+                var userPerson = new UserPerson()
+                {
+                    Id = person.Id,
+                    Name = $"{person.PersonDetails.FirstName} {person.PersonDetails.LastName}"
+                };
+                userPersons.Add(userPerson);
+            }
+            return userPersons;
+        }
+        return null;
+    }
     public bool CompareRole(Role based, Role quote)
     {
         //based is role of last locked user
@@ -78,4 +97,9 @@ public class AuthControl : IAuthControl
             ActionType = ""
         };
     }
+}
+public class UserPerson
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
 }

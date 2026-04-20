@@ -69,7 +69,6 @@ builder.Services.AddHostedService<BackgroundServices>();
 builder.Services.AddHttpContextAccessor();
 var connectionString = builder.Configuration.GetConnectionString("HomeSecurityContext");
 builder.Services.AddDbContext<HomeSecurityContext>(c => c.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
