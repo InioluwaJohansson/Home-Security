@@ -18,8 +18,10 @@ public class JWTAuthentication : IJWTAuthentication
         var tokenHandler = new JwtSecurityTokenHandler();
         var tokenKey = Encoding.ASCII.GetBytes(_key);
         claims.Add(new Claim(ClaimTypes.Name, getUserDto.Id.ToString()));
-        claims.Add(new Claim(ClaimTypes.Name, getUserDto.PersonId.ToString()));
+        claims.Add(new Claim(ClaimTypes.NameIdentifier, getUserDto.PersonId.ToString()));
+        claims.Add(new Claim(ClaimTypes.Actor, getUserDto.UserName.ToString()));
         claims.Add(new Claim(ClaimTypes.Role, getUserDto.RoleName));
+        claims.Add(new Claim(ClaimTypes.Authentication, getUserDto.AuthorizationCode));
         var tokenDescriptor = new SecurityTokenDescriptor()
         {
             Subject = new ClaimsIdentity(claims),

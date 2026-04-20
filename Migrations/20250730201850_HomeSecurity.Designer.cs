@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Home_Security.Migrations
 {
     [DbContext(typeof(HomeSecurityContext))]
-    [Migration("20231209132805_HomeSecurity")]
+    [Migration("20250730201850_HomeSecurity")]
     partial class HomeSecurity
     {
         /// <inheritdoc />
@@ -284,6 +284,9 @@ namespace Home_Security.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
@@ -565,9 +568,6 @@ namespace Home_Security.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("PersonId")
-                        .HasColumnType("int");
-
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -765,14 +765,11 @@ namespace Home_Security.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId1")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("PersonDetailsId");
 
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Person");
                 });
@@ -1124,7 +1121,7 @@ namespace Home_Security.Migrations
 
                     b.HasOne("Home_Security.Entities.Identity.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId1")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

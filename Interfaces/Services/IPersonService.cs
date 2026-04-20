@@ -1,5 +1,6 @@
 ﻿using Home_Security.Models.DTOs;
 namespace Home_Security.Interfaces.Services;
+
 public interface IPersonService
 {
     public Task<BaseResponse> CreatePerson(CreatePersonDto createPersonDto);
@@ -12,4 +13,5 @@ public interface IPersonService
     public Task<BaseResponse> Delete(int id, int personId);
     public Task<BaseResponse> DeleteContactDetails(int id, int personId);
     public Task<BaseResponse> DeleteContactAddress(int id, int personId);
+    public Task<bool> InjectDefaultUser();
 }

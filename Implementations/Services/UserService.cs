@@ -1,4 +1,5 @@
 ﻿using BCrypt.Net;
+using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
@@ -6,13 +7,23 @@ namespace Home_Security.Implementations.Services;
 public class UserService : IUserService
 {
     IUserRepo _userRepo;
-    public UserService(IUserRepo userRepo)
+    IPersonRepo _personRepo;
+    ILogService _logService;
+    IAuthControl _authControl;
+    public UserService(IUserRepo userRepo, IPersonRepo personRepo, ILogService logService, IAuthControl authControl)
     {
         _userRepo = userRepo;
+        _personRepo = personRepo;
+        _logService = logService;
+        _authControl = authControl;
     }
     public async Task<UserLoginResponse> Login(string userName, string password)
     {
         var user = await _userRepo.GetUserByUserName(userName);
+        var log = _authControl.CreateLog(user.Id);
+        log.ActionType = "Attempted Login";
+        log.LogDetails = $"{user.UserName} attempted to login!";
+        await _logService.CreateLog(log);
         if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password))
         {
             return new UserLoginResponse()
@@ -23,7 +34,7 @@ public class UserService : IUserService
                     UserName = user.UserName,
                     RoleName = user.UserRole.Role.ToString(),
                     Role = user.UserRole.Role,
-                    PersonId = user.PersonId
+                    PersonId = (await _personRepo.Get(x => x.UserId == user.Id))?.Id ?? 0,
                 },
                 Message = "Login Successful",
                 Status = true,
@@ -36,15 +47,19 @@ public class UserService : IUserService
             Status = false
         };
     }
-    public async Task<BaseResponse> UpdateUser(UpdateUserDto updateUserDto)
+    public async Task<BaseResponse> UpdateUserRole(UpdateUserDto updateUserDto)
     {
         var user = await _userRepo.GetUserById(updateUserDto.Id);
-        if (user != null && BCrypt.Net.BCrypt.Verify(updateUserDto.Password, user.Password))
+        if (user != null)
         {
             user.UserRole.Role = updateUserDto.Role;
-            user.UserName = updateUserDto.UserName;
+            user.UserName = updateUserDto.UserName ?? user.UserName;
             user.LastModifiedOn = DateTime.Now;
             await _userRepo.Update(user);
+            var log = _authControl.CreateLog(user.Id);
+            log.ActionType = "User Role Updated";
+            log.LogDetails = $"{user.UserName} updated their role to {user.UserRole.Role}.";
+            await _logService.CreateLog(log);
             return new BaseResponse()
             {
                 Message = "User Details Updated Successfully!",
@@ -60,11 +75,15 @@ public class UserService : IUserService
     public async Task<BaseResponse> ChangePassword(UpdateUserPasswordDto updateUserPasswordDto)
     {
         var user = await _userRepo.GetUserByUserName(updateUserPasswordDto.UserName);
-        if (user != null && BCrypt.Net.BCrypt.Verify(updateUserPasswordDto.AuthorizationCode, user.AuthorizationCode))
+        if (user != null && BCrypt.Net.BCrypt.EnhancedVerify(updateUserPasswordDto.AuthorizationCode, user.AuthorizationCode))
         {
             user.Password = BCrypt.Net.BCrypt.HashPassword(updateUserPasswordDto.NewPassword);
             user.LastModifiedOn = DateTime.Now;
             await _userRepo.Update(user);
+            var log = _authControl.CreateLog(user.Id);
+            log.ActionType = "Password Changed";
+            log.LogDetails = $"{user.UserName} changed their password!";
+            await _logService.CreateLog(log);
             return new BaseResponse()
             {
                 Message = "Password Changed Successfully!",
@@ -85,6 +104,10 @@ public class UserService : IUserService
             user.Password = BCrypt.Net.BCrypt.EnhancedHashPassword(updateUserAuthorizationCode.NewAuthorizationCode);
             user.LastModifiedOn = DateTime.Now;
             await _userRepo.Update(user);
+            var log = _authControl.CreateLog(user.Id);
+            log.ActionType = "Authorization Code Changed";
+            log.LogDetails = $"{user.UserName} changed their authorization code!";
+            await _logService.CreateLog(log);
             return new BaseResponse()
             {
                 Message = "Authorization Code Changed Successfully!",

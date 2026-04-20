@@ -1,0 +1,57 @@
+using Home_Security.Interfaces.Controls;
+using Home_Security.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Security.Claims;
+
+[Route("Home_Security/[controller]")]
+[ApiController]
+public class HardwareController : Controller
+{
+    IHardwareControl _hardwareControl;
+    public HardwareController(IHardwareControl hardwareControl)
+    {
+        _hardwareControl = hardwareControl;
+    }
+    [Authorize]
+    [HttpPut("UpdateHardwareServices")]
+    public async Task<IActionResult> UpdateHaUpdateHardwareServicesrdware(UpdateHardwareDto updatehardwareDto)
+    {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
+        var hardware = await _hardwareControl.UpdateHardwareServices(updatehardwareDto);
+        if (hardware.Status == true)
+        {
+            return Ok(hardware);
+        }
+        return Ok(hardware);
+    }
+    [Authorize]
+    [HttpGet("GetHardwareServices")]
+    public async Task<IActionResult> GetHardwareServices(UpdateHardwareResponseIds updateHardwareResponseIds)
+    {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
+        var hardware = await _hardwareControl.GetHardwareServices(updateHardwareResponseIds);
+        if (hardware.Status == true)
+        {
+            return Ok(hardware);
+        }
+        return Ok(hardware);
+    }
+}

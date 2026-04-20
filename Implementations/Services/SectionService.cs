@@ -27,7 +27,7 @@ public class SectionService : ISectionService
         {
             var Section = new Section()
             {
-                SectionId = $"Section{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
+                SectionId = $"SECTION{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 SectionName = createSectionDto.SectionName,
                 CreatedOn = DateTime.Now,
                 CreatedBy = personId,

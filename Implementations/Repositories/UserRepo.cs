@@ -17,6 +17,6 @@ public class UserRepo : BaseRepository<User>, IUserRepo
     }
     public async Task<User> GetUserByUserName(string userName)
     {
-        return await context.Users.Include(x => x.UserRole).FirstOrDefaultAsync(x => x.UserName == userName && x.IsDeleted == false);
+        return await context.Users.Include(x => x.UserRole).FirstOrDefaultAsync(x => x.UserName.Equals(userName) && x.IsDeleted == false);
     }
 }

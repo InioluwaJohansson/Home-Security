@@ -22,7 +22,7 @@ public class PersonService : IPersonService
     }
     public async Task<BaseResponse> CreatePerson(CreatePersonDto createPersonDto)
     {
-        var checkUser = _userRepo.Get(x => x.UserName == createPersonDto.CreateUserDto.UserName);
+        var checkUser = await _userRepo.Get(x => x.UserName == createPersonDto.CreateUserDto.UserName);
         if (checkUser == null )
         {
             var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Persons\\");
@@ -82,25 +82,24 @@ public class PersonService : IPersonService
                     LastModifiedOn = DateTime.Now,
                 }
             };
-            var getPerson = await _personRepo.Create(person);
-            List<FingerPrint> Fingerprints = new List<FingerPrint>();
+            await _personRepo.Create(person);
+            var getUserId = await _userRepo.Get(x => x.UserName == createPersonDto.CreateUserDto.UserName);
+            var getPerson = await _personRepo.Get(x => x.UserId == getUserId.Id);
             foreach (var fingerprint in createPersonDto.CreatePersonDetailsDto.CreateFingerPrintDtos)
             {
-                Fingerprints.Add(new FingerPrint()
+                var finger = new FingerPrint()
                 {
                     PersonId = getPerson.Id,
                     FingerPrintId = $"FINGER{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
-                    FingerPrintEncoding = fingerprint.FingerPrintEncoding.ToString(),
+                    FingerPrintEncoding = fingerprint.FingerPrintEncoding ?? Array.Empty<byte>(),
                     IsDeleted = false,
                     LastModifiedBy = getPerson.Id,
                     LastModifiedOn = DateTime.Now,
                     CreatedOn = DateTime.Now,
                     CreatedBy = getPerson.Id
-                });
+                };
+                await _fingerPrintRepo.Create(finger);
             }
-            getPerson.User.PersonId = getPerson.Id;
-            person.PersonDetails.FingerPrints = Fingerprints;
-            await _personRepo.Update(person);
             return new BaseResponse()
             {
                 Status = true,
@@ -461,5 +460,57 @@ public class PersonService : IPersonService
             PhoneNumber = contactDetails.PhoneNumber,
             Email = contactDetails.Email,
         };
+    }
+    public async Task<bool> InjectDefaultUser()
+    {
+        var checkUser = await _userRepo.Get(x => x.UserName == "inioluwa_johansson");
+        if (checkUser != null)
+        {
+            Console.WriteLine("Default user already exists.");
+            return true; // User already exists, no need to inject again
+        }
+        var person = new CreatePersonDto()
+        {
+            Relation = "Family",
+            CreatePersonDetailsDto = new CreatePersonDetailsDto()
+            {
+                FirstName = "Inioluwa",
+                LastName = "Johansson",
+                DateOfBirth = new DateOnly(2003, 08, 13),
+                Age = 21,
+                Gender = Models.Enums.Gender.Male,
+                ImageUrl = null,
+                CreateAddressDtos = new List<CreateAddressDto>
+                {
+                    new CreateAddressDto
+                    {
+                        NumberLine = "12",
+                        Street = "Ore-Ofe",
+                        City = "Abeokuta",
+                        Region = "Odeda",
+                        State = "Ogun",
+                        Country = "Nigeria",
+                        PostalCode = "110121",
+                    },
+                },
+                CreateFingerPrintDtos = new List<CreateFingerPrintDto>
+                {
+                    new CreateFingerPrintDto
+                    {
+                        FingerPrintEncoding = null,
+                    },
+                }
+            },
+            CreateUserDto = new CreateUserDto
+            {
+                UserName = "inioluwa_johansson",
+                Password = "Johansson13", // ⚠️ Consider hashing or securing this
+                AuthorizationCode = "1308",
+                Role = Role.Owner,
+            }
+        };
+        var response = await CreatePerson(person);
+        Console.WriteLine("Default user injected successfully." + response.Status);
+        return response.Status;
     }
 }

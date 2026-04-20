@@ -1,10 +1,12 @@
 ﻿using Home_Security.Contracts;
+using Home_Security.Models.Enums;
 namespace Home_Security.Entities;
 public class Contact : AuditableEntity
 {
     public string ContactId { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
+    public Gender Gender {get; set; }
     public string ImageUrl { get; set; }
     public ContactCategory Category { get; set; }
     public int ContactCategory { get; set; }

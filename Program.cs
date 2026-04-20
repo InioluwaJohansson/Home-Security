@@ -59,15 +59,16 @@ builder.Services.AddScoped<IContactCategoryControl, ContactCategoryControl>();
 builder.Services.AddScoped<IContactControl, ContactControl>();
 builder.Services.AddScoped<IDoorControl, DoorControl>();
 builder.Services.AddScoped<ILightControl, LightControl>();
+builder.Services.AddScoped<ILogControl, LogControl>();
 builder.Services.AddScoped<IPersonControl, PersonControl>();
 builder.Services.AddScoped<IRoomControl, RoomControl>();
 builder.Services.AddScoped<ISectionControl, SectionControl>();
 builder.Services.AddScoped<IWindowControl, WindowControl>();
+//builder.Services.AddScoped<IJWTAuthentication, JWTAuthentication>();
 builder.Services.AddHostedService<BackgroundServices>();
 builder.Services.AddHttpContextAccessor();
 var connectionString = builder.Configuration.GetConnectionString("HomeSecurityContext");
 builder.Services.AddDbContext<HomeSecurityContext>(c => c.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -106,7 +107,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseCors("Policies");
 

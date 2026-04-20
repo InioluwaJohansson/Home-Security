@@ -1,11 +1,13 @@
 ﻿using Home_Security.Entities;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 namespace Home_Security.Models.DTOs;
 public class CreateContactDto
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public IFormFile ImageUrl { get; set; }
+    public Gender Gender  {get; set;}
     public int ContactCategory { get; set; }
     public int personId { get; set; }
     public List<CreateContactDetailsDto> ContactDetails { get; set; }
@@ -17,6 +19,7 @@ public class UpdateContactDto
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public IFormFile ImageUrl { get; set; }
+    public Gender Gender  {get; set;}
     public int ContactCategory { get; set; }
     public int personId { get; set; }
     public List<UpdateContactDetailsDto> ContactDetails { get; set; }
@@ -29,6 +32,7 @@ public class GetContactDto : BaseDefaultDtoOther
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string ImageUrl { get; set; }
+    public Gender Gender  {get; set;}
     public GetContactCategoryDto GetContactCategoryDto { get; set; }
     public List<GetContactDetailsDto> ContactDetails { get; set; }
     public List<GetAddressDto> Address { get; set; }

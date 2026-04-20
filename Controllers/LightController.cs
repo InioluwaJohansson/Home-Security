@@ -1,7 +1,9 @@
 ﻿using Home_Security.Interfaces.Controls;
 using Home_Security.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 [Route("Home_Security/[controller]")]
 [ApiController]
@@ -12,9 +14,19 @@ public class LightController : Controller
     {
         _lightControl = lightControl;
     }
+    [Authorize]
     [HttpPost("CreateLight")]
-    public async Task<IActionResult> CreateLight([FromQuery] GetAuthControlInfoDto getAuthControlInfoDto, [FromBody] CreateLightDto createLightDto)
+    public async Task<IActionResult> CreateLight([FromBody] CreateLightDto createLightDto)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var light = await _lightControl.CreateLight(getAuthControlInfoDto, createLightDto);
         if (light.Status == true)
         {
@@ -22,10 +34,19 @@ public class LightController : Controller
         }
         return Ok(light);
     }
-
+    [Authorize]
     [HttpPut("UpdateLight")]
-    public async Task<IActionResult> UpdateLight([FromQuery] GetAuthControlInfoDto getAuthControlInfoDto, [FromBody] UpdateLightDto updateLightDto)
+    public async Task<IActionResult> UpdateLight([FromBody] UpdateLightDto updateLightDto)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var light = await _lightControl.UpdateLight(getAuthControlInfoDto, updateLightDto);
         if (light.Status == true)
         {
@@ -33,10 +54,19 @@ public class LightController : Controller
         }
         return Ok(light);
     }
-
-    [HttpGet("GetLightById")]
-    public async Task<IActionResult> GetLightById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
+    [Authorize]
+    [HttpPost("GetLightById")]
+    public async Task<IActionResult> GetLightById(int id)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var light = await _lightControl.GetLightById(getAuthControlInfoDto, id);
         if (light.Status == true)
         {
@@ -44,10 +74,19 @@ public class LightController : Controller
         }
         return Ok(light);
     }
-
-    [HttpGet("GetAllLightsBySectionId")]
-    public async Task<IActionResult> GetAllLightsBySectionId(GetAuthControlInfoDto getAuthControlInfoDto, int sectionId)
+    [Authorize]
+    [HttpPost("GetAllLightsBySectionId")]
+    public async Task<IActionResult> GetAllLightsBySectionId(int sectionId)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var light = await _lightControl.GetAllLightsBySectionId(getAuthControlInfoDto, sectionId);
         if (light.Status == true)
         {
@@ -55,10 +94,19 @@ public class LightController : Controller
         }
         return Ok(light);
     }
-
-    [HttpGet("GetAllLightsByRoomId")]
-    public async Task<IActionResult> GetAllLightsByRoomId(GetAuthControlInfoDto getAuthControlInfoDto, int roomId)
+    [Authorize]
+    [HttpPost("GetAllLightsByRoomId")]
+    public async Task<IActionResult> GetAllLightsByRoomId(int roomId)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var light = await _lightControl.GetAllLightsByRoomId(getAuthControlInfoDto, roomId);
         if (light.Status == true)
         {
@@ -66,10 +114,19 @@ public class LightController : Controller
         }
         return Ok(light);
     }
-
-    [HttpGet("GetAllLights")]
-    public async Task<IActionResult> GetAllLights(GetAuthControlInfoDto getAuthControlInfoDto)
+    [Authorize]
+    [HttpPost("GetAllLights")]
+    public async Task<IActionResult> GetAllLights()
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var light = await _lightControl.GetAllLights(getAuthControlInfoDto);
         if (light.Status == true)
         {
@@ -77,10 +134,19 @@ public class LightController : Controller
         }
         return Ok(light);
     }
-
+    [Authorize]
     [HttpPut("DeleteLight")]
-    public async Task<IActionResult> DeleteLight(GetAuthControlInfoDto getAuthControlInfoDto, int lightId)
+    public async Task<IActionResult> DeleteLight(int lightId)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var light = await _lightControl.DeleteLight(getAuthControlInfoDto, lightId);
         if (light.Status == true)
         {

@@ -1,10 +1,8 @@
 ﻿using BCrypt.Net;
 using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
-using Home_Security.Implementations.Controls.Defaults;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Models.DTOs;
-using Home_Security.Interfaces.Controls.Defaults;
 
 namespace Home_Security.Implementations.Controls;
 public class AuthControl : IAuthControl
@@ -17,7 +15,7 @@ public class AuthControl : IAuthControl
     public async Task<GetAuthControlDto> GetAuthDetails(int personId, string authorizationCode)
     {
         var person = await _personRepo.GetById(personId);
-        if (person != null && BCrypt.Net.BCrypt.EnhancedVerify(person.User.AuthorizationCode, authorizationCode) && person.Disabled == false)
+        if (person != null && BCrypt.Net.BCrypt.EnhancedVerify(authorizationCode, person.User.AuthorizationCode) && person.Disabled == false)
         {
             return new GetAuthControlDto
             {
@@ -48,6 +46,25 @@ public class AuthControl : IAuthControl
         {
             Status = false
         };
+    }
+    public async Task<List<UserPerson>> GetAllPersons()
+    {
+        var persons = await _personRepo.GetAll();
+        if (persons != null && persons.Any())
+        {
+            var userPersons = new List<UserPerson>();
+            foreach (var person in persons)
+            {
+                var userPerson = new UserPerson()
+                {
+                    Id = person.Id,
+                    Name = $"{person.PersonDetails.FirstName} {person.PersonDetails.LastName}"
+                };
+                userPersons.Add(userPerson);
+            }
+            return userPersons;
+        }
+        return null;
     }
     public bool CompareRole(Role based, Role quote)
     {
@@ -80,4 +97,9 @@ public class AuthControl : IAuthControl
             ActionType = ""
         };
     }
+}
+public class UserPerson
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
 }
