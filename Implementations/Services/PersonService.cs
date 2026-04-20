@@ -463,6 +463,12 @@ public class PersonService : IPersonService
     }
     public async Task<bool> InjectDefaultUser()
     {
+        var checkUser = await _userRepo.Get(x => x.UserName == "inioluwa_johansson");
+        if (checkUser != null)
+        {
+            Console.WriteLine("Default user already exists.");
+            return true; // User already exists, no need to inject again
+        }
         var person = new CreatePersonDto()
         {
             Relation = "Family",

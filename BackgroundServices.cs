@@ -16,12 +16,9 @@ public class BackgroundServices : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using var scope = _serviceScopeFactory.CreateAsyncScope();
-    
         var context = scope.ServiceProvider.GetRequiredService<HomeSecurityContext>();
         await context.Database.MigrateAsync();
-
         var personService = scope.ServiceProvider.GetRequiredService<IPersonService>();
-        // Inject default user if it does not exist
         await personService.InjectDefaultUser();
     }
 }

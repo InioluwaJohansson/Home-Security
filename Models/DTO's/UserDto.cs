@@ -14,6 +14,7 @@ public class GetUserDto
     public string RoleName { get; set; }
     public Role Role { get; set; }
     public int PersonId { get; set; }
+    public string AuthorizationCode { get; set; }
 }
 public class UpdateUserDto
 {

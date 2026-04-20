@@ -16,7 +16,7 @@ public class WindowService : IWindowService
         {
             var window = new Window()
             {
-                WindowId = $"APPLIANCE{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
+                WindowId = $"WINDOW{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 WindowName = createWindowDto.WindowName,
                 IsLocked = createWindowDto.IsLocked,
                 IsOpen = createWindowDto.IsOpen,

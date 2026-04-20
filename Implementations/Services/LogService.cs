@@ -64,9 +64,15 @@ public class LogService : ILogService
         var logs = await _logRepo.GetByExpression(x => x.ActionType == actionType && x.IsDeleted == false);
         if (logs != null)
         {
+            var sortedLogs = new List<GetLogDto>();
+            foreach (var item in logs)
+            {
+                var logDetails = await GetDetails(item);
+                sortedLogs.Add(logDetails);
+            }
             return new LogsResponseModel()
             {
-                Data = await Task.WhenAll(logs.Select(async x => await GetDetails(x))).ContinueWith(t => t.Result.OrderBy(x => x.TimeOfAction).ToList()),
+                Data = sortedLogs.OrderBy(x => x.TimeOfAction).ToList(),
                 Status = true,
                 Message = "Logs Retrieved Successfully!"
             };
@@ -82,9 +88,15 @@ public class LogService : ILogService
         var logs = await _logRepo.GetByExpression(x => x.PersonId == personId && x.IsDeleted == false);
         if (logs != null)
         {
+            var sortedLogs = new List<GetLogDto>();
+            foreach (var item in logs)
+            {
+                var logDetails = await GetDetails(item);
+                sortedLogs.Add(logDetails);
+            }
             return new LogsResponseModel()
             {
-                Data = await Task.WhenAll(logs.Select(async x => await GetDetails(x))).ContinueWith(t => t.Result.OrderBy(x => x.TimeOfAction).ToList()),
+                Data = sortedLogs.OrderBy(x => x.TimeOfAction).ToList(),
                 Status = true,
                 Message = "Logs Retrieved Successfully!"
             };
@@ -100,9 +112,15 @@ public class LogService : ILogService
         var logs = await _logRepo.GetByExpression(x => x.IsDeleted == false);
         if (logs != null)
         {
+            var sortedLogs = new List<GetLogDto>();
+            foreach (var item in logs)
+            {
+                var logDetails = await GetDetails(item);
+                sortedLogs.Add(logDetails);
+            }
             return new LogsResponseModel()
             {
-                Data = await Task.WhenAll(logs.Select(async x => await GetDetails(x))).ContinueWith(t => t.Result.OrderBy(x => x.TimeOfAction).ToList()),
+                Data = sortedLogs.OrderBy(x => x.TimeOfAction).ToList(),
                 Status = true,
                 Message = "Logs Retrieved Successfully!"
             };

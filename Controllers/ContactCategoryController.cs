@@ -1,7 +1,9 @@
 ﻿using Home_Security.Interfaces.Controls;
 using Home_Security.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 [Route("Home_Security/[controller]")]
 [ApiController]
@@ -12,9 +14,19 @@ public class ContactCategoryController : Controller
     {
         _contactCategoryControl = contactCategoryControl;
     }
+    [Authorize]
     [HttpPost("CreateContactCategory")]
-    public async Task<IActionResult> CreateContactCategory([FromQuery] GetAuthControlInfoDto getAuthControlInfoDto, [FromBody] CreateContactCategoryDto createContactCategoryDto)
+    public async Task<IActionResult> CreateContactCategory([FromBody] CreateContactCategoryDto createContactCategoryDto)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var contactCategory = await _contactCategoryControl.CreateContactCategory(getAuthControlInfoDto, createContactCategoryDto);
         if (contactCategory.Status == true)
         {
@@ -22,10 +34,19 @@ public class ContactCategoryController : Controller
         }
         return Ok(contactCategory);
     }
-
+    [Authorize]
     [HttpPut("UpdateContactCategory")]
-    public async Task<IActionResult> UpdateContactCategory([FromQuery] GetAuthControlInfoDto getAuthControlInfoDto, [FromBody] UpdateContactCategoryDto updateContactCategoryDto)
+    public async Task<IActionResult> UpdateContactCategory([FromBody] UpdateContactCategoryDto updateContactCategoryDto)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var contactCategory = await _contactCategoryControl.UpdateContactCategory(getAuthControlInfoDto, updateContactCategoryDto);
         if (contactCategory.Status == true)
         {
@@ -33,10 +54,19 @@ public class ContactCategoryController : Controller
         }
         return Ok(contactCategory);
     }
-
+    [Authorize]
     [HttpPost("GetContactCategoryById")]
-    public async Task<IActionResult> GetContactCategoryById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
+    public async Task<IActionResult> GetContactCategoryById(int id)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var contactCategory = await _contactCategoryControl.GetContactCategoryById(getAuthControlInfoDto, id);
         if (contactCategory.Status == true)
         {
@@ -44,10 +74,19 @@ public class ContactCategoryController : Controller
         }
         return Ok(contactCategory);
     }
-
+    [Authorize]
     [HttpPost("GetAllContactCategories")]
-    public async Task<IActionResult> GetAllContactCategories(GetAuthControlInfoDto getAuthControlInfoDto)
+    public async Task<IActionResult> GetAllContactCategories()
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var contactCategory = await _contactCategoryControl.GetAllContactCategories(getAuthControlInfoDto);
         if (contactCategory.Status == true)
         {
@@ -55,10 +94,19 @@ public class ContactCategoryController : Controller
         }
         return Ok(contactCategory);
     }
-
+    [Authorize]
     [HttpPut("DeleteContactCategory")]
-    public async Task<IActionResult> DeleteContactCategory(GetAuthControlInfoDto getAuthControlInfoDto, int contactCategoryId)
+    public async Task<IActionResult> DeleteContactCategory(int contactCategoryId)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var contactCategory = await _contactCategoryControl.DeleteContactCategory(getAuthControlInfoDto, contactCategoryId);
         if (contactCategory.Status == true)
         {

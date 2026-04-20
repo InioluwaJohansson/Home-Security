@@ -1,7 +1,9 @@
 ﻿using Home_Security.Interfaces.Controls;
 using Home_Security.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 [Route("Home_Security/[controller]")]
 [ApiController]
@@ -12,9 +14,19 @@ public class PersonController : Controller
     {
         _personControl = personControl;
     }
+    [Authorize]
     [HttpPost("CreatePerson")]
-    public async Task<IActionResult> CreatePerson([FromQuery] GetAuthControlInfoDto getAuthControlInfoDto, [FromBody] CreatePersonDto createPersonDto)
+    public async Task<IActionResult> CreatePerson([FromBody] CreatePersonDto createPersonDto)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var person = await _personControl.CreatePerson(getAuthControlInfoDto, createPersonDto);
         if (person.Status == true)
         {
@@ -22,10 +34,19 @@ public class PersonController : Controller
         }
         return Ok(person);
     }
-
+    [Authorize]
     [HttpPut("UpdatePerson")]
-    public async Task<IActionResult> UpdatePerson([FromQuery] GetAuthControlInfoDto getAuthControlInfoDto, [FromBody] UpdatePersonDto updatePersonDto)
+    public async Task<IActionResult> UpdatePerson([FromBody] UpdatePersonDto updatePersonDto)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var person = await _personControl.UpdatePerson(getAuthControlInfoDto, updatePersonDto);
         if (person.Status == true)
         {
@@ -33,10 +54,19 @@ public class PersonController : Controller
         }
         return Ok(person);
     }
-
+    [Authorize]
     [HttpPut("AddPersonAddress")]
-    public async Task<IActionResult> AddPersonAddress([FromQuery]GetAuthControlInfoDto getAuthControlInfoDto, int personId, [FromBody] List<CreateAddressDto> createAddressDtos)
+    public async Task<IActionResult> AddPersonAddress(int personId, [FromBody] List<CreateAddressDto> createAddressDtos)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var person = await _personControl.AddPersonAddress(getAuthControlInfoDto, personId, createAddressDtos);
         if (person.Status == true)
         {
@@ -44,10 +74,19 @@ public class PersonController : Controller
         }
         return Ok(person);
     }
-
+    [Authorize]
     [HttpPut("AddPersonDetails")]
-    public async Task<IActionResult> AddPersonDetails([FromQuery]GetAuthControlInfoDto getAuthControlInfoDto, int personId, [FromBody] List<CreateContactDetailsDto> createContactDetailsDtos)
+    public async Task<IActionResult> AddPersonDetails(int personId, [FromBody] List<CreateContactDetailsDto> createContactDetailsDtos)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var person = await _personControl.AddPersonDetails(getAuthControlInfoDto, personId, createContactDetailsDtos);
         if (person.Status == true)
         {
@@ -55,10 +94,19 @@ public class PersonController : Controller
         }
         return Ok(person);
     }
-
+    [Authorize]
     [HttpPost("GetPersonById")]
-    public async Task<IActionResult> GetPersonById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
+    public async Task<IActionResult> GetPersonById(int id)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var person = await _personControl.GetPersonById(getAuthControlInfoDto, id);
         if (person.Status == true)
         {
@@ -66,10 +114,19 @@ public class PersonController : Controller
         }
         return Ok(person);
     }
-
+    [Authorize]
     [HttpPost("GetAllPersons")]
-    public async Task<IActionResult> GetAllPersons(GetAuthControlInfoDto getAuthControlInfoDto)
+    public async Task<IActionResult> GetAllPersons()
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var person = await _personControl.GetAllPersons(getAuthControlInfoDto);
         if (person.Status == true)
         {
@@ -77,10 +134,19 @@ public class PersonController : Controller
         }
         return Ok(person);
     }
-
+    [Authorize]
     [HttpPut("DeletePerson")]
-    public async Task<IActionResult> DeletePerson(GetAuthControlInfoDto getAuthControlInfoDto, int personId)
+    public async Task<IActionResult> DeletePerson(int personId)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var person = await _personControl.DeletePerson(getAuthControlInfoDto, personId);
         if (person.Status == true)
         {
@@ -88,10 +154,19 @@ public class PersonController : Controller
         }
         return Ok(person);
     }
-
+    [Authorize]
     [HttpPut("DisablePerson")]
-    public async Task<IActionResult> DisablePerson(GetAuthControlInfoDto getAuthControlInfoDto, int personId)
+    public async Task<IActionResult> DisablePerson(int personId)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var person = await _personControl.DisablePerson(getAuthControlInfoDto, personId);
         if (person.Status == true)
         {
@@ -99,10 +174,19 @@ public class PersonController : Controller
         }
         return Ok(person);
     }
-
+    [Authorize]
     [HttpPut("DeletePersonContactDetails")]
-    public async Task<IActionResult> DeletePersonContactDetails(GetAuthControlInfoDto getAuthControlInfoDto, int personId, int personProfileDetailId)
+    public async Task<IActionResult> DeletePersonContactDetails(int personId, int personProfileDetailId)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var person = await _personControl.DeletePersonContactDetails(getAuthControlInfoDto, personId, personProfileDetailId);
         if (person.Status == true)
         {
@@ -110,10 +194,19 @@ public class PersonController : Controller
         }
         return Ok(person);
     }
-
+    [Authorize]
     [HttpPut("DeletePersonContactAddress")]
-    public async Task<IActionResult> DeletePersonContactAddress(GetAuthControlInfoDto getAuthControlInfoDto, int personId, int personProfileAddressId)
+    public async Task<IActionResult> DeletePersonContactAddress(int personId, int personProfileAddressId)
     {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
         var person = await _personControl.DeletePersonContactAddress(getAuthControlInfoDto, personId, personProfileAddressId);
         if (person.Status == true)
         {

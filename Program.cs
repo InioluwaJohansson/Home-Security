@@ -64,6 +64,7 @@ builder.Services.AddScoped<IPersonControl, PersonControl>();
 builder.Services.AddScoped<IRoomControl, RoomControl>();
 builder.Services.AddScoped<ISectionControl, SectionControl>();
 builder.Services.AddScoped<IWindowControl, WindowControl>();
+//builder.Services.AddScoped<IJWTAuthentication, JWTAuthentication>();
 builder.Services.AddHostedService<BackgroundServices>();
 builder.Services.AddHttpContextAccessor();
 var connectionString = builder.Configuration.GetConnectionString("HomeSecurityContext");
@@ -107,7 +108,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseCors("Policies");
 

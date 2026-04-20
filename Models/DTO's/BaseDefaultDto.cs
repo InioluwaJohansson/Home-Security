@@ -5,6 +5,7 @@ public class CreateBaseDefaultDto
     public bool PowerActive { get; set; }
     public int RoomId { get; set; }
     public int SectionId { get; set; }
+    
     public int personId { get; set; }
 }
 public class BaseDefaultDto
