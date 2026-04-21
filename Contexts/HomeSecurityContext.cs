@@ -22,9 +22,13 @@ public class HomeSecurityContext: DbContext
     public DbSet<Camera> Camera { get; set; }
     public DbSet<Appliance> Appliance { get; set; }
 
+
     //Operations
     public DbSet<Entities.Action> Action { get; set; }
     public DbSet<Logs> Logs { get; set; }
+
+//Hardware
+public DbSet<Hardware> Hardware { get; set; }
 
     //Person
     public DbSet<Person> Person { get; set; }
@@ -37,4 +41,6 @@ public class HomeSecurityContext: DbContext
     public DbSet<ContactCategory> ContactCategory { get; set; }
     public DbSet<ContactDetails> ContactDetails { get; set; }
 
+//Token
+public DbSet<Token> Tokens { get; set; }
 }
