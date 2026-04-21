@@ -66,12 +66,17 @@ public class UserController : Controller
             PersonId = loggedInPersonId,
             AuthorizationCode = AuthorizationCode.ToString(),
         };
-        var user = await _userService.ChangePassword(updateUserPasswordDto);
-        if (user.Status == true)
+        var token = await _tokenService.VerifyToken(updateUserPasswordDto.TokenCode);
+        if(token.Status == true)
         {
+            var user = await _userService.ChangePassword(updateUserPasswordDto);
+            if (user.Status == true)
+            {
+                return Ok(user);
+            }
             return Ok(user);
         }
-        return Ok(user);
+        return Ok(token);
     }
     [Authorize]
     [HttpPut("ChangeAuthorizationCode")]
@@ -86,12 +91,17 @@ public class UserController : Controller
             PersonId = loggedInPersonId,
             AuthorizationCode = AuthorizationCode.ToString(),
         };
-        var user = await _userService.ChangeAuthorizationCode(updateUserAuthorizationCode);
-        if (user.Status == true)
+        var token = await _tokenService.VerifyToken(updateUserAuthorizationCode.TokenCode);
+        if(token.Status == true)
         {
+            var user = await _userService.ChangeAuthorizationCode(updateUserAuthorizationCode);
+            if (user.Status == true)
+            {
+                return Ok(user);
+            }
             return Ok(user);
         }
-        return Ok(user);
+        return Ok(token);
     }
     [Authorize]
     [HttpPost("GenerateToken")]
