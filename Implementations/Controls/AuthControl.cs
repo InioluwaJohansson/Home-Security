@@ -3,13 +3,16 @@ using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Models.DTOs;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Home_Security.Implementations.Controls;
 public class AuthControl : IAuthControl
 {
+    public readonly IMemoryCache _cache;
     IPersonRepo _personRepo;
-    public AuthControl(IPersonRepo personRepo)
+    public AuthControl(IMemoryCache cache, IPersonRepo personRepo)
     {
+        _cache = cache;
         _personRepo = personRepo;
     }
     public async Task<GetAuthControlDto> GetAuthDetails(int personId, string authorizationCode)
@@ -47,22 +50,23 @@ public class AuthControl : IAuthControl
             Status = false
         };
     }
-    public async Task<List<UserPerson>> GetAllPersons()
+    public async Task GetAllPersons()
     {
         var persons = await _personRepo.GetAll();
         if (persons != null && persons.Any())
         {
-            var userPersons = new List<UserPerson>();
             foreach (var person in persons)
             {
-                var userPerson = new UserPerson()
-                {
-                    Id = person.Id,
-                    Name = $"{person.PersonDetails.FirstName} {person.PersonDetails.LastName}"
-                };
-                userPersons.Add(userPerson);
+                var name = $"{person.PersonDetails.FirstName} {person.PersonDetails.LastName}"; 
+                _cache.Set(person.Id, name);
             }
-            return userPersons;
+        }
+    }
+    public string GetUserPersonName(int id)
+    {
+        if (_cache.TryGetValue(id, out string name))
+        {
+            return name;
         }
         return null;
     }

@@ -50,6 +50,7 @@ public class ApplianceControl : IApplianceControl
                 log.LogDetails = $"{updateApplianceDto.ApplianceName} Appliance was recently updated!";
                 await _logService.CreateLog(log);
             }
+            
             return appliance;
         }
         return _authControl.AuthFaliure();
