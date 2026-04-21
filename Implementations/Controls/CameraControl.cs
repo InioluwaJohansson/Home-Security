@@ -24,8 +24,7 @@ public class CameraControl : ICameraControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            createCameraDto.personId = auth.Id;
-            var camera = await _cameraService.CreateCamera(createCameraDto);
+            var camera = await _cameraService.CreateCamera(createCameraDto, auth.Id);
             if (camera.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -42,8 +41,7 @@ public class CameraControl : ICameraControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
         {
-            updateCameraDto.personId = auth.Id;
-            var camera = await _cameraService.UpdateCamera(updateCameraDto);
+            var camera = await _cameraService.UpdateCamera(updateCameraDto, auth.Id);
             if (camera.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);

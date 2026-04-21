@@ -10,7 +10,7 @@ public class WindowService : IWindowService
     {
         _windowRepo = windowRepo;
     }
-    public async Task<BaseResponse> CreateWindow(CreateWindowDto createWindowDto)
+    public async Task<BaseResponse> CreateWindow(CreateWindowDto createWindowDto, int personId)
     {
         if (createWindowDto != null)
         {
@@ -18,18 +18,18 @@ public class WindowService : IWindowService
             {
                 WindowId = $"WINDOW{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 WindowName = createWindowDto.WindowName,
-                IsLocked = createWindowDto.IsLocked,
-                IsOpen = createWindowDto.IsOpen,
-                OpenedBy = createWindowDto.OpenedBy,
-                LockedBy = createWindowDto.LockedBy,
-                UnlockedBy = createWindowDto.UnlockedBy,
-                IsActive = createWindowDto.IsActive,
-                PowerActive = createWindowDto.PowerActive,
+                IsLocked = false,
+                IsOpen = false,
+                OpenedBy = personId,
+                LockedBy = personId,
+                UnlockedBy = personId,
+                IsActive = false,
+                PowerActive = false,
                 SectionId = createWindowDto.SectionId,
                 RoomId = createWindowDto.RoomId,
                 IsDeleted = false,
-                CreatedBy = createWindowDto.personId,
-                LastModifiedBy = createWindowDto.personId,
+                CreatedBy = personId,
+                LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now
             };
             await _windowRepo.Create(window);
@@ -45,15 +45,13 @@ public class WindowService : IWindowService
             Message = "Unable To Add Window!"
         };
     }
-    public async Task<BaseResponse> UpdateWindow(UpdateWindowDto updateWindowDto)
+    public async Task<BaseResponse> UpdateWindow(UpdateWindowDto updateWindowDto, int personId)
     {
         if (updateWindowDto != null)
         {
             var window = await _windowRepo.Get(x => x.Id == updateWindowDto.Id && x.IsDeleted == false);
             window.WindowName = updateWindowDto.WindowName ?? window.WindowName;
-            window.IsActive = updateWindowDto.IsActive;
-            window.PowerActive = updateWindowDto.PowerActive;
-            window.LastModifiedBy = updateWindowDto.personId;
+            window.LastModifiedBy = personId;
             window.IsLocked = updateWindowDto.IsLocked;
             window.IsOpen = updateWindowDto.IsOpen;
             window.OpenedBy = updateWindowDto.OpenedBy;

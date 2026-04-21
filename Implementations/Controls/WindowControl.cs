@@ -26,8 +26,7 @@ public class WindowControl : IWindowControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            createWindowDto.personId = auth.Id;
-            var window = await _windowService.CreateWindow(createWindowDto);
+            var window = await _windowService.CreateWindow(createWindowDto, auth.Id);
             if(window.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -45,8 +44,7 @@ public class WindowControl : IWindowControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            updateWindowDto.personId = auth.Id;
-            var window = await _windowService.UpdateWindow(updateWindowDto);
+            var window = await _windowService.UpdateWindow(updateWindowDto, auth.Id);
             if (window.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -76,10 +74,9 @@ public class WindowControl : IWindowControl
                 var personCheck = await _authControl.GetPersonDetails(getWindow.Data.LockedBy);
                 if (_authControl.CompareRole(personCheck.Role, auth.Role))
                 {
-                    updateWindowDto.personId = auth.Id;
                     updateWindowDto.UnlockedBy = auth.Id;
                     updateWindowDto.IsLocked = false;
-                    var window = await _windowService.UpdateWindow(updateWindowDto);
+                    var window = await _windowService.UpdateWindow(updateWindowDto, auth.Id);
                     if (window.Status == true)
                     {
                         var log = _authControl.CreateLog(auth.Id);
@@ -102,11 +99,10 @@ public class WindowControl : IWindowControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
         {
-            updateWindowDto.personId = auth.Id;
             updateWindowDto.IsOpen = false;
             updateWindowDto.LockedBy = auth.Id;
             updateWindowDto.IsLocked = true;
-            var window = await _windowService.UpdateWindow(updateWindowDto);
+            var window = await _windowService.UpdateWindow(updateWindowDto, auth.Id);
             if (window.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);

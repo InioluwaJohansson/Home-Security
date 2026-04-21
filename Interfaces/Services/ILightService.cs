@@ -2,8 +2,8 @@
 namespace Home_Security.Interfaces.Services;
 public interface ILightService
 {
-    public Task<BaseResponse> CreateLight(CreateLightDto createLightDto);
-    public Task<BaseResponse> UpdateLight(UpdateLightDto updateLightDto);
+    public Task<BaseResponse> CreateLight(CreateLightDto createLightDto, int personId);
+    public Task<BaseResponse> UpdateLight(UpdateLightDto updateLightDto, int personId);
     public Task<LightResponseModel> GetById(int lightId);
     public Task<LightsResponseModel> GetAllLights();
     public Task<LightsResponseModel> GetAllLightsByRoomId(int roomId);

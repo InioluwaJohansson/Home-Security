@@ -24,7 +24,8 @@ public class ApplianceControl : IApplianceControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            var appliance = await _applianceService.CreateAppliance(createApplianceDto);
+            
+            var appliance = await _applianceService.CreateAppliance(createApplianceDto, auth.Id);
             if (appliance.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -41,8 +42,7 @@ public class ApplianceControl : IApplianceControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
         {
-            updateApplianceDto.personId = auth.Id;
-            var appliance = await _applianceService.UpdateAppliance(updateApplianceDto);
+            var appliance = await _applianceService.UpdateAppliance(updateApplianceDto, auth.Id);
             if (appliance.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);

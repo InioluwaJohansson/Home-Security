@@ -24,8 +24,7 @@ public class DoorControl : IDoorControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            createDoorDto.personId = auth.Id;
-            var door = await _doorService.CreateDoor(createDoorDto);
+            var door = await _doorService.CreateDoor(createDoorDto, auth.Id);
             if (door.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -42,8 +41,7 @@ public class DoorControl : IDoorControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            updateDoorDto.personId = auth.Id;
-            var door = await _doorService.UpdateDoor(updateDoorDto);
+            var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
             if (door.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -73,10 +71,9 @@ public class DoorControl : IDoorControl
                 var personCheck = await _authControl.GetPersonDetails(getDoor.Data.LockedBy);
                 if(_authControl.CompareRole(personCheck.Role, auth.Role))
                 {
-                    updateDoorDto.personId = auth.Id;
                     updateDoorDto.UnlockedBy = auth.Id;
                     updateDoorDto.IsLocked = false;
-                    var door = await _doorService.UpdateDoor(updateDoorDto);
+                    var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
                     if (door.Status == true)
                     {
                         var log = _authControl.CreateLog(auth.Id);
@@ -103,10 +100,9 @@ public class DoorControl : IDoorControl
                     var personCheck = await _authControl.GetPersonDetails(getDoor.Data.LockedBy);
                     if (_authControl.CompareRole(personCheck.Role, auth.Role))
                     {
-                        updateDoorDto.personId = auth.Id;
                         updateDoorDto.UnlockedBy = auth.Id;
                         updateDoorDto.IsLocked = false;
-                        var door = await _doorService.UpdateDoor(updateDoorDto);
+                        var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
                         if (door.Status == true)
                         {
                             var log = _authControl.CreateLog(auth.Id);
@@ -132,11 +128,10 @@ public class DoorControl : IDoorControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
         {
-            updateDoorDto.personId = auth.Id;
             updateDoorDto.IsOpen = false;
             updateDoorDto.LockedBy = auth.Id;
             updateDoorDto.IsLocked = true;
-            var door = await _doorService.UpdateDoor(updateDoorDto);
+            var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
             if (door.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);

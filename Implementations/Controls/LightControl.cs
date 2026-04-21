@@ -23,7 +23,7 @@ public class LightControl : ILightControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            var light = await _lightService.CreateLight(createLightDto);
+            var light = await _lightService.CreateLight(createLightDto, auth.Id);
             if (light.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -40,8 +40,7 @@ public class LightControl : ILightControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
         {
-            updateLightDto.personId = auth.Id;
-            var light = await _lightService.UpdateLight(updateLightDto);
+            var light = await _lightService.UpdateLight(updateLightDto, auth.Id);
             if (light.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);

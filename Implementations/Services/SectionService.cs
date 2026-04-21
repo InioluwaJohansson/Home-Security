@@ -194,7 +194,6 @@ public class SectionService : ISectionService
             CreatedBy = appliance.CreatedBy,
             LastModifiedOn = appliance.LastModifiedOn,
             CreatedOn = appliance.CreatedOn,
-            IsDeleted = appliance.IsDeleted,
         };
     }
     public GetDoorDto GetDoorDetails(Door door)
@@ -219,7 +218,6 @@ public class SectionService : ISectionService
             CreatedBy = door.CreatedBy,
             LastModifiedOn = door.LastModifiedOn,
             CreatedOn = door.CreatedOn,
-            IsDeleted = door.IsDeleted,
         };
     }
     public GetLightDto GetLightDetails(Light light)
@@ -238,7 +236,6 @@ public class SectionService : ISectionService
             CreatedBy = light.CreatedBy,
             LastModifiedOn = light.LastModifiedOn,
             CreatedOn = light.CreatedOn,
-            IsDeleted = light.IsDeleted,
             BrightnessLevel = light.BrightnessLevel,
         };
     }
@@ -263,7 +260,6 @@ public class SectionService : ISectionService
             CreatedBy = window.CreatedBy,
             LastModifiedOn = window.LastModifiedOn,
             CreatedOn = window.CreatedOn,
-            IsDeleted = window.IsDeleted,
         };
     }
 }

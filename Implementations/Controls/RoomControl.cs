@@ -23,8 +23,7 @@ public class RoomControl : IRoomControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if(auth.Status != false && auth.Role == Role.Owner)
         {
-            createRoomDto.PersonId = auth.Id;
-            var room = await _roomService.CreateRoom(createRoomDto);
+            var room = await _roomService.CreateRoom(createRoomDto, auth.Id);
             if (room.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -41,8 +40,7 @@ public class RoomControl : IRoomControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            updateRoomDto.PersonId = auth.Id;
-            var room = await _roomService.UpdateRoom(updateRoomDto);
+            var room = await _roomService.UpdateRoom(updateRoomDto, auth.Id);
             if (room.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
