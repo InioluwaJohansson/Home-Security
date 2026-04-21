@@ -181,7 +181,11 @@ public class RoomService : IRoomService
             Doors = room.Door.Select(x => GetDoorDetails(x)).ToList(),
             Appliances = room.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
             Lights = room.Light.Select(x => GetLightDetails(x)).ToList(),
-            Windows = room.Window.Select(x => GetWindowDetails(x)).ToList()
+            Windows = room.Window.Select(x => GetWindowDetails(x)).ToList(),
+            LastModifiedBy = room.LastModifiedBy,
+            CreatedBy = room.CreatedBy,
+            LastModifiedOn = room.LastModifiedOn,
+            CreatedOn = room.CreatedOn
         };
     }
     public GetApplianceDto GetApplianceDetails(Appliance appliance)

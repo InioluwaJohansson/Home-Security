@@ -120,6 +120,7 @@ public class WindowControl : IWindowControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var window = await _windowService.GetById(id);
+            window.Data = DtoRefactor(window.Data);
             return window;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -144,6 +145,7 @@ public class WindowControl : IWindowControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var window = await _windowService.GetAllWindowsByRoomId(windowId);
+            window.Data = window.Data.Select(x => DtoRefactor(x)).ToList();
             return window;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -168,6 +170,7 @@ public class WindowControl : IWindowControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var window = await _windowService.GetAllWindowsBySectionId(sectionId);
+            window.Data = window.Data.Select(x => DtoRefactor(x)).ToList();
             return window;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -192,6 +195,7 @@ public class WindowControl : IWindowControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var window = await _windowService.GetAllWindows();
+            window.Data = window.Data.Select(x => DtoRefactor(x)).ToList();
             return window;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -233,5 +237,14 @@ public class WindowControl : IWindowControl
             return fail;
         }
         return _authControl.AuthFaliure();
+    }
+    public GetWindowDto DtoRefactor(GetWindowDto x)
+    {
+        x.LastModifiedByName = _authControl.GetUserPersonName(x.LastModifiedBy);
+        x.PeronName = _authControl.GetUserPersonName(x.personId);
+        x.CreatedByName = _authControl.GetUserPersonName(x.CreatedBy);
+        x.RoomName = _authControl.GetRoomName(x.RoomId);
+        x.SectionName = _authControl.GetSectionName(x.SectionId);
+        return x;
     }
 }

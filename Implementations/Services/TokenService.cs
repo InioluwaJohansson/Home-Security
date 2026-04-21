@@ -12,25 +12,24 @@ public class TokenService : ITokenService
     }
     public async Task<GetTokenDto> GenerateToken(int personId)
     {
-            var token = new Token()
-            {
-TokenCode = Guide.NewGuid().ToString.SubString(0,15),
-ExpiryTime = DateTime.Now,
-                IsDeleted = false,
-                CreatedBy = personId,
-                LastModifiedBy = personId,
-                LastModifiedOn = DateTime.Now,
-                CreatedOn = DateTime.Now
-            };
-            await _tokenRepo.Create(token);
-            return new BaseResponse()
-            {
-TokenCode = token.TokenCode,
-ExpiryTime = token.ExpiryTime,
-                Status = true,
-                Message = "Token Successfully Generated!"
-            };
-        }
+        var token = new Token()
+        {
+            TokenCode = Guid.NewGuid().ToString().Substring(0,15),
+            ExpiryTime = DateTime.Now,
+            IsDeleted = false,
+            CreatedBy = personId,
+            LastModifiedBy = personId,
+            LastModifiedOn = DateTime.Now,
+            CreatedOn = DateTime.Now
+        };
+        await _tokenRepo.Create(token);
+        return new GetTokenDto()
+        {
+            TokenCode = token.TokenCode,
+            ExpiryTime = token.ExpiryTime,
+            Status = true,
+            Message = "Token Successfully Generated!"
+        };
     }
     public async Task<BaseResponse> VerifyToken(string tokenCode)
     {
@@ -54,7 +53,7 @@ ExpiryTime = token.ExpiryTime,
     
     public async Task<BaseResponse> DeleteAllTokens()
     {
-        var tokens = await _tokenRepo.GetAll(x => x.IsDeleted == true || x.ExpiryTime <= DateTime.Now);
+        var tokens = await _tokenRepo.GetByExpression(x => x.IsDeleted == true || x.ExpiryTime <= DateTime.Now);
         if(tokens != null)
         {
             foreach(var token in tokens) await _tokenRepo.Delete(token);

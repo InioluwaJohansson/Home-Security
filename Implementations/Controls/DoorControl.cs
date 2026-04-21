@@ -149,6 +149,7 @@ public class DoorControl : IDoorControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var door = await _doorService.GetById(id);
+            door.Data = DtoRefactor(door.Data);
             return door;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -173,6 +174,7 @@ public class DoorControl : IDoorControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var door = await _doorService.GetAllDoorsByRoomId(doorId);
+            door.Data = door.Data.Select(x => DtoRefactor(x)).ToList();
             return door;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -197,6 +199,7 @@ public class DoorControl : IDoorControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var door = await _doorService.GetAllDoorsBySectionId(sectionId);
+            door.Data = door.Data.Select(x => DtoRefactor(x)).ToList();
             return door;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -221,6 +224,7 @@ public class DoorControl : IDoorControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var door = await _doorService.GetAllDoorsByDoorType(doorType);
+            door.Data = door.Data.Select(x => DtoRefactor(x)).ToList();
             return door;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -245,6 +249,7 @@ public class DoorControl : IDoorControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var door = await _doorService.GetAllDoors();
+            door.Data = door.Data.Select(x => DtoRefactor(x)).ToList();
             return door;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -286,5 +291,14 @@ public class DoorControl : IDoorControl
             return fail;
         }
         return _authControl.AuthFaliure();
+    }
+    public GetDoorDto DtoRefactor(GetDoorDto x)
+    {
+        x.LastModifiedByName = _authControl.GetUserPersonName(x.LastModifiedBy);
+        x.PeronName = _authControl.GetUserPersonName(x.personId);
+        x.CreatedByName = _authControl.GetUserPersonName(x.CreatedBy);
+        x.RoomName = _authControl.GetRoomName(x.RoomId);
+        x.SectionName = _authControl.GetSectionName(x.SectionId);
+        return x;
     }
 }

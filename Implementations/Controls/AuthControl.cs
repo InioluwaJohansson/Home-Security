@@ -9,11 +9,19 @@ namespace Home_Security.Implementations.Controls;
 public class AuthControl : IAuthControl
 {
     public readonly IMemoryCache _cache;
+    public readonly IMemoryCache _roomCache;
+    public readonly IMemoryCache _sectionCache;
     IPersonRepo _personRepo;
-    public AuthControl(IMemoryCache cache, IPersonRepo personRepo)
+    IRoomRepo _roomRepo;
+    ISectionRepo _sectionRepo;
+    public AuthControl(IMemoryCache cache, IMemoryCache roomCache, IMemoryCache sectionCache, IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo)
     {
         _cache = cache;
+        _roomCache = roomCache;
+        _sectionCache = sectionCache;
         _personRepo = personRepo;
+        _roomRepo = roomRepo;
+        _sectionRepo = sectionRepo;
     }
     public async Task<GetAuthControlDto> GetAuthDetails(int personId, string authorizationCode)
     {
@@ -70,6 +78,46 @@ public class AuthControl : IAuthControl
         }
         return null;
     }
+    public async Task GetAllRooms()
+    {
+        var rooms = await _roomRepo.GetAll();
+        if (rooms != null && rooms.Any())
+        {
+            foreach (var room in rooms)
+            {
+                var name = room.RoomName; 
+                _roomCache.Set(room.Id, name);
+            }
+        }
+    }
+    public string GetRoomName(int id)
+    {
+        if (_roomCache.TryGetValue(id, out string name))
+        {
+            return name;
+        }
+        return null;
+    }
+    public async Task GetAllSections()
+    {
+        var sections = await _sectionRepo.GetAll();
+        if (sections != null && sections.Any())
+        {
+            foreach (var section in sections)
+            {
+                var name = section.SectionName; 
+                _sectionCache.Set(section.Id, name);
+            }
+        }
+    }
+    public string GetSectionName(int id)
+    {
+        if (_sectionCache.TryGetValue(id, out string name))
+        {
+            return name;
+        }
+        return null;
+    }
     public bool CompareRole(Role based, Role quote)
     {
         //based is role of last locked user
@@ -101,9 +149,4 @@ public class AuthControl : IAuthControl
             ActionType = ""
         };
     }
-}
-public class UserPerson
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
 }

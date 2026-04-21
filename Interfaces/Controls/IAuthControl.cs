@@ -9,6 +9,10 @@ public interface IAuthControl
     public Task<GetAuthControlDto> GetPersonDetails(int personId);
     public Task GetAllPersons();
     public string GetUserPersonName(int id);
+    public Task GetAllRooms();
+    public string GetRoomName(int id);
+    public Task GetAllSections();
+    public string GetSectionName(int id);
     public bool CompareRole(Role based, Role quote);
     public BaseResponse AuthFaliure();
     public CreateLogDto CreateLog(int personId);

@@ -58,6 +58,7 @@ public class LightControl : ILightControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var light = await _lightService.GetById(id);
+            light.Data = DtoRefactor(light.Data);
             return light;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -82,6 +83,7 @@ public class LightControl : ILightControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var light = await _lightService.GetAllLightsBySectionId(sectionId);
+            light.Data = light.Data.Select(x => DtoRefactor(x)).ToList();
             return light;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -106,6 +108,7 @@ public class LightControl : ILightControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var light = await _lightService.GetAllLightsByRoomId(roomId);
+            light.Data = light.Data.Select(x => DtoRefactor(x)).ToList();
             return light;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -130,6 +133,7 @@ public class LightControl : ILightControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var light = await _lightService.GetAllLights();
+            light.Data = light.Data.Select(x => DtoRefactor(x)).ToList();
             return light;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -171,5 +175,14 @@ public class LightControl : ILightControl
             return fail;
         }
         return _authControl.AuthFaliure();
+    }
+    public GetLightDto DtoRefactor(GetLightDto x)
+    {
+        x.LastModifiedByName = _authControl.GetUserPersonName(x.LastModifiedBy);
+        x.PeronName = _authControl.GetUserPersonName(x.personId);
+        x.CreatedByName = _authControl.GetUserPersonName(x.CreatedBy);
+        x.RoomName = _authControl.GetRoomName(x.RoomId);
+        x.SectionName = _authControl.GetSectionName(x.SectionId);
+        return x;
     }
 }
