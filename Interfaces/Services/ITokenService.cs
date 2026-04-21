@@ -3,6 +3,6 @@
 namespace Home_Security.Interfaces.Services;
 public interface ITokenService
 {
-    public Task<TokenResponse> GenerateToken();
+    public Task<GetTokenDto> GenerateToken();
     public Task<BaseResponse> CheckAllTokens();
 }
