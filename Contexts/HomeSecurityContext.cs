@@ -27,8 +27,8 @@ public class HomeSecurityContext: DbContext
     public DbSet<Entities.Action> Action { get; set; }
     public DbSet<Logs> Logs { get; set; }
 
-//Hardware
-public DbSet<Hardware> Hardware { get; set; }
+    //Hardware
+    public DbSet<Hardware> Hardware { get; set; }
 
     //Person
     public DbSet<Person> Person { get; set; }
@@ -41,6 +41,6 @@ public DbSet<Hardware> Hardware { get; set; }
     public DbSet<ContactCategory> ContactCategory { get; set; }
     public DbSet<ContactDetails> ContactDetails { get; set; }
 
-//Token
-public DbSet<Token> Tokens { get; set; }
+    //Token
+    public DbSet<Token> Tokens { get; set; }
 }
