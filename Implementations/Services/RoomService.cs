@@ -37,7 +37,7 @@ public class RoomService : IRoomService
             await _roomRepo.Create(room);
             return new BaseResponse()
             {
-                Status = false,
+                Status = true,
                 Message = "Room Added Successfully!"
             };
         }
