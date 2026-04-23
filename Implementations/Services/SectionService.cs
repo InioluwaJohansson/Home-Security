@@ -38,7 +38,7 @@ public class SectionService : ISectionService
             await _sectionRepo.Create(Section);
             return new BaseResponse()
             {
-                Status = false,
+                Status = true,
                 Message = "Section Added Successfully!"
             };
         }
