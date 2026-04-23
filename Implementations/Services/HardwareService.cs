@@ -11,8 +11,31 @@ public class HardwareService : IHardwareService
         _hardwareRepo = hardwareRepo;
     }
     public async Task<BaseResponse> CreateHardware(CreateHardwareDto createHardwareDto, int personId)
-    {
-        throw new NotImplementedException();
+        {
+        if (createHardwareDto != null)
+        {
+            var hardware = new Hardware()
+            {
+                HardwareId = $"HARDWARE{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
+                HardwareName = createHardwareDto.HardwareName,
+                CreatedOn = DateTime.Now,
+                CreatedBy = personId,
+                LastModifiedBy = personId,
+                LastModifiedOn = DateTime.Now,
+                IsDeleted = false,
+            };
+            await _hardwareRepo.Create(Section);
+            return new BaseResponse()
+            {
+                Status = true,
+                Message = "Hardware Added Successfully!"
+            };
+        }
+        return new BaseResponse()
+        {
+            Status = false,
+            Message = "Unable To Add Hardware!"
+        };
     }
     public async Task<BaseResponse> UpdateHardware(UpdateHardwareDto updateHardwareDto, int personId)
     {
