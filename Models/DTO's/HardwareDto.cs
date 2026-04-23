@@ -18,22 +18,22 @@ public class GetHardwareDto
     public int Id { get; set; }
     public string HardwareName { get; set; }
     public string HardwareId { get; set; }
-    public List<int> ApplianceIdNames { get; set; }
-    public List<int> CameraIdNames { get; set; }
-    public List<(int, string)> LightIdNames { get; set; }
-    public List<int> WindowIdNames { get; set; }
-    public List<int> DoorIdNames { get; set; }
+    public List<ApplianceIdName> ApplianceIdNames { get; set; }
+    public List<CameraIdName> CameraIdNames { get; set; }
+    public List<LightIdNames> LightIdNames { get; set; }
+    public List<WindowIdName> WindowIdNames { get; set; }
+    public List<DoorIdName> DoorIdNames { get; set; }
 }
 public class GenericIdNames
 {
     public int Id { get; set; }
     public string Name { get; set; }
 }
-public class LightIdNames : GenericIdNames{}
-public class CameraIdNames : GenericIdNames{}
-public class ApplianceIdNames : GenericIdNames{}
-public class WindowIdNames : GenericIdNames{}
-public class DoorIdNames : GenericIdNames{}
+public class LightIdName : GenericIdNames{}
+public class CameraIdName : GenericIdNames{}
+public class ApplianceIdName : GenericIdNames{}
+public class WindowIdName : GenericIdNames{}
+public class DoorIdName : GenericIdNames{}
 public class HardwareResponseModel : BaseResponse
 {
     public GetHardwareDto Data { get; set; }
