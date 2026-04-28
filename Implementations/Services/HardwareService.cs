@@ -81,6 +81,25 @@ public class HardwareService : IHardwareService
             Message = "Unable To Retrieve Hardware!"
         };
     }
+    public async Task<HardwareIdsResponseModel> GetById(string hardWareId, string AuthKey)
+    {
+        var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardwareId && x.Auth == AuthKey && x.IsDeleted == false);
+        if(hardware != null)
+        {
+            return new HardwareIdsResponseModel()
+            {
+                Data = GetDetails(hardware),
+                Status = true,
+                Message = "Hardware Retrieved Successfully!"
+            };
+        }
+        return new HardwareIdsResponseModel()
+        {
+            Data = null,
+            Status = false,
+            Message = "Unable To Retrieve Hardware!"
+        };
+    }
     public Task<HardwaresResponseModel> GetAllHardwares()
     {
         throw new NotImplementedException();
