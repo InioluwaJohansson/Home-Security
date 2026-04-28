@@ -7,6 +7,7 @@ public class UpdateHardwareDto
 {
     public int Id { get; set; }
     public string HardwareName { get; set; }
+    public string AuthKey { get; set; }
     public List<int> LightIds { get; set; }
     public List<int> ApplianceIds { get; set; }
     public List<int> CameraIds { get; set; }
