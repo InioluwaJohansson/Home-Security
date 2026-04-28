@@ -177,6 +177,66 @@ public async Task GetAllAppliancess()
         }
         return null;
     }
+public async Task GetAllCameras()
+    {
+        var cameras = await _cameraRepo.GetAll();
+        if (cameras != null && cameras.Any())
+        {
+            foreach (var camera in cameras)
+            {
+                var name = camera.CameraName; 
+                _cameraCache.Set(camera.Id, name);
+            }
+        }
+    }
+    public string GetCameraName(int id)
+    {
+        if (_cameraCache.TryGetValue(id, out string name))
+        {
+            return name;
+        }
+        return null;
+    }
+    public async Task GetAllWindows()
+    {
+        var windows = await _windowRepo.GetAll();
+        if (widows != null && windows.Any())
+        {
+            foreach (var window in windows)
+            {
+                var name = window.WindowName; 
+                _windowCache.Set(window.Id, name);
+            }
+        }
+    }
+    public string GetWindowName(int id)
+    {
+        if (_windowCache.TryGetValue(id, out string name))
+        {
+            return name;
+        }
+        return null;
+    }
+public async Task GetAllDoors()
+    {
+        var doors = await _doorRepo.GetAll();
+        if (doors != null && doors.Any())
+        {
+            foreach (var door in doors)
+            {
+                var name = door.DoorName; 
+                _doorCache.Set(door.Id, name);
+            }
+        }
+    }
+    public string GetDoorName(int id)
+    {
+        if (_doorCache.TryGetValue(id, out string name))
+        {
+            return name;
+        }
+        return null;
+    }
     public bool CompareRole(Role based, Role quote)
     {
         //based is role of last locked user
