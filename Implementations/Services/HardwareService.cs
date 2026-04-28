@@ -2,13 +2,16 @@ using Home_Security.Entities;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Interfaces.Controls;
 namespace Home_Security.Implementations.Services;
 public class HardwareService : IHardwareService
 {
     IHardwareRepo _hardwareRepo;
-    public HardwareService(IHardwareRepo hardwareRepo)
+    IAuthControl _authControl;
+    public HardwareService(IHardwareRepo hardwareRepo, IAuthControl authControl;)
     {
         _hardwareRepo = hardwareRepo;
+        _authControl = auth control;
     }
     public async Task<BaseResponse> CreateHardware(CreateHardwareDto createHardwareDto, int personId)
         {
