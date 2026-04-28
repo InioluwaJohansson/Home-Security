@@ -83,7 +83,7 @@ public class HardwareService : IHardwareService
     }
     public async Task<HardwareIdsResponseModel> GetById(string hardWareId, string AuthKey)
     {
-        var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardwareId && x.Auth == AuthKey && x.IsDeleted == false);
+        var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardWareId && x.Auth == AuthKey && x.IsDeleted == false);
         if(hardware != null)
         {
             return new HardwareIdsResponseModel()
