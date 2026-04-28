@@ -89,7 +89,7 @@ AuthKey = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 18).ToUpper(),
         {
             return new HardwareIdsResponseModel()
             {
-                Data = GetDetails(hardware),
+                Data = GetIdsDetails(hardware),
                 Status = true,
                 Message = "Hardware Retrieved Successfully!"
             };
@@ -103,7 +103,22 @@ AuthKey = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 18).ToUpper(),
     }
     public Task<HardwaresResponseModel> GetAllHardwares()
     {
-        throw new NotImplementedException();
+        var hardwares = await _hardwareRepo.GetByExpression(x => x.IsDeleted == false);
+        if (hardwares != null)
+        {
+            return new HardwaresResponseModel()
+            {
+                Data = appliances.Select(x => GetDetails(x)).ToList(),
+                Message = "Appliances Retrieved Successfully!",
+                Status = true
+            };
+        }
+        return new HardwaresResponseModel()
+        {
+            Data = null,
+            Message = "Unable To Retrieve Hardwares!",
+            Status = true
+        };
     }
     public GetHardwareDto GetDetails(Hardware hardware)
     {
@@ -125,7 +140,7 @@ AuthKey = hardware.AuthKey,
             IsDeleted = hardware.IsDeleted,
         };
     }
-public GetHardwareIdsDto GetDetails(Hardware hardware)
+public GetHardwareIdsDto GetIdsDetails(Hardware hardware)
     {
         return new GetHardwareDto()
         {
