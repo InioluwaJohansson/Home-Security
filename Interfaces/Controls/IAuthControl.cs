@@ -13,6 +13,16 @@ public interface IAuthControl
     public string GetRoomName(int id);
     public Task GetAllSections();
     public string GetSectionName(int id);
+    public Task GetAllAppliances();
+    public string GetApplianceName(int id);
+    public Task GetAllLights();
+    public string GetLightName(int id);
+    public Task GetAllCameras();
+    public string GetCameraName(int id);
+    public Task GetAllWindows();
+    public string GetWindowName(int id);
+    public Task GetAllDoors();
+    public string GetDoorName(int id);
     public bool CompareRole(Role based, Role quote);
     public BaseResponse AuthFaliure();
     public CreateLogDto CreateLog(int personId);
