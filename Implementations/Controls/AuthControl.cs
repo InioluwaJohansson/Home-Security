@@ -137,6 +137,46 @@ public class AuthControl : IAuthControl
         }
         return null;
     }
+public async Task GetAllAppliancess()
+    {
+        var appliances = await _applianceRepo.GetAll();
+        if (appliances != null && appliances.Any())
+        {
+            foreach (var appliance in appliances)
+            {
+                var name = appliance.ApplianceName; 
+                _applianceCache.Set(appliance.Id, name);
+            }
+        }
+    }
+    public string GetApplianceName(int id)
+    {
+        if (_applianceCache.TryGetValue(id, out string name))
+        {
+            return name;
+        }
+        return null;
+    }
+    public async Task GetAllLights()
+    {
+        var lights = await _lightRepo.GetAll();
+        if (lights != null && lights.Any())
+        {
+            foreach (var light in lights)
+            {
+                var name = light.LightName; 
+                _lightCache.Set(light.Id, name);
+            }
+        }
+    }
+    public string GetLightName(int id)
+    {
+        if (_lightCache.TryGetValue(id, out string name))
+        {
+            return name;
+        }
+        return null;
+    }
     public bool CompareRole(Role based, Role quote)
     {
         //based is role of last locked user
