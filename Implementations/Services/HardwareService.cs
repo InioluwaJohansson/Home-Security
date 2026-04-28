@@ -25,7 +25,7 @@ AuthKey = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 18).ToUpper(),
                 LastModifiedOn = DateTime.Now,
                 IsDeleted = false,
             };
-            await _hardwareRepo.Create(Section);
+            await _hardwareRepo.Create(hardware);
             return new BaseResponse()
             {
                 Status = true,
