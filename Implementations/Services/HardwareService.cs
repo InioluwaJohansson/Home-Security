@@ -109,6 +109,11 @@ public GetHardwareIdsDto GetDetails(Hardware hardware)
         return new GetHardwareDto()
         {
             Id = hardware.Id,
+   ApplianceIds= hardware.ApplianceIds,
+   CameraIds = hardware.CameraIds,
+   LightIds = hardware.LightsIds,
+   WindowIds = hardware.WindowIds,
+   DoorIds = hardware.DoorIds,
             LastModifiedBy = hardware.LastModifiedBy,
             DeletedBy = hardware.DeletedBy,
             CreatedBy = hardware.CreatedBy,
