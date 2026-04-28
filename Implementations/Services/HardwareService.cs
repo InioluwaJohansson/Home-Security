@@ -104,4 +104,18 @@ public class HardwareService : IHardwareService
             IsDeleted = hardware.IsDeleted,
         };
     }
+public GetHardwareIdsDto GetDetails(Hardware hardware)
+    {
+        return new GetHardwareDto()
+        {
+            Id = hardware.Id,
+            LastModifiedBy = hardware.LastModifiedBy,
+            DeletedBy = hardware.DeletedBy,
+            CreatedBy = hardware.CreatedBy,
+            LastModifiedOn = hardware.LastModifiedOn,
+            CreatedOn = hardware.CreatedOn,
+            IsDeleted = hardware.IsDeleted,
+        };
+    }
+public class GetHardwareIdsDto
 }
