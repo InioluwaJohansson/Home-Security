@@ -24,11 +24,9 @@ public class GetHardwareDto
     public List<WindowIdName> WindowIdNames { get; set; }
     public List<DoorIdName> DoorIdNames { get; set; }
 }
-public class GetHardwareIntDto
+public class GetHardwareIdsDto
 {
     public int Id { get; set; }
-    public string HardwareName { get; set; }
-    public string HardwareId { get; set; }
     public List<int> ApplianceIds { get; set; }
     public List<int> CameraIds { get; set; }
     public List<int> LightIds { get; set; }
