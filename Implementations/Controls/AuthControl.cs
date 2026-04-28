@@ -16,18 +16,31 @@ public class AuthControl : IAuthControl
     public readonly IMemoryCache _cameraCache;
     public readonly IMemoryCache _windowCache;
     public readonly IMemoryCache _doorCache;
-    public readonly IMemoryCache _sectionCache;
     IPersonRepo _personRepo;
     IRoomRepo _roomRepo;
     ISectionRepo _sectionRepo;
-    public AuthControl(IMemoryCache cache, IMemoryCache roomCache, IMemoryCache sectionCache, IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo)
+    IApplianceRepo _applianceRepo;
+    ILightRepo _lightRepo;
+    ICameraRepo _cameraRepo;
+    IWindowRepo _windowRepo;
+    IDoorRepo _doorRepo;
+    public AuthControl(IMemoryCache cache, IMemoryCache roomCache, IMemoryCache sectionCache IMemoryCache applianceCache IMemoryCache lightCache IMemoryCache cameraCache IMemoryCache windowCache IMemoryCache doorCache IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo,IApplianceRepo applianceRepo,ILightRepo lightRepo, ICameraRepo cameraRepo,IWindowRepo windowRepo, IDoorRepo doorRepo)
     {
         _cache = cache;
         _roomCache = roomCache;
         _sectionCache = sectionCache;
+        _applianceCache = applianceCache;
+        _lightCache = lightCache;
+        _cameraCache = cameraCache;
+        _windowCache = windowCache;
+        _doorCache = doorCache;
         _personRepo = personRepo;
         _roomRepo = roomRepo;
-        _sectionRepo = sectionRepo;
+        _applianceRepo = applianceRepo;
+        _lightRepo = lightRepo;
+        _cameraRepo = cameraRepo;
+        _windowRepo = windowRepo;
+        _doorRepo = doorRepo;
     }
     public async Task<GetAuthControlDto> GetAuthDetails(int personId, string authorizationCode)
     {
