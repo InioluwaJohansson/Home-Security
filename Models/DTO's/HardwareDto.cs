@@ -48,6 +48,10 @@ public class HardwareResponseModel : BaseResponse
 {
     public GetHardwareDto Data { get; set; }
 }
+public class HardwareIdsResponseModel : BaseResponse
+{
+    public GetHardwareIdsDto Data { get; set; }
+}
 public class HardwaresResponseModel : BaseResponse
 {
     public ICollection<GetHardwareDto> Data { get; set; } = new HashSet<GetHardwareDto>();
