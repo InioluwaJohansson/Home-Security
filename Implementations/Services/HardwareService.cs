@@ -17,6 +17,7 @@ public class HardwareService : IHardwareService
             var hardware = new Hardware()
             {
                 HardwareId = $"HARDWARE{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
+AuthKey = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 18).ToUpper(),
                 HardwareName = createHardwareDto.HardwareName,
                 CreatedOn = DateTime.Now,
                 CreatedBy = personId,
@@ -110,6 +111,7 @@ public class HardwareService : IHardwareService
         {
             Id = hardware.Id,
             HardwareName = hardware.HardwareName,
+AuthKey = hardware.AuthKey,
             IsActive = hardware.IsActive,
             PowerActive = hardware.PowerActive,
             RoomId = hardware.RoomId,
