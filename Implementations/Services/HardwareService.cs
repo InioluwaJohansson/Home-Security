@@ -114,12 +114,6 @@ public GetHardwareIdsDto GetDetails(Hardware hardware)
    LightIds = hardware.LightsIds,
    WindowIds = hardware.WindowIds,
    DoorIds = hardware.DoorIds,
-            LastModifiedBy = hardware.LastModifiedBy,
-            DeletedBy = hardware.DeletedBy,
-            CreatedBy = hardware.CreatedBy,
-            LastModifiedOn = hardware.LastModifiedOn,
-            CreatedOn = hardware.CreatedOn,
-            IsDeleted = hardware.IsDeleted,
         };
     }
 public class GetHardwareIdsDto
