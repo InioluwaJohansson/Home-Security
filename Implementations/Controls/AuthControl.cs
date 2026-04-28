@@ -11,6 +11,12 @@ public class AuthControl : IAuthControl
     public readonly IMemoryCache _cache;
     public readonly IMemoryCache _roomCache;
     public readonly IMemoryCache _sectionCache;
+    public readonly IMemoryCache _applianceCache;
+    public readonly IMemoryCache _lightCache;
+    public readonly IMemoryCache _cameraCache;
+    public readonly IMemoryCache _windowCache;
+    public readonly IMemoryCache _doorCache;
+    public readonly IMemoryCache _sectionCache;
     IPersonRepo _personRepo;
     IRoomRepo _roomRepo;
     ISectionRepo _sectionRepo;
