@@ -152,5 +152,4 @@ public GetHardwareIdsDto GetIdsDetails(Hardware hardware)
    DoorIds = hardware.DoorIds,
         };
     }
-public class GetHardwareIdsDto
 }
