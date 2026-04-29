@@ -4,8 +4,8 @@ using Home_Security.Models.Enums;
 namespace Home_Security.Interfaces.Services;
 public interface IDoorService
 {
-    public Task<BaseResponse> CreateDoor(CreateDoorDto createDoorDto);
-    public Task<BaseResponse> UpdateDoor(UpdateDoorDto updateDoorDto);
+    public Task<BaseResponse> CreateDoor(CreateDoorDto createDoorDto, int personId);
+    public Task<BaseResponse> UpdateDoor(UpdateDoorDto updateDoorDto, int personId);
     public Task<DoorResponseModel> GetById(int doorId);
     public Task<DoorsResponseModel> GetAllDoors();
     public Task<DoorsResponseModel> GetAllDoorsByDoorType(DoorType doorType);

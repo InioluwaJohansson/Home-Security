@@ -64,6 +64,7 @@ public class SectionControl : ISectionControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var section = await _sectionService.GetSectionById(id);
+            section.Data = DtoRefactor(section.Data);
             return section;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -88,6 +89,7 @@ public class SectionControl : ISectionControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var section = await _sectionService.GetSectionBySectionName(sectionName);
+            section.Data = section.Data.Select(x => DtoRefactor(x)).ToList();
             return section;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -112,6 +114,7 @@ public class SectionControl : ISectionControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
             var section = await _sectionService.GetAllSections();
+            section.Data = section.Data.Select(x => DtoRefactor(x)).ToList();
             return section;
         }
         else if (auth.Status != false && auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -153,5 +156,12 @@ public class SectionControl : ISectionControl
             return fail;
         }
         return _authControl.AuthFaliure();
+    }
+    public GetSectionDto DtoRefactor(GetSectionDto x)
+    {
+        x.LastModifiedByName = _authControl.GetUserPersonName(x.LastModifiedBy);
+        x.PeronName = _authControl.GetUserPersonName(x.personId);
+        x.CreatedByName = _authControl.GetUserPersonName(x.CreatedBy);
+        return x;
     }
 }

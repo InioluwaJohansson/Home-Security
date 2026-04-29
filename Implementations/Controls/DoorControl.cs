@@ -24,8 +24,7 @@ public class DoorControl : IDoorControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            createDoorDto.personId = auth.Id;
-            var door = await _doorService.CreateDoor(createDoorDto);
+            var door = await _doorService.CreateDoor(createDoorDto, auth.Id);
             if (door.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -42,8 +41,7 @@ public class DoorControl : IDoorControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            updateDoorDto.personId = auth.Id;
-            var door = await _doorService.UpdateDoor(updateDoorDto);
+            var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
             if (door.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -73,10 +71,9 @@ public class DoorControl : IDoorControl
                 var personCheck = await _authControl.GetPersonDetails(getDoor.Data.LockedBy);
                 if(_authControl.CompareRole(personCheck.Role, auth.Role))
                 {
-                    updateDoorDto.personId = auth.Id;
                     updateDoorDto.UnlockedBy = auth.Id;
                     updateDoorDto.IsLocked = false;
-                    var door = await _doorService.UpdateDoor(updateDoorDto);
+                    var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
                     if (door.Status == true)
                     {
                         var log = _authControl.CreateLog(auth.Id);
@@ -103,10 +100,9 @@ public class DoorControl : IDoorControl
                     var personCheck = await _authControl.GetPersonDetails(getDoor.Data.LockedBy);
                     if (_authControl.CompareRole(personCheck.Role, auth.Role))
                     {
-                        updateDoorDto.personId = auth.Id;
                         updateDoorDto.UnlockedBy = auth.Id;
                         updateDoorDto.IsLocked = false;
-                        var door = await _doorService.UpdateDoor(updateDoorDto);
+                        var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
                         if (door.Status == true)
                         {
                             var log = _authControl.CreateLog(auth.Id);
@@ -132,11 +128,10 @@ public class DoorControl : IDoorControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
         {
-            updateDoorDto.personId = auth.Id;
             updateDoorDto.IsOpen = false;
             updateDoorDto.LockedBy = auth.Id;
             updateDoorDto.IsLocked = true;
-            var door = await _doorService.UpdateDoor(updateDoorDto);
+            var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
             if (door.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -154,6 +149,7 @@ public class DoorControl : IDoorControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var door = await _doorService.GetById(id);
+            door.Data = DtoRefactor(door.Data);
             return door;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -178,6 +174,7 @@ public class DoorControl : IDoorControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var door = await _doorService.GetAllDoorsByRoomId(doorId);
+            door.Data = door.Data.Select(x => DtoRefactor(x)).ToList();
             return door;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -202,6 +199,7 @@ public class DoorControl : IDoorControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var door = await _doorService.GetAllDoorsBySectionId(sectionId);
+            door.Data = door.Data.Select(x => DtoRefactor(x)).ToList();
             return door;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -226,6 +224,7 @@ public class DoorControl : IDoorControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var door = await _doorService.GetAllDoorsByDoorType(doorType);
+            door.Data = door.Data.Select(x => DtoRefactor(x)).ToList();
             return door;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -250,6 +249,7 @@ public class DoorControl : IDoorControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var door = await _doorService.GetAllDoors();
+            door.Data = door.Data.Select(x => DtoRefactor(x)).ToList();
             return door;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -291,5 +291,14 @@ public class DoorControl : IDoorControl
             return fail;
         }
         return _authControl.AuthFaliure();
+    }
+    public GetDoorDto DtoRefactor(GetDoorDto x)
+    {
+        x.LastModifiedByName = _authControl.GetUserPersonName(x.LastModifiedBy);
+        x.PeronName = _authControl.GetUserPersonName(x.personId);
+        x.CreatedByName = _authControl.GetUserPersonName(x.CreatedBy);
+        x.RoomName = _authControl.GetRoomName(x.RoomId);
+        x.SectionName = _authControl.GetSectionName(x.SectionId);
+        return x;
     }
 }

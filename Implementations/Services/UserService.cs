@@ -75,7 +75,7 @@ public class UserService : IUserService
     public async Task<BaseResponse> ChangePassword(UpdateUserPasswordDto updateUserPasswordDto)
     {
         var user = await _userRepo.GetUserByUserName(updateUserPasswordDto.UserName);
-        if (user != null && BCrypt.Net.BCrypt.EnhancedVerify(updateUserPasswordDto.AuthorizationCode, user.AuthorizationCode))
+        if (user != null && BCrypt.Net.BCrypt.EnhancedVerify(updateUserPasswordDto.AuthorizationCode, user.AuthorizationCode) && updateUserPasswordDto.Password == updateUserPasswordDto.NewPassword)
         {
             user.Password = BCrypt.Net.BCrypt.HashPassword(updateUserPasswordDto.NewPassword);
             user.LastModifiedOn = DateTime.Now;

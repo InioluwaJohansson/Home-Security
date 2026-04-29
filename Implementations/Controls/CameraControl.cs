@@ -24,8 +24,7 @@ public class CameraControl : ICameraControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            createCameraDto.personId = auth.Id;
-            var camera = await _cameraService.CreateCamera(createCameraDto);
+            var camera = await _cameraService.CreateCamera(createCameraDto, auth.Id);
             if (camera.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -42,8 +41,7 @@ public class CameraControl : ICameraControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
         {
-            updateCameraDto.personId = auth.Id;
-            var camera = await _cameraService.UpdateCamera(updateCameraDto);
+            var camera = await _cameraService.UpdateCamera(updateCameraDto, auth.Id);
             if (camera.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -61,6 +59,7 @@ public class CameraControl : ICameraControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var camera = await _cameraService.GetById(id);
+            camera.Data = DtoRefactor(camera.Data);
             return camera;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -85,6 +84,7 @@ public class CameraControl : ICameraControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var camera = await _cameraService.GetAllCamerasBySectionId(sectionId);
+            camera.Data = camera.Data.Select(x => DtoRefactor(x)).ToList();
             return camera;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -109,6 +109,7 @@ public class CameraControl : ICameraControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var camera = await _cameraService.GetAllCamerasByRoomId(roomId);
+            camera.Data = camera.Data.Select(x => DtoRefactor(x)).ToList();
             return camera;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -133,6 +134,7 @@ public class CameraControl : ICameraControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var camera = await _cameraService.GetAllCameras();
+            camera.Data = camera.Data.Select(x => DtoRefactor(x)).ToList();
             return camera;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -174,5 +176,14 @@ public class CameraControl : ICameraControl
             return fail;
         }
         return _authControl.AuthFaliure();
+    }
+    public GetCameraDto DtoRefactor(GetCameraDto x)
+    {
+        x.LastModifiedByName = _authControl.GetUserPersonName(x.LastModifiedBy);
+        x.PeronName = _authControl.GetUserPersonName(x.personId);
+        x.CreatedByName = _authControl.GetUserPersonName(x.CreatedBy);
+        x.RoomName = _authControl.GetRoomName(x.RoomId);
+        x.SectionName = _authControl.GetSectionName(x.SectionId);
+        return x;
     }
 }

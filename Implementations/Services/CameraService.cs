@@ -10,7 +10,7 @@ public class CameraService : ICameraService
     {
         _cameraRepo = cameraRepo;
     }
-    public async Task<BaseResponse> CreateCamera(CreateCameraDto createCameraDto)
+    public async Task<BaseResponse> CreateCamera(CreateCameraDto createCameraDto, int personId)
     {
         if (createCameraDto != null)
         {
@@ -18,13 +18,13 @@ public class CameraService : ICameraService
             {
                 CameraId = $"CAMERA{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 CameraName = createCameraDto.CameraName,
-                IsActive = createCameraDto.IsActive,
-                PowerActive = createCameraDto.PowerActive,
+                IsActive = false,
+                PowerActive = false,
                 SectionId = createCameraDto.SectionId,
                 RoomId = createCameraDto.RoomId,
                 IsDeleted = false,
-                CreatedBy = createCameraDto.personId,
-                LastModifiedBy = createCameraDto.personId,
+                CreatedBy = personId,
+                LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now
             };
             await _cameraRepo.Create(camera);
@@ -40,15 +40,13 @@ public class CameraService : ICameraService
             Message = "Unable To Add Camera!"
         };
     }
-    public async Task<BaseResponse> UpdateCamera(UpdateCameraDto updateCameraDto)
+    public async Task<BaseResponse> UpdateCamera(UpdateCameraDto updateCameraDto, int personId)
     {
         if (updateCameraDto != null)
         {
             var camera = await _cameraRepo.Get(x => x.Id == updateCameraDto.Id);
             camera.CameraName = updateCameraDto.CameraName ?? camera.CameraName;
-            camera.IsActive = updateCameraDto.IsActive;
-            camera.PowerActive = updateCameraDto.PowerActive;
-            camera.LastModifiedBy = updateCameraDto.personId;
+            camera.LastModifiedBy = personId;
             camera.LastModifiedOn = DateTime.Now;
             await _cameraRepo.Update(camera);
             return new BaseResponse()

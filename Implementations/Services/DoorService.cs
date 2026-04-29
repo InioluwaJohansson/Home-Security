@@ -12,7 +12,7 @@ public class DoorService : IDoorService
     {
         _doorRepo = doorRepo;
     }
-    public async Task<BaseResponse> CreateDoor(CreateDoorDto createDoorDto)
+    public async Task<BaseResponse> CreateDoor(CreateDoorDto createDoorDto, int personId)
     {
         if (createDoorDto != null)
         {
@@ -21,18 +21,18 @@ public class DoorService : IDoorService
                 DoorId = $"DOOR{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 DoorName = createDoorDto.DoorName,
                 DoorType = createDoorDto.DoorType,
-                IsLocked = createDoorDto.IsLocked,
-                IsOpen = createDoorDto.IsOpen,
-                OpenedBy = createDoorDto.OpenedBy,
-                LockedBy = createDoorDto.LockedBy,
-                UnlockedBy = createDoorDto.UnlockedBy,
-                IsActive = createDoorDto.IsActive,
-                PowerActive = createDoorDto.PowerActive,
+                IsLocked = false,
+                IsOpen = false,
+                OpenedBy = personId,
+                LockedBy = personId,
+                UnlockedBy = personId,
+                IsActive = false,
+                PowerActive = false,
                 SectionId = createDoorDto.SectionId,
                 RoomId = createDoorDto.RoomId,
                 IsDeleted = false,
-                CreatedBy = createDoorDto.personId,
-                LastModifiedBy = createDoorDto.personId,
+                CreatedBy = personId,
+                LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now
             };
             await _doorRepo.Create(door);
@@ -48,15 +48,13 @@ public class DoorService : IDoorService
             Message = "Unable To Add Door!"
         };
     }
-    public async Task<BaseResponse> UpdateDoor(UpdateDoorDto updateDoorDto)
+    public async Task<BaseResponse> UpdateDoor(UpdateDoorDto updateDoorDto, int personId)
     {
         if (updateDoorDto != null)
         {
             var door = await _doorRepo.Get(x => x.Id == updateDoorDto.Id);
             door.DoorName = updateDoorDto.DoorName ?? door.DoorName;
-            door.IsActive = updateDoorDto.IsActive;
-            door.PowerActive = updateDoorDto.PowerActive;
-            door.LastModifiedBy = updateDoorDto.personId;
+            door.LastModifiedBy = personId;
             door.IsLocked = updateDoorDto.IsLocked;
             door.IsOpen = updateDoorDto.IsOpen;
             door.OpenedBy = updateDoorDto.OpenedBy;

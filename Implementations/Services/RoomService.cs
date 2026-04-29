@@ -18,7 +18,7 @@ public class RoomService : IRoomService
         _windowRepo = windowRepo;
         _applianceRepo = applianceRepo;
     }
-    public async Task<BaseResponse> CreateRoom(CreateRoomDto createRoomDto)
+    public async Task<BaseResponse> CreateRoom(CreateRoomDto createRoomDto, int personId)
     {
         if(createRoomDto != null)
         {
@@ -29,15 +29,15 @@ public class RoomService : IRoomService
                 SectionId = createRoomDto.SectionId,
                 RoomName = createRoomDto.RoomName,
                 CreatedOn = DateTime.Now,
-                CreatedBy = createRoomDto.PersonId,
-                LastModifiedBy = createRoomDto.PersonId,
+                CreatedBy = personId,
+                LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now,
                 IsDeleted = false,
             };
             await _roomRepo.Create(room);
             return new BaseResponse()
             {
-                Status = false,
+                Status = true,
                 Message = "Room Added Successfully!"
             };
         }
@@ -47,7 +47,7 @@ public class RoomService : IRoomService
             Message = "Unable To Add Room!"
         };
     }
-    public async Task<BaseResponse> UpdateRoom(UpdateRoomDto updateRoomDto)
+    public async Task<BaseResponse> UpdateRoom(UpdateRoomDto updateRoomDto, int personId)
     {
         var room = await _roomRepo.Get(x => x.Id == updateRoomDto.Id && x.IsDeleted == false);
         if (room != null)
@@ -55,7 +55,7 @@ public class RoomService : IRoomService
             room.PersonId = updateRoomDto.PersonId;
             room.SectionId = updateRoomDto.SectionId;
             room.RoomName = updateRoomDto.RoomName ?? room.RoomName;
-            room.LastModifiedBy = updateRoomDto.PersonId;
+            room.LastModifiedBy = personId;
             room.LastModifiedOn = DateTime.Now;
             await _roomRepo.Update(room);
             return new BaseResponse()
@@ -181,7 +181,11 @@ public class RoomService : IRoomService
             Doors = room.Door.Select(x => GetDoorDetails(x)).ToList(),
             Appliances = room.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
             Lights = room.Light.Select(x => GetLightDetails(x)).ToList(),
-            Windows = room.Window.Select(x => GetWindowDetails(x)).ToList()
+            Windows = room.Window.Select(x => GetWindowDetails(x)).ToList(),
+            LastModifiedBy = room.LastModifiedBy,
+            CreatedBy = room.CreatedBy,
+            LastModifiedOn = room.LastModifiedOn,
+            CreatedOn = room.CreatedOn
         };
     }
     public GetApplianceDto GetApplianceDetails(Appliance appliance)

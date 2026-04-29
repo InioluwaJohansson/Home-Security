@@ -26,8 +26,7 @@ public class WindowControl : IWindowControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            createWindowDto.personId = auth.Id;
-            var window = await _windowService.CreateWindow(createWindowDto);
+            var window = await _windowService.CreateWindow(createWindowDto, auth.Id);
             if(window.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -45,8 +44,7 @@ public class WindowControl : IWindowControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            updateWindowDto.personId = auth.Id;
-            var window = await _windowService.UpdateWindow(updateWindowDto);
+            var window = await _windowService.UpdateWindow(updateWindowDto, auth.Id);
             if (window.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -76,10 +74,9 @@ public class WindowControl : IWindowControl
                 var personCheck = await _authControl.GetPersonDetails(getWindow.Data.LockedBy);
                 if (_authControl.CompareRole(personCheck.Role, auth.Role))
                 {
-                    updateWindowDto.personId = auth.Id;
                     updateWindowDto.UnlockedBy = auth.Id;
                     updateWindowDto.IsLocked = false;
-                    var window = await _windowService.UpdateWindow(updateWindowDto);
+                    var window = await _windowService.UpdateWindow(updateWindowDto, auth.Id);
                     if (window.Status == true)
                     {
                         var log = _authControl.CreateLog(auth.Id);
@@ -102,11 +99,10 @@ public class WindowControl : IWindowControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
         {
-            updateWindowDto.personId = auth.Id;
             updateWindowDto.IsOpen = false;
             updateWindowDto.LockedBy = auth.Id;
             updateWindowDto.IsLocked = true;
-            var window = await _windowService.UpdateWindow(updateWindowDto);
+            var window = await _windowService.UpdateWindow(updateWindowDto, auth.Id);
             if (window.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -124,6 +120,7 @@ public class WindowControl : IWindowControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var window = await _windowService.GetById(id);
+            window.Data = DtoRefactor(window.Data);
             return window;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -148,6 +145,7 @@ public class WindowControl : IWindowControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var window = await _windowService.GetAllWindowsByRoomId(windowId);
+            window.Data = window.Data.Select(x => DtoRefactor(x)).ToList();
             return window;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -172,6 +170,7 @@ public class WindowControl : IWindowControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var window = await _windowService.GetAllWindowsBySectionId(sectionId);
+            window.Data = window.Data.Select(x => DtoRefactor(x)).ToList();
             return window;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -196,6 +195,7 @@ public class WindowControl : IWindowControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var window = await _windowService.GetAllWindows();
+            window.Data = window.Data.Select(x => DtoRefactor(x)).ToList();
             return window;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -237,5 +237,14 @@ public class WindowControl : IWindowControl
             return fail;
         }
         return _authControl.AuthFaliure();
+    }
+    public GetWindowDto DtoRefactor(GetWindowDto x)
+    {
+        x.LastModifiedByName = _authControl.GetUserPersonName(x.LastModifiedBy);
+        x.PeronName = _authControl.GetUserPersonName(x.personId);
+        x.CreatedByName = _authControl.GetUserPersonName(x.CreatedBy);
+        x.RoomName = _authControl.GetRoomName(x.RoomId);
+        x.SectionName = _authControl.GetSectionName(x.SectionId);
+        return x;
     }
 }

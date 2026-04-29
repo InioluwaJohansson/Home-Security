@@ -13,7 +13,7 @@ public class UpdateRoomDto
     public int PersonId { get; set; }
     public int SectionId { get; set; }
 }
-public class GetRoomDto
+public class GetRoomDto : UserBaseDefaultDto
 {
     public int Id { get; set; }
     public string RoomName { get; set; }

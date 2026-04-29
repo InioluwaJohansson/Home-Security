@@ -10,20 +10,20 @@ public class ApplianceService : IApplianceService
     {
         _applianceRepo = applianceRepo;
     }
-    public async Task<BaseResponse> CreateAppliance(CreateApplianceDto createApplianceDto)
+    public async Task<BaseResponse> CreateAppliance(CreateApplianceDto createApplianceDto, int personId)
     {
         if(createApplianceDto != null){
             var appliance = new Appliance()
             {
                 ApplianceId = $"APPLIANCE{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 ApplianceName  = createApplianceDto.ApplianceName ,
-                IsActive = createApplianceDto.IsActive,
-                PowerActive = createApplianceDto.PowerActive,
+                IsActive = false,
+                PowerActive = false,
                 SectionId = createApplianceDto.SectionId,
                 RoomId = createApplianceDto.RoomId,
                 IsDeleted = false,
-                CreatedBy = createApplianceDto.personId,
-                LastModifiedBy = createApplianceDto.personId,
+                CreatedBy = personId,
+                LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now,
                 CreatedOn = DateTime.Now
             };
@@ -40,15 +40,15 @@ public class ApplianceService : IApplianceService
             Message = "Unable To Add Appliance!"
         };
     }
-    public async Task<BaseResponse> UpdateAppliance(UpdateApplianceDto updateApplianceDto)
+    public async Task<BaseResponse> UpdateAppliance(UpdateApplianceDto updateApplianceDto, int personId)
     {
         if (updateApplianceDto != null)
         {
             var appliance = await _applianceRepo.Get(x => x.Id == updateApplianceDto.Id);
             appliance.ApplianceName = updateApplianceDto.ApplianceName ?? appliance.ApplianceName;
-            appliance.IsActive = updateApplianceDto.IsActive;
-            appliance.PowerActive = updateApplianceDto.PowerActive;
-            appliance.LastModifiedBy = updateApplianceDto.personId;
+            appliance.SectionId = updateApplianceDto.SectionId != 0 ? updateApplianceDto.SectionId : appliance.SectionId;
+            appliance.RoomId = updateApplianceDto.RoomId != 0 ? updateApplianceDto.RoomId : appliance.RoomId;
+            appliance.LastModifiedBy = personId;
             appliance.LastModifiedOn = DateTime.Now;
             await _applianceRepo.Update(appliance);
             return new BaseResponse()

@@ -23,8 +23,7 @@ public class RoomControl : IRoomControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if(auth.Status != false && auth.Role == Role.Owner)
         {
-            createRoomDto.PersonId = auth.Id;
-            var room = await _roomService.CreateRoom(createRoomDto);
+            var room = await _roomService.CreateRoom(createRoomDto, auth.Id);
             if (room.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -41,8 +40,7 @@ public class RoomControl : IRoomControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            updateRoomDto.PersonId = auth.Id;
-            var room = await _roomService.UpdateRoom(updateRoomDto);
+            var room = await _roomService.UpdateRoom(updateRoomDto, auth.Id);
             if (room.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -66,6 +64,7 @@ public class RoomControl : IRoomControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var room = await _roomService.GetRoomById(id);
+            room.Data = DtoRefactor(room.Data);
             return room;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -90,6 +89,7 @@ public class RoomControl : IRoomControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var room = await _roomService.GetRoomByRoomName(roomName);
+            room.Data = room.Data.Select(x => DtoRefactor(x)).ToList();
             return room;
         }
         else if(auth.Status != false && auth.Role == Role.Child || auth.Role ==  Role.Relative || auth.Role == Role.Visitor)
@@ -114,6 +114,7 @@ public class RoomControl : IRoomControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var room = await _roomService.GetAllRoomsBySectionId(sectionId);
+            room.Data = room.Data.Select(x => DtoRefactor(x)).ToList();
             return room;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -138,6 +139,7 @@ public class RoomControl : IRoomControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var room = await _roomService.GetAllRooms();
+            room.Data = room.Data.Select(x => DtoRefactor(x)).ToList();
             return room;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -179,5 +181,12 @@ public class RoomControl : IRoomControl
             return fail;
         }
         return _authControl.AuthFaliure();
+    }
+    public GetRoomDto DtoRefactor(GetRoomDto x)
+    {
+        x.LastModifiedByName = _authControl.GetUserPersonName(x.LastModifiedBy);
+        x.PeronName = _authControl.GetUserPersonName(x.personId);
+        x.CreatedByName = _authControl.GetUserPersonName(x.CreatedBy);
+        return x;
     }
 }

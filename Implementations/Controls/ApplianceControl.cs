@@ -24,7 +24,8 @@ public class ApplianceControl : IApplianceControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            var appliance = await _applianceService.CreateAppliance(createApplianceDto);
+            
+            var appliance = await _applianceService.CreateAppliance(createApplianceDto, auth.Id);
             if (appliance.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -41,8 +42,7 @@ public class ApplianceControl : IApplianceControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
         {
-            updateApplianceDto.personId = auth.Id;
-            var appliance = await _applianceService.UpdateAppliance(updateApplianceDto);
+            var appliance = await _applianceService.UpdateAppliance(updateApplianceDto, auth.Id);
             if (appliance.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -50,6 +50,7 @@ public class ApplianceControl : IApplianceControl
                 log.LogDetails = $"{updateApplianceDto.ApplianceName} Appliance was recently updated!";
                 await _logService.CreateLog(log);
             }
+            
             return appliance;
         }
         return _authControl.AuthFaliure();
@@ -60,6 +61,7 @@ public class ApplianceControl : IApplianceControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var appliance = await _applianceService.GetById(id);
+            appliance.Data = DtoRefactor(appliance.Data);
             return appliance;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -84,6 +86,7 @@ public class ApplianceControl : IApplianceControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var appliance = await _applianceService.GetAllAppliancesBySectionId(sectionId);
+            appliance.Data = appliance.Data.Select(x => DtoRefactor(x)).ToList();
             return appliance;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -108,6 +111,7 @@ public class ApplianceControl : IApplianceControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var appliance = await _applianceService.GetAllAppliancesBySectionId(roomId);
+            appliance.Data = appliance.Data.Select(x => DtoRefactor(x)).ToList();
             return appliance;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -132,6 +136,7 @@ public class ApplianceControl : IApplianceControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var appliance = await _applianceService.GetAllAppliances();
+            appliance.Data = appliance.Data.Select(x => DtoRefactor(x)).ToList();
             return appliance;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
@@ -173,5 +178,14 @@ public class ApplianceControl : IApplianceControl
             return fail;
         }
         return _authControl.AuthFaliure();
+    }
+    public GetApplianceDto DtoRefactor(GetApplianceDto x)
+    {
+        x.LastModifiedByName = _authControl.GetUserPersonName(x.LastModifiedBy);
+        x.PeronName = _authControl.GetUserPersonName(x.personId);
+        x.CreatedByName = _authControl.GetUserPersonName(x.CreatedBy);
+        x.RoomName = _authControl.GetRoomName(x.RoomId);
+        x.SectionName = _authControl.GetSectionName(x.SectionId);
+        return x;
     }
 }

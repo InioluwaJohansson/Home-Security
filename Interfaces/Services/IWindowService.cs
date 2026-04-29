@@ -2,8 +2,8 @@
 namespace Home_Security.Interfaces.Services;
 public interface IWindowService
 {
-    public Task<BaseResponse> CreateWindow(CreateWindowDto createWindowDto);
-    public Task<BaseResponse> UpdateWindow(UpdateWindowDto updateWindowDto);
+    public Task<BaseResponse> CreateWindow(CreateWindowDto createWindowDto, int personId);
+    public Task<BaseResponse> UpdateWindow(UpdateWindowDto updateWindowDto, int personId);
     public Task<WindowResponseModel> GetById(int windowId);
     public Task<WindowsResponseModel> GetAllWindows();
     public Task<WindowsResponseModel> GetAllWindowsByRoomId(int roomId);

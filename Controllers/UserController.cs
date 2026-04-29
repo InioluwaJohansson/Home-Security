@@ -1,4 +1,5 @@
 ﻿using Home_Security.Authentication;
+using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -11,10 +12,14 @@ using System.Security.Claims;
 public class UserController : Controller
 {
     IUserService _userService;
+    ITokenControl _tokenControl;
+    ITokenService _tokenService;
     IJWTAuthentication _jwtAuthentication;
-    public UserController(IUserService userService, IJWTAuthentication jwtAuthentication)
+    public UserController(IUserService userService, ITokenService tokenService, ITokenControl tokenControl, IJWTAuthentication jwtAuthentication)
     {
         _userService = userService;
+        _tokenService = tokenService;
+        _tokenControl = tokenControl;
         _jwtAuthentication = jwtAuthentication;
     }
     [HttpGet("Login")]
@@ -61,12 +66,17 @@ public class UserController : Controller
             PersonId = loggedInPersonId,
             AuthorizationCode = AuthorizationCode.ToString(),
         };
-        var user = await _userService.ChangePassword(updateUserPasswordDto);
-        if (user.Status == true)
+        var token = await _tokenService.VerifyToken(updateUserPasswordDto.TokenCode);
+        if(token.Status == true)
         {
+            var user = await _userService.ChangePassword(updateUserPasswordDto);
+            if (user.Status == true)
+            {
+                return Ok(user);
+            }
             return Ok(user);
         }
-        return Ok(user);
+        return Ok(token);
     }
     [Authorize]
     [HttpPut("ChangeAuthorizationCode")]
@@ -81,11 +91,36 @@ public class UserController : Controller
             PersonId = loggedInPersonId,
             AuthorizationCode = AuthorizationCode.ToString(),
         };
-        var user = await _userService.ChangeAuthorizationCode(updateUserAuthorizationCode);
-        if (user.Status == true)
+        var token = await _tokenService.VerifyToken(updateUserAuthorizationCode.TokenCode);
+        if(token.Status == true)
         {
+            var user = await _userService.ChangeAuthorizationCode(updateUserAuthorizationCode);
+            if (user.Status == true)
+            {
+                return Ok(user);
+            }
             return Ok(user);
         }
-        return Ok(user);
+        return Ok(token);
+    }
+    [Authorize]
+    [HttpPost("GenerateToken")]
+    public async Task<IActionResult> GenerateToken()
+    {
+        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
+        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = loggedInPersonId,
+            AuthorizationCode = AuthorizationCode.ToString(),
+        };
+        var token = await _tokenControl.GenerateToken(getAuthControlInfoDto);
+        if (token.Status == true)
+        {
+            return Ok(token);
+        }
+        return Ok(token);
     }
 }

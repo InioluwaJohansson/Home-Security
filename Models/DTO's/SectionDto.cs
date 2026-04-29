@@ -9,7 +9,7 @@ public class UpdateSectionDto
     public int Id { get; set; }
     public string SectionName { get; set; }
 }
-public class GetSectionDto
+public class GetSectionDto : UserBaseDefaultDto
 {
     public int Id { get; set; }
     public string SectionName { get; set; }

@@ -10,7 +10,7 @@ public class LightService : ILightService
     {
         _lightRepo = lightRepo;
     }
-    public async Task<BaseResponse> CreateLight(CreateLightDto createLightDto)
+    public async Task<BaseResponse> CreateLight(CreateLightDto createLightDto, int personId)
     {
         if (createLightDto != null)
         {
@@ -18,13 +18,11 @@ public class LightService : ILightService
             {
                 LightId = $"LIGHT{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 LightName = createLightDto.LightName,
-                IsActive = createLightDto.IsActive,
-                PowerActive = createLightDto.PowerActive,
                 SectionId = createLightDto.SectionId,
                 RoomId = createLightDto.RoomId,
                 IsDeleted = false,
-                CreatedBy = createLightDto.personId,
-                LastModifiedBy = createLightDto.personId,
+                CreatedBy = personId,
+                LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now,
                 CreatedOn = DateTime.Now,
                 BrightnessLevel = 0,
@@ -42,15 +40,13 @@ public class LightService : ILightService
             Message = "Unable To Add Light!"
         };
     }
-    public async Task<BaseResponse> UpdateLight(UpdateLightDto updateLightDto)
+    public async Task<BaseResponse> UpdateLight(UpdateLightDto updateLightDto, int personId)
     {
         if (updateLightDto != null)
         {
             var light = await _lightRepo.Get(x => x.Id == updateLightDto.Id);
             light.LightName = updateLightDto.LightName ?? light.LightName;
-            light.IsActive = updateLightDto.IsActive;
-            light.PowerActive = updateLightDto.PowerActive;
-            light.LastModifiedBy = updateLightDto.personId;
+            light.LastModifiedBy = personId;
             light.LastModifiedOn = DateTime.Now;
             light.BrightnessLevel = updateLightDto.BrightnessLevel;
             await _lightRepo.Update(light);

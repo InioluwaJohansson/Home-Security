@@ -28,6 +28,7 @@ public class UpdateUserPasswordDto
     public string UserName { get; set; }
     public string Password { get; set; }
     public string NewPassword { get; set; }
+    public string TokenCode { get; set; }
     public string AuthorizationCode { get; set; }
 }
 public class UpdateUserAuthorizationCode
@@ -35,7 +36,7 @@ public class UpdateUserAuthorizationCode
     public int Id { get; set; }
     public string UserName { get; set; }
     public string Password { get; set; }
-    public string FormerAuthorizationCode { get; set; }
+    public string TokenCode { get; set; }
     public string NewAuthorizationCode { get; set; }
 }
 public class UserLoginResponse : BaseResponse
