@@ -155,7 +155,20 @@ public GetHardwareIdsDto GetIdsDetails(Hardware hardware)
         };
     }
 public GenericIdNames ApplianceIdDetails(int id){
- var data = _authControl.ApplainceIdNames(id);
+ var data = _authControl.GetApplainceName(id);
+if(data != null){
+return new GenericIdNames(){
+    Id = data.Id,
+    Name = data.Name
+};
+}
+return new GenericIdNames(){
+    Id = id,
+    Name = null
+};
+}
+public GenericIdNames LightIdDetails(int id){
+ var data = _authControl.GetLightName(id);
 if(data != null){
 return new GenericIdNames(){
     Id = data.Id,
