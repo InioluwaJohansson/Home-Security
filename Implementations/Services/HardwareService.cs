@@ -139,6 +139,7 @@ AuthKey = hardware.AuthKey,
             LastModifiedOn = hardware.LastModifiedOn,
             CreatedOn = hardware.CreatedOn,
             IsDeleted = hardware.IsDeleted,
+            ApplianceNamesId = hardware.ApplianceIds.Select(x => ApplianceIdDetails(x)).ToList(),
         };
     }
 public GetHardwareIdsDto GetIdsDetails(Hardware hardware)
@@ -153,10 +154,17 @@ public GetHardwareIdsDto GetIdsDetails(Hardware hardware)
    DoorIds = hardware.DoorIds,
         };
     }
-public GetItemIdNames(Object object){
- return new GetItemIdNames(){
-    Id = object.Id,
-    Name = object.Name
+public GenericIdNames ApplianceIdDetails(int id){
+ var data = _authControl.ApplainceIdNames(id);
+if(data != null){
+return new GenericIdNames(){
+    Id = data.Id,
+    Name = data.Name
+};
+}
+return new GenericIdNames(){
+    Id = id,
+    Name = null
 };
 }
 }
