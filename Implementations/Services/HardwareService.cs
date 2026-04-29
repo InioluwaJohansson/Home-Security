@@ -140,7 +140,10 @@ AuthKey = hardware.AuthKey,
             CreatedOn = hardware.CreatedOn,
             IsDeleted = hardware.IsDeleted,
             ApplianceNamesId = hardware.ApplianceIds.Select(x => GenericIdDetails(x, 'appliance')).ToList(),
-        };
+            LightNamesId = hardware.LightIds.Select(x => GenericIdDetails(x, 'light')).ToList(),
+            CameraNamesId = hardware.CameraIds.Select(x => GenericIdDetails(x, 'camera')).ToList(),
+            WindowNamesId = hardware.WindowIds.Select(x => GenericIdDetails(x, 'window')).ToList(),
+            DoorNamesId = hardware.DoorIds.Select(x => GenericIdDetails(x, 'door')).ToList(),
     }
 public GetHardwareIdsDto GetIdsDetails(Hardware hardware)
     {
