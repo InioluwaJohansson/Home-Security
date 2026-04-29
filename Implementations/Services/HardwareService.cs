@@ -153,4 +153,10 @@ public GetHardwareIdsDto GetIdsDetails(Hardware hardware)
    DoorIds = hardware.DoorIds,
         };
     }
+public GetItemIdNames(Object object){
+ return new GetItemIdNames(){
+    Id = object.Id,
+    Name = object.Name
+};
+}
 }
