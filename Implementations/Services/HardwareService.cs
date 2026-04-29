@@ -11,7 +11,7 @@ public class HardwareService : IHardwareService
     public HardwareService(IHardwareRepo hardwareRepo, IAuthControl authControl;)
     {
         _hardwareRepo = hardwareRepo;
-        _authControl = auth control;
+        _authControl = authControl;
     }
     public async Task<BaseResponse> CreateHardware(CreateHardwareDto createHardwareDto, int personId)
         {
