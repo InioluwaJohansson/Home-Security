@@ -139,7 +139,7 @@ AuthKey = hardware.AuthKey,
             LastModifiedOn = hardware.LastModifiedOn,
             CreatedOn = hardware.CreatedOn,
             IsDeleted = hardware.IsDeleted,
-            ApplianceNamesId = hardware.ApplianceIds.Select(x => ApplianceIdDetails(x)).ToList(),
+            ApplianceNamesId = hardware.ApplianceIds.Select(x => GenericIdDetails(x, 'appliance')).ToList(),
         };
     }
 public GetHardwareIdsDto GetIdsDetails(Hardware hardware)
@@ -154,26 +154,51 @@ public GetHardwareIdsDto GetIdsDetails(Hardware hardware)
    DoorIds = hardware.DoorIds,
         };
     }
-public GenericIdNames ApplianceIdDetails(int id){
- var data = _authControl.GetApplainceName(id);
+public GenericIdNames GenericIdDetails(int id, string entityType){
+if(entityType.Equals("appliance")){
+string data = _authControl.GetApplainceName(id);
 if(data != null){
-return new GenericIdNames(){
-    Id = data.Id,
-    Name = data.Name
-};
-}
 return new GenericIdNames(){
     Id = id,
-    Name = null
+    Name = data
 };
 }
-public GenericIdNames LightIdDetails(int id){
- var data = _authControl.GetLightName(id);
+}
+if(entityType.Equals("light")){
+string data = _authControl.GetLightName(id);
 if(data != null){
 return new GenericIdNames(){
-    Id = data.Id,
-    Name = data.Name
+    Id = id,
+    Name = data
 };
+}
+}
+if(entityType.Equals("camera")){
+string data = _authControl.GetCameraName(id);
+if(data != null){
+return new GenericIdNames(){
+    Id = id,
+    Name = data
+};
+}
+}
+if(entityType.Equals("window")){
+string data = _authControl.GetWindowName(id);
+if(data != null){
+return new GenericIdNames(){
+    Id = id,
+    Name = data
+};
+}
+}
+if(entityType.Equals("door")){
+string data = _authControl.GetDoorName(id);
+if(data != null){
+return new GenericIdNames(){
+    Id = id,
+    Name = data
+};
+}
 }
 return new GenericIdNames(){
     Id = id,
