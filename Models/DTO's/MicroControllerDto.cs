@@ -1,3 +1,5 @@
+
+﻿namespace Home_Security.Models.DTOs;
 public class DeviceStateMessage
 {
     public string FacilityType { get; set; } = default!;
