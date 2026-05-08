@@ -11,12 +11,13 @@ public class GenericDeviceState
 }
 public class GenericDeviceUpdateState
 {
-    public List<ApplianceDeviceState> ApplianceDeviceStates { get; set; }
-    public List<LightDeviceState> LightDeviceStates { get; set; }
-    public List<CameraDeviceState> CameraDeviceStates { get; set; }
-    public List<WindowDeviceState> WindowDeviceStates { get; set; }
-    public List<DoorDeviceState> DoorDeviceStates { get; set; }
-    public long Timestamp { get; set; } = DateTime.Now;
+    public int FacilityType { get; set; }
+    public int Id { get; set; }
+    public int BrightnessLevel { get; set; }
+    public bool IsLocked { get; set; }
+    public bool IsOpen { get; set; }
+    public bool IsActive { get; set; }
+    public bool PowerActive { get; set; }
 }
 public class ApplianceDeviceState
 {
