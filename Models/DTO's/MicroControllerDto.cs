@@ -1,12 +1,12 @@
 
 ﻿namespace Home_Security.Models.DTOs;
-public class DeviceStateMessage
+public class GenericDeviceState
 {
-    public string FacilityType { get; set; } = default!;
+    public int Id { get; set; }
 
-    public string FacilityId { get; set; } = default!;
+    public bool IsOpen { get; set; }
 
-    public bool State { get; set; }
+    public bool PowerActive { get; set; }
 
     public string DeviceId { get; set; } = default!;
 
