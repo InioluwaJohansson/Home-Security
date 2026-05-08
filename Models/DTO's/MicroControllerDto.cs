@@ -9,6 +9,15 @@ public class GenericDeviceState
     public List<DoorDeviceState> DoorDeviceStates { get; set; }
     public long Timestamp { get; set; } = DateTime.Now;
 }
+public class GenericDeviceUpdateState
+{
+    public List<ApplianceDeviceState> ApplianceDeviceStates { get; set; }
+    public List<LightDeviceState> LightDeviceStates { get; set; }
+    public List<CameraDeviceState> CameraDeviceStates { get; set; }
+    public List<WindowDeviceState> WindowDeviceStates { get; set; }
+    public List<DoorDeviceState> DoorDeviceStates { get; set; }
+    public long Timestamp { get; set; } = DateTime.Now;
+}
 public class ApplianceDeviceState
 {
     public int ApplianceId { get; set; }
