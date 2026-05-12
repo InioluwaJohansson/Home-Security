@@ -7,5 +7,4 @@ public interface IHardwareService
     public Task<BaseResponse> UpdateHardware(UpdateHardwareDto updateHardwareDto, int personId);
     public Task<HardwareResponseModel> GetById(int hardwareId);
     public Task<HardwaresResponseModel> GetAllHardwares();
-    public Task<HardwareIdsResponseModel> GetById(string hardWareId, string AuthKey);
 }

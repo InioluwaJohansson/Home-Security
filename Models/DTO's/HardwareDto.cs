@@ -1,3 +1,4 @@
+using Home_Security.Models.DTOs;
 namespace Home_Security.Models.DTOs;
 public class CreateHardwareDto
 {
@@ -19,6 +20,9 @@ public class GetHardwareDto
     public int Id { get; set; }
     public string HardwareName { get; set; }
     public string HardwareId { get; set; }
+    public string AuthKey { get; set; }
+    public bool IsActive { get; set; }
+    public bool PowerActive { get; set; }
     public List<GenericIdNames> ApplianceIdNames { get; set; }
     public List<GenericIdNames> CameraIdNames { get; set; }
     public List<GenericIdNames> LightIdNames { get; set; }
@@ -59,19 +63,4 @@ public class UpdateHardwareResponseIds
     public List<int> doorIds { get; set; }
     public List<int> lightIds { get; set; }
     public List<int> windowIds { get; set; }
-}
-public class HardwareResponse : BaseResponse
-{
-    public List<GetCameraDto> getCameraDtos { get; set; }
-    public List<GetDoorDto> getDoorDtos { get; set; }
-    public List<GetLightDto> getLightDtos { get; set; }
-    public List<GetWindowDto> getWindowDtos { get; set; }
-}
-public class UpdateHardwareDto
-{
-    public List<UpdateCameraDto> updateCameraDtos { get; set; }
-    public List<UpdateDoorDto> updateDoorDtos { get; set; }
-    public List<UpdateLightDto> updateLightDtos { get; set; }
-    public List<UpdateWindowDto> updateWindowDtos { get; set; }
-
 }

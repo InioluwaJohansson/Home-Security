@@ -15,30 +15,208 @@ public class MicroControllerService : IMicroControllerService
     public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceRepo applianceRepo, ILightRepo lightRepo, ICameraRepo cameraRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, ILogRepo logRepo)
     {
         _hardwareRepo = hardwareRepo;
-    _applianceRepo = applianceRepo;
-    _lightRepo = lightRepo;
-    _cameraRepo = cameraRepo;
-    _doorRepo = doorRepo;
-    _windowRepo = windowRepo;
-    _logRepo = logRepo;
+        _applianceRepo = applianceRepo;
+        _lightRepo = lightRepo;
+        _cameraRepo = cameraRepo;
+        _doorRepo = doorRepo;
+        _windowRepo = windowRepo;
+        _logRepo = logRepo;
     }
-    public async Task<HardwareIdsResponseModel> GetById(string hardWareId, string AuthKey)
+    public async Task<GenericDeviceState> GetById(string hardWareId, string AuthKey)
     {
-        var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardWareId && x.Auth == AuthKey && x.IsDeleted == false);
+        var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardWareId && x.AuthKey == AuthKey && x.IsDeleted == false);
         if(hardware != null)
         {
-            return new HardwareIdsResponseModel()
+            return new GenericDeviceState()
             {
-                Data = GetIdsDetails(hardware),
-                Status = true,
-                Message = "Hardware Retrieved Successfully!"
+                ApplianceDeviceStates = await GetApplianceDeviceStates(hardware.ApplianceIds),
+                LightDeviceStates = await GetLightDeviceStates(hardware.LightIds),
+                CameraDeviceStates = await GetCameraDeviceStates(hardware.CameraIds),
+                WindowDeviceStates = await GetWindowDeviceStates(hardware.WindowIds),
+                DoorDeviceStates = await GetDoorDeviceStates(hardware.DoorIds),
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             };
         }
-        return new HardwareIdsResponseModel()
+        return new GenericDeviceState()
         {
-            Data = null,
-            Status = false,
-            Message = "Unable To Retrieve Hardware!"
+            ApplianceDeviceStates = new List<ApplianceDeviceState>(),
+            LightDeviceStates = new List<LightDeviceState>(),
+            CameraDeviceStates = new List<CameraDeviceState>(),
+            WindowDeviceStates = new List<WindowDeviceState>(),
+            DoorDeviceStates = new List<DoorDeviceState>(),
+            Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
         };
+    }
+    public async Task<BaseResponse> UpdateDeviceStates(GenericDeviceUpdateState genericDeviceUpdateState)
+    {
+        switch (genericDeviceUpdateState.FacilityType)
+        {
+            case 1:
+                var appliance = await _applianceRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
+                if(appliance != null){
+                    appliance.IsActive = genericDeviceUpdateState.IsActive;
+                    await _applianceRepo.Update(appliance);
+                    return new BaseResponse(){
+                        Status = true,
+                        Message = "Appliance State Updated Successfully!"
+                    };
+                }
+                return new BaseResponse(){
+                    Status = false,
+                    Message = "Unable To Update Appliance State!"
+                };
+            case 2:
+                var light = await _lightRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
+                if(light != null){
+                    light.BrightnessLevel = genericDeviceUpdateState.BrightnessLevel;
+                    light.IsActive = genericDeviceUpdateState.IsActive;
+                    await _lightRepo.Update(light);
+                    return new BaseResponse(){
+                        Status = true,
+                        Message = "Light State Updated Successfully!"
+                    };
+                }
+                return new BaseResponse(){
+                    Status = false,
+                    Message = "Unable To Update Light State!"
+                };
+            case 3:
+                var camera = await _cameraRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
+                if(camera != null){
+                    camera.IsActive = genericDeviceUpdateState.IsActive;
+                    await _cameraRepo.Update(camera);
+                    return new BaseResponse(){
+                        Status = true,
+                        Message = "Camera State Updated Successfully!"
+                    };
+                }
+                return new BaseResponse(){
+                    Status = false,
+                    Message = "Unable To Update Camera State!"
+                };
+             case 4:
+                var window = await _windowRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
+                if(window != null){
+                    window.IsOpen = genericDeviceUpdateState.IsOpen;
+                    window.IsLocked = genericDeviceUpdateState.IsLocked;
+                    await _windowRepo.Update(window);
+                    return new BaseResponse(){
+                        Status = true,
+                        Message = "Window State Updated Successfully!"
+                    };
+                }
+                return new BaseResponse(){
+                    Status = false,
+                    Message = "Unable To Update Window State!"
+                };
+             case 5:
+                var door = await _doorRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
+                if(door != null){
+                    door.IsOpen = genericDeviceUpdateState.IsOpen;
+                    door.IsLocked = genericDeviceUpdateState.IsLocked;
+                    await _doorRepo.Update(door);
+                    return new BaseResponse(){
+                        Status = true,
+                        Message = "Door State Updated Successfully!"
+                    };
+                }
+                return new BaseResponse(){
+                    Status = false,
+                    Message = "Unable To Update Door State!"
+                };
+        }
+        return new BaseResponse(){
+            Status = false,
+            Message = "Unable To Update Generic State!"
+        };
+    }
+    
+    private async Task <List<ApplianceDeviceState>> GetApplianceDeviceStates(List<int> ApplianceIds)
+    {
+        var applianceDeviceStates = new List<ApplianceDeviceState>();
+        foreach (var item in ApplianceIds)
+        {
+            var appliance = await _applianceRepo.Get(x => x.Id == item && x.IsDeleted == false);
+            if (appliance != null)
+            {
+                applianceDeviceStates.Add(new ApplianceDeviceState()
+                {
+                    ApplianceId = appliance.Id,
+                    IsActive = appliance.IsActive,
+                });
+            }
+        }
+        return applianceDeviceStates;
+    }
+    private async Task <List<LightDeviceState>> GetLightDeviceStates(List<int> LightIds)
+    {
+        var lightDeviceStates = new List<LightDeviceState>();
+        foreach (var item in LightIds)
+        {
+            var light = await _lightRepo.Get(x => x.Id == item && x.IsDeleted == false);
+            if (light != null)
+            {
+                lightDeviceStates.Add(new LightDeviceState()
+                {
+                    LightId = light.Id,
+                    BrightnessLevel = light.BrightnessLevel,
+                    IsActive = light.IsActive,
+                });
+            }
+        }
+        return lightDeviceStates;
+    }
+    private async Task <List<CameraDeviceState>> GetCameraDeviceStates(List<int> CameraIds)
+    {
+        var cameraDeviceStates = new List<CameraDeviceState>();
+        foreach (var item in CameraIds)
+        {
+            var camera = await _cameraRepo.Get(x => x.Id == item && x.IsDeleted == false);
+            if (camera != null)
+            {
+                cameraDeviceStates.Add(new CameraDeviceState()
+                {
+                    CameraId = camera.Id,
+                    IsActive = camera.IsActive,
+                });
+            }
+        }
+        return cameraDeviceStates;
+    }
+    private async Task <List<WindowDeviceState>> GetWindowDeviceStates(List<int> WindowIds)
+    {
+        var windowDeviceStates = new List<WindowDeviceState>();
+        foreach (var item in WindowIds)
+        {
+            var window = await _windowRepo.Get(x => x.Id == item && x.IsDeleted == false);
+            if (window != null)
+            {
+                windowDeviceStates.Add(new WindowDeviceState()
+                {
+                    WindowId = window.Id,
+                    IsOpen = window.IsOpen,
+                    IsLocked = window.IsLocked,
+                });
+            }
+        }
+        return windowDeviceStates;
+    }
+    private async Task <List<DoorDeviceState>> GetDoorDeviceStates(List<int> DoorIds)
+    {
+        var doorDeviceStates = new List<DoorDeviceState>();
+        foreach (var item in DoorIds)
+        {
+            var door = await _doorRepo.Get(x => x.Id == item && x.IsDeleted == false);
+            if (door != null)
+            {
+                doorDeviceStates.Add(new DoorDeviceState()
+                {
+                    DoorId = door.Id,
+                    IsOpen = door.IsOpen,
+                    IsLocked = door.IsLocked,
+                });
+            }
+        }
+        return doorDeviceStates;
     }
 }

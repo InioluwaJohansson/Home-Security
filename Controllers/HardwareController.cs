@@ -15,8 +15,8 @@ public class HardwareController : Controller
         _hardwareControl = hardwareControl;
     }
     [Authorize]
-    [HttpPut("UpdateHardwareServices")]
-    public async Task<IActionResult> UpdateHaUpdateHardwareServicesrdware(UpdateHardwareDto updatehardwareDto)
+    [HttpPut("CreateHardware")]
+    public async Task<IActionResult> CreateHardware(CreateHardwareDto createHardwareDto)
     {
         var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
         var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -27,7 +27,7 @@ public class HardwareController : Controller
             PersonId = loggedInPersonId,
             AuthorizationCode = AuthorizationCode.ToString(),
         };
-        var hardware = await _hardwareControl.UpdateHardwareServices(updatehardwareDto);
+        var hardware = await _hardwareControl.CreateHardware(getAuthControlInfoDto, createHardwareDto, loggedInPersonId);
         if (hardware.Status == true)
         {
             return Ok(hardware);

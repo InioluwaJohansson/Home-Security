@@ -9,54 +9,72 @@ namespace Home_Security.Implementations.Controls;
 
 public class HardwareControl : IHardwareControl
 {
-    ICameraService _cameraService;
-    IDoorService _doorService;
-    ILightService _lightService;
-    IWindowService _windowService;
-    HardwareControl(ICameraService cameraService, IDoorService doorService, ILightService lightService, IWindowService windowService)
+    IHardwareService _hardwareService;
+    IAuthControl _authControl;
+    ILogService _logService;
+    HardwareControl(IHardwareService hardwareService, IAuthControl authControl, ILogService logService)
     {
-        _cameraService = cameraService;
-        _doorService = doorService;
-        _lightService = lightService;
-        _windowService = windowService;
+        _hardwareService = hardwareService;
+        _authControl = authControl;
+        _logService = logService;
     }
-    public async Task<BaseResponse> UpdateHardwareServices(UpdateHardwareDto hardwareDto)
+    public async Task<BaseResponse> CreateHardware(GetAuthControlInfoDto getAuthControlInfoDto, CreateHardwareDto createHardwareDto, int personId)
     {
-        if (hardwareDto != null)
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false && auth.Role == Role.Owner)
         {
-            foreach (var updateCamera in hardwareDto.updateCameraDtos) await _cameraService.UpdateCamera(updateCamera);
-            foreach (var updateDoor in hardwareDto.updateDoorDtos) await _doorService.UpdateDoor(updateDoor);
-            foreach (var updateLight in hardwareDto.updateLightDtos) await _lightService.UpdateLight(updateLight);
-            foreach (var updateWindow in hardwareDto.updateWindowDtos) await _windowService.UpdateWindow(updateWindow);
-            return new BaseResponse()
+            var hardware = await _hardwareService.CreateHardware(createHardwareDto, personId);
+            if (hardware.Status == true)
             {
-                Message = "Hardware Updated!",
-                Status = true
-            };
+                var log = _authControl.CreateLog(auth.Id);
+                log.ActionType = "Create";
+                log.LogDetails = "A Hardware was newly added. Awaiting Physical Interfacing!";
+                await _logService.CreateLog(log);
+            }
+            return hardware;
         }
-        return new BaseResponse()
-        {
-            Message = "Unable to update Hardware!",
-            Status = false
-        };
+        return _authControl.AuthFaliure();
     }
-    public async Task<HardwareResponse> GetHardwareServices(UpdateHardwareResponseIds updateHardwareResponseIds)
+    public async Task<BaseResponse> UpdateHardware(GetAuthControlInfoDto getAuthControlInfoDto, UpdateHardwareDto updateHardwareDto, int personId)
     {
-        if (updateHardwareResponseIds != null)
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false && auth.Role == Role.Owner)
         {
-            var hardwareResponse = new HardwareResponse();
-            foreach (var item in updateHardwareResponseIds.cameraIds) hardwareResponse.getCameraDtos.Add((await _cameraService.GetById(item)).Data);
-            foreach (var item in updateHardwareResponseIds.doorIds) hardwareResponse.getDoorDtos.Add((await _doorService.GetById(item)).Data);
-            foreach (var item in updateHardwareResponseIds.lightIds) hardwareResponse.getLightDtos.Add((await _lightService.GetById(item)).Data);
-            foreach (var item in updateHardwareResponseIds.windowIds) hardwareResponse.getWindowDtos.Add((await _windowService.GetById(item)).Data);
-            hardwareResponse.Message = "Data Retrieved Successfuly!";
-            hardwareResponse.Status = true;
-            return hardwareResponse;
+            var hardware = await _hardwareService.UpdateHardware(updateHardwareDto, personId);
+            if (hardware.Status == true)
+            {
+                var log = _authControl.CreateLog(auth.Id);
+                log.ActionType = "Update";
+                log.LogDetails = "A Hardware was updated. Awaiting Physical Interfacing!";
+                await _logService.CreateLog(log);
+            }
+            return hardware;
         }
-        return new HardwareResponse()
+        return _authControl.AuthFaliure();
+    }
+    public async Task<BaseResponse> GetById(GetAuthControlInfoDto getAuthControlInfoDto, int hardwareId)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false && auth.Role == Role.Owner)
         {
-            Message = "Unable to retreive hardware data!",
-            Status = false
+            var hardware = await _hardwareService.GetById(hardwareId);
+            return hardware;
+        }
+        return _authControl.AuthFaliure();
+    }
+    public async Task<HardwaresResponseModel> GetAllHardwares(GetAuthControlInfoDto getAuthControlInfoDto)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false && auth.Role == Role.Owner)
+        {
+            var hardware = await _hardwareService.GetAllHardwares();
+            return hardware;
+        }
+        return new HardwaresResponseModel()
+        {
+            Data = null,
+            Status = _authControl.AuthFaliure().Status,
+            Message = _authControl.AuthFaliure().Message
         };
     }
 }

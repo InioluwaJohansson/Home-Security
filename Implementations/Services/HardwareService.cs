@@ -8,7 +8,7 @@ public class HardwareService : IHardwareService
 {
     IHardwareRepo _hardwareRepo;
     IAuthControl _authControl;
-    public HardwareService(IHardwareRepo hardwareRepo, IAuthControl authControl;)
+    public HardwareService(IHardwareRepo hardwareRepo, IAuthControl authControl)
     {
         _hardwareRepo = hardwareRepo;
         _authControl = authControl;
@@ -20,7 +20,7 @@ public class HardwareService : IHardwareService
             var hardware = new Hardware()
             {
                 HardwareId = $"HARDWARE{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
-AuthKey = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 18).ToUpper(),
+                AuthKey = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 18).ToUpper(),
                 HardwareName = createHardwareDto.HardwareName,
                 CreatedOn = DateTime.Now,
                 CreatedBy = personId,
@@ -85,34 +85,15 @@ AuthKey = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 18).ToUpper(),
             Message = "Unable To Retrieve Hardware!"
         };
     }
-    public async Task<HardwareIdsResponseModel> GetById(string hardWareId, string AuthKey)
-    {
-        var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardWareId && x.Auth == AuthKey && x.IsDeleted == false);
-        if(hardware != null)
-        {
-            return new HardwareIdsResponseModel()
-            {
-                Data = GetIdsDetails(hardware),
-                Status = true,
-                Message = "Hardware Retrieved Successfully!"
-            };
-        }
-        return new HardwareIdsResponseModel()
-        {
-            Data = null,
-            Status = false,
-            Message = "Unable To Retrieve Hardware!"
-        };
-    }
-    public Task<HardwaresResponseModel> GetAllHardwares()
+    public async Task<HardwaresResponseModel> GetAllHardwares()
     {
         var hardwares = await _hardwareRepo.GetByExpression(x => x.IsDeleted == false);
         if (hardwares != null)
         {
             return new HardwaresResponseModel()
             {
-                Data = appliances.Select(x => GetDetails(x)).ToList(),
-                Message = "Appliances Retrieved Successfully!",
+                Data = hardwares.Select(x => GetDetails(x)).ToList(),
+                Message = "Hardwares Retrieved Successfully!",
                 Status = true
             };
         }
@@ -129,83 +110,67 @@ AuthKey = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 18).ToUpper(),
         {
             Id = hardware.Id,
             HardwareName = hardware.HardwareName,
-AuthKey = hardware.AuthKey,
+            AuthKey = hardware.AuthKey,
             IsActive = hardware.IsActive,
             PowerActive = hardware.PowerActive,
-            hardwareId = hardware.hardwareId,
-            LastModifiedBy = hardware.LastModifiedBy,
-            DeletedBy = hardware.DeletedBy,
-            CreatedBy = hardware.CreatedBy,
-            LastModifiedOn = hardware.LastModifiedOn,
-            CreatedOn = hardware.CreatedOn,
-            IsDeleted = hardware.IsDeleted,
-            ApplianceNamesId = hardware.ApplianceIds.Select(x => GenericIdDetails(x, 'appliance')).ToList(),
-            LightNamesId = hardware.LightIds.Select(x => GenericIdDetails(x, 'light')).ToList(),
-            CameraNamesId = hardware.CameraIds.Select(x => GenericIdDetails(x, 'camera')).ToList(),
-            WindowNamesId = hardware.WindowIds.Select(x => GenericIdDetails(x, 'window')).ToList(),
-            DoorNamesId = hardware.DoorIds.Select(x => GenericIdDetails(x, 'door')).ToList(),
-    }
-public GetHardwareIdsDto GetIdsDetails(Hardware hardware)
-    {
-        return new GetHardwareDto()
-        {
-            Id = hardware.Id,
-   ApplianceIds= hardware.ApplianceIds,
-   CameraIds = hardware.CameraIds,
-   LightIds = hardware.LightsIds,
-   WindowIds = hardware.WindowIds,
-   DoorIds = hardware.DoorIds,
+            HardwareId = hardware.HardwareId,
+            ApplianceIdNames = hardware.ApplianceIds.Select(x => GenericIdDetails(x, "appliance")).ToList(),
+            LightIdNames = hardware.LightIds.Select(x => GenericIdDetails(x, "light")).ToList(),
+            CameraIdNames = hardware.CameraIds.Select(x => GenericIdDetails(x, "camera")).ToList(),
+            WindowIdNames = hardware.WindowIds.Select(x => GenericIdDetails(x, "window")).ToList(),
+            DoorIdNames = hardware.DoorIds.Select(x => GenericIdDetails(x, "door")).ToList(),
         };
     }
-public GenericIdNames GenericIdDetails(int id, string entityType){
-if(entityType.Equals("appliance")){
-string data = _authControl.GetApplainceName(id);
-if(data != null){
-return new GenericIdNames(){
-    Id = id,
-    Name = data
-};
-}
-}
-if(entityType.Equals("light")){
-string data = _authControl.GetLightName(id);
-if(data != null){
-return new GenericIdNames(){
-    Id = id,
-    Name = data
-};
-}
-}
-if(entityType.Equals("camera")){
-string data = _authControl.GetCameraName(id);
-if(data != null){
-return new GenericIdNames(){
-    Id = id,
-    Name = data
-};
-}
-}
-if(entityType.Equals("window")){
-string data = _authControl.GetWindowName(id);
-if(data != null){
-return new GenericIdNames(){
-    Id = id,
-    Name = data
-};
-}
-}
-if(entityType.Equals("door")){
-string data = _authControl.GetDoorName(id);
-if(data != null){
-return new GenericIdNames(){
-    Id = id,
-    Name = data
-};
-}
-}
-return new GenericIdNames(){
-    Id = id,
-    Name = null
-};
-}
+    public GenericIdNames GenericIdDetails(int id, string entityType)
+    {
+        if(entityType.Equals("appliance")){
+        string data = _authControl.GetApplianceName(id);
+        if(data != null){
+        return new GenericIdNames(){
+            Id = id,
+            Name = data
+        };
+        }
+        }
+        if(entityType.Equals("light")){
+        string data = _authControl.GetLightName(id);
+        if(data != null){
+        return new GenericIdNames(){
+            Id = id,
+            Name = data
+        };
+        }
+        }
+        if(entityType.Equals("camera")){
+        string data = _authControl.GetCameraName(id);
+        if(data != null){
+        return new GenericIdNames(){
+            Id = id,
+            Name = data
+        };
+        }
+        }
+        if(entityType.Equals("window")){
+        string data = _authControl.GetWindowName(id);
+        if(data != null){
+        return new GenericIdNames(){
+            Id = id,
+            Name = data
+        };
+        }
+        }
+        if(entityType.Equals("door")){
+        string data = _authControl.GetDoorName(id);
+        if(data != null){
+        return new GenericIdNames(){
+            Id = id,
+            Name = data
+        };
+        }
+        }
+        return new GenericIdNames(){
+            Id = id,
+            Name = null
+        };
+    }
 }

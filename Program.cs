@@ -73,6 +73,10 @@ builder.Services.AddDbContext<HomeSecurityContext>(c => c.UseMySql(connectionStr
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSingleton<MqttService>();
+
+builder.Services.AddHostedService(
+    sp => sp.GetRequiredService<MqttService>());
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo {Title = "Home Security", Version = "v1"});
