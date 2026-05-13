@@ -5,9 +5,9 @@ namespace Home_Security.RealTimeServices
 {
     public class RealtimeNotificationService
     {
-        private readonly IHubContext<SecurityHub> _hub;
+        private readonly IHubContext<HomeSecurity> _hub;
 
-        public RealtimeNotificationService(IHubContext<SecurityHub> hub)
+        public RealtimeNotificationService(IHubContext<HomeSecurity> hub)
         {
             _hub = hub;
         }
