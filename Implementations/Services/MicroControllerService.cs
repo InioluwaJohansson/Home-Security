@@ -2,7 +2,9 @@
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.RealTimeServices;
 namespace Home_Security.Implementations.Services;
+
 public class MicroControllerService : IMicroControllerService
 {
     IHardwareRepo _hardwareRepo;
@@ -12,7 +14,18 @@ public class MicroControllerService : IMicroControllerService
     IDoorRepo _doorRepo;
     IWindowRepo _windowRepo;
     ILogRepo _logRepo;
-    public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceRepo applianceRepo, ILightRepo lightRepo, ICameraRepo cameraRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, ILogRepo logRepo)
+
+    RealtimeNotificationService _realtime;
+
+    public MicroControllerService(
+        IHardwareRepo hardwareRepo,
+        IApplianceRepo applianceRepo,
+        ILightRepo lightRepo,
+        ICameraRepo cameraRepo,
+        IDoorRepo doorRepo,
+        IWindowRepo windowRepo,
+        ILogRepo logRepo,
+        RealtimeNotificationService realtime)
     {
         _hardwareRepo = hardwareRepo;
         _applianceRepo = applianceRepo;
@@ -21,13 +34,16 @@ public class MicroControllerService : IMicroControllerService
         _doorRepo = doorRepo;
         _windowRepo = windowRepo;
         _logRepo = logRepo;
+        _realtime = realtime;
     }
-    public async Task<GenericDeviceState> GetById(string hardWareId, string AuthKey)
+
+    public async Task<GenericDeviceState> GetByAuth(string hardWareId, string AuthKey)
     {
         var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardWareId && x.AuthKey == AuthKey && x.IsDeleted == false);
-        if(hardware != null)
+
+        if (hardware != null)
         {
-            return new GenericDeviceState()
+            var state = new GenericDeviceState()
             {
                 ApplianceDeviceStates = await GetApplianceDeviceStates(hardware.ApplianceIds),
                 LightDeviceStates = await GetLightDeviceStates(hardware.LightIds),
@@ -36,8 +52,14 @@ public class MicroControllerService : IMicroControllerService
                 DoorDeviceStates = await GetDoorDeviceStates(hardware.DoorIds),
                 Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             };
+
+            // ✅ SIGNALR ADDED (device sync broadcast)
+            await _realtime.NotifyAll("DeviceStateSnapshot", state);
+
+            return state;
         }
-        return new GenericDeviceState()
+
+        var emptyState = new GenericDeviceState()
         {
             ApplianceDeviceStates = new List<ApplianceDeviceState>(),
             LightDeviceStates = new List<LightDeviceState>(),
@@ -46,86 +68,117 @@ public class MicroControllerService : IMicroControllerService
             DoorDeviceStates = new List<DoorDeviceState>(),
             Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
         };
+
+        return emptyState;
     }
+
     public async Task<BaseResponse> UpdateDeviceStates(GenericDeviceUpdateState genericDeviceUpdateState)
     {
         switch (genericDeviceUpdateState.FacilityType)
         {
             case 1:
                 var appliance = await _applianceRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
-                if(appliance != null){
+                if (appliance != null)
+                {
                     appliance.IsActive = genericDeviceUpdateState.IsActive;
                     await _applianceRepo.Update(appliance);
-                    return new BaseResponse(){
+                    await _realtime.NotifyAll("ApplianceUpdated", new
+                    {
+                        appliance.Id,
+                        appliance.IsActive
+                    });
+                    return new BaseResponse()
+                    {
                         Status = true,
                         Message = "Appliance State Updated Successfully!"
                     };
                 }
-                return new BaseResponse(){
-                    Status = false,
-                    Message = "Unable To Update Appliance State!"
-                };
+                break;
+
             case 2:
                 var light = await _lightRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
-                if(light != null){
+                if (light != null)
+                {
                     light.BrightnessLevel = genericDeviceUpdateState.BrightnessLevel;
                     light.IsActive = genericDeviceUpdateState.IsActive;
                     await _lightRepo.Update(light);
-                    return new BaseResponse(){
+                    await _realtime.NotifyAll("LightUpdated", new
+                    {
+                        light.Id,
+                        light.IsActive,
+                        light.BrightnessLevel
+                    });
+                    return new BaseResponse()
+                    {
                         Status = true,
                         Message = "Light State Updated Successfully!"
                     };
                 }
-                return new BaseResponse(){
-                    Status = false,
-                    Message = "Unable To Update Light State!"
-                };
+                break;
+
             case 3:
                 var camera = await _cameraRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
-                if(camera != null){
+                if (camera != null)
+                {
                     camera.IsActive = genericDeviceUpdateState.IsActive;
                     await _cameraRepo.Update(camera);
-                    return new BaseResponse(){
+                    await _realtime.NotifyAll("CameraUpdated", new
+                    {
+                        camera.Id,
+                        camera.IsActive
+                    });
+                    return new BaseResponse()
+                    {
                         Status = true,
                         Message = "Camera State Updated Successfully!"
                     };
                 }
-                return new BaseResponse(){
-                    Status = false,
-                    Message = "Unable To Update Camera State!"
-                };
-             case 4:
+                break;
+
+            case 4:
                 var window = await _windowRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
-                if(window != null){
+                if (window != null)
+                {
                     window.IsOpen = genericDeviceUpdateState.IsOpen;
                     window.IsLocked = genericDeviceUpdateState.IsLocked;
                     await _windowRepo.Update(window);
-                    return new BaseResponse(){
+                    await _realtime.NotifyAll("WindowUpdated", new
+                    {
+                        window.Id,
+                        window.IsOpen,
+                        window.IsLocked
+                    });
+                    return new BaseResponse()
+                    {
                         Status = true,
                         Message = "Window State Updated Successfully!"
                     };
                 }
-                return new BaseResponse(){
-                    Status = false,
-                    Message = "Unable To Update Window State!"
-                };
-             case 5:
+                break;
+
+            case 5:
                 var door = await _doorRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
-                if(door != null){
+                if (door != null)
+                {
                     door.IsOpen = genericDeviceUpdateState.IsOpen;
                     door.IsLocked = genericDeviceUpdateState.IsLocked;
                     await _doorRepo.Update(door);
-                    return new BaseResponse(){
+                    await _realtime.NotifyAll("DoorUpdated", new
+                    {
+                        door.Id,
+                        door.IsOpen,
+                        door.IsLocked
+                    });
+                    return new BaseResponse()
+                    {
                         Status = true,
                         Message = "Door State Updated Successfully!"
                     };
                 }
-                return new BaseResponse(){
-                    Status = false,
-                    Message = "Unable To Update Door State!"
-                };
+                break;
         }
-        return new BaseResponse(){
+        return new BaseResponse()
+        {
             Status = false,
             Message = "Unable To Update Generic State!"
         };

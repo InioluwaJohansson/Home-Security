@@ -21,6 +21,7 @@ public class HomeSecurityContext: DbContext
     public DbSet<Light> Light { get; set; }
     public DbSet<Camera> Camera { get; set; }
     public DbSet<Appliance> Appliance { get; set; }
+    public DbSet<Externals> Externals { get; set; }
 
 
     //Operations
