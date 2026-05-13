@@ -59,3 +59,24 @@ public string GenerateHardwareToken(Hardware hardware)
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
+public static class ClaimsPrincipalExtensions
+{
+    public static GetAuthControlInfoDto? GetCurrentUserInfo(this ClaimsPrincipal user)
+    {
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var personIdClaim = user.FindFirst("PersonId")?.Value;
+        var authorizationCode = user.FindFirst(ClaimTypes.Authentication)?.Value;
+
+        if (!int.TryParse(userIdClaim, out int userId) ||
+            !int.TryParse(personIdClaim, out int personId))
+        {
+            return null;
+        }
+
+        return new GetAuthControlInfoDto
+        {
+            PersonId = personId,
+            AuthorizationCode = authorizationCode ?? ""
+        };
+    }
+}
