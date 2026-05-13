@@ -25,9 +25,8 @@ public class MqttService : BackgroundService, IMqttService
         _logger = logger;
     }
 
-    // =========================================================
+    
     // START MQTT SERVICE
-    // =========================================================
 
     protected override async Task ExecuteAsync(
         CancellationToken stoppingToken)
@@ -46,16 +45,13 @@ public class MqttService : BackgroundService, IMqttService
         }
     }
 
-    // =========================================================
+    
     // MQTT EVENTS
-    // =========================================================
 
     private async Task ConfigureMqttEvents()
     {
-        // ============================================
         // CONNECTED
-        // ============================================
-
+       
         _client.ConnectedAsync += async e =>
         {
             _logger.LogInformation("MQTT CONNECTED");
@@ -63,10 +59,9 @@ public class MqttService : BackgroundService, IMqttService
             await SubscribeTopics();
         };
 
-        // ============================================
+        
         // DISCONNECTED
-        // ============================================
-
+        
         _client.DisconnectedAsync += async e =>
         {
             _logger.LogWarning("MQTT DISCONNECTED");
@@ -74,9 +69,8 @@ public class MqttService : BackgroundService, IMqttService
             await ReconnectAsync();
         };
 
-        // ============================================
+        
         // MESSAGE RECEIVED
-        // ============================================
 
         _client.ApplicationMessageReceivedAsync += async e =>
         {
@@ -91,9 +85,8 @@ public class MqttService : BackgroundService, IMqttService
                     "MQTT MESSAGE RECEIVED | Topic: {Topic}",
                     topic);
 
-                // ====================================
+                
                 // DEVICE STATE UPDATE
-                // ====================================
 
                 if (topic.EndsWith("/state"))
                 {
@@ -122,10 +115,9 @@ public class MqttService : BackgroundService, IMqttService
                     }
                 }
 
-                // ====================================
+                
                 // DEVICE FULL SYNC
-                // ====================================
-
+                
                 if (topic.EndsWith("/sync"))
                 {
                     var state =
@@ -143,10 +135,9 @@ public class MqttService : BackgroundService, IMqttService
                     }
                 }
 
-                // ====================================
+                
                 // DEVICE STATUS
-                // ====================================
-
+                
                 if (topic.EndsWith("/status"))
                 {
                     _logger.LogInformation(
@@ -164,9 +155,8 @@ public class MqttService : BackgroundService, IMqttService
         await Task.CompletedTask;
     }
 
-    // =========================================================
+    
     // CONNECT TO MQTT BROKER
-    // =========================================================
 
     private async Task ConnectAsync(
         CancellationToken cancellationToken)
@@ -185,10 +175,9 @@ public class MqttService : BackgroundService, IMqttService
         await _client.ConnectAsync(options, cancellationToken);
     }
 
-    // =========================================================
+    
     // AUTO RECONNECT
-    // =========================================================
-
+    
     private async Task ReconnectAsync()
     {
         while (!_client.IsConnected)
@@ -211,10 +200,9 @@ public class MqttService : BackgroundService, IMqttService
         }
     }
 
-    // =========================================================
+    
     // SUBSCRIBE TO ALL DEVICE TOPICS
-    // =========================================================
-
+    
     private async Task SubscribeTopics()
     {
         var options = new MqttClientSubscribeOptionsBuilder().WithTopicFilter(f =>
@@ -239,10 +227,9 @@ public class MqttService : BackgroundService, IMqttService
             "MQTT TOPICS SUBSCRIBED");
     }
 
-    // =========================================================
+    
     // SEND FULL DEVICE STATE TO ESP32
-    // =========================================================
-
+    
     public async Task PublishFullStateSync(
         string hardwareId,
         GenericDeviceState state)
@@ -255,10 +242,9 @@ public class MqttService : BackgroundService, IMqttService
             "FULL STATE SYNC SENT");
     }
 
-    // =========================================================
+    
     // SEND SINGLE DEVICE UPDATE
-    // =========================================================
-
+    
     public async Task PublishDeviceUpdate(
         string hardwareId,
         GenericDeviceUpdateState update)
@@ -271,9 +257,9 @@ public class MqttService : BackgroundService, IMqttService
             "DEVICE UPDATE SENT");
     }
 
-    // =========================================================
+    
     // DEVICE ONLINE/OFFLINE STATUS
-    // =========================================================
+    
 
     public async Task PublishDeviceStatus(string hardwareId, object data)
     {
@@ -282,9 +268,9 @@ public class MqttService : BackgroundService, IMqttService
         _logger.LogInformation("DEVICE STATUS SENT");
     }
 
-    // =========================================================
+    
     // GENERIC MQTT PUBLISHER
-    // =========================================================
+    
 
     private async Task PublishAsync(string topic, object payload, bool retain = false)
     {
