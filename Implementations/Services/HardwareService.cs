@@ -121,7 +121,7 @@ public class HardwareService : IHardwareService
             DoorIdNames = hardware.DoorIds.Select(x => GenericIdDetails(x, "door")).ToList(),
         };
     }
-    public GenericIdNames GenericIdDetails(int id, string entityType)
+    private GenericIdNames GenericIdDetails(int id, string entityType)
     {
         if(entityType.Equals("appliance")){
         string data = _authControl.GetApplianceName(id);

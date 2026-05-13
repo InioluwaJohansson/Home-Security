@@ -5,8 +5,7 @@ using Home_Security.Models.DTOs;
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Protocol;
-
-namespace Home_Security.Mqtt;
+namespace Home_Security.RealTimeServices;
 
 public class MqttService : BackgroundService, IMqttService
 {
@@ -218,28 +217,23 @@ public class MqttService : BackgroundService, IMqttService
 
     private async Task SubscribeTopics()
     {
-        var topics = new List<MqttTopicFilter>
+        var options = new MqttClientSubscribeOptionsBuilder().WithTopicFilter(f =>
         {
-            new MqttTopicFilterBuilder()
-                .WithTopic("home/+/state")
-                .WithQualityOfServiceLevel(
-                    MqttQualityOfServiceLevel.AtLeastOnce)
-                .Build(),
+            f.WithTopic("home/+/state");
+            f.WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce);
+        }).WithTopicFilter(f =>
+        {
+            f.WithTopic("home/+/sync");
+            f.WithQualityOfServiceLevel(
+            MqttQualityOfServiceLevel.AtLeastOnce);
+        }).WithTopicFilter(f =>
+        {
+            f.WithTopic("home/+/status");
+            f.WithQualityOfServiceLevel(
+            MqttQualityOfServiceLevel.AtLeastOnce);
+        }).Build();
 
-            new MqttTopicFilterBuilder()
-                .WithTopic("home/+/sync")
-                .WithQualityOfServiceLevel(
-                    MqttQualityOfServiceLevel.AtLeastOnce)
-                .Build(),
-
-            new MqttTopicFilterBuilder()
-                .WithTopic("home/+/status")
-                .WithQualityOfServiceLevel(
-                    MqttQualityOfServiceLevel.AtLeastOnce)
-                .Build()
-        };
-
-        await _client.SubscribeAsync(topics);
+        await _client.SubscribeAsync(options);
 
         _logger.LogInformation(
             "MQTT TOPICS SUBSCRIBED");
@@ -281,43 +275,22 @@ public class MqttService : BackgroundService, IMqttService
     // DEVICE ONLINE/OFFLINE STATUS
     // =========================================================
 
-    public async Task PublishDeviceStatus(
-        string hardwareId,
-        bool isOnline)
+    public async Task PublishDeviceStatus(string hardwareId, object data)
     {
         var topic = $"home/{hardwareId}/status";
-
-        var payload = new
-        {
-            IsOnline = isOnline,
-            Timestamp =
-                DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-        };
-
-        await PublishAsync(topic, payload, true);
-
-        _logger.LogInformation(
-            "DEVICE STATUS SENT");
+        await PublishAsync(topic, data, true);
+        _logger.LogInformation("DEVICE STATUS SENT");
     }
 
     // =========================================================
     // GENERIC MQTT PUBLISHER
     // =========================================================
 
-    private async Task PublishAsync(
-        string topic,
-        object payload,
-        bool retain = false)
+    private async Task PublishAsync(string topic, object payload, bool retain = false)
     {
         var json = JsonSerializer.Serialize(payload);
 
-        var message = new MqttApplicationMessageBuilder()
-            .WithTopic(topic)
-            .WithPayload(json)
-            .WithRetainFlag(retain)
-            .WithQualityOfServiceLevel(
-                MqttQualityOfServiceLevel.AtLeastOnce)
-            .Build();
+        var message = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(json).WithRetainFlag(retain).WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce).Build();
 
         await _client.PublishAsync(message);
 
