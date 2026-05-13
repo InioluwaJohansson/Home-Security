@@ -2,6 +2,9 @@
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.RealTimeServices;
+using Microsoft.AspNetCore.SignalR;
+
 namespace Home_Security.Implementations.Services;
 public class RoomService : IRoomService
 {
@@ -10,13 +13,16 @@ public class RoomService : IRoomService
     IDoorRepo _doorRepo;
     IWindowRepo _windowRepo;
     IApplianceRepo _applianceRepo;
-    public RoomService(IRoomRepo roomRepo, ILightRepo lightRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IApplianceRepo applianceRepo)
+    RealtimeNotificationService _realtime;
+
+    public RoomService(IRoomRepo roomRepo, ILightRepo lightRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IApplianceRepo applianceRepo, RealtimeNotificationService realtime)
     {
         _roomRepo = roomRepo;
         _lightRepo = lightRepo;
         _doorRepo = doorRepo;
         _windowRepo = windowRepo;
         _applianceRepo = applianceRepo;
+        _realtime = realtime;
     }
     public async Task<BaseResponse> CreateRoom(CreateRoomDto createRoomDto, int personId)
     {
@@ -35,6 +41,9 @@ public class RoomService : IRoomService
                 IsDeleted = false,
             };
             await _roomRepo.Create(room);
+
+            await _realtime.NotifyAll("RoomCreated", room.Id);
+
             return new BaseResponse()
             {
                 Status = true,
@@ -57,7 +66,11 @@ public class RoomService : IRoomService
             room.RoomName = updateRoomDto.RoomName ?? room.RoomName;
             room.LastModifiedBy = personId;
             room.LastModifiedOn = DateTime.Now;
+
             await _roomRepo.Update(room);
+
+            await _realtime.NotifyAll("RoomUpdated", room.Id);
+
             return new BaseResponse()
             {
                 Status = true,
@@ -156,7 +169,11 @@ public class RoomService : IRoomService
             room.DeletedBy = personId;
             room.LastModifiedBy = personId;
             room.LastModifiedOn = DateTime.Now;
+
             await _roomRepo.Update(room);
+
+            await _realtime.NotifyAll("RoomDeleted", id);
+
             return new BaseResponse()
             {
                 Status = true,

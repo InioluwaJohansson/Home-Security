@@ -2,16 +2,24 @@
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.RealTimeServices;
+using Microsoft.AspNetCore.SignalR;
+
 namespace Home_Security.Implementations.Services;
+
 public class LogService : ILogService
 {
     ILogRepo _logRepo;
     IPersonRepo _personRepo;
-    public LogService(ILogRepo logRepo, IPersonRepo personRepo)
+    RealtimeNotificationService _realtime;
+
+    public LogService(ILogRepo logRepo, IPersonRepo personRepo, RealtimeNotificationService realtime)
     {
         _logRepo = logRepo;
         _personRepo = personRepo;
+        _realtime = realtime;
     }
+
     public async Task<BaseResponse> CreateLog(CreateLogDto createLogDto)
     {
         if (createLogDto != null)
@@ -29,23 +37,34 @@ public class LogService : ILogService
                 IsDeleted = false
             };
             await _logRepo.Create(log);
+            await _realtime.NotifyAll("LogCreated", new
+            {
+                log.Id,
+                log.PersonId,
+                log.ActionType,
+                log.LogDetails,
+                log.TimeOfAction
+            });
+
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Action Logged Successfully!"
             };
         }
+
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Log Action!"
         };
     }
+
     public async Task<LogResponseModel> GetLogById(int id)
     {
         var log = await _logRepo.Get(x => x.Id == id && x.IsDeleted == false);
         if (log != null)
-        {   
+        {
             return new LogResponseModel()
             {
                 Data = await GetDetails(log),
@@ -53,88 +72,116 @@ public class LogService : ILogService
                 Message = "Log Retrieved Successfully!"
             };
         }
+
         return new LogResponseModel()
         {
             Status = false,
             Message = "Unable To Retrieve Log!"
         };
     }
+
     public async Task<LogsResponseModel> GetLogsByActionType(string actionType)
     {
         var logs = await _logRepo.GetByExpression(x => x.ActionType == actionType && x.IsDeleted == false);
         if (logs != null)
         {
             var sortedLogs = new List<GetLogDto>();
+
             foreach (var item in logs)
             {
                 var logDetails = await GetDetails(item);
                 sortedLogs.Add(logDetails);
             }
+
+            var result = sortedLogs.OrderBy(x => x.TimeOfAction).ToList();
+
+            await _realtime.NotifyAll("LogsUpdated", result);
+
             return new LogsResponseModel()
             {
-                Data = sortedLogs.OrderBy(x => x.TimeOfAction).ToList(),
+                Data = result,
                 Status = true,
                 Message = "Logs Retrieved Successfully!"
             };
         }
+
         return new LogsResponseModel()
         {
             Status = false,
             Message = "Unable To Retrieve Logs!"
         };
     }
+
     public async Task<LogsResponseModel> GetLogsByPersonId(int personId)
     {
         var logs = await _logRepo.GetByExpression(x => x.PersonId == personId && x.IsDeleted == false);
         if (logs != null)
         {
             var sortedLogs = new List<GetLogDto>();
+
             foreach (var item in logs)
             {
                 var logDetails = await GetDetails(item);
                 sortedLogs.Add(logDetails);
             }
+
+            var result = sortedLogs.OrderBy(x => x.TimeOfAction).ToList();
+
+            await _realtime.NotifyAll("LogsUpdated", result);
+
             return new LogsResponseModel()
             {
-                Data = sortedLogs.OrderBy(x => x.TimeOfAction).ToList(),
+                Data = result,
                 Status = true,
                 Message = "Logs Retrieved Successfully!"
             };
         }
+
         return new LogsResponseModel()
         {
             Status = false,
             Message = "Unable To Retrieve Logs!"
         };
     }
+
     public async Task<LogsResponseModel> GetAllLogs()
     {
         var logs = await _logRepo.GetByExpression(x => x.IsDeleted == false);
         if (logs != null)
         {
             var sortedLogs = new List<GetLogDto>();
+
             foreach (var item in logs)
             {
                 var logDetails = await GetDetails(item);
                 sortedLogs.Add(logDetails);
             }
+
+            var result = sortedLogs.OrderBy(x => x.TimeOfAction).ToList();
+
+            await _realtime.NotifyAll("LogsUpdated", result);
+
             return new LogsResponseModel()
             {
-                Data = sortedLogs.OrderBy(x => x.TimeOfAction).ToList(),
+                Data = result,
                 Status = true,
                 Message = "Logs Retrieved Successfully!"
             };
         }
+
         return new LogsResponseModel()
         {
             Status = false,
             Message = "Unable To Retrieve Logs!"
         };
     }
+
     public async Task<GetLogDto> GetDetails(Logs log)
     {
         var person = await _personRepo.GetById(log.PersonId);
+
         GetPersonDto getPerson = new GetPersonDto();
+
         if (person != null)
         {
             getPerson = new GetPersonDto()
@@ -159,6 +206,7 @@ public class LogService : ILogService
                 }
             };
         }
+
         return new GetLogDto()
         {
             Id = log.Id,
