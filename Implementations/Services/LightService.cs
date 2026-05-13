@@ -9,10 +9,10 @@ namespace Home_Security.Implementations.Services;
 public class LightService : ILightService
 {
     ILightRepo _lightRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
 
-    public LightService(ILightRepo lightRepo, RealtimeNotificationService realtime, IMqttService mqtt)
+    public LightService(ILightRepo lightRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _lightRepo = lightRepo;
         _realtime = realtime;
