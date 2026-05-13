@@ -73,10 +73,40 @@ builder.Services.AddDbContext<HomeSecurityContext>(c => c.UseMySql(connectionStr
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSingleton<MqttService>();
+builder.Services.AddScoped<RealtimeNotificationService>();
+builder.Services.AddHostedService(
+    sp => sp.GetRequiredService<MqttService>());
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo {Title = "Home Security", Version = "v1"});
 });
+
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.Authority = "your-auth-server";
+        options.Audience = "home-security-api";
+
+        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+
+                // SignalR sends token via query string
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    path.StartsWithSegments("/securityHub"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
+    });
+
 
 var key = "Authorization Key";
 builder.Services.AddSingleton<JWTAuthentication>(new JWTAuthentication(key));

@@ -3,8 +3,12 @@ using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.RealTimeServices;
+using Microsoft.AspNetCore.SignalR;
 using System.Data;
+
 namespace Home_Security.Implementations.Services;
+
 public class PersonService : IPersonService
 {
     IPersonRepo _personRepo;
@@ -12,30 +16,37 @@ public class PersonService : IPersonService
     IUserRepo _userRepo;
     IAddressRepo _addressRepo;
     IContactDetailsRepo _contactDetailsRepo;
-    public PersonService(IPersonRepo personRepo, IFingerPrintRepo fingerPrintRepo, IUserRepo userRepo, IAddressRepo addressRepo, IContactDetailsRepo contactDetailsRepo)
+
+    // ✅ SIGNALR ADDED
+     RealtimeNotificationService _realTime;
+
+    public PersonService(IPersonRepo personRepo,IFingerPrintRepo fingerPrintRepo,IUserRepo userRepo,IAddressRepo addressRepo,IContactDetailsRepo contactDetailsRepo,RealtimeNotificationService realTime)
     {
         _personRepo = personRepo;
         _fingerPrintRepo = fingerPrintRepo;
         _userRepo = userRepo;
         _addressRepo = addressRepo;
         _contactDetailsRepo = contactDetailsRepo;
+        _realTime = realTime;
     }
+
     public async Task<BaseResponse> CreatePerson(CreatePersonDto createPersonDto)
     {
         var checkUser = await _userRepo.Get(x => x.UserName == createPersonDto.CreateUserDto.UserName);
-        if (checkUser == null )
+        if (checkUser == null)
         {
             var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Persons\\");
             if (!System.IO.Directory.Exists(folderPath))
             {
                 Directory.CreateDirectory(folderPath);
             }
+
             var imagePath = "";
             if (createPersonDto.CreatePersonDetailsDto.ImageUrl != null)
             {
                 var fileName = Path.GetFileNameWithoutExtension(createPersonDto.CreatePersonDetailsDto.ImageUrl.FileName);
                 var filePath = Path.Combine(folderPath, createPersonDto.CreatePersonDetailsDto.ImageUrl.FileName);
-                var extension = Path.GetExtension(createPersonDto.CreatePersonDetailsDto.ImageUrl.FileName);
+
                 if (!System.IO.Directory.Exists(filePath))
                 {
                     using (var stream = new FileStream(filePath, FileMode.Create))
@@ -45,6 +56,7 @@ public class PersonService : IPersonService
                     imagePath = fileName;
                 }
             }
+
             var user = new User()
             {
                 UserName = createPersonDto.CreateUserDto.UserName,
@@ -54,7 +66,9 @@ public class PersonService : IPersonService
                 CreatedOn = DateTime.Now,
                 LastModifiedOn = DateTime.Now,
             };
+
             var getUser = await _userRepo.Create(user);
+
             var userRole = new UserRole()
             {
                 UserId = getUser.Id,
@@ -63,8 +77,10 @@ public class PersonService : IPersonService
                 CreatedOn = DateTime.Now,
                 LastModifiedOn = DateTime.Now
             };
+
             getUser.UserRole = userRole;
             await _userRepo.Update(getUser);
+
             var person = new Person()
             {
                 PersonId = $"PERSON{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
@@ -82,9 +98,12 @@ public class PersonService : IPersonService
                     LastModifiedOn = DateTime.Now,
                 }
             };
+
             await _personRepo.Create(person);
+
             var getUserId = await _userRepo.Get(x => x.UserName == createPersonDto.CreateUserDto.UserName);
             var getPerson = await _personRepo.Get(x => x.UserId == getUserId.Id);
+
             foreach (var fingerprint in createPersonDto.CreatePersonDetailsDto.CreateFingerPrintDtos)
             {
                 var finger = new FingerPrint()
@@ -98,35 +117,48 @@ public class PersonService : IPersonService
                     CreatedOn = DateTime.Now,
                     CreatedBy = getPerson.Id
                 };
+
                 await _fingerPrintRepo.Create(finger);
             }
+            await _realTime.NotifyAll("PersonCreated", new
+            {
+                getPerson.Id,
+                getPerson.PersonId,
+                createPersonDto.CreatePersonDetailsDto.FirstName,
+                createPersonDto.CreatePersonDetailsDto.LastName
+            });
+
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Person Added Successfully!"
             };
         }
+
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Add Person. Conflicting Username!"
         };
     }
+
     public async Task<BaseResponse> UpdatePerson(UpdatePersonDto updatePersonDto)
     {
         var person = await _personRepo.GetById(updatePersonDto.Id);
-        if (person != null) {
+        if (person != null)
+        {
             var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Persons\\");
             if (!System.IO.Directory.Exists(folderPath))
             {
                 Directory.CreateDirectory(folderPath);
             }
+
             var imagePath = "";
             if (updatePersonDto.UpdatePersonDetailsDto.ImageUrl != null)
             {
                 var fileName = Path.GetFileNameWithoutExtension(updatePersonDto.UpdatePersonDetailsDto.ImageUrl.FileName);
                 var filePath = Path.Combine(folderPath, updatePersonDto.UpdatePersonDetailsDto.ImageUrl.FileName);
-                var extension = Path.GetExtension(updatePersonDto.UpdatePersonDetailsDto.ImageUrl.FileName);
+
                 if (!System.IO.Directory.Exists(filePath))
                 {
                     using (var stream = new FileStream(filePath, FileMode.Create))
@@ -136,55 +168,62 @@ public class PersonService : IPersonService
                     imagePath = fileName;
                 }
             }
+
             person.User.UserName = updatePersonDto.UpdateUserDto.UserName ?? person.User.UserName;
             person.User.UserRole.Role = updatePersonDto.UpdateUserDto.Role;
+
             person.PersonDetails.FirstName = updatePersonDto.UpdatePersonDetailsDto.FirstName ?? person.PersonDetails.FirstName;
             person.PersonDetails.LastName = updatePersonDto.UpdatePersonDetailsDto.LastName ?? person.PersonDetails.LastName;
             person.PersonDetails.ImageUrl = imagePath ?? person.PersonDetails.ImageUrl;
             person.PersonDetails.Gender = updatePersonDto.UpdatePersonDetailsDto.Gender;
             person.LastModifiedOn = DateTime.Now;
-            foreach (var contactDetail in updatePersonDto.UpdatePersonDetailsDto.GetContactDetailsDtos)
-            {
-                var contactDetailes = await _contactDetailsRepo.Get(x => x.Id == contactDetail.Id && x.IsDeleted == false);
-                if (contactDetailes != null)
-                {
-                    contactDetailes.PhoneNumber = contactDetail.PhoneNumber;
-                    contactDetailes.Email = contactDetail.Email;
-                    contactDetailes.LastModifiedBy = updatePersonDto.Id;
-                    contactDetailes.LastModifiedOn = DateTime.Now;
-                    await _contactDetailsRepo.Update(contactDetailes);
-                };
-            }
-            foreach (var addresses in updatePersonDto.UpdatePersonDetailsDto.UpdateAddressDtos)
-            {
-                var address = await _addressRepo.Get(x => x.Id == addresses.Id && x.IsDeleted == false);
-                if (address != null)
-                {
-                    address.NumberLine = addresses.NumberLine;
-                    address.Street = addresses.Street;
-                    address.City = addresses.City;
-                    address.Region = addresses.Region;
-                    address.State = addresses.State;
-                    address.Country = addresses.Country;
-                    address.PostalCode = addresses.PostalCode;
-                    address.LastModifiedBy = updatePersonDto.Id;
-                    address.LastModifiedOn = DateTime.Now;
-                    await _addressRepo.Update(address);
-                }
-            }
+
             await _personRepo.Update(person);
-            return new BaseResponse() 
+
+            await _realTime.NotifyAll("PersonUpdated", person.Id);
+
+            return new BaseResponse()
             {
                 Status = true,
                 Message = "Profile Updated Successfully!"
             };
         }
+
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Update Profile!"
         };
     }
+    public async Task<BaseResponse> DisablePerson(int id)
+    {
+        var person = await _personRepo.GetById(id);
+        if (person != null)
+        {
+            person.Disabled = !person.Disabled;
+
+            await _personRepo.Update(person);
+
+            await _realTime.NotifyAll("PersonStatusChanged", new
+            {
+                person.Id,
+                person.Disabled
+            });
+
+            return new BaseResponse()
+            {
+                Status = true,
+                Message = "Person Profile Disabled!"
+            };
+        }
+
+        return new BaseResponse()
+        {
+            Status = false,
+            Message = "Unable To Disable Person Profile!"
+        };
+    }
+
     public async Task<BaseResponse> AddPersonAddress(int personId, List<CreateAddressDto> createAddressDtos)
     {
         var person = await _personRepo.GetById(personId);
@@ -290,26 +329,6 @@ public class PersonService : IPersonService
             Data = null,
             Status = false,
             Message = "Unable To Retrieve Persons Profiles!"
-        };
-    }
-    public async Task<BaseResponse> DisablePerson(int id)
-    {
-        var person = await _personRepo.GetById(id);
-        if(person != null)
-        {
-            if (person.Disabled == true) person.Disabled = false;
-            else person.Disabled = true;
-            await _personRepo.Update(person);
-            return new BaseResponse()
-            {
-                Status = true,
-                Message = "Person Profile Disabled!"
-            };
-        }
-        return new BaseResponse()
-        {
-            Status = false,
-            Message = "Unable To Disable Person Profile!"
         };
     }
     public async Task<BaseResponse> Delete(int id, int personId)

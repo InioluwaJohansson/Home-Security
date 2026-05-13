@@ -2,6 +2,9 @@
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Microsoft.AspNetCore.SignalR;
+using Home_Security.Hubs;
+using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
 public class SectionService : ISectionService
@@ -12,7 +15,16 @@ public class SectionService : ISectionService
     IDoorRepo _doorRepo;
     IWindowRepo _windowRepo;
     IApplianceRepo _applianceRepo;
-    public SectionService(ISectionRepo sectionRepo, IRoomRepo roomRepo, ILightRepo lightRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IApplianceRepo applianceRepo)
+    RealtimeNotificationService _realtime;
+
+    public SectionService(
+        ISectionRepo sectionRepo,
+        IRoomRepo roomRepo,
+        ILightRepo lightRepo,
+        IDoorRepo doorRepo,
+        IWindowRepo windowRepo,
+        IApplianceRepo applianceRepo,
+        RealtimeNotificationService realtime)
     {
         _sectionRepo = sectionRepo;
         _roomRepo = roomRepo;
@@ -20,7 +32,9 @@ public class SectionService : ISectionService
         _doorRepo = doorRepo;
         _windowRepo = windowRepo;
         _applianceRepo = applianceRepo;
+        _realtime = realtime;
     }
+
     public async Task<BaseResponse> CreateSection(int personId, CreateSectionDto createSectionDto)
     {
         if (createSectionDto != null)
@@ -35,19 +49,30 @@ public class SectionService : ISectionService
                 LastModifiedOn = DateTime.Now,
                 IsDeleted = false,
             };
+
             await _sectionRepo.Create(Section);
+
+            await _realtime.NotifyAll("SectionCreated", new
+            {
+                Section.Id,
+                Section.SectionId,
+                Section.SectionName
+            });
+
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Section Added Successfully!"
             };
         }
+
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Add Section!"
         };
     }
+
     public async Task<BaseResponse> UpdateSection(int personId, UpdateSectionDto updateSectionDto)
     {
         var Section = await _sectionRepo.Get(x => x.Id == updateSectionDto.Id && x.IsDeleted == false);
@@ -56,19 +81,62 @@ public class SectionService : ISectionService
             Section.SectionName = updateSectionDto.SectionName ?? Section.SectionName;
             Section.LastModifiedBy = personId;
             Section.LastModifiedOn = DateTime.Now;
+
             await _sectionRepo.Update(Section);
+
+            await _realtime.NotifyAll("SectionUpdated", new
+            {
+                Section.Id,
+                Section.SectionName
+            });
+
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Section Updated Successfully!"
             };
         }
+
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Update Section!"
         };
     }
+
+    public async Task<BaseResponse> Delete(int id, int personId)
+    {
+        var Section = await _sectionRepo.Get(x => x.Id == id && x.IsDeleted == false);
+        if (Section != null)
+        {
+            Section.IsDeleted = true;
+            Section.DeletedOn = DateTime.Now;
+            Section.DeletedBy = personId;
+            Section.LastModifiedBy = personId;
+            Section.LastModifiedOn = DateTime.Now;
+
+            await _sectionRepo.Update(Section);
+
+            await _realtime.NotifyAll("SectionDeleted", new
+            {
+                Section.Id,
+                Section.SectionId
+            });
+
+            return new BaseResponse()
+            {
+                Status = true,
+                Message = "Section Deleted Successfully!"
+            };
+        }
+
+        return new BaseResponse()
+        {
+            Status = false,
+            Message = "Unable To Delete Section!"
+        };
+    }
+
     public async Task<SectionResponseModel> GetSectionById(int id)
     {
         var Section = await _sectionRepo.GetById(id);
@@ -81,6 +149,7 @@ public class SectionService : ISectionService
                 Message = "Section Retrieved Successfully!"
             };
         }
+
         return new SectionResponseModel()
         {
             Data = null,
@@ -88,6 +157,7 @@ public class SectionService : ISectionService
             Message = "Unable To Retrieve Section!"
         };
     }
+
     public async Task<SectionsResponseModel> GetSectionBySectionName(string SectionName)
     {
         var Sections = await _sectionRepo.GetBySectionName(SectionName);
@@ -100,6 +170,7 @@ public class SectionService : ISectionService
                 Message = "Sections Retrieved Successfully!"
             };
         }
+
         return new SectionsResponseModel()
         {
             Data = null,
@@ -107,6 +178,7 @@ public class SectionService : ISectionService
             Message = "Unable To Retrieve Sections!"
         };
     }
+
     public async Task<SectionsResponseModel> GetAllSections()
     {
         var Sections = await _sectionRepo.List();
@@ -119,6 +191,7 @@ public class SectionService : ISectionService
                 Message = "Sections Retrieved Successfully!"
             };
         }
+
         return new SectionsResponseModel()
         {
             Data = null,
@@ -126,29 +199,7 @@ public class SectionService : ISectionService
             Message = "Unable To Retrieve Sections!"
         };
     }
-    public async Task<BaseResponse> Delete(int id, int personId)
-    {
-        var Section = await _sectionRepo.Get(x => x.Id == id && x.IsDeleted == false);
-        if (Section != null)
-        {
-            Section.IsDeleted = true;
-            Section.DeletedOn = DateTime.Now;
-            Section.DeletedBy = personId;
-            Section.LastModifiedBy = personId;
-            Section.LastModifiedOn = DateTime.Now;
-            await _sectionRepo.Update(Section);
-            return new BaseResponse()
-            {
-                Status = true,
-                Message = "Section Deleted Successfully!"
-            };
-        }
-        return new BaseResponse()
-        {
-            Status = false,
-            Message = "Unable To Delete Section!"
-        };
-    }
+
     public GetSectionDto GetDetails(Section Section)
     {
         return new GetSectionDto()
@@ -163,6 +214,7 @@ public class SectionService : ISectionService
             Room = Section.Room.Select(x => GetRoomDetails(x)).ToList(),
         };
     }
+
     public GetRoomDto GetRoomDetails(Room room)
     {
         return new GetRoomDto()
@@ -178,6 +230,7 @@ public class SectionService : ISectionService
             Windows = room.Window.Select(x => GetWindowDetails(x)).ToList()
         };
     }
+
     public GetApplianceDto GetApplianceDetails(Appliance appliance)
     {
         return new GetApplianceDto()
@@ -196,6 +249,7 @@ public class SectionService : ISectionService
             CreatedOn = appliance.CreatedOn,
         };
     }
+
     public GetDoorDto GetDoorDetails(Door door)
     {
         return new GetDoorDto()
@@ -220,6 +274,7 @@ public class SectionService : ISectionService
             CreatedOn = door.CreatedOn,
         };
     }
+
     public GetLightDto GetLightDetails(Light light)
     {
         return new GetLightDto()
@@ -239,6 +294,7 @@ public class SectionService : ISectionService
             BrightnessLevel = light.BrightnessLevel,
         };
     }
+
     public GetWindowDto GetWindowDetails(Window window)
     {
         return new GetWindowDto()
