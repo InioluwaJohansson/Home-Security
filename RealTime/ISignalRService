@@ -2,5 +2,5 @@ using Home_Security.Models.DTOs;
 namespace Home_Security.RealTimeServices;
 public interface ISignalRService
 {
-    Task PublishFullStateSync(string hardwareId, GenericDeviceState state);
+     public Task NotifyAll<T>(string eventName, T payload);
 }
