@@ -74,7 +74,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<MqttService>();
-
+builder.Services.AddScoped<RealtimeNotificationService>();
 builder.Services.AddHostedService(
     sp => sp.GetRequiredService<MqttService>());
 builder.Services.AddSwaggerGen(c =>
