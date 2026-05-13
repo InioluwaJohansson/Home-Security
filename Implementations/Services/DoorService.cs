@@ -10,10 +10,10 @@ namespace Home_Security.Implementations.Services;
 public class DoorService : IDoorService
 {
     IDoorRepo _doorRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
 
-    public DoorService(IDoorRepo doorRepo, RealtimeNotificationService realtime, IMqttService mqtt)
+    public DoorService(IDoorRepo doorRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _doorRepo = doorRepo;
         _realtime = realtime;
