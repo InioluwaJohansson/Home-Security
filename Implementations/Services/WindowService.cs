@@ -9,10 +9,10 @@ namespace Home_Security.Implementations.Services;
 public class WindowService : IWindowService
 {
     IWindowRepo _windowRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
 
-    public WindowService(IWindowRepo windowRepo, RealtimeNotificationService realtime, IMqttService mqtt)
+    public WindowService(IWindowRepo windowRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _windowRepo = windowRepo;
         _realtime = realtime;
