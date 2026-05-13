@@ -15,7 +15,7 @@ public class SectionService : ISectionService
     IDoorRepo _doorRepo;
     IWindowRepo _windowRepo;
     IApplianceRepo _applianceRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
 
     public SectionService(
         ISectionRepo sectionRepo,
@@ -24,7 +24,7 @@ public class SectionService : ISectionService
         IDoorRepo doorRepo,
         IWindowRepo windowRepo,
         IApplianceRepo applianceRepo,
-        RealtimeNotificationService realtime)
+        IRealtimeNotificationService realtime)
     {
         _sectionRepo = sectionRepo;
         _roomRepo = roomRepo;
