@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.SignalR;
 using Home_Security.Hubs;
 
-namespace Home_Security.RealTimeServices
+namespace Home_Security.RealTimeServices;
 {
+[Authorize]
     public class RealtimeNotificationService
     {
         private readonly IHubContext<HomeSecurity> _hub;
