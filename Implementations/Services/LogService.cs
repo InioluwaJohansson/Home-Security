@@ -11,9 +11,9 @@ public class LogService : ILogService
 {
     ILogRepo _logRepo;
     IPersonRepo _personRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
 
-    public LogService(ILogRepo logRepo, IPersonRepo personRepo, RealtimeNotificationService realtime)
+    public LogService(ILogRepo logRepo, IPersonRepo personRepo, IRealtimeNotificationService realtime)
     {
         _logRepo = logRepo;
         _personRepo = personRepo;
