@@ -1,4 +1,3 @@
-using Home_Security.Models.DTOs;
 namespace Home_Security.RealTimeServices;
 public interface IRealtimeNotificationService
 {
