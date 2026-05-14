@@ -10,9 +10,9 @@ namespace Home_Security.Implementations.Services;
 public class ContactCategoryService : IContactCategoryService
 {
     IContactCategoryRepo _contactCategoryRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
 
-    public ContactCategoryService(IContactCategoryRepo contactCategoryRepo, RealtimeNotificationService realtime)
+    public ContactCategoryService(IContactCategoryRepo contactCategoryRepo, IRealtimeNotificationService realtime)
     {
         _contactCategoryRepo = contactCategoryRepo;
         _realtime = realtime;

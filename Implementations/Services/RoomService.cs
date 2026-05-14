@@ -13,9 +13,9 @@ public class RoomService : IRoomService
     IDoorRepo _doorRepo;
     IWindowRepo _windowRepo;
     IApplianceRepo _applianceRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
 
-    public RoomService(IRoomRepo roomRepo, ILightRepo lightRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IApplianceRepo applianceRepo, RealtimeNotificationService realtime)
+    public RoomService(IRoomRepo roomRepo, ILightRepo lightRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IApplianceRepo applianceRepo, IRealtimeNotificationService realtime)
     {
         _roomRepo = roomRepo;
         _lightRepo = lightRepo;

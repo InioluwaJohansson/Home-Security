@@ -14,8 +14,7 @@ public class MicroControllerService : IMicroControllerService
     IDoorRepo _doorRepo;
     IWindowRepo _windowRepo;
     ILogRepo _logRepo;
-
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
 
     public MicroControllerService(
         IHardwareRepo hardwareRepo,
@@ -25,7 +24,7 @@ public class MicroControllerService : IMicroControllerService
         IDoorRepo doorRepo,
         IWindowRepo windowRepo,
         ILogRepo logRepo,
-        RealtimeNotificationService realtime)
+        IRealtimeNotificationService realtime)
     {
         _hardwareRepo = hardwareRepo;
         _applianceRepo = applianceRepo;

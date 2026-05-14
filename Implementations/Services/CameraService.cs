@@ -9,10 +9,10 @@ namespace Home_Security.Implementations.Services;
 public class CameraService : ICameraService
 {
     ICameraRepo _cameraRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
 
-    public CameraService(ICameraRepo cameraRepo, RealtimeNotificationService realtime, IMqttService mqtt)
+    public CameraService(ICameraRepo cameraRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _cameraRepo = cameraRepo;
         _realtime = realtime;

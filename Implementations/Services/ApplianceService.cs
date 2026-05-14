@@ -9,10 +9,10 @@ namespace Home_Security.Implementations.Services;
 public class ApplianceService : IApplianceService
 {
     IApplianceRepo _applianceRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
 
-    public ApplianceService(IApplianceRepo applianceRepo, RealtimeNotificationService realtime, IMqttService mqtt)
+    public ApplianceService(IApplianceRepo applianceRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _applianceRepo = applianceRepo;
         _realtime = realtime;

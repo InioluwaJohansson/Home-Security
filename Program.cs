@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,6 +78,14 @@ builder.Services.AddSingleton<MqttService>();
 builder.Services.AddScoped<RealtimeNotificationService>();
 builder.Services.AddHostedService(
     sp => sp.GetRequiredService<MqttService>());
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "storage")),
+
+    RequestPath = "/storage"
+});
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo {Title = "Home Security", Version = "v1"});
