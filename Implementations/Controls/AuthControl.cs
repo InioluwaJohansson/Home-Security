@@ -16,6 +16,8 @@ public class AuthControl : IAuthControl
     public readonly IMemoryCache _cameraCache;
     public readonly IMemoryCache _windowCache;
     public readonly IMemoryCache _doorCache;
+    public readonly IMemoryCache _actionCache;
+    public readonly IMemoryCache _externalCache;
     IPersonRepo _personRepo;
     IRoomRepo _roomRepo;
     ISectionRepo _sectionRepo;
@@ -24,7 +26,9 @@ public class AuthControl : IAuthControl
     ICameraRepo _cameraRepo;
     IWindowRepo _windowRepo;
     IDoorRepo _doorRepo;
-    public AuthControl(IMemoryCache cache, IMemoryCache roomCache, IMemoryCache sectionCache IMemoryCache applianceCache IMemoryCache lightCache IMemoryCache cameraCache IMemoryCache windowCache IMemoryCache doorCache IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo,IApplianceRepo applianceRepo,ILightRepo lightRepo, ICameraRepo cameraRepo,IWindowRepo windowRepo, IDoorRepo doorRepo)
+    IActionRepo _actionRepo;
+    IExternalRepo _externalRepo;
+    public AuthControl(IMemoryCache cache, IMemoryCache roomCache, IMemoryCache sectionCache, IMemoryCache applianceCache, IMemoryCache lightCache, IMemoryCache cameraCache, IMemoryCache windowCache, IMemoryCache doorCache, IMemoryCache actionCache, IMemoryCache externalCache, IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo,IApplianceRepo applianceRepo,ILightRepo lightRepo, ICameraRepo cameraRepo,IWindowRepo windowRepo, IDoorRepo doorRepo,IActionRepo actionRepo, IExternalRepo externalRepo)
     {
         _cache = cache;
         _roomCache = roomCache;
@@ -34,13 +38,18 @@ public class AuthControl : IAuthControl
         _cameraCache = cameraCache;
         _windowCache = windowCache;
         _doorCache = doorCache;
+        _actionCache = actionCache;
+        _externalCache = externalCache;
         _personRepo = personRepo;
         _roomRepo = roomRepo;
+        _sectionRepo = sectionRepo;
         _applianceRepo = applianceRepo;
         _lightRepo = lightRepo;
         _cameraRepo = cameraRepo;
         _windowRepo = windowRepo;
         _doorRepo = doorRepo;
+        _externalRepo = externalRepo;
+        _actionRepo = actionRepo;
     }
     public async Task<GetAuthControlDto> GetAuthDetails(int personId, string authorizationCode)
     {
@@ -137,7 +146,7 @@ public class AuthControl : IAuthControl
         }
         return null;
     }
-public async Task GetAllAppliancess()
+    public async Task GetAllAppliances()
     {
         var appliances = await _applianceRepo.GetAll();
         if (appliances != null && appliances.Any())
@@ -200,7 +209,7 @@ public async Task GetAllCameras()
     public async Task GetAllWindows()
     {
         var windows = await _windowRepo.GetAll();
-        if (widows != null && windows.Any())
+        if (windows != null && windows.Any())
         {
             foreach (var window in windows)
             {
@@ -217,7 +226,7 @@ public async Task GetAllCameras()
         }
         return null;
     }
-public async Task GetAllDoors()
+    public async Task GetAllDoors()
     {
         var doors = await _doorRepo.GetAll();
         if (doors != null && doors.Any())
@@ -236,6 +245,59 @@ public async Task GetAllDoors()
             return name;
         }
         return null;
+    }
+    public async Task GetAllActions()
+    {
+        var actions = await _actionRepo.GetAll();
+        if (actions != null && actions.Any())
+        {
+            foreach (var action in actions)
+            {
+                var name = action.ActionName; 
+                _actionCache.Set(action.Id, name);
+            }
+        }
+    }
+    public string GetActionName(int id)
+    {
+        if (_doorCache.TryGetValue(id, out string name))
+        {
+            return name;
+        }
+        return null;
+    }
+    public async Task GetAllExternals()
+    {
+        var externals = await _externalRepo.GetAll();
+        if (externals != null && externals.Any())
+        {
+            foreach (var external in externals)
+            {
+                var name = external.ExternalName; 
+                _actionCache.Set(external.Id, name);
+            }
+        }
+    }
+    public string GetExternalName(int id)
+    {
+        if (_externalCache.TryGetValue(id, out string name))
+        {
+            return name;
+        }
+        return null;
+    }
+    public async Task RunAllFacilities()
+    {
+        await GetAllActions();
+        await GetAllAppliances();
+        await GetAllCameras();
+        await GetAllLights();
+        await GetAllPersons();
+        await GetAllRooms();
+        await GetAllSections();
+        await GetAllDoors();
+        await GetAllExternals();
+        await GetAllWindows();
     }
     public bool CompareRole(Role based, Role quote)
     {

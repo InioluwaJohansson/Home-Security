@@ -1,10 +1,11 @@
 ﻿using System.Security.Claims;
 using System.Text;
+using Home_Security.Entities;
 using Home_Security.Models.DTOs;
 namespace Home_Security.Authentication;
 
 public interface IJWTAuthentication
 {
-    string GenerateToken(GetUserDto getUserDto);
-string GenerateHardwareToken(Hardware hardware);
+    public string GenerateToken(GetUserDto getUserDto);
+    public string GenerateHardwareToken(Hardware hardware);
 }

@@ -24,6 +24,8 @@ public class GetRoomDto : UserBaseDefaultDto
     public List<GetLightDto> Lights { get; set; }
     public List<GetWindowDto> Windows { get; set; }
     public List<GetApplianceDto> Appliances { get; set; }
+    public List<GetCameraDto> Cameras { get; set; }
+    public List<GetExternalDto> Externals { get; set; }
 }
 public class RoomResponseModel : BaseResponse
 {

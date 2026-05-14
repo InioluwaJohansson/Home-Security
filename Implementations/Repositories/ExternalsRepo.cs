@@ -2,7 +2,7 @@ using Home_Security.Context;
 using Home_Security.Entities;
 using Home_Security.Interfaces.Repositories;
 namespace Home_Security.Implementations.Repositories;
-public class ExternalsRepo : BaseRepository<Externals>, IExternalsRepo
+public class ExternalsRepo : BaseRepository<External>, IExternalRepo
 {
     public ExternalsRepo(HomeSecurityContext _context)
     {

@@ -199,6 +199,8 @@ public class RoomService : IRoomService
             Appliances = room.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
             Lights = room.Light.Select(x => GetLightDetails(x)).ToList(),
             Windows = room.Window.Select(x => GetWindowDetails(x)).ToList(),
+            Cameras = room.Camera.Select(x => GetCameraDetails(x)).ToList(),
+            Externals = room.External.Select(x => GetExternalDetails(x)).ToList(),
             LastModifiedBy = room.LastModifiedBy,
             CreatedBy = room.CreatedBy,
             LastModifiedOn = room.LastModifiedOn,
@@ -247,6 +249,45 @@ public class RoomService : IRoomService
             LastModifiedOn = door.LastModifiedOn,
             CreatedOn = door.CreatedOn,
             IsDeleted = door.IsDeleted,
+        };
+    }
+    public GetCameraDto GetCameraDetails(Camera camera)
+    {
+        return new GetCameraDto()
+        {
+            Id = camera.Id,
+            CameraName = camera.CameraName,
+            IsActive = camera.IsActive,
+            PowerActive = camera.PowerActive,
+            RoomId = camera.RoomId,
+            SectionId = camera.SectionId,
+            CameraId = camera.CameraId,
+            LastModifiedBy = camera.LastModifiedBy,
+            DeletedBy = camera.DeletedBy,
+            CreatedBy = camera.CreatedBy,
+            LastModifiedOn = camera.LastModifiedOn,
+            CreatedOn = camera.CreatedOn,
+            IsDeleted = camera.IsDeleted,
+        };
+    }
+    public GetExternalDto GetExternalDetails(External External)
+    {
+        return new GetExternalDto()
+        {
+            Id = External.Id,
+            ExternalsName = External.ExternalName,
+            IsTriggered = External.IsTriggered,
+            IsActive = External.IsActive,
+            PowerActive = External.PowerActive,
+            RoomId = External.RoomId,
+            SectionId = External.SectionId,
+            ExternalsId = External.ExternalId,
+            LastModifiedBy = External.LastModifiedBy,
+            DeletedBy = External.DeletedBy,
+            CreatedBy = External.CreatedBy,
+            LastModifiedOn = External.LastModifiedOn,
+            CreatedOn = External.CreatedOn,
+            IsDeleted = External.IsDeleted,
         };
     }
     public GetLightDto GetLightDetails(Light light)

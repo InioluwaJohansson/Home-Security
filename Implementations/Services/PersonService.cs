@@ -16,9 +16,7 @@ public class PersonService : IPersonService
     IUserRepo _userRepo;
     IAddressRepo _addressRepo;
     IContactDetailsRepo _contactDetailsRepo;
-
-    // ✅ SIGNALR ADDED
-     RealtimeNotificationService _realTime;
+    RealtimeNotificationService _realTime;
 
     public PersonService(IPersonRepo personRepo,IFingerPrintRepo fingerPrintRepo,IUserRepo userRepo,IAddressRepo addressRepo,IContactDetailsRepo contactDetailsRepo,RealtimeNotificationService realTime)
     {

@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Home_Security.Models.DTOs;
 using Microsoft.IdentityModel.Tokens;
 using Home_Security.Entities.Identity;
+using Home_Security.Entities;
 namespace Home_Security.Authentication;
 public class JWTAuthentication : IJWTAuthentication
 {
@@ -36,20 +37,17 @@ public class JWTAuthentication : IJWTAuthentication
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
-public string GenerateHardwareToken(Hardware hardware)
+    public string GenerateHardwareToken(Hardware hardware)
     {
         var claims = new List<Claim>
         {
             new("hardwareId", hardware.HardwareId),
-            new("suiteId", hardware.SuiteId)
+            new("authKey", hardware.AuthKey)
         };
 
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
-
         var credentials = new SigningCredentials(
-            key,
-            SecurityAlgorithms.HmacSha256);
+        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key)),
+        SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
             claims: claims,
