@@ -18,6 +18,8 @@ public class AuthControl : IAuthControl
     public readonly IMemoryCache _doorCache;
     public readonly IMemoryCache _actionCache;
     public readonly IMemoryCache _externalCache;
+    public readonly IMemoryCache _contactCache;
+    public readonly IMemoryCache _contactCategoryCache;
     IPersonRepo _personRepo;
     IRoomRepo _roomRepo;
     ISectionRepo _sectionRepo;
@@ -28,7 +30,9 @@ public class AuthControl : IAuthControl
     IDoorRepo _doorRepo;
     IActionRepo _actionRepo;
     IExternalRepo _externalRepo;
-    public AuthControl(IMemoryCache cache, IMemoryCache roomCache, IMemoryCache sectionCache, IMemoryCache applianceCache, IMemoryCache lightCache, IMemoryCache cameraCache, IMemoryCache windowCache, IMemoryCache doorCache, IMemoryCache actionCache, IMemoryCache externalCache, IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo,IApplianceRepo applianceRepo,ILightRepo lightRepo, ICameraRepo cameraRepo,IWindowRepo windowRepo, IDoorRepo doorRepo,IActionRepo actionRepo, IExternalRepo externalRepo)
+    IContactRepo _contactRepo;
+    IContactCategoryRepo _contactCategoryRepo;
+    public AuthControl(IMemoryCache cache, IMemoryCache roomCache, IMemoryCache sectionCache, IMemoryCache applianceCache, IMemoryCache lightCache, IMemoryCache cameraCache, IMemoryCache windowCache, IMemoryCache doorCache, IMemoryCache actionCache, IMemoryCache externalCache, IMemoryCache contactCache, IMemoryCache contactCategoryCache, IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo,IApplianceRepo applianceRepo,ILightRepo lightRepo, ICameraRepo cameraRepo,IWindowRepo windowRepo, IDoorRepo doorRepo,IActionRepo actionRepo, IExternalRepo externalRepo, IContactRepo contactRepo, IContactCategoryRepo contactCategoryRepo)
     {
         _cache = cache;
         _roomCache = roomCache;
@@ -40,6 +44,8 @@ public class AuthControl : IAuthControl
         _doorCache = doorCache;
         _actionCache = actionCache;
         _externalCache = externalCache;
+        _contactCache = contactCache;
+        _contactCategoryCache = contactCategoryCache;
         _personRepo = personRepo;
         _roomRepo = roomRepo;
         _sectionRepo = sectionRepo;
@@ -50,6 +56,8 @@ public class AuthControl : IAuthControl
         _doorRepo = doorRepo;
         _externalRepo = externalRepo;
         _actionRepo = actionRepo;
+        _contactRepo = contactRepo;
+        _contactCategoryRepo = contactCategoryRepo;
     }
     public async Task<GetAuthControlDto> GetAuthDetails(int personId, string authorizationCode)
     {
@@ -286,18 +294,72 @@ public async Task GetAllCameras()
         }
         return null;
     }
+    public async Task GetAllContacts()
+    {
+        var contacts = await _contactRepo.GetAll();
+        if (contacts != null && contacts.Any())
+        {
+            foreach (var contact in contacts)
+            {
+                var name = $"{contact.FirstName} {contact.LastName}";
+                _contactCache.Set(contact.Id, name);
+            }
+        }
+    }
+    public string GetContactName(int id)
+    {
+        if (_contactCache.TryGetValue(id, out string name))
+        {
+            return name;
+        }
+        return null;
+    }
+    public async Task GetAllContactCategories()
+    {
+        var contactCategories = await _contactCategoryRepo.GetAll();
+        if (contactCategories != null && contactCategories.Any())
+        {
+            foreach (var category in contactCategories)
+            {
+                var name = category.Name;
+                _contactCategoryCache.Set(category.Id, name);
+            }
+        }
+    }
+    public string GetContactCategoryName(int id)
+    {
+        if (_contactCategoryCache.TryGetValue(id, out string name))
+        {
+            return name;
+        }
+        return null;
+    }
     public async Task RunAllFacilities()
     {
+        _actionCache.Dispose();
         await GetAllActions();
+        _applianceCache.Dispose();
         await GetAllAppliances();
+        _cameraCache.Dispose();
         await GetAllCameras();
+        _lightCache.Dispose();
         await GetAllLights();
+        _cache.Dispose();
         await GetAllPersons();
+        _roomCache.Dispose();
         await GetAllRooms();
+        _sectionCache.Dispose();
         await GetAllSections();
+        _doorCache.Dispose();
         await GetAllDoors();
+        _externalCache.Dispose();
         await GetAllExternals();
+        _windowCache.Dispose();
         await GetAllWindows();
+        _contactCategoryCache.Dispose();
+        await GetAllContactCategories();
+        _contactCache.Dispose();
+        await GetAllContacts();
     }
     public bool CompareRole(Role based, Role quote)
     {

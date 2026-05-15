@@ -18,11 +18,11 @@ public class JWTAuthentication : IJWTAuthentication
         List<Claim> claims = new List<Claim>();
         var tokenHandler = new JwtSecurityTokenHandler();
         var tokenKey = Encoding.ASCII.GetBytes(_key);
-        claims.Add(new Claim(ClaimTypes.Name, getUserDto.Id.ToString()));
-        claims.Add(new Claim(ClaimTypes.NameIdentifier, getUserDto.PersonId.ToString()));
-        claims.Add(new Claim(ClaimTypes.Actor, getUserDto.UserName.ToString()));
-        claims.Add(new Claim(ClaimTypes.Role, getUserDto.RoleName));
-        claims.Add(new Claim(ClaimTypes.Authentication, getUserDto.AuthorizationCode));
+        claims.Add(new Claim("UserId", getUserDto.Id.ToString()));
+        claims.Add(new Claim("PersonId", getUserDto.PersonId.ToString()));
+        claims.Add(new Claim("UserName", getUserDto.UserName.ToString()));
+        claims.Add(new Claim("RoleName", getUserDto.RoleName));
+        claims.Add(new Claim("AuthorizationCode", getUserDto.AuthorizationCode));
         var tokenDescriptor = new SecurityTokenDescriptor()
         {
             Subject = new ClaimsIdentity(claims),
@@ -37,12 +37,51 @@ public class JWTAuthentication : IJWTAuthentication
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
-    public string GenerateHardwareToken(Hardware hardware)
+    public GetUserDto? GetUserFromToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(_key);
+
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidIssuer = "Owner",
+            ValidAudience = "Home",
+
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+
+        try
+        {
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
+
+            var claims = principal.Claims;
+
+            return new GetUserDto
+            {
+                Id = int.Parse(claims.First(x => x.Type == "UserId").Value),
+                PersonId = int.Parse(claims.First(x => x.Type == "PersonId").Value),
+                UserName = claims.First(x => x.Type == "UserName").Value,
+                RoleName = claims.First(x => x.Type == "RoleName").Value,
+                AuthorizationCode = claims.First(x => x.Type == "AuthorizationCode").Value
+            };
+        }
+        catch
+        {
+            return null;
+        }
+    }
+    public string GenerateHardwareToken(string hardwareId, string AuthKey)
     {
         var claims = new List<Claim>
         {
-            new("hardwareId", hardware.HardwareId),
-            new("authKey", hardware.AuthKey)
+            new("hardwareId", hardwareId),
+            new("authKey", AuthKey)
         };
 
         var credentials = new SigningCredentials(
@@ -55,6 +94,39 @@ public class JWTAuthentication : IJWTAuthentication
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+    public bool ValidateHardwareToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(_key);
+
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+        try
+        {
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            var hardwareId = jwtToken.Claims.FirstOrDefault(c => c.Type == "hardwareId")?.Value;
+            var authKey = jwtToken.Claims.FirstOrDefault(c => c.Type == "authKey")?.Value;
+            if (string.IsNullOrEmpty(hardwareId) || string.IsNullOrEmpty(authKey))
+                return false;
+            return true;
+        }
+        catch (SecurityTokenExpiredException)
+        {
+            return false;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
 public static class ClaimsPrincipalExtensions

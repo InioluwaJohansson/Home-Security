@@ -1,6 +1,5 @@
 ﻿using Home_Security.Entities.Identity;
 using Home_Security.Implementations.Controls;
-using Home_Security.Interfaces.Controls.Defaults;
 using Home_Security.Models.DTOs;
 namespace Home_Security.Interfaces.Controls;
 public interface IAuthControl
@@ -16,6 +15,8 @@ public interface IAuthControl
     public string GetWindowName(int id);
     public string GetDoorName(int id);
     public string GetExternalName(int id);
+    public string GetContactName(int id);
+    public string GetContactCategoryName(int id);
     public string GetActionName(int id);
     public Task RunAllFacilities();
     public bool CompareRole(Role based, Role quote);

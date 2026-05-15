@@ -1,3 +1,4 @@
+using Home_Security.Authentication;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -10,22 +11,22 @@ using System.Security.Claims;
 public class ExternalController : Controller
 {
     IExternalControl _lightControl;
-    public ExternalController(IExternalControl lightControl)
+    IJWTAuthentication _jWTAuthentication;
+    public ExternalController(IExternalControl lightControl, IJWTAuthentication jwtAuthentication)
     {
         _lightControl = lightControl;
+        _jWTAuthentication = jwtAuthentication;
     }
     [Authorize]
     [HttpPost("CreateExternal")]
     public async Task<IActionResult> CreateExternal([FromBody] CreateExternalDto createExternalDto)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jWTAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var light = await _lightControl.CreateExternal(getAuthControlInfoDto, createExternalDto);
         if (light.Status == true)
@@ -38,14 +39,12 @@ public class ExternalController : Controller
     [HttpPut("UpdateExternal")]
     public async Task<IActionResult> UpdateExternal([FromBody] UpdateExternalDto updateExternalDto)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jWTAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var light = await _lightControl.UpdateExternal(getAuthControlInfoDto, updateExternalDto);
         if (light.Status == true)
@@ -58,14 +57,12 @@ public class ExternalController : Controller
     [HttpPost("GetExternalById")]
     public async Task<IActionResult> GetExternalById(int id)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jWTAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var light = await _lightControl.GetExternalById(getAuthControlInfoDto, id);
         if (light.Status == true)
@@ -78,14 +75,12 @@ public class ExternalController : Controller
     [HttpPost("GetAllExternalsBySectionId")]
     public async Task<IActionResult> GetAllExternalsBySectionId(int sectionId)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jWTAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var light = await _lightControl.GetAllExternalsBySectionId(getAuthControlInfoDto, sectionId);
         if (light.Status == true)
@@ -98,14 +93,12 @@ public class ExternalController : Controller
     [HttpPost("GetAllExternalsByRoomId")]
     public async Task<IActionResult> GetAllExternalsByRoomId(int roomId)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jWTAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var light = await _lightControl.GetAllExternalsByRoomId(getAuthControlInfoDto, roomId);
         if (light.Status == true)
@@ -118,14 +111,12 @@ public class ExternalController : Controller
     [HttpPost("GetAllExternals")]
     public async Task<IActionResult> GetAllExternals()
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jWTAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var light = await _lightControl.GetAllExternals(getAuthControlInfoDto);
         if (light.Status == true)
@@ -138,14 +129,12 @@ public class ExternalController : Controller
     [HttpPut("DeleteExternal")]
     public async Task<IActionResult> DeleteExternal(int lightId)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jWTAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var light = await _lightControl.DeleteExternal(getAuthControlInfoDto, lightId);
         if (light.Status == true)

@@ -3,7 +3,6 @@ using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 using Home_Security.Models.Enums;
-using Home_Security.Interfaces.Controls.Defaults;
 
 namespace Home_Security.Implementations.Controls;
 

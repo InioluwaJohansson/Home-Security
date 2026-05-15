@@ -24,6 +24,7 @@ public class FingerPrintController : Controller
         }
         return Ok(fingerPrintService);
     }
+    [Authorize]
     [HttpPost("CreateFingerPrint")]
     public async Task<IActionResult> CreateFingerPrint(CreateFingerPrintDto createFingerPrintDto)
     {

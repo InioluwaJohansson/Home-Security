@@ -7,5 +7,7 @@ namespace Home_Security.Authentication;
 public interface IJWTAuthentication
 {
     public string GenerateToken(GetUserDto getUserDto);
-    public string GenerateHardwareToken(Hardware hardware);
+    public GetUserDto? GetUserFromToken(string token);
+    public string GenerateHardwareToken(string hardwareId, string AuthKey);
+    public bool ValidateHardwareToken(string token);
 }

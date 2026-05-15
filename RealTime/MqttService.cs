@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Home_Security.Authentication;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 using MQTTnet;
@@ -12,7 +13,6 @@ public class MqttService : BackgroundService, IMqttService
     private readonly IConfiguration _configuration;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<MqttService> _logger;
-
     private IMqttClient _client = default!;
 
     public MqttService(
@@ -100,18 +100,16 @@ public class MqttService : BackgroundService, IMqttService
 
                     if (update != null)
                     {
-                        using var scope =
-                            _scopeFactory.CreateScope();
-
-                        var microControllerService =
-                            scope.ServiceProvider
-                                .GetRequiredService<IMicroControllerService>();
-
-                        await microControllerService
-                            .UpdateDeviceStates(update);
-
-                        _logger.LogInformation(
-                            "DEVICE STATE UPDATED");
+                        using var scope = _scopeFactory.CreateScope();
+                        var hardwareVerification = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
+                        if (!hardwareVerification.ValidateHardwareToken(update.Token) == true)
+                        {
+                            var microControllerService = scope.ServiceProvider.GetRequiredService<IMicroControllerService>();
+                            await microControllerService.UpdateDeviceStates(update);
+                            _logger.LogInformation("DEVICE STATE UPDATED");
+                        }
+                        _logger.LogWarning("INVALID HARDWARE TOKEN");
+                        return;
                     }
                 }
 

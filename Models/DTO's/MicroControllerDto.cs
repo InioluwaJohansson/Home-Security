@@ -9,6 +9,7 @@ public class GenericDeviceState : BaseResponse
     public List<DoorDeviceState> DoorDeviceStates { get; set; }
     public List<ExternalDeviceState> ExternalDeviceStates { get; set; }
     public long Timestamp { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    public string Token { get; set;}
 }
 public class GenericDeviceUpdateState
 {
@@ -19,6 +20,7 @@ public class GenericDeviceUpdateState
     public bool IsOpen { get; set; }
     public bool IsActive { get; set; }
     public bool PowerActive { get; set; }
+    public string Token { get; set; }
 }
 public class ApplianceDeviceState
 {
