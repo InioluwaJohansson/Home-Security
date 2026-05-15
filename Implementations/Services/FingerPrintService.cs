@@ -2,6 +2,20 @@
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 namespace Home_Security.Implementations.Services;
+using SourceAFIS;
+
+public class FingerprintObject
+{
+    public byte[] Image { get; set; }
+
+    public IFingerprintTemplate ToTemplate()
+    {
+        var fingerprint = new Fingerprint();
+        fingerprint.AsBitmap = new System.Drawing.Bitmap(new MemoryStream(Image));
+
+        return new FingerprintTemplate(fingerprint);
+    }
+}
 public class FingerPrintService : IFingerPrintService
 {
     IFingerPrintRepo _fingerPrintRepo;
