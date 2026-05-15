@@ -8,4 +8,10 @@ public class CameraRepo : BaseRepository<Camera>, ICameraRepo
     {
         context = _context;
     }
+    public async Task<Camera> GetByCameraIdAsync(string id)
+    {
+        return await context.Cameras.Include(x => x.Recording)
+            .Where(x => x.Id == id)
+            .FirstOrDefaultAsync();
+    }
 }

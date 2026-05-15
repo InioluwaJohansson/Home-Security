@@ -253,21 +253,32 @@ public class RoomService : IRoomService
     }
     public GetCameraDto GetCameraDetails(Camera camera)
     {
-        return new GetCameraDto()
+        return new GetCameraDto
         {
             Id = camera.Id,
             CameraName = camera.CameraName,
+            CameraId = camera.CameraId,
+
             IsActive = camera.IsActive,
             PowerActive = camera.PowerActive,
+
             RoomId = camera.RoomId,
             SectionId = camera.SectionId,
-            CameraId = camera.CameraId,
+
             LastModifiedBy = camera.LastModifiedBy,
             DeletedBy = camera.DeletedBy,
             CreatedBy = camera.CreatedBy,
+
             LastModifiedOn = camera.LastModifiedOn,
             CreatedOn = camera.CreatedOn,
-            IsDeleted = camera.IsDeleted,
+
+            LiveStreamUrl = camera.LiveStreamUrl,
+            Recordings = camera.Recordings.Select(x => new GetRecordingDto
+            {
+                FilePath = x.FilePath,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime
+            }).ToList()
         };
     }
     public GetExternalDto GetExternalDetails(External External)

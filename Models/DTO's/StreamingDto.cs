@@ -1,6 +1,6 @@
 namespace Home_Security.DTOs;
 
-public class RecordingDto
+public class GetRecordingDto
 {
     public string FilePath { get; set; }
 

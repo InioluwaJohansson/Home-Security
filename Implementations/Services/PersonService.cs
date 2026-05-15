@@ -16,9 +16,9 @@ public class PersonService : IPersonService
     IUserRepo _userRepo;
     IAddressRepo _addressRepo;
     IContactDetailsRepo _contactDetailsRepo;
-    RealtimeNotificationService _realTime;
+    IRealtimeNotificationService _realTime;
 
-    public PersonService(IPersonRepo personRepo,IFingerPrintRepo fingerPrintRepo,IUserRepo userRepo,IAddressRepo addressRepo,IContactDetailsRepo contactDetailsRepo,RealtimeNotificationService realTime)
+    public PersonService(IPersonRepo personRepo,IFingerPrintRepo fingerPrintRepo,IUserRepo userRepo,IAddressRepo addressRepo,IContactDetailsRepo contactDetailsRepo, IRealtimeNotificationService realTime)
     {
         _personRepo = personRepo;
         _fingerPrintRepo = fingerPrintRepo;

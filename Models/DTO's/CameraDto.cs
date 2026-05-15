@@ -13,6 +13,8 @@ public class GetCameraDto : BaseDefaultDto
     public int Id { get; set; }
     public string CameraName { get; set; }
     public string CameraId { get; set; }
+    public string LiveStreamUrl { get; set; }
+    public List<GetRecordingDto> Recordings { get; set; }
 }
 public class CameraResponseModel : BaseResponse
 {
