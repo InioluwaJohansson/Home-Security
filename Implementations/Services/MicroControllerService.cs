@@ -15,9 +15,10 @@ public class MicroControllerService : IMicroControllerService
     IWindowRepo _windowRepo;
     IExternalRepo _externalRepo;
     ILogRepo _logRepo;
+    IActionService _actionService;
     IRealtimeNotificationService _realtime;
 
-    public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceRepo applianceRepo, ILightRepo lightRepo, ICameraRepo cameraRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IExternalRepo externalRepo, ILogRepo logRepo, IRealtimeNotificationService realtime)
+    public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceRepo applianceRepo, ILightRepo lightRepo, ICameraRepo cameraRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IExternalRepo externalRepo, ILogRepo logRepo, IActionService actionService, IRealtimeNotificationService realtime)
     {
         _hardwareRepo = hardwareRepo;
         _applianceRepo = applianceRepo;
@@ -27,6 +28,7 @@ public class MicroControllerService : IMicroControllerService
         _windowRepo = windowRepo;
         _externalRepo = externalRepo;
         _logRepo = logRepo;
+        _actionService = actionService;
         _realtime = realtime;
     }
 
@@ -167,6 +169,21 @@ public class MicroControllerService : IMicroControllerService
                     {
                         Status = true,
                         Message = "Door State Updated Successfully!"
+                    };
+                }
+                break;
+            case 6:
+                var external = await _externalRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
+                if (external != null)
+                {
+                    external.IsActive = genericDeviceUpdateState.IsActive;
+                    external.IsTriggered = genericDeviceUpdateState.IsTriggered;
+                    await _externalRepo.Update(external);
+                    if (external.IsTriggered) await _actionService.TriggerActionsForExternal(external.Id);
+                    return new BaseResponse()
+                    {
+                        Status = true,
+                        Message = "External State Updated Successfully!"
                     };
                 }
                 break;

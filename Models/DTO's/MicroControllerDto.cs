@@ -18,6 +18,7 @@ public class GenericDeviceUpdateState
     public int BrightnessLevel { get; set; }
     public bool IsLocked { get; set; }
     public bool IsOpen { get; set; }
+    public bool IsTriggered { get; set; }
     public bool IsActive { get; set; }
     public bool PowerActive { get; set; }
     public string Token { get; set; }
