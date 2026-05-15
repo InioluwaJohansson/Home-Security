@@ -179,7 +179,7 @@ public class MicroControllerService : IMicroControllerService
                     external.IsActive = genericDeviceUpdateState.IsActive;
                     external.IsTriggered = genericDeviceUpdateState.IsTriggered;
                     await _externalRepo.Update(external);
-                    if (external.IsTriggered) await _actionService.TriggerActionsForExternal(external.Id);
+                    if (genericDeviceUpdateState.IsTriggered) await _actionService.TriggerActionsForExternal(external.Id);
                     return new BaseResponse()
                     {
                         Status = true,
