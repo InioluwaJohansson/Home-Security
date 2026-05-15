@@ -43,17 +43,17 @@ public class CameraService : ICameraService
                 Message = "Unable To Add Camera!"
             };
         }
-
+        string cameraId = $"CAMERA{Guid.NewGuid().ToString().Replace("-", "")[..5].ToUpper()}";
         var camera = new Camera()
         {
-            CameraId = $"CAMERA{Guid.NewGuid().ToString().Replace("-", "")[..5].ToUpper()}",
+            CameraId = cameraId,
             CameraName = createCameraDto.CameraName,
 
             IpAddress = createCameraDto.IpAddress,
 
             InputStreamUrl = BuildRtspUrl(createCameraDto),
 
-            RecordingPath = $"storage/recordings/{createCameraDto.CameraId}",
+            RecordingPath = $"storage/recordings/{cameraId}",
 
             IsOnline = false,
             IsStreaming = false,
@@ -146,7 +146,7 @@ public class CameraService : ICameraService
 
     public async Task<CameraResponseModel> GetById(int cameraId)
     {
-        var camera = await _cameraRepo.Get(x => x.Id == cameraId && x.IsDeleted == false);
+        var camera = await _cameraRepo.GetCameraById(cameraId);
 
         if (camera == null)
         {
@@ -188,7 +188,7 @@ public class CameraService : ICameraService
 
     public async Task<CamerasResponseModel> GetAllCamerasByRoomId(int roomId)
     {
-        var cameras = await _cameraRepo.GetByExpression(x => x.RoomId == roomId && x.IsDeleted == false);
+        var cameras = await _cameraRepo.GetAllCameras(x => x.RoomId == roomId && x.IsDeleted == false);
 
         return new CamerasResponseModel
         {
@@ -200,7 +200,7 @@ public class CameraService : ICameraService
 
     public async Task<CamerasResponseModel> GetAllCamerasBySectionId(int sectionId)
     {
-        var cameras = await _cameraRepo.GetByExpression(x => x.SectionId == sectionId && x.IsDeleted == false);
+        var cameras = await _cameraRepo.GetAllCameras(x => x.SectionId == sectionId && x.IsDeleted == false);
 
         return new CamerasResponseModel
         {

@@ -13,18 +13,11 @@ public class MicroControllerService : IMicroControllerService
     ICameraRepo _cameraRepo;
     IDoorRepo _doorRepo;
     IWindowRepo _windowRepo;
+    IExternalRepo _externalRepo;
     ILogRepo _logRepo;
     IRealtimeNotificationService _realtime;
 
-    public MicroControllerService(
-        IHardwareRepo hardwareRepo,
-        IApplianceRepo applianceRepo,
-        ILightRepo lightRepo,
-        ICameraRepo cameraRepo,
-        IDoorRepo doorRepo,
-        IWindowRepo windowRepo,
-        ILogRepo logRepo,
-        IRealtimeNotificationService realtime)
+    public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceRepo applianceRepo, ILightRepo lightRepo, ICameraRepo cameraRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IExternalRepo externalRepo, ILogRepo logRepo, IRealtimeNotificationService realtime)
     {
         _hardwareRepo = hardwareRepo;
         _applianceRepo = applianceRepo;
@@ -32,6 +25,7 @@ public class MicroControllerService : IMicroControllerService
         _cameraRepo = cameraRepo;
         _doorRepo = doorRepo;
         _windowRepo = windowRepo;
+        _externalRepo = externalRepo;
         _logRepo = logRepo;
         _realtime = realtime;
     }
@@ -49,10 +43,10 @@ public class MicroControllerService : IMicroControllerService
                 CameraDeviceStates = await GetCameraDeviceStates(hardware.CameraIds),
                 WindowDeviceStates = await GetWindowDeviceStates(hardware.WindowIds),
                 DoorDeviceStates = await GetDoorDeviceStates(hardware.DoorIds),
+                ExternalDeviceStates = await GetExternalDeviceStates(hardware.ExternalIds),
                 Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             };
 
-            // ✅ SIGNALR ADDED (device sync broadcast)
             await _realtime.NotifyAll("DeviceStateSnapshot", state);
 
             return state;
@@ -65,6 +59,7 @@ public class MicroControllerService : IMicroControllerService
             CameraDeviceStates = new List<CameraDeviceState>(),
             WindowDeviceStates = new List<WindowDeviceState>(),
             DoorDeviceStates = new List<DoorDeviceState>(),
+            ExternalDeviceStates = new List<ExternalDeviceState>(),
             Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
         };
 
@@ -270,5 +265,23 @@ public class MicroControllerService : IMicroControllerService
             }
         }
         return doorDeviceStates;
+    }
+    private async Task <List<ExternalDeviceState>> GetExternalDeviceStates(List<int> ExternalIds)
+    {
+        var externalDeviceStates = new List<ExternalDeviceState>();
+        foreach (var item in ExternalIds)
+        {
+            var external = await _externalRepo.Get(x => x.Id == item && x.IsDeleted == false);
+            if (external != null)
+            {
+                externalDeviceStates.Add(new ExternalDeviceState()
+                {
+                    ExternalId = external.Id,
+                    IsActive = external.IsActive,
+                    IsTriggered = external.IsTriggered,
+                });
+            }
+        }
+        return externalDeviceStates;
     }
 }

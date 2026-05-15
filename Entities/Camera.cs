@@ -15,5 +15,5 @@ public class Camera : BaseDefault
     public bool IsStreaming { get; set; }
 
     public DateTime? LastStreamStart { get; set; }
-    public Recording Recording { get; set; }
+    public List<Recording> Recordings { get; set; }
 }

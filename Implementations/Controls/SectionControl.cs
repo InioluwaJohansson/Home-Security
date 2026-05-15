@@ -10,13 +10,11 @@ public class SectionControl : ISectionControl
     IAuthControl _authControl;
     ISectionService _sectionService;
     ILogService _logService;
-    IObjectDefault _objectDefault;
-    public SectionControl(IAuthControl authControl, ISectionService sectionService, ILogService logService, IObjectDefault objectDefault)
+    public SectionControl(IAuthControl authControl, ISectionService sectionService, ILogService logService)
     {
         _authControl = authControl;
         _sectionService = sectionService;
         _logService = logService;
-        _objectDefault = objectDefault;
     }
     public async Task<BaseResponse> CreateSection(GetAuthControlInfoDto getAuthControlInfoDto, CreateSectionDto createSectionDto)
     {
@@ -141,7 +139,7 @@ public class SectionControl : ISectionControl
             var section = await _sectionService.Delete(sectionId, auth.Id);
             if (section.Status == true)
             {
-                var getSection = _objectDefault.SectionName(sectionId);
+                var getSection = _authControl.GetSectionName(sectionId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getSection} Section was Deleted!";

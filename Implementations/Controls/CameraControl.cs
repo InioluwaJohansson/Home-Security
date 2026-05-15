@@ -161,7 +161,7 @@ public class CameraControl : ICameraControl
             var camera = await _cameraService.Delete(cameraId, auth.Id);
             if(camera.Status == true)
             {
-                var getCamera = await _objectDefault.CameraName(cameraId);
+                var getCamera = _authControl.GetCameraName(cameraId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getCamera} Camera was Deleted!";

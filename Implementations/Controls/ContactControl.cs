@@ -219,7 +219,7 @@ public class ContactControl : IContactControl
             var contact = await _contactService.Delete(contactId, auth.Id);
             if (contact.Status == true)
             {
-                var getContact = await _objectDefault.ContactName(contactId);
+                var getContact = await _authControl.GetContactName(contactId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getContact} Contact was Deleted!";

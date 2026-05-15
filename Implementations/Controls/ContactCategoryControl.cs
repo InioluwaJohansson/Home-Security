@@ -111,7 +111,7 @@ public class ContactCategoryControl : IContactCategoryControl
             var contactCategory = await _contactCategoryService.Delete(contactCategoryId, auth.Id);
             if (contactCategory.Status == true)
             {
-                var getContactCategory = await _objectDefault.ContactCategoryName(contactCategoryId);
+                var getContactCategory =  _authControl.GetContactCategoryName(contactCategoryId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getContactCategory} Contact Category was Deleted!";

@@ -51,6 +51,7 @@ public class HardwareService : IHardwareService
             hardware.LightIds = updateHardwareDto.LightIds ?? hardware.LightIds;
             hardware.WindowIds = updateHardwareDto.WindowIds ?? hardware.WindowIds;
             hardware.DoorIds = updateHardwareDto.DoorIds ?? hardware.DoorIds;
+            hardware.ExternalIds = updateHardwareDto.ExternalIds ?? hardware.ExternalIds;
             hardware.LastModifiedBy = personId;
             hardware.LastModifiedOn = DateTime.Now;
             await _hardwareRepo.Update(hardware);
@@ -119,6 +120,7 @@ public class HardwareService : IHardwareService
             CameraIdNames = hardware.CameraIds.Select(x => GenericIdDetails(x, "camera")).ToList(),
             WindowIdNames = hardware.WindowIds.Select(x => GenericIdDetails(x, "window")).ToList(),
             DoorIdNames = hardware.DoorIds.Select(x => GenericIdDetails(x, "door")).ToList(),
+            ExternalIdNames = hardware.ExternalIds.Select(x => GenericIdDetails(x, "external")).ToList()
         };
     }
     private GenericIdNames GenericIdDetails(int id, string entityType)
@@ -161,6 +163,15 @@ public class HardwareService : IHardwareService
         }
         if(entityType.Equals("door")){
         string data = _authControl.GetDoorName(id);
+        if(data != null){
+        return new GenericIdNames(){
+            Id = id,
+            Name = data
+        };
+        }
+        }
+        if(entityType.Equals("external")){
+        string data = _authControl.GetExternalName(id);
         if(data != null){
         return new GenericIdNames(){
             Id = id,

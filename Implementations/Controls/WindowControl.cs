@@ -13,13 +13,11 @@ public class WindowControl : IWindowControl
     IAuthControl _authControl;
     IWindowService _windowService;
     ILogService _logService;
-    IObjectDefault _objectDefault;
-    public WindowControl(IAuthControl authControl, IWindowService windowService, ILogService logService, IObjectDefault objectDefault)
+    public WindowControl(IAuthControl authControl, IWindowService windowService, ILogService logService)
     {
         _authControl = authControl;
         _windowService = windowService;
         _logService = logService;
-        _objectDefault = objectDefault;
     }
     public async Task<BaseResponse> CreateWindow(GetAuthControlInfoDto getAuthControlInfoDto, CreateWindowDto createWindowDto)
     {
@@ -222,7 +220,7 @@ public class WindowControl : IWindowControl
             var window = await _windowService.Delete(windowId, auth.Id);
             if(window.Status == true)
             {
-                var getWindow = await _objectDefault.WindowName(windowId);
+                var getWindow = _authControl.GetWindowName(windowId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getWindow} Window was Deleted!";

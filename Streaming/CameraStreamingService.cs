@@ -28,7 +28,7 @@ public class CameraStreamingService : BackgroundService
 
             var cameraRepo = scope.ServiceProvider.GetRequiredService<ICameraRepo>();
 
-            var cameras = await cameraRepo.GetAllAsync();
+            var cameras = await cameraRepo.GetByExpression(x => x.IsDeleted == false);
 
             var tasks = cameras.Select(camera => ProcessCamera(camera, cameraRepo, stoppingToken));
 
@@ -46,15 +46,12 @@ public class CameraStreamingService : BackgroundService
 
             camera.IsOnline = online;
 
-            if (online)
-                camera.LastSeenAt = DateTime.UtcNow;
-
             if (!online)
             {
                 StopStreaming(camera);
                 camera.IsStreaming = false;
 
-                await cameraRepo.UpdateAsync(camera);
+                await cameraRepo.Update(camera);
                 return;
             }
 
@@ -75,12 +72,12 @@ public class CameraStreamingService : BackgroundService
                 }
             }
 
-            await cameraRepo.UpdateAsync(camera);
+            await cameraRepo.Update(camera);
         }
         catch
         {
             camera.IsStreaming = false;
-            await cameraRepo.UpdateAsync(camera);
+            await cameraRepo.Update(camera);
         }
     }
     private async Task<bool> CheckStreamAsync(string streamUrl)
@@ -143,7 +140,7 @@ public class CameraStreamingService : BackgroundService
 
     private void StopStreaming(Camera camera)
     {
-        if (_streamProcesses.TryGetValue(camera.CameraId, out var process))
+        if (_streamProcesses.TryGetValue(camera.Id, out var process))
         {
             try
             {
@@ -154,7 +151,7 @@ public class CameraStreamingService : BackgroundService
             }
             catch { }
 
-            _streamProcesses.Remove(camera.CameraId);
+            _streamProcesses.Remove(camera.Id);
         }
     }
 

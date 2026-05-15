@@ -5,12 +5,8 @@ public interface ICameraStreamingService
 {
 
     Task<string> StartStream(Camera camera);
-
     Task StopStream(Camera camera);
-
     Task RestartStream(Camera camera);
-
     bool IsStreaming(int cameraId);
-
     Task<bool> CheckStreamHealth(string streamUrl);
 }

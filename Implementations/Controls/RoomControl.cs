@@ -10,13 +10,11 @@ public class RoomControl : IRoomControl
     IAuthControl _authControl;
     IRoomService _roomService;
     ILogService _logService;
-    IObjectDefault _objectDefault;
-    public RoomControl(IAuthControl authControl, IRoomService roomService, ILogService logService, IObjectDefault objectDefault)
+    public RoomControl(IAuthControl authControl, IRoomService roomService, ILogService logService)
     {
         _authControl = authControl;
         _roomService = roomService;
         _logService = logService;
-        _objectDefault = objectDefault;
     }
     public async Task<BaseResponse> CreateRoom(GetAuthControlInfoDto getAuthControlInfoDto, CreateRoomDto createRoomDto)
     {
@@ -166,7 +164,7 @@ public class RoomControl : IRoomControl
             var room = await _roomService.Delete(roomId, auth.Id);
             if (room.Status == true)
             {
-                var getRoom = _objectDefault.RoomName(roomId);
+                var getRoom = _authControl.GetRoomName(roomId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getRoom} Room was Deleted!";

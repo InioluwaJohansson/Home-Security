@@ -10,13 +10,11 @@ public class PersonControl : IPersonControl
     IAuthControl _authControl;
     IPersonService _personService;
     ILogService _logService;
-    IObjectDefault _objectDefault;
-    public PersonControl(IAuthControl authControl, IPersonService personService, ILogService logService, IObjectDefault objectDefault)
+    public PersonControl(IAuthControl authControl, IPersonService personService, ILogService logService)
     {
         _authControl = authControl;
         _personService = personService;
         _logService = logService;
-        _objectDefault = objectDefault;
     }
     public async Task<BaseResponse> CreatePerson(GetAuthControlInfoDto getAuthControlInfoDto, CreatePersonDto createPersonDto)
     {
@@ -73,7 +71,7 @@ public class PersonControl : IPersonControl
             if (person.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
-                var getPerson = await _objectDefault.PersonName(personId);
+                var getPerson = _authControl.GetUserPersonName(personId);
                 log.ActionType = "Update";
                 log.LogDetails = $"{getPerson} Profile Address was recently updated!";
                 await _logService.CreateLog(log);
@@ -91,7 +89,7 @@ public class PersonControl : IPersonControl
             if (person.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
-                var getPerson = await _objectDefault.PersonName(personId);
+                var getPerson = _authControl.GetUserPersonName(personId);
                 log.ActionType = "Update";
                 log.LogDetails = $"{getPerson} Profile Details was recently updated!";
                 await _logService.CreateLog(log);
@@ -156,7 +154,7 @@ public class PersonControl : IPersonControl
             var person = await _personService.Delete(personId, auth.Id);
             if (person.Status == true)
             {
-                var getPerson = await _objectDefault.PersonName(personId);
+                var getPerson = _authControl.GetUserPersonName(personId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getPerson} Profile was Deleted!";
@@ -180,7 +178,7 @@ public class PersonControl : IPersonControl
             var person = await _personService.DisablePerson(personId);
             if (person.Status == true)
             {
-                var getPerson = await _objectDefault.PersonName(personId);
+                var getPerson = _authControl.GetUserPersonName(personId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Disable";
                 log.LogDetails = $"{getPerson} Profile was Disabled!";
@@ -204,7 +202,7 @@ public class PersonControl : IPersonControl
             var person = await _personService.DeleteContactDetails(personDetailId, auth.Id);
             if (person.Status == true)
             {
-                var getPerson = await _objectDefault.PersonName(personId);
+                var getPerson = _authControl.GetUserPersonName(personId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getPerson} Person Detail was Deleted!";
@@ -228,7 +226,7 @@ public class PersonControl : IPersonControl
             var person = await _personService.DeleteContactAddress(personAddressId, auth.Id);
             if (person.Status == true)
             {
-                var getPerson = await _objectDefault.PersonName(personId);
+                var getPerson = _authControl.GetUserPersonName(personId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getPerson} Person Address was Deleted!";

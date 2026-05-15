@@ -10,13 +10,11 @@ public class ExternalControl : IExternalControl
     IAuthControl _authControl;
     IExternalService _externalService;
     ILogService _logService;
-    IObjectDefault _objectDefault;
-    public ExternalControl(IAuthControl authControl, IExternalService externalService, ILogService logService, IObjectDefault objectDefault)
+    public ExternalControl(IAuthControl authControl, IExternalService externalService, ILogService logService)
     {
         _authControl = authControl;
         _externalService = externalService;
         _logService = logService;
-        _objectDefault = objectDefault;
     }
     public async Task<BaseResponse> CreateExternal(GetAuthControlInfoDto getAuthControlInfoDto, CreateExternalDto createExternalDto)
     {
@@ -160,7 +158,7 @@ public class ExternalControl : IExternalControl
             var external = await _externalService.Delete(externalId, auth.Id);
             if (external.Status == true)
             {
-                var getExternal = await _objectDefault.ExternalName(externalId);
+                var getExternal = _authControl.GetExternalName(externalId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getExternal} External was Deleted!";

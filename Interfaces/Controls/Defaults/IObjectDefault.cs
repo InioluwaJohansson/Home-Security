@@ -11,6 +11,5 @@ public interface IObjectDefault
     public Task<string> RoomName(int id);
     public Task<string> SectionName(int id);
     public Task<string> WindowName(int id);
-    public Task<string> ActionName(int id);
-    public Task<string> ExternalName(int id);
+
 }
