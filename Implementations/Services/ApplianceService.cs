@@ -44,7 +44,7 @@ public class ApplianceService : IApplianceService
 
             await _mqtt.PublishDeviceUpdate(appliance.ApplianceId, new GenericDeviceUpdateState
             {
-                FacilityType = 3,
+                FacilityType = 1,
                 Id = appliance.Id,
                 IsActive = appliance.IsActive,
                 PowerActive = appliance.PowerActive,
@@ -85,7 +85,7 @@ public class ApplianceService : IApplianceService
 
             await _mqtt.PublishDeviceUpdate(appliance.ApplianceId, new GenericDeviceUpdateState
             {
-                FacilityType = 3,
+                FacilityType = 1,
                 Id = appliance.Id,
                 IsActive = appliance.IsActive,
                 PowerActive = appliance.PowerActive,
@@ -219,7 +219,7 @@ public class ApplianceService : IApplianceService
 
             await _mqtt.PublishDeviceUpdate(appliance.ApplianceId, new GenericDeviceUpdateState
             {
-                FacilityType = 3,
+                FacilityType = 1,
                 Id = appliance.Id,
                 IsActive = false,
                 PowerActive = false,

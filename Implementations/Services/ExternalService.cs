@@ -44,7 +44,7 @@ public class Externalservice : IExternalService
 
             await _mqtt.PublishDeviceUpdate(external.ExternalId, new GenericDeviceUpdateState
             {
-                FacilityType = 1,
+                FacilityType = 4,
                 Id = external.Id,
                 BrightnessLevel = 0,
                 IsActive = true,
@@ -84,7 +84,7 @@ public class Externalservice : IExternalService
 
             await _mqtt.PublishDeviceUpdate(Externals.ExternalId, new GenericDeviceUpdateState
             {
-                FacilityType = 1,
+                FacilityType = 4,
                 Id = Externals.Id,
                 BrightnessLevel = 0,
                 IsActive = Externals.IsActive,
@@ -219,7 +219,7 @@ public class Externalservice : IExternalService
 
             await _mqtt.PublishDeviceUpdate(Externals.ExternalId, new GenericDeviceUpdateState
             {
-                FacilityType = 1,
+                FacilityType = 4,
                 Id = Externals.Id,
                 BrightnessLevel = 0,
                 IsActive = false,

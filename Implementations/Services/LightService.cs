@@ -43,7 +43,7 @@ public class LightService : ILightService
 
             await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
             {
-                FacilityType = 1,
+                FacilityType = 5,
                 Id = light.Id,
                 BrightnessLevel = 0,
                 IsActive = true,
@@ -83,7 +83,7 @@ public class LightService : ILightService
 
             await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
             {
-                FacilityType = 1,
+                FacilityType = 5,
                 Id = light.Id,
                 BrightnessLevel = light.BrightnessLevel,
                 IsActive = light.IsActive,
@@ -218,7 +218,7 @@ public class LightService : ILightService
 
             await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
             {
-                FacilityType = 1,
+                FacilityType = 5,
                 Id = light.Id,
                 BrightnessLevel = 0,
                 IsActive = false,

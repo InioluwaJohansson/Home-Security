@@ -48,7 +48,7 @@ public class WindowService : IWindowService
 
             await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState
             {
-                FacilityType = 2,
+                FacilityType = 6,
                 Id = window.Id,
                 IsLocked = window.IsLocked,
                 IsOpen = window.IsOpen,
@@ -92,7 +92,7 @@ public class WindowService : IWindowService
 
             await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState
             {
-                FacilityType = 2,
+                FacilityType = 6,
                 Id = window.Id,
                 IsLocked = window.IsLocked,
                 IsOpen = window.IsOpen,
@@ -227,7 +227,7 @@ public class WindowService : IWindowService
 
             await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState
             {
-                FacilityType = 2,
+                FacilityType = 6,
                 Id = window.Id,
                 IsLocked = false,
                 IsOpen = false,

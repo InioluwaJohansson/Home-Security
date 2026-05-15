@@ -22,6 +22,17 @@ public class CameraService : ICameraService
         _cameraStreamingService = cameraStreamingService;
     }
 
+    private string BuildRtspUrl(CreateCameraDto dto)
+    {
+        var streamPath = string.IsNullOrWhiteSpace(dto.StreamPath)
+            ? "stream1"
+            : dto.StreamPath;
+
+        var port = dto.Port == 0 ? 554 : dto.Port;
+
+        return $"rtsp://{dto.Username}:{dto.Password}@{dto.IpAddress}:{port}/{streamPath}";
+    }
+
     public async Task<BaseResponse> CreateCamera(CreateCameraDto createCameraDto, int personId)
     {
         if (createCameraDto == null)
@@ -39,7 +50,8 @@ public class CameraService : ICameraService
             CameraName = createCameraDto.CameraName,
 
             IpAddress = createCameraDto.IpAddress,
-            InputStreamUrl = createCameraDto.InputStreamUrl,
+
+            InputStreamUrl = BuildRtspUrl(createCameraDto),
 
             RecordingPath = $"storage/recordings/{createCameraDto.CameraId}",
 
@@ -60,7 +72,6 @@ public class CameraService : ICameraService
 
         await _cameraRepo.Create(camera);
 
-        // START STREAMING
         var liveUrl = await _cameraStreamingService.StartStream(camera);
 
         camera.LiveStreamUrl = liveUrl;
@@ -73,7 +84,7 @@ public class CameraService : ICameraService
 
         await _mqtt.PublishDeviceUpdate(camera.CameraId, new GenericDeviceUpdateState
         {
-            FacilityType = 4,
+            FacilityType = 2,
             Id = camera.Id,
             IsActive = camera.IsActive,
             PowerActive = camera.PowerActive,
@@ -117,7 +128,7 @@ public class CameraService : ICameraService
 
         await _mqtt.PublishDeviceUpdate(camera.CameraId, new GenericDeviceUpdateState
         {
-            FacilityType = 4,
+            FacilityType = 2,
             Id = camera.Id,
             IsActive = camera.IsActive,
             PowerActive = camera.PowerActive,
@@ -145,9 +156,6 @@ public class CameraService : ICameraService
                 Message = "Unable To Retrieve Camera!"
             };
         }
-
-        // FETCH LAST 24 HOURS RECORDINGS
-        var recordings = await _recordingRepo.GetByExpression(x => x.CameraId == camera.Id && x.StartTime >= DateTime.UtcNow.AddHours(-24));
 
         return new CameraResponseModel
         {
@@ -263,12 +271,15 @@ public class CameraService : ICameraService
             CreatedOn = camera.CreatedOn,
 
             LiveStreamUrl = camera.LiveStreamUrl,
-            Recordings = camera.Recordings.Select(x => new GetRecordingDto
-            {
-                FilePath = x.FilePath,
-                StartTime = x.StartTime,
-                EndTime = x.EndTime
-            }).ToList()
+
+            Recordings = camera.Recordings == null
+                ? new List<GetRecordingDto>()
+                : camera.Recordings.Select(x => new GetRecordingDto
+                {
+                    FilePath = x.FilePath,
+                    StartTime = x.StartTime,
+                    EndTime = x.EndTime
+                }).ToList()
         };
     }
 }
