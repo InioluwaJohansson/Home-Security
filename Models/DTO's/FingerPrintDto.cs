@@ -1,6 +1,7 @@
 ﻿namespace Home_Security.Models.DTOs;
 public class CreateFingerPrintDto
 {
+    public int PersonId { get; set; }
     public byte [] FingerPrintEncoding { get; set; }
 }
 public class GetFingerPrintDto
