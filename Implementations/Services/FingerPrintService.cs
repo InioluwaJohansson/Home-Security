@@ -23,30 +23,6 @@ public class FingerPrintService : IFingerPrintService
     {
         _fingerPrintRepo = fingerPrintRepo;
     }
-    public async Task<FingerPrintResponseModel> VerifyFingerPrint(byte [] data)
-    {
-        var fingerprint = await _fingerPrintRepo.Get(x => x.FingerPrintEncoding.Equals(data) && x.IsDeleted == false);
-        if (data != null)
-        {
-            return new FingerPrintResponseModel
-            {
-                Data = new GetFingerPrintDto()
-                {
-                    Id = fingerprint.Id,
-                    FingerPrintId = fingerprint.FingerPrintId,
-                    PersonId = fingerprint.PersonId,
-                },
-                Status = true,
-                Message = "FingerPrint Verified"
-            };
-        }
-        return new FingerPrintResponseModel()
-        {
-            Data = null,
-            Status = false,
-            Message = "Unable To Find FingerPrint!"
-        };
-    }
     public async Task<FingerPrintResponseModel> VerifyFingerPrint(VerifyFingerPrintDto dto)
     {
         var allFingerprints = await _fingerPrintRepo
@@ -110,4 +86,40 @@ public class FingerPrintService : IFingerPrintService
             Message = $"No match found (best score: {bestScore})"
         };
     }
+    public async Task<FingerPrintResponseModel> EnrollFingerPrint(
+    EnrollFingerPrintDto dto)
+{
+    var person = new Person
+    {
+        Fingerprints =
+        {
+            new Fingerprint(
+                new MemoryStream(dto.FingerPrintImage))
+        }
+    };
+
+    var template = new FingerprintTemplate(person);
+
+    var entity = new FingerPrint
+    {
+        PersonId = dto.PersonId,
+        FingerPrintEncoding = template.ToByteArray(),
+        FingerPrintId = Guid.NewGuid().ToString(),
+        IsDeleted = false
+    };
+
+    await _fingerPrintRepo.Add(entity);
+
+    return new FingerPrintResponseModel
+    {
+        Status = true,
+        Message = "Fingerprint enrolled successfully",
+        Data = new GetFingerPrintDto
+        {
+            Id = entity.Id,
+            PersonId = entity.PersonId,
+            FingerPrintId = entity.FingerPrintId
+        }
+    };
+}
 }
