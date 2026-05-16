@@ -1,7 +1,5 @@
 using Microsoft.Extensions.Hosting;
-
-namespace Home_Security.Streaming;
-
+namespace Home_Security.BackgroundServices;
 public class RecordingCleanupService : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -24,23 +22,17 @@ public class RecordingCleanupService : BackgroundService
     private void CleanupOldRecordings()
     {
         string recordingsRoot = "storage/recordings";
-
         if (!Directory.Exists(recordingsRoot))
             return;
-
         var cameraFolders = Directory.GetDirectories(recordingsRoot);
-
         foreach (var folder in cameraFolders)
         {
             var files = Directory.GetFiles(folder, "*.mp4");
-
             foreach (var file in files)
             {
                 try
                 {
                     var creationTime = File.GetCreationTimeUtc(file);
-
-                    // 7-day retention rule
                     if (creationTime < DateTime.UtcNow.AddDays(-7))
                     {
                         File.Delete(file);

@@ -6,13 +6,13 @@ using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
 
-public class Externalservice : IExternalService
+public class ExternalService : IExternalService
 {
     IExternalRepo _externalRepo;
     RealtimeNotificationService _realtime;
     IMqttService _mqtt;
 
-    public Externalservice(IExternalRepo externalRepo, RealtimeNotificationService realtime, IMqttService mqtt)
+    public ExternalService(IExternalRepo externalRepo, RealtimeNotificationService realtime, IMqttService mqtt)
     {
         _externalRepo = externalRepo;
         _realtime = realtime;
