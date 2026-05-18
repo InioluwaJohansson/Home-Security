@@ -1,6 +1,6 @@
 using Home_Security.Entities.Chats;
 namespace Home_Security.Interfaces.Repositories.Chats;
-public interface IMessageRepository
+public interface IMessageRepo : IRepo<Message>
 {
     Task<Message?> GetByIdAsync(int messageId);
 

@@ -4,7 +4,7 @@ using Home_Security.Interfaces.Repositories.Chats;
 using Home_Security.Context;
 using Microsoft.EntityFrameworkCore;
 
-public class MessageRepository : BaseRepository<Chat>, IMessageRepository
+public class MessageRepository : BaseRepository<Message>, IMessageRepo
 {
     public MessageRepository(HomeSecurityContext _context)
     {

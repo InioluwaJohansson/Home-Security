@@ -1,4 +1,5 @@
 using Home_Security.Entities.Chats;
+namespace Home_Security.Models.ChatDTO;
 public class CreateDirectChatDto
 {
     public int RecipientPersonId { get; set; }
@@ -78,8 +79,7 @@ public class ChatDto
 
     public DateTime CreatedAt { get; set; }
 
-    public List<ChatParticipantDto> Participants { get; set; }
-        = new();
+    public List<ChatParticipantDto> Participants { get; set; } = new();
 
     public MessageDto? LastMessage { get; set; }
 
