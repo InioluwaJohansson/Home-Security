@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Home_Security.Entities;
 using Home_Security.Entities.Identity;
+using Home_Security.Entities.Chats;
 
 namespace Home_Security.Context;
 
@@ -45,4 +46,10 @@ public class HomeSecurityContext: DbContext
 
     //Token
     public DbSet<Token> Tokens { get; set; }
+
+    //Chats
+    public DbSet<Chat> Chat { get; set; }
+    public DbSet<ChatParticipant> ChatParticipant { get; set; }
+    public DbSet<Message> Message { get; set; }
+    public DbSet<MessageAttachment> MessageAttachment { get; set; }
 }
