@@ -1,6 +1,4 @@
-﻿using Home_Security.Entities;
-using Home_Security.Entities.Identity;
-using Home_Security.Implementations.Services;
+﻿using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;

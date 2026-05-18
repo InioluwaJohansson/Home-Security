@@ -2,6 +2,7 @@ using Home_Security.Entities;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
@@ -44,7 +45,7 @@ public class ExternalService : IExternalService
 
             await _mqtt.PublishDeviceUpdate(external.ExternalId, new GenericDeviceUpdateState
             {
-                FacilityType = 4,
+                FacilityType = FacilityType.External,
                 Id = external.Id,
                 BrightnessLevel = 0,
                 IsActive = true,
@@ -84,7 +85,7 @@ public class ExternalService : IExternalService
 
             await _mqtt.PublishDeviceUpdate(Externals.ExternalId, new GenericDeviceUpdateState
             {
-                FacilityType = 4,
+                FacilityType = FacilityType.External,
                 Id = Externals.Id,
                 BrightnessLevel = 0,
                 IsActive = Externals.IsActive,
@@ -219,7 +220,7 @@ public class ExternalService : IExternalService
 
             await _mqtt.PublishDeviceUpdate(Externals.ExternalId, new GenericDeviceUpdateState
             {
-                FacilityType = 4,
+                FacilityType = FacilityType.External,
                 Id = Externals.Id,
                 BrightnessLevel = 0,
                 IsActive = false,

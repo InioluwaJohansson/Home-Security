@@ -16,6 +16,7 @@ public class UpdateCameraDto : CreateBaseDefaultDto
 {
     public int Id { get; set; }
     public string CameraName { get; set; }
+    public bool IsActive { get; set; }
 }
 public class GetCameraDto : BaseDefaultDto
 {

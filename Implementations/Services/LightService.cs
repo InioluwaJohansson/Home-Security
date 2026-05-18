@@ -2,6 +2,7 @@
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
@@ -43,7 +44,7 @@ public class LightService : ILightService
 
             await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
             {
-                FacilityType = 5,
+                FacilityType = FacilityType.Light,
                 Id = light.Id,
                 BrightnessLevel = 0,
                 IsActive = true,
@@ -83,7 +84,7 @@ public class LightService : ILightService
 
             await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
             {
-                FacilityType = 5,
+                FacilityType = FacilityType.Light,
                 Id = light.Id,
                 BrightnessLevel = light.BrightnessLevel,
                 IsActive = light.IsActive,
@@ -218,7 +219,7 @@ public class LightService : ILightService
 
             await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
             {
-                FacilityType = 5,
+                FacilityType = FacilityType.Light,
                 Id = light.Id,
                 BrightnessLevel = 0,
                 IsActive = false,

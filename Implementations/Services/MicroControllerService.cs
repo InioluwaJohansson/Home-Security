@@ -2,6 +2,7 @@
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 namespace Home_Security.Implementations.Services;
 
@@ -14,11 +15,10 @@ public class MicroControllerService : IMicroControllerService
     IDoorRepo _doorRepo;
     IWindowRepo _windowRepo;
     IExternalRepo _externalRepo;
-    ILogRepo _logRepo;
     IActionService _actionService;
     IRealtimeNotificationService _realtime;
 
-    public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceRepo applianceRepo, ILightRepo lightRepo, ICameraRepo cameraRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IExternalRepo externalRepo, ILogRepo logRepo, IActionService actionService, IRealtimeNotificationService realtime)
+    public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceRepo applianceRepo, ILightRepo lightRepo, ICameraRepo cameraRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IExternalRepo externalRepo, IActionService actionService, IRealtimeNotificationService realtime)
     {
         _hardwareRepo = hardwareRepo;
         _applianceRepo = applianceRepo;
@@ -27,7 +27,6 @@ public class MicroControllerService : IMicroControllerService
         _doorRepo = doorRepo;
         _windowRepo = windowRepo;
         _externalRepo = externalRepo;
-        _logRepo = logRepo;
         _actionService = actionService;
         _realtime = realtime;
     }
@@ -72,7 +71,7 @@ public class MicroControllerService : IMicroControllerService
     {
         switch (genericDeviceUpdateState.FacilityType)
         {
-            case 1:
+            case FacilityType.Appliance:
                 var appliance = await _applianceRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (appliance != null)
                 {
@@ -91,7 +90,7 @@ public class MicroControllerService : IMicroControllerService
                 }
                 break;
 
-            case 2:
+            case FacilityType.Light:
                 var light = await _lightRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (light != null)
                 {
@@ -112,7 +111,7 @@ public class MicroControllerService : IMicroControllerService
                 }
                 break;
 
-            case 3:
+            case FacilityType.Camera:
                 var camera = await _cameraRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (camera != null)
                 {
@@ -131,7 +130,7 @@ public class MicroControllerService : IMicroControllerService
                 }
                 break;
 
-            case 4:
+            case FacilityType.Window:
                 var window = await _windowRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (window != null)
                 {
@@ -152,7 +151,7 @@ public class MicroControllerService : IMicroControllerService
                 }
                 break;
 
-            case 5:
+            case FacilityType.Door:
                 var door = await _doorRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (door != null)
                 {
@@ -172,14 +171,13 @@ public class MicroControllerService : IMicroControllerService
                     };
                 }
                 break;
-            case 6:
+            case FacilityType.External:
                 var external = await _externalRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (external != null)
                 {
                     external.IsActive = genericDeviceUpdateState.IsActive;
-                    external.IsTriggered = genericDeviceUpdateState.IsTriggered;
                     await _externalRepo.Update(external);
-                    if (genericDeviceUpdateState.IsTriggered) await _actionService.TriggerActionsForExternal(external.Id);
+                    if (genericDeviceUpdateState.IsTriggered == true) await _actionService.TriggerActionsForExternal(external.Id);
                     return new BaseResponse()
                     {
                         Status = true,

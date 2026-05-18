@@ -1,6 +1,4 @@
-using Home_Security.Entities;
 using Home_Security.Entities.Identity;
-using Home_Security.Implementations.Services;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
@@ -19,7 +17,7 @@ public class ActionControl : IActionControl
     public async Task<BaseResponse> CreateAction(GetAuthControlInfoDto getAuthControlInfoDto, CreateActionDto createActionDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner)
+        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
             
             var action = await _actionService.CreateAction(createActionDto, auth.Id);
@@ -27,7 +25,7 @@ public class ActionControl : IActionControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "An Action was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = "An Action was newly added!";
                 await _logService.CreateLog(log);
             }
             return action;
@@ -55,7 +53,7 @@ public class ActionControl : IActionControl
     public async Task<ActionResponseModel> GetActionById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
+        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
             var action = await _actionService.GetById(id);
             action.Data = DtoRefactor(action.Data);
@@ -77,52 +75,24 @@ public class ActionControl : IActionControl
             Message = _authControl.AuthFaliure().Message
         };
     }
-    public async Task<ActionsResponseModel> GetAllActionsBySectionId(GetAuthControlInfoDto getAuthControlInfoDto, int sectionId)
+    public async Task<BaseResponse> ActivateDeactivateAction(GetAuthControlInfoDto getAuthControlInfoDto, int actionId)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
+        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
-            var action = await _actionService.GetAllActionsBySectionId(sectionId);
-            action.Data = action.Data.Select(x => DtoRefactor(x)).ToList();
+            var action = await _actionService.ActivateDeactivateAction(actionId);
             return action;
         }
-        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
+        else if (auth.Status != false && auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new ActionsResponseModel()
+            return new BaseResponse()
             {
-                Data = null,
                 Status = _authControl.AuthFaliure().Status,
                 Message = "Unauthorized Action"
             };
         }
-        return new ActionsResponseModel()
+        return new BaseResponse()
         {
-            Data = null,
-            Status = _authControl.AuthFaliure().Status,
-            Message = _authControl.AuthFaliure().Message
-        };
-    }
-    public async Task<ActionsResponseModel> GetAllActionsByRoomId(GetAuthControlInfoDto getAuthControlInfoDto, int roomId)
-    {
-        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
-        {
-            var action = await _actionService.GetAllActionsBySectionId(roomId);
-            action.Data = action.Data.Select(x => DtoRefactor(x)).ToList();
-            return action;
-        }
-        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
-        {
-            return new ActionsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
-        }
-        return new ActionsResponseModel()
-        {
-            Data = null,
             Status = _authControl.AuthFaliure().Status,
             Message = _authControl.AuthFaliure().Message
         };
@@ -130,7 +100,7 @@ public class ActionControl : IActionControl
     public async Task<ActionsResponseModel> GetAllActions(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
+        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
             var action = await _actionService.GetAllActions();
             action.Data = action.Data.Select(x => DtoRefactor(x)).ToList();
@@ -157,7 +127,7 @@ public class ActionControl : IActionControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            var action = await _actionService.Delete(actionId, auth.Id);
+            var action = await _actionService.DeleteAction(actionId, auth.Id);
             if (action.Status == true)
             {
                 var getAction = _authControl.GetActionName(actionId);
@@ -181,8 +151,36 @@ public class ActionControl : IActionControl
         x.LastModifiedByName = _authControl.GetUserPersonName(x.LastModifiedBy);
         x.PeronName = _authControl.GetUserPersonName(x.personId);
         x.CreatedByName = _authControl.GetUserPersonName(x.CreatedBy);
-        x.RoomName = _authControl.GetRoomName(x.RoomId);
-        x.SectionName = _authControl.GetSectionName(x.SectionId);
         return x;
+    }
+    public async Task<BaseResponse> AddActionStep(GetAuthControlInfoDto getAuthControlInfoDto, List<CreateActionStepDto> createActionStepDtos)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false)
+        {
+            var action = await _actionService.AddActionStep(createActionStepDtos, auth.Id);
+            return action;
+        }
+        return _authControl.AuthFaliure();
+    }
+    public async Task<BaseResponse> UpdateActionStep(GetAuthControlInfoDto getAuthControlInfoDto, List<UpdateActionStepDto> updateActionStepDtos)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false)
+        {
+            var action = await _actionService.UpdateActionStep(updateActionStepDtos, auth.Id);
+            return action;
+        }
+        return _authControl.AuthFaliure();
+    }
+    public async Task<BaseResponse> DeleteActionStep(GetAuthControlInfoDto getAuthControlInfoDto, int actionId, int actionStepId)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false)
+        {
+            var action = await _actionService.DeleteActionStep(actionId, actionStepId, auth.Id);
+            return action;
+        }
+        return _authControl.AuthFaliure();
     }
 }

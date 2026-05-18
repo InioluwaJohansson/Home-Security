@@ -2,6 +2,7 @@
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 using Home_Security.Streaming;
 
@@ -84,7 +85,7 @@ public class CameraService : ICameraService
 
         await _mqtt.PublishDeviceUpdate(camera.CameraId, new GenericDeviceUpdateState
         {
-            FacilityType = 2,
+            FacilityType = FacilityType.Camera,
             Id = camera.Id,
             IsActive = camera.IsActive,
             PowerActive = camera.PowerActive,
@@ -114,6 +115,7 @@ public class CameraService : ICameraService
         var camera = await _cameraRepo.Get(x => x.Id == updateCameraDto.Id);
 
         camera.CameraName = updateCameraDto.CameraName ?? camera.CameraName;
+        camera.IsActive = updateCameraDto.IsActive;
         camera.LastModifiedBy = personId;
         camera.LastModifiedOn = DateTime.Now;
 
@@ -128,7 +130,7 @@ public class CameraService : ICameraService
 
         await _mqtt.PublishDeviceUpdate(camera.CameraId, new GenericDeviceUpdateState
         {
-            FacilityType = 2,
+            FacilityType = FacilityType.Camera,
             Id = camera.Id,
             IsActive = camera.IsActive,
             PowerActive = camera.PowerActive,

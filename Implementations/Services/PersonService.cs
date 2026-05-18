@@ -3,6 +3,7 @@ using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 using Microsoft.AspNetCore.SignalR;
 using System.Data;
@@ -495,7 +496,7 @@ public class PersonService : IPersonService
                 LastName = "Johansson",
                 DateOfBirth = new DateOnly(2003, 08, 13),
                 Age = 21,
-                Gender = Models.Enums.Gender.Male,
+                Gender = Gender.Male,
                 ImageUrl = null,
                 CreateAddressDtos = new List<CreateAddressDto>
                 {

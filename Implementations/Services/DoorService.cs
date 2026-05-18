@@ -50,7 +50,7 @@ public class DoorService : IDoorService
 
             await _mqtt.PublishDeviceUpdate(door.DoorId, new GenericDeviceUpdateState
             {
-                FacilityType = 3,
+                FacilityType = FacilityType.Door,
                 Id = door.Id,
                 IsLocked = door.IsLocked,
                 IsOpen = door.IsOpen,
@@ -94,7 +94,7 @@ public class DoorService : IDoorService
 
             await _mqtt.PublishDeviceUpdate(door.DoorId, new GenericDeviceUpdateState
             {
-                FacilityType = 3,
+                FacilityType = FacilityType.Door,
                 Id = door.Id,
                 IsLocked = door.IsLocked,
                 IsOpen = door.IsOpen,
@@ -251,7 +251,7 @@ public class DoorService : IDoorService
 
             await _mqtt.PublishDeviceUpdate(door.DoorId, new GenericDeviceUpdateState
             {
-                FacilityType = 3,
+                FacilityType = FacilityType.Door,
                 Id = door.Id,
                 IsLocked = false,
                 IsOpen = false,

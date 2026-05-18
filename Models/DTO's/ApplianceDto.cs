@@ -7,6 +7,7 @@ public class UpdateApplianceDto : CreateBaseDefaultDto
 {
     public int Id { get; set; }
     public string ApplianceName { get; set; }
+    public bool IsActive { get; set; }
 }
 public class GetApplianceDto : BaseDefaultDto
 {

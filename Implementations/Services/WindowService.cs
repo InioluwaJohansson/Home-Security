@@ -2,6 +2,7 @@
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
@@ -48,7 +49,7 @@ public class WindowService : IWindowService
 
             await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState
             {
-                FacilityType = 6,
+                FacilityType = FacilityType.Window,
                 Id = window.Id,
                 IsLocked = window.IsLocked,
                 IsOpen = window.IsOpen,
@@ -92,7 +93,7 @@ public class WindowService : IWindowService
 
             await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState
             {
-                FacilityType = 6,
+                FacilityType = FacilityType.Window,
                 Id = window.Id,
                 IsLocked = window.IsLocked,
                 IsOpen = window.IsOpen,
@@ -227,7 +228,7 @@ public class WindowService : IWindowService
 
             await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState
             {
-                FacilityType = 6,
+                FacilityType = FacilityType.Window,
                 Id = window.Id,
                 IsLocked = false,
                 IsOpen = false,
