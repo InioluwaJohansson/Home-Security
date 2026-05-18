@@ -1,5 +1,7 @@
 
-﻿namespace Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
+
+namespace Home_Security.Models.DTOs;
 public class GenericDeviceState : BaseResponse
 {
     public List<ApplianceDeviceState> ApplianceDeviceStates { get; set; }
@@ -13,7 +15,7 @@ public class GenericDeviceState : BaseResponse
 }
 public class GenericDeviceUpdateState
 {
-    public int FacilityType { get; set; }
+    public FacilityType FacilityType { get; set; }
     public int Id { get; set; }
     public int BrightnessLevel { get; set; }
     public bool IsLocked { get; set; }
