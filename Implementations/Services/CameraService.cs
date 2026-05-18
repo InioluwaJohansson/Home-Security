@@ -2,128 +2,168 @@
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
+using Home_Security.Streaming;
 
 namespace Home_Security.Implementations.Services;
 
 public class CameraService : ICameraService
 {
     ICameraRepo _cameraRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
+    ICameraStreamingService _cameraStreamingService;
 
-    public CameraService(ICameraRepo cameraRepo, RealtimeNotificationService realtime, IMqttService mqtt)
+    public CameraService(ICameraRepo cameraRepo, IRealtimeNotificationService realtime, IMqttService mqtt, ICameraStreamingService cameraStreamingService)
     {
         _cameraRepo = cameraRepo;
         _realtime = realtime;
         _mqtt = mqtt;
+        _cameraStreamingService = cameraStreamingService;
+    }
+
+    private string BuildRtspUrl(CreateCameraDto dto)
+    {
+        var streamPath = string.IsNullOrWhiteSpace(dto.StreamPath)
+            ? "stream1"
+            : dto.StreamPath;
+
+        var port = dto.Port == 0 ? 554 : dto.Port;
+
+        return $"rtsp://{dto.Username}:{dto.Password}@{dto.IpAddress}:{port}/{streamPath}";
     }
 
     public async Task<BaseResponse> CreateCamera(CreateCameraDto createCameraDto, int personId)
     {
-        if (createCameraDto != null)
+        if (createCameraDto == null)
         {
-            var camera = new Camera()
+            return new BaseResponse
             {
-                CameraId = $"CAMERA{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
-                CameraName = createCameraDto.CameraName,
-                IsActive = false,
-                PowerActive = false,
-                SectionId = createCameraDto.SectionId,
-                RoomId = createCameraDto.RoomId,
-                IsDeleted = false,
-                CreatedBy = personId,
-                LastModifiedBy = personId,
-                LastModifiedOn = DateTime.Now
-            };
-
-            await _cameraRepo.Create(camera);
-
-            await _realtime.NotifyAll("CameraCreated", GetDetails(camera));
-
-            await _mqtt.PublishDeviceUpdate(camera.CameraId, new GenericDeviceUpdateState
-            {
-                FacilityType = 4,
-                Id = camera.Id,
-                IsActive = camera.IsActive,
-                PowerActive = camera.PowerActive,
-                IsLocked = false,
-                IsOpen = false,
-                BrightnessLevel = 0
-            });
-
-            return new BaseResponse()
-            {
-                Status = true,
-                Message = "Camera Successfully Added!"
+                Status = false,
+                Message = "Unable To Add Camera!"
             };
         }
-
-        return new BaseResponse()
+        string cameraId = $"CAMERA{Guid.NewGuid().ToString().Replace("-", "")[..5].ToUpper()}";
+        var camera = new Camera()
         {
-            Status = false,
-            Message = "Unable To Add Camera!"
+            CameraId = cameraId,
+            CameraName = createCameraDto.CameraName,
+
+            IpAddress = createCameraDto.IpAddress,
+
+            InputStreamUrl = BuildRtspUrl(createCameraDto),
+
+            RecordingPath = $"storage/recordings/{cameraId}",
+
+            IsOnline = false,
+            IsStreaming = false,
+
+            IsActive = false,
+            PowerActive = false,
+
+            SectionId = createCameraDto.SectionId,
+            RoomId = createCameraDto.RoomId,
+
+            IsDeleted = false,
+            CreatedBy = personId,
+            LastModifiedBy = personId,
+            LastModifiedOn = DateTime.Now
+        };
+
+        await _cameraRepo.Create(camera);
+
+        var liveUrl = await _cameraStreamingService.StartStream(camera);
+
+        camera.LiveStreamUrl = liveUrl;
+        camera.IsStreaming = true;
+        camera.LastStreamStart = DateTime.UtcNow;
+
+        await _cameraRepo.Update(camera);
+
+        await _realtime.NotifyAll("CameraCreated", GetDetails(camera));
+
+        await _mqtt.PublishDeviceUpdate(camera.CameraId, new GenericDeviceUpdateState
+        {
+            FacilityType = FacilityType.Camera,
+            Id = camera.Id,
+            IsActive = camera.IsActive,
+            PowerActive = camera.PowerActive,
+            IsLocked = false,
+            IsOpen = false,
+            BrightnessLevel = 0
+        });
+
+        return new BaseResponse
+        {
+            Status = true,
+            Message = "Camera Created and Streaming Started!"
         };
     }
 
     public async Task<BaseResponse> UpdateCamera(UpdateCameraDto updateCameraDto, int personId)
     {
-        if (updateCameraDto != null)
+        if (updateCameraDto == null)
         {
-            var camera = await _cameraRepo.Get(x => x.Id == updateCameraDto.Id);
-
-            camera.CameraName = updateCameraDto.CameraName ?? camera.CameraName;
-            camera.LastModifiedBy = personId;
-            camera.LastModifiedOn = DateTime.Now;
-
-            await _cameraRepo.Update(camera);
-
-            await _realtime.NotifyAll("CameraUpdated", GetDetails(camera));
-
-            await _mqtt.PublishDeviceUpdate(camera.CameraId, new GenericDeviceUpdateState
+            return new BaseResponse
             {
-                FacilityType = 4,
-                Id = camera.Id,
-                IsActive = camera.IsActive,
-                PowerActive = camera.PowerActive,
-                IsLocked = false,
-                IsOpen = false,
-                BrightnessLevel = 0
-            });
-
-            return new BaseResponse()
-            {
-                Status = true,
-                Message = "Camera Updated Successfully!"
+                Status = false,
+                Message = "Unable To Update Camera!"
             };
         }
 
-        return new BaseResponse()
+        var camera = await _cameraRepo.Get(x => x.Id == updateCameraDto.Id);
+
+        camera.CameraName = updateCameraDto.CameraName ?? camera.CameraName;
+        camera.IsActive = updateCameraDto.IsActive;
+        camera.LastModifiedBy = personId;
+        camera.LastModifiedOn = DateTime.Now;
+
+        await _cameraRepo.Update(camera);
+
+        // if (camera.IsStreaming)
+        // {
+        //     await _cameraStreamingService.RestartStream(camera);
+        // }
+
+        await _realtime.NotifyAll("CameraUpdated", GetDetails(camera));
+
+        await _mqtt.PublishDeviceUpdate(camera.CameraId, new GenericDeviceUpdateState
         {
-            Status = false,
-            Message = "Unable To Update Camera!"
+            FacilityType = FacilityType.Camera,
+            Id = camera.Id,
+            IsActive = camera.IsActive,
+            PowerActive = camera.PowerActive,
+            IsLocked = false,
+            IsOpen = false,
+            BrightnessLevel = 0
+        });
+
+        return new BaseResponse
+        {
+            Status = true,
+            Message = "Camera Updated Successfully!"
         };
     }
 
     public async Task<CameraResponseModel> GetById(int cameraId)
     {
-        var camera = await _cameraRepo.Get(x => x.Id == cameraId && x.IsDeleted == false);
+        var camera = await _cameraRepo.GetCameraById(cameraId);
 
-        if (camera != null)
+        if (camera == null)
         {
-            return new CameraResponseModel()
+            return new CameraResponseModel
             {
-                Data = GetDetails(camera),
-                Status = true,
-                Message = "Camera Retrieved Successfully!"
+                Status = false,
+                Message = "Unable To Retrieve Camera!"
             };
         }
 
-        return new CameraResponseModel()
+        return new CameraResponseModel
         {
-            Data = null,
-            Status = false,
-            Message = "Unable To Retrieve Camera!"
+            Status = true,
+            Message = "Camera Retrieved Successfully!",
+            Data = GetDetails(camera),
         };
     }
 
@@ -131,65 +171,44 @@ public class CameraService : ICameraService
     {
         var cameras = await _cameraRepo.GetByExpression(x => x.IsDeleted == false);
 
-        if (cameras != null)
+        if (cameras == null)
         {
-            return new CamerasResponseModel()
+            return new CamerasResponseModel
             {
-                Data = cameras.Select(x => GetDetails(x)).ToList(),
-                Message = "Cameras Retrieved Successfully!",
-                Status = true
+                Status = false,
+                Message = "Unable To Retrieve Cameras!"
             };
         }
 
-        return new CamerasResponseModel()
+        return new CamerasResponseModel
         {
-            Data = null,
-            Message = "Unable To Retrieve Cameras!",
-            Status = false
+            Status = true,
+            Message = "Cameras Retrieved Successfully!",
+            Data = cameras.Select(GetDetails).ToList()
         };
     }
 
     public async Task<CamerasResponseModel> GetAllCamerasByRoomId(int roomId)
     {
-        var cameras = await _cameraRepo.GetByExpression(x => x.RoomId == roomId && x.IsDeleted == false);
+        var cameras = await _cameraRepo.GetAllCameras(x => x.RoomId == roomId && x.IsDeleted == false);
 
-        if (cameras != null)
+        return new CamerasResponseModel
         {
-            return new CamerasResponseModel()
-            {
-                Data = cameras.Select(x => GetDetails(x)).ToList(),
-                Message = "Cameras Retrieved Successfully!",
-                Status = true
-            };
-        }
-
-        return new CamerasResponseModel()
-        {
-            Data = null,
-            Message = "Unable To Retrieve Cameras!",
-            Status = false
+            Status = cameras != null,
+            Message = cameras != null ? "Cameras Retrieved Successfully!" : "Unable To Retrieve Cameras!",
+            Data = cameras?.Select(GetDetails).ToList()
         };
     }
 
     public async Task<CamerasResponseModel> GetAllCamerasBySectionId(int sectionId)
     {
-        var cameras = await _cameraRepo.GetByExpression(x => x.SectionId == sectionId && x.IsDeleted == false);
+        var cameras = await _cameraRepo.GetAllCameras(x => x.SectionId == sectionId && x.IsDeleted == false);
 
-        if (cameras != null)
+        return new CamerasResponseModel
         {
-            return new CamerasResponseModel()
-            {
-                Data = cameras.Select(x => GetDetails(x)).ToList(),
-                Message = "Cameras Retrieved Successfully!",
-                Status = true
-            };
-        }
-
-        return new CamerasResponseModel()
-        {
-            Data = null,
-            Message = "Unable To Retrieve Cameras!",
-            Status = false
+            Status = cameras != null,
+            Message = cameras != null ? "Cameras Retrieved Successfully!" : "Unable To Retrieve Cameras!",
+            Data = cameras?.Select(GetDetails).ToList()
         };
     }
 
@@ -197,65 +216,72 @@ public class CameraService : ICameraService
     {
         var camera = await _cameraRepo.Get(x => x.Id == cameraId);
 
-        if (camera != null)
+        if (camera == null)
         {
-            camera.IsActive = false;
-            camera.PowerActive = false;
-            camera.LastModifiedBy = personId;
-            camera.LastModifiedOn = DateTime.Now;
-            camera.DeletedOn = DateTime.Now;
-            camera.DeletedBy = personId;
-
-            await _cameraRepo.Update(camera);
-
-            await _realtime.NotifyAll("CameraDeleted", new
+            return new BaseResponse
             {
-                camera.Id,
-                camera.CameraId
-            });
-
-            await _mqtt.PublishDeviceUpdate(camera.CameraId, new GenericDeviceUpdateState
-            {
-                FacilityType = 4,
-                Id = camera.Id,
-                IsActive = false,
-                PowerActive = false,
-                IsLocked = false,
-                IsOpen = false,
-                BrightnessLevel = 0
-            });
-
-            return new BaseResponse()
-            {
-                Status = true,
-                Message = "Camera Deleted Successfully!"
+                Status = false,
+                Message = "Unable To Delete Camera!"
             };
         }
 
-        return new BaseResponse()
+        camera.IsActive = false;
+        camera.PowerActive = false;
+        camera.IsStreaming = false;
+
+        camera.LastModifiedBy = personId;
+        camera.LastModifiedOn = DateTime.Now;
+        camera.DeletedOn = DateTime.Now;
+        camera.DeletedBy = personId;
+
+        await _cameraStreamingService.StopStream(camera);
+
+        await _cameraRepo.Update(camera);
+
+        await _realtime.NotifyAll("CameraDeleted", new
         {
-            Status = false,
-            Message = "Unable To Delete Camera!"
+            camera.Id,
+            camera.CameraId
+        });
+
+        return new BaseResponse
+        {
+            Status = true,
+            Message = "Camera Deleted Successfully!"
         };
     }
 
     public GetCameraDto GetDetails(Camera camera)
     {
-        return new GetCameraDto()
+        return new GetCameraDto
         {
             Id = camera.Id,
             CameraName = camera.CameraName,
+            CameraId = camera.CameraId,
+
             IsActive = camera.IsActive,
             PowerActive = camera.PowerActive,
+
             RoomId = camera.RoomId,
             SectionId = camera.SectionId,
-            CameraId = camera.CameraId,
+
             LastModifiedBy = camera.LastModifiedBy,
             DeletedBy = camera.DeletedBy,
             CreatedBy = camera.CreatedBy,
+
             LastModifiedOn = camera.LastModifiedOn,
             CreatedOn = camera.CreatedOn,
-            IsDeleted = camera.IsDeleted,
+
+            LiveStreamUrl = camera.LiveStreamUrl,
+
+            Recordings = camera.Recordings == null
+                ? new List<GetRecordingDto>()
+                : camera.Recordings.Select(x => new GetRecordingDto
+                {
+                    FilePath = x.FilePath,
+                    StartTime = x.StartTime,
+                    EndTime = x.EndTime
+                }).ToList()
         };
     }
 }

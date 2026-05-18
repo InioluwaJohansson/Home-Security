@@ -15,7 +15,7 @@ public class SectionService : ISectionService
     IDoorRepo _doorRepo;
     IWindowRepo _windowRepo;
     IApplianceRepo _applianceRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
 
     public SectionService(
         ISectionRepo sectionRepo,
@@ -24,7 +24,7 @@ public class SectionService : ISectionService
         IDoorRepo doorRepo,
         IWindowRepo windowRepo,
         IApplianceRepo applianceRepo,
-        RealtimeNotificationService realtime)
+        IRealtimeNotificationService realtime)
     {
         _sectionRepo = sectionRepo;
         _roomRepo = roomRepo;
@@ -207,11 +207,13 @@ public class SectionService : ISectionService
             Id = Section.Id,
             SectionId = Section.SectionId,
             SectionName = Section.SectionName,
-            Door = Section.Door.Select(x => GetDoorDetails(x)).ToList(),
-            Appliance = Section.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
-            Light = Section.Light.Select(x => GetLightDetails(x)).ToList(),
-            Window = Section.Window.Select(x => GetWindowDetails(x)).ToList(),
-            Room = Section.Room.Select(x => GetRoomDetails(x)).ToList(),
+            Doors = Section.Door.Select(x => GetDoorDetails(x)).ToList(),
+            Appliances = Section.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
+            Lights = Section.Light.Select(x => GetLightDetails(x)).ToList(),
+            Windows = Section.Window.Select(x => GetWindowDetails(x)).ToList(),
+            Rooms = Section.Room.Select(x => GetRoomDetails(x)).ToList(),
+            Cameras = Section.Camera.Select(x => GetCameraDetails(x)).ToList(),
+            Externals = Section.External.Select(x => GetExternalDetails(x)).ToList(),
         };
     }
 
@@ -249,7 +251,56 @@ public class SectionService : ISectionService
             CreatedOn = appliance.CreatedOn,
         };
     }
+    public GetCameraDto GetCameraDetails(Camera camera)
+    {
+        return new GetCameraDto
+        {
+            Id = camera.Id,
+            CameraName = camera.CameraName,
+            CameraId = camera.CameraId,
 
+            IsActive = camera.IsActive,
+            PowerActive = camera.PowerActive,
+
+            RoomId = camera.RoomId,
+            SectionId = camera.SectionId,
+
+            LastModifiedBy = camera.LastModifiedBy,
+            DeletedBy = camera.DeletedBy,
+            CreatedBy = camera.CreatedBy,
+
+            LastModifiedOn = camera.LastModifiedOn,
+            CreatedOn = camera.CreatedOn,
+
+            LiveStreamUrl = camera.LiveStreamUrl,
+            Recordings = camera.Recordings.Select(x => new GetRecordingDto
+            {
+                FilePath = x.FilePath,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime
+            }).ToList()
+        };
+    }
+    public GetExternalDto GetExternalDetails(External External)
+    {
+        return new GetExternalDto()
+        {
+            Id = External.Id,
+            ExternalsName = External.ExternalName,
+            IsTriggered = External.IsTriggered,
+            IsActive = External.IsActive,
+            PowerActive = External.PowerActive,
+            RoomId = External.RoomId,
+            SectionId = External.SectionId,
+            ExternalsId = External.ExternalId,
+            LastModifiedBy = External.LastModifiedBy,
+            DeletedBy = External.DeletedBy,
+            CreatedBy = External.CreatedBy,
+            LastModifiedOn = External.LastModifiedOn,
+            CreatedOn = External.CreatedOn,
+            IsDeleted = External.IsDeleted,
+        };
+    }
     public GetDoorDto GetDoorDetails(Door door)
     {
         return new GetDoorDto()

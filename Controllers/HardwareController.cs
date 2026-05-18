@@ -1,3 +1,4 @@
+using Home_Security.Authentication;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -10,24 +11,24 @@ using System.Security.Claims;
 public class HardwareController : Controller
 {
     IHardwareControl _hardwareControl;
-    public HardwareController(IHardwareControl hardwareControl)
+    IJWTAuthentication _jwtAuthentication;
+    public HardwareController(IHardwareControl hardwareControl, IJWTAuthentication jwtAuthentication)
     {
         _hardwareControl = hardwareControl;
+        _jwtAuthentication = jwtAuthentication;
     }
     [Authorize]
     [HttpPut("CreateHardware")]
     public async Task<IActionResult> CreateHardware(CreateHardwareDto createHardwareDto)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
-        var hardware = await _hardwareControl.CreateHardware(getAuthControlInfoDto, createHardwareDto, loggedInPersonId);
+        var hardware = await _hardwareControl.CreateHardware(getAuthControlInfoDto, createHardwareDto, user.PersonId);
         if (hardware.Status == true) return Ok(hardware);
         return Ok(hardware);
     }
@@ -35,16 +36,14 @@ public class HardwareController : Controller
     [HttpGet("UpdateHardware")]
     public async Task<IActionResult> UpdateHardware(UpdateHardwareDto updateHardwareDto)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
-        var hardware = await _hardwareControl.UpdateHardware(getAuthControlInfoDto, updateHardwareDto, loggedInPersonId);
+        var hardware = await _hardwareControl.UpdateHardware(getAuthControlInfoDto, updateHardwareDto, user.PersonId);
         if (hardware.Status == true) return Ok(hardware);
         return Ok(hardware);
     }
@@ -52,14 +51,12 @@ public class HardwareController : Controller
     [HttpGet("GetById")]
     public async Task<IActionResult> GetById(int id)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var hardware = await _hardwareControl.GetById(getAuthControlInfoDto, id);
         if (hardware.Status == true) return Ok(hardware);
@@ -69,14 +66,12 @@ public class HardwareController : Controller
     [HttpGet("GetAllHardwares")]
     public async Task<IActionResult> GetAllHardwares()
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var hardware = await _hardwareControl.GetAllHardwares(getAuthControlInfoDto);
         if (hardware.Status == true)return Ok(hardware);

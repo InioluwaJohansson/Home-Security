@@ -37,44 +37,40 @@ public class UserController : Controller
     [HttpPut("UpdateUserRole")]
     public async Task<IActionResult> UpdateUserRole(UpdateUserDto updateUserDto)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
-        var user = await _userService.UpdateUserRole(updateUserDto);
-        if (user.Status == true)
+        var getUser = await _userService.UpdateUserRole(updateUserDto);
+        if (getUser.Status == true)
         {
-            return Ok(user);
+            return Ok(getUser);
         }
-        return Ok(user);
+        return Ok(getUser);
     }
     [Authorize]
     [HttpPut("ChangePassword")]
     public async Task<IActionResult> ChangePassword(UpdateUserPasswordDto updateUserPasswordDto)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var token = await _tokenService.VerifyToken(updateUserPasswordDto.TokenCode);
         if(token.Status == true)
         {
-            var user = await _userService.ChangePassword(updateUserPasswordDto);
-            if (user.Status == true)
+            var getUser = await _userService.ChangePassword(updateUserPasswordDto);
+            if (getUser.Status == true)
             {
-                return Ok(user);
+                return Ok(getUser);
             }
-            return Ok(user);
+            return Ok(getUser);
         }
         return Ok(token);
     }
@@ -82,24 +78,22 @@ public class UserController : Controller
     [HttpPut("ChangeAuthorizationCode")]
     public async Task<IActionResult> ChangeAuthorizationCode(UpdateUserAuthorizationCode updateUserAuthorizationCode)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var token = await _tokenService.VerifyToken(updateUserAuthorizationCode.TokenCode);
         if(token.Status == true)
         {
-            var user = await _userService.ChangeAuthorizationCode(updateUserAuthorizationCode);
-            if (user.Status == true)
+            var getUser = await _userService.ChangeAuthorizationCode(updateUserAuthorizationCode);
+            if (getUser.Status == true)
             {
-                return Ok(user);
+                return Ok(getUser);
             }
-            return Ok(user);
+            return Ok(getUser);
         }
         return Ok(token);
     }
@@ -107,14 +101,12 @@ public class UserController : Controller
     [HttpPost("GenerateToken")]
     public async Task<IActionResult> GenerateToken()
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var token = await _tokenControl.GenerateToken(getAuthControlInfoDto);
         if (token.Status == true)

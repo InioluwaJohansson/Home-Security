@@ -2,7 +2,6 @@
 using Home_Security.Entities.Identity;
 using Home_Security.Implementations.Services;
 using Home_Security.Interfaces.Controls;
-using Home_Security.Interfaces.Controls.Defaults;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 namespace Home_Security.Implementations.Controls;
@@ -11,13 +10,11 @@ public class ContactCategoryControl : IContactCategoryControl
     IAuthControl _authControl;
     IContactCategoryService _contactCategoryService;
     ILogService _logService;
-    IObjectDefault _objectDefault;
-    public ContactCategoryControl(IAuthControl authControl, IContactCategoryService contactCategoryService, ILogService logService, IObjectDefault objectDefault)
+    public ContactCategoryControl(IAuthControl authControl, IContactCategoryService contactCategoryService, ILogService logService)
     {
         _authControl = authControl;
         _contactCategoryService = contactCategoryService;
         _logService = logService;
-        _objectDefault = objectDefault;
     }
     public async Task<BaseResponse> CreateContactCategory(GetAuthControlInfoDto getAuthControlInfoDto, CreateContactCategoryDto createContactCategoryDto)
     {
@@ -111,7 +108,7 @@ public class ContactCategoryControl : IContactCategoryControl
             var contactCategory = await _contactCategoryService.Delete(contactCategoryId, auth.Id);
             if (contactCategory.Status == true)
             {
-                var getContactCategory = await _objectDefault.ContactCategoryName(contactCategoryId);
+                var getContactCategory =  _authControl.GetContactCategoryName(contactCategoryId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getContactCategory} Contact Category was Deleted!";

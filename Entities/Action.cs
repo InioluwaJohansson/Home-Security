@@ -4,8 +4,8 @@ public class Action : AuditableEntity
 {
     public string ActionId { get; set; }
     public string ActionName { get; set; }
-    public TimeOnly? StartTIme { get; set; }
-    public TimeOnly? EndTime { get; set; }
     public string Description { get; set; }
-    public TimeSpan? Duration { get; set; }
+    public int PersonId { get; set; }
+    public bool IsActive { get; set; }
+    public List<ActionStep> ActionSteps{ get; set; }
 }

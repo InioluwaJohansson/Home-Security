@@ -9,4 +9,6 @@ public class Section : AuditableEntity
     public List<Light> Light { get; set;}
     public List<Window> Window { get; set;}
     public List<Appliance> Appliance { get; set;}
+    public List<Camera> Camera { get; set; }
+    public List<External> External { get; set; }
 }

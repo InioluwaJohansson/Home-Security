@@ -14,11 +14,13 @@ public class GetSectionDto : UserBaseDefaultDto
     public int Id { get; set; }
     public string SectionName { get; set; }
     public string SectionId { get; set; }
-    public List<GetRoomDto> Room { get; set; }
-    public List<GetDoorDto> Door { get; set; }
-    public List<GetLightDto> Light { get; set; }
-    public List<GetWindowDto> Window { get; set; }
-    public List<GetApplianceDto> Appliance { get; set; }
+    public List<GetRoomDto> Rooms { get; set; }
+    public List<GetDoorDto> Doors { get; set; }
+    public List<GetLightDto> Lights { get; set; }
+    public List<GetWindowDto> Windows { get; set; }
+    public List<GetApplianceDto> Appliances { get; set; }
+    public List<GetCameraDto> Cameras { get; set; }
+    public List<GetExternalDto> Externals { get; set; }
 }
 public class SectionResponseModel : BaseResponse
 {

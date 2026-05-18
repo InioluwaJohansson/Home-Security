@@ -2,6 +2,7 @@
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
@@ -9,10 +10,10 @@ namespace Home_Security.Implementations.Services;
 public class ApplianceService : IApplianceService
 {
     IApplianceRepo _applianceRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
 
-    public ApplianceService(IApplianceRepo applianceRepo, RealtimeNotificationService realtime, IMqttService mqtt)
+    public ApplianceService(IApplianceRepo applianceRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _applianceRepo = applianceRepo;
         _realtime = realtime;
@@ -44,7 +45,7 @@ public class ApplianceService : IApplianceService
 
             await _mqtt.PublishDeviceUpdate(appliance.ApplianceId, new GenericDeviceUpdateState
             {
-                FacilityType = 3,
+                FacilityType = FacilityType.Appliance,
                 Id = appliance.Id,
                 IsActive = appliance.IsActive,
                 PowerActive = appliance.PowerActive,
@@ -76,6 +77,7 @@ public class ApplianceService : IApplianceService
             appliance.ApplianceName = updateApplianceDto.ApplianceName ?? appliance.ApplianceName;
             appliance.SectionId = updateApplianceDto.SectionId != 0 ? updateApplianceDto.SectionId : appliance.SectionId;
             appliance.RoomId = updateApplianceDto.RoomId != 0 ? updateApplianceDto.RoomId : appliance.RoomId;
+            appliance.IsActive = updateApplianceDto.IsActive;
             appliance.LastModifiedBy = personId;
             appliance.LastModifiedOn = DateTime.Now;
 
@@ -85,7 +87,7 @@ public class ApplianceService : IApplianceService
 
             await _mqtt.PublishDeviceUpdate(appliance.ApplianceId, new GenericDeviceUpdateState
             {
-                FacilityType = 3,
+                FacilityType = FacilityType.Appliance,
                 Id = appliance.Id,
                 IsActive = appliance.IsActive,
                 PowerActive = appliance.PowerActive,
@@ -219,7 +221,7 @@ public class ApplianceService : IApplianceService
 
             await _mqtt.PublishDeviceUpdate(appliance.ApplianceId, new GenericDeviceUpdateState
             {
-                FacilityType = 3,
+                FacilityType = FacilityType.Appliance,
                 Id = appliance.Id,
                 IsActive = false,
                 PowerActive = false,

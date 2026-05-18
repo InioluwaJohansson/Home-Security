@@ -9,6 +9,7 @@ public class UpdateLightDto : CreateBaseDefaultDto
     public int Id { get; set; }
     public string LightName { get; set; }
     public int BrightnessLevel { get; set; }
+    public bool IsActive { get; set; }
 }
 public class GetLightDto : BaseDefaultDto
 {

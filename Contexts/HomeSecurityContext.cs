@@ -21,12 +21,13 @@ public class HomeSecurityContext: DbContext
     public DbSet<Light> Light { get; set; }
     public DbSet<Camera> Camera { get; set; }
     public DbSet<Appliance> Appliance { get; set; }
-    public DbSet<Externals> Externals { get; set; }
+    public DbSet<External> External { get; set; }
 
 
     //Operations
     public DbSet<Entities.Action> Action { get; set; }
     public DbSet<Logs> Logs { get; set; }
+    public DbSet<Recording> Recording { get; set; }
 
     //Hardware
     public DbSet<Hardware> Hardware { get; set; }

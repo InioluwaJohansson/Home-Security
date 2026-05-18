@@ -13,9 +13,9 @@ public class RoomService : IRoomService
     IDoorRepo _doorRepo;
     IWindowRepo _windowRepo;
     IApplianceRepo _applianceRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
 
-    public RoomService(IRoomRepo roomRepo, ILightRepo lightRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IApplianceRepo applianceRepo, RealtimeNotificationService realtime)
+    public RoomService(IRoomRepo roomRepo, ILightRepo lightRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IApplianceRepo applianceRepo, IRealtimeNotificationService realtime)
     {
         _roomRepo = roomRepo;
         _lightRepo = lightRepo;
@@ -199,6 +199,8 @@ public class RoomService : IRoomService
             Appliances = room.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
             Lights = room.Light.Select(x => GetLightDetails(x)).ToList(),
             Windows = room.Window.Select(x => GetWindowDetails(x)).ToList(),
+            Cameras = room.Camera.Select(x => GetCameraDetails(x)).ToList(),
+            Externals = room.External.Select(x => GetExternalDetails(x)).ToList(),
             LastModifiedBy = room.LastModifiedBy,
             CreatedBy = room.CreatedBy,
             LastModifiedOn = room.LastModifiedOn,
@@ -247,6 +249,56 @@ public class RoomService : IRoomService
             LastModifiedOn = door.LastModifiedOn,
             CreatedOn = door.CreatedOn,
             IsDeleted = door.IsDeleted,
+        };
+    }
+    public GetCameraDto GetCameraDetails(Camera camera)
+    {
+        return new GetCameraDto
+        {
+            Id = camera.Id,
+            CameraName = camera.CameraName,
+            CameraId = camera.CameraId,
+
+            IsActive = camera.IsActive,
+            PowerActive = camera.PowerActive,
+
+            RoomId = camera.RoomId,
+            SectionId = camera.SectionId,
+
+            LastModifiedBy = camera.LastModifiedBy,
+            DeletedBy = camera.DeletedBy,
+            CreatedBy = camera.CreatedBy,
+
+            LastModifiedOn = camera.LastModifiedOn,
+            CreatedOn = camera.CreatedOn,
+
+            LiveStreamUrl = camera.LiveStreamUrl,
+            Recordings = camera.Recordings.Select(x => new GetRecordingDto
+            {
+                FilePath = x.FilePath,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime
+            }).ToList()
+        };
+    }
+    public GetExternalDto GetExternalDetails(External External)
+    {
+        return new GetExternalDto()
+        {
+            Id = External.Id,
+            ExternalsName = External.ExternalName,
+            IsTriggered = External.IsTriggered,
+            IsActive = External.IsActive,
+            PowerActive = External.PowerActive,
+            RoomId = External.RoomId,
+            SectionId = External.SectionId,
+            ExternalsId = External.ExternalId,
+            LastModifiedBy = External.LastModifiedBy,
+            DeletedBy = External.DeletedBy,
+            CreatedBy = External.CreatedBy,
+            LastModifiedOn = External.LastModifiedOn,
+            CreatedOn = External.CreatedOn,
+            IsDeleted = External.IsDeleted,
         };
     }
     public GetLightDto GetLightDetails(Light light)

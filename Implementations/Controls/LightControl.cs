@@ -1,7 +1,6 @@
 ﻿using Home_Security.Entities;
 using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
-using Home_Security.Interfaces.Controls.Defaults;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 namespace Home_Security.Implementations.Controls;
@@ -10,13 +9,11 @@ public class LightControl : ILightControl
     IAuthControl _authControl;
     ILightService _lightService;
     ILogService _logService;
-    IObjectDefault _objectDefault;
-    public LightControl(IAuthControl authControl, ILightService lightService, ILogService logService, IObjectDefault objectDefault)
+    public LightControl(IAuthControl authControl, ILightService lightService, ILogService logService)
     {
         _authControl = authControl;
         _lightService = lightService;
         _logService = logService;
-        _objectDefault = objectDefault;
     }
     public async Task<BaseResponse> CreateLight(GetAuthControlInfoDto getAuthControlInfoDto, CreateLightDto createLightDto)
     {
@@ -160,7 +157,7 @@ public class LightControl : ILightControl
             var light = await _lightService.Delete(lightId, auth.Id);
             if (light.Status == true)
             {
-                var getLight = await _objectDefault.LightName(lightId);
+                var getLight = _authControl.GetLightName(lightId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getLight} Light was Deleted!";

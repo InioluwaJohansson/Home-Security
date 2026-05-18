@@ -2,7 +2,6 @@
 using Home_Security.Entities.Identity;
 using Home_Security.Implementations.Services;
 using Home_Security.Interfaces.Controls;
-using Home_Security.Interfaces.Controls.Defaults;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 namespace Home_Security.Implementations.Controls;
@@ -11,13 +10,11 @@ public class ContactControl : IContactControl
     IAuthControl _authControl;
     IContactService _contactService;
     ILogService _logService;
-    IObjectDefault _objectDefault;
-    public ContactControl(IAuthControl authControl, IContactService contactService, ILogService logService, IObjectDefault objectDefault)
+    public ContactControl(IAuthControl authControl, IContactService contactService, ILogService logService)
     {
         _authControl = authControl;
         _contactService = contactService;
         _logService = logService;
-        _objectDefault = objectDefault;
     }
     public async Task<BaseResponse> CreateContact(GetAuthControlInfoDto getAuthControlInfoDto, CreateContactDto createContactDto)
     {
@@ -64,7 +61,7 @@ public class ContactControl : IContactControl
             if (contact.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
-                var getContact = await _objectDefault.ContactName(contactId);
+                var getContact = _authControl.GetContactName(contactId);
                 log.ActionType = "Update";
                 log.LogDetails = $"{getContact} Contact Address was recently updated!";
                 await _logService.CreateLog(log);
@@ -82,7 +79,7 @@ public class ContactControl : IContactControl
             if (contact.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
-                var getContact = await _objectDefault.ContactName(contactId);
+                var getContact = _authControl.GetContactName(contactId);
                 log.ActionType = "Update";
                 log.LogDetails = $"{getContact} Contact Details was recently updated!";
                 await _logService.CreateLog(log);
@@ -219,7 +216,7 @@ public class ContactControl : IContactControl
             var contact = await _contactService.Delete(contactId, auth.Id);
             if (contact.Status == true)
             {
-                var getContact = await _objectDefault.ContactName(contactId);
+                var getContact = _authControl.GetContactName(contactId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getContact} Contact was Deleted!";
@@ -243,7 +240,7 @@ public class ContactControl : IContactControl
             var contact = await _contactService.DeleteContactDetails(contactDetailId, auth.Id);
             if (contact.Status == true)
             {
-                var getContact = await _objectDefault.ContactName(contactId);
+                var getContact = _authControl.GetContactName(contactId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getContact} Contact Detail was Deleted!";
@@ -267,7 +264,7 @@ public class ContactControl : IContactControl
             var contact = await _contactService.DeleteContactAddress(contactAddressId, auth.Id);
             if (contact.Status == true)
             {
-                var getContact = await _objectDefault.ContactName(contactId);
+                var getContact = _authControl.GetContactName(contactId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getContact} Contact Address was Deleted!";

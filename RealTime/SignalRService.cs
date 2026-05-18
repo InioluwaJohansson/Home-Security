@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace Home_Security.RealTimeServices;
 
 [Authorize]
-public class RealtimeNotificationService
+public class RealtimeNotificationService : IRealtimeNotificationService
 {
     private readonly IHubContext<HomeSecurityHub> _hub;
     public RealtimeNotificationService(IHubContext<HomeSecurityHub> hub)

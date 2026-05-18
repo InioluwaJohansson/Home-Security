@@ -14,4 +14,5 @@ public class Hardware : AuditableEntity
     public List<int> CameraIds { get; set; } = new List<int>();
     public List<int> WindowIds { get; set; } = new List<int>();
     public List<int> DoorIds { get; set; } = new List<int>();
+    public List<int> ExternalIds { get; set; } = new List<int>();
 }

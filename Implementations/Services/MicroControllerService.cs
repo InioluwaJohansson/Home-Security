@@ -2,6 +2,7 @@
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 namespace Home_Security.Implementations.Services;
 
@@ -13,19 +14,11 @@ public class MicroControllerService : IMicroControllerService
     ICameraRepo _cameraRepo;
     IDoorRepo _doorRepo;
     IWindowRepo _windowRepo;
-    ILogRepo _logRepo;
+    IExternalRepo _externalRepo;
+    IActionService _actionService;
+    IRealtimeNotificationService _realtime;
 
-    RealtimeNotificationService _realtime;
-
-    public MicroControllerService(
-        IHardwareRepo hardwareRepo,
-        IApplianceRepo applianceRepo,
-        ILightRepo lightRepo,
-        ICameraRepo cameraRepo,
-        IDoorRepo doorRepo,
-        IWindowRepo windowRepo,
-        ILogRepo logRepo,
-        RealtimeNotificationService realtime)
+    public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceRepo applianceRepo, ILightRepo lightRepo, ICameraRepo cameraRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IExternalRepo externalRepo, IActionService actionService, IRealtimeNotificationService realtime)
     {
         _hardwareRepo = hardwareRepo;
         _applianceRepo = applianceRepo;
@@ -33,7 +26,8 @@ public class MicroControllerService : IMicroControllerService
         _cameraRepo = cameraRepo;
         _doorRepo = doorRepo;
         _windowRepo = windowRepo;
-        _logRepo = logRepo;
+        _externalRepo = externalRepo;
+        _actionService = actionService;
         _realtime = realtime;
     }
 
@@ -50,10 +44,10 @@ public class MicroControllerService : IMicroControllerService
                 CameraDeviceStates = await GetCameraDeviceStates(hardware.CameraIds),
                 WindowDeviceStates = await GetWindowDeviceStates(hardware.WindowIds),
                 DoorDeviceStates = await GetDoorDeviceStates(hardware.DoorIds),
+                ExternalDeviceStates = await GetExternalDeviceStates(hardware.ExternalIds),
                 Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             };
 
-            // ✅ SIGNALR ADDED (device sync broadcast)
             await _realtime.NotifyAll("DeviceStateSnapshot", state);
 
             return state;
@@ -66,6 +60,7 @@ public class MicroControllerService : IMicroControllerService
             CameraDeviceStates = new List<CameraDeviceState>(),
             WindowDeviceStates = new List<WindowDeviceState>(),
             DoorDeviceStates = new List<DoorDeviceState>(),
+            ExternalDeviceStates = new List<ExternalDeviceState>(),
             Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
         };
 
@@ -76,7 +71,7 @@ public class MicroControllerService : IMicroControllerService
     {
         switch (genericDeviceUpdateState.FacilityType)
         {
-            case 1:
+            case FacilityType.Appliance:
                 var appliance = await _applianceRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (appliance != null)
                 {
@@ -95,7 +90,7 @@ public class MicroControllerService : IMicroControllerService
                 }
                 break;
 
-            case 2:
+            case FacilityType.Light:
                 var light = await _lightRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (light != null)
                 {
@@ -116,7 +111,7 @@ public class MicroControllerService : IMicroControllerService
                 }
                 break;
 
-            case 3:
+            case FacilityType.Camera:
                 var camera = await _cameraRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (camera != null)
                 {
@@ -135,7 +130,7 @@ public class MicroControllerService : IMicroControllerService
                 }
                 break;
 
-            case 4:
+            case FacilityType.Window:
                 var window = await _windowRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (window != null)
                 {
@@ -156,7 +151,7 @@ public class MicroControllerService : IMicroControllerService
                 }
                 break;
 
-            case 5:
+            case FacilityType.Door:
                 var door = await _doorRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (door != null)
                 {
@@ -173,6 +168,20 @@ public class MicroControllerService : IMicroControllerService
                     {
                         Status = true,
                         Message = "Door State Updated Successfully!"
+                    };
+                }
+                break;
+            case FacilityType.External:
+                var external = await _externalRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
+                if (external != null)
+                {
+                    external.IsActive = genericDeviceUpdateState.IsActive;
+                    await _externalRepo.Update(external);
+                    if (genericDeviceUpdateState.IsTriggered == true) await _actionService.TriggerActionsForExternal(external.Id);
+                    return new BaseResponse()
+                    {
+                        Status = true,
+                        Message = "External State Updated Successfully!"
                     };
                 }
                 break;
@@ -271,5 +280,23 @@ public class MicroControllerService : IMicroControllerService
             }
         }
         return doorDeviceStates;
+    }
+    private async Task <List<ExternalDeviceState>> GetExternalDeviceStates(List<int> ExternalIds)
+    {
+        var externalDeviceStates = new List<ExternalDeviceState>();
+        foreach (var item in ExternalIds)
+        {
+            var external = await _externalRepo.Get(x => x.Id == item && x.IsDeleted == false);
+            if (external != null)
+            {
+                externalDeviceStates.Add(new ExternalDeviceState()
+                {
+                    ExternalId = external.Id,
+                    IsActive = external.IsActive,
+                    IsTriggered = external.IsTriggered,
+                });
+            }
+        }
+        return externalDeviceStates;
     }
 }

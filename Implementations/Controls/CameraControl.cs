@@ -2,7 +2,6 @@
 using Home_Security.Entities.Identity;
 using Home_Security.Implementations.Services;
 using Home_Security.Interfaces.Controls;
-using Home_Security.Interfaces.Controls.Defaults;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 namespace Home_Security.Implementations.Controls;
@@ -11,13 +10,11 @@ public class CameraControl : ICameraControl
     IAuthControl _authControl;
     ICameraService _cameraService;
     ILogService _logService;
-    IObjectDefault _objectDefault;
-    public CameraControl(IAuthControl authControl, ICameraService cameraService, ILogService logService, IObjectDefault objectDefault)
+    public CameraControl(IAuthControl authControl, ICameraService cameraService, ILogService logService)
     {
         _authControl = authControl;
         _cameraService = cameraService;
         _logService = logService;
-        _objectDefault = objectDefault;
     }
     public async Task<BaseResponse> CreateCamera(GetAuthControlInfoDto getAuthControlInfoDto, CreateCameraDto createCameraDto)
     {
@@ -161,7 +158,7 @@ public class CameraControl : ICameraControl
             var camera = await _cameraService.Delete(cameraId, auth.Id);
             if(camera.Status == true)
             {
-                var getCamera = await _objectDefault.CameraName(cameraId);
+                var getCamera = _authControl.GetCameraName(cameraId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getCamera} Camera was Deleted!";

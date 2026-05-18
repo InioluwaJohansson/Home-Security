@@ -3,7 +3,6 @@ using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 using Home_Security.Models.Enums;
-using Home_Security.Interfaces.Controls.Defaults;
 
 namespace Home_Security.Implementations.Controls;
 public class DoorControl : IDoorControl
@@ -11,13 +10,11 @@ public class DoorControl : IDoorControl
     IAuthControl _authControl;
     IDoorService _doorService;
     ILogService _logService;
-    IObjectDefault _objectDefault;
-    public DoorControl(IAuthControl authControl, IDoorService doorService, ILogService logService, IObjectDefault objectDefault)
+    public DoorControl(IAuthControl authControl, IDoorService doorService, ILogService logService)
     {
         _authControl = authControl;
         _doorService = doorService;
         _logService = logService;
-        _objectDefault = objectDefault;
     }
     public async Task<BaseResponse> CreateDoor(GetAuthControlInfoDto getAuthControlInfoDto, CreateDoorDto createDoorDto)
     {
@@ -91,7 +88,7 @@ public class DoorControl : IDoorControl
         }
         else if(getAuthControlInfoDto.PersonId != 0)
         {
-            var person = await _objectDefault.PersonName(getAuthControlInfoDto.PersonId);
+            var person = await _authControl.GetPersonDetails(getAuthControlInfoDto.PersonId);
             if (person != null)
             {
                 var getDoor = await _doorService.GetById(updateDoorDto.Id);
@@ -276,7 +273,7 @@ public class DoorControl : IDoorControl
             var door = await _doorService.Delete(doorId, auth.Id);
             if (door.Status == true)
             {
-                var getDoor = await _objectDefault.DoorName(doorId);
+                var getDoor = _authControl.GetDoorName(doorId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getDoor} Door was Deleted!";

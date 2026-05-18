@@ -3,6 +3,7 @@ using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 using Microsoft.AspNetCore.SignalR;
 using System.Data;
@@ -16,11 +17,9 @@ public class PersonService : IPersonService
     IUserRepo _userRepo;
     IAddressRepo _addressRepo;
     IContactDetailsRepo _contactDetailsRepo;
+    IRealtimeNotificationService _realTime;
 
-    // ✅ SIGNALR ADDED
-     RealtimeNotificationService _realTime;
-
-    public PersonService(IPersonRepo personRepo,IFingerPrintRepo fingerPrintRepo,IUserRepo userRepo,IAddressRepo addressRepo,IContactDetailsRepo contactDetailsRepo,RealtimeNotificationService realTime)
+    public PersonService(IPersonRepo personRepo,IFingerPrintRepo fingerPrintRepo,IUserRepo userRepo,IAddressRepo addressRepo,IContactDetailsRepo contactDetailsRepo, IRealtimeNotificationService realTime)
     {
         _personRepo = personRepo;
         _fingerPrintRepo = fingerPrintRepo;
@@ -497,7 +496,7 @@ public class PersonService : IPersonService
                 LastName = "Johansson",
                 DateOfBirth = new DateOnly(2003, 08, 13),
                 Age = 21,
-                Gender = Models.Enums.Gender.Male,
+                Gender = Gender.Male,
                 ImageUrl = null,
                 CreateAddressDtos = new List<CreateAddressDto>
                 {

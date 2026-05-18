@@ -1,8 +1,5 @@
-﻿using Home_Security.Entities;
-using Home_Security.Entities.Identity;
-using Home_Security.Implementations.Services;
+﻿using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
-using Home_Security.Interfaces.Controls.Defaults;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 namespace Home_Security.Implementations.Controls;
@@ -11,13 +8,11 @@ public class ApplianceControl : IApplianceControl
     IAuthControl _authControl;
     IApplianceService _applianceService;
     ILogService _logService;
-    IObjectDefault _objectDefault;
-    public ApplianceControl(IAuthControl authControl, IApplianceService applianceService, ILogService logService, IObjectDefault objectDefault)
+    public ApplianceControl(IAuthControl authControl, IApplianceService applianceService, ILogService logService)
     {
         _authControl = authControl;
         _applianceService = applianceService;
         _logService = logService;
-        _objectDefault = objectDefault;
     }
     public async Task<BaseResponse> CreateAppliance(GetAuthControlInfoDto getAuthControlInfoDto, CreateApplianceDto createApplianceDto)
     {
@@ -163,7 +158,7 @@ public class ApplianceControl : IApplianceControl
             var appliance = await _applianceService.Delete(applianceId, auth.Id);
             if (appliance.Status == true)
             {
-                var getAppliance = await _objectDefault.ApplianceName(applianceId);
+                var getAppliance = _authControl.GetApplianceName(applianceId);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getAppliance} Appliance was Deleted!";

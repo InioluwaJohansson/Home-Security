@@ -1,3 +1,4 @@
+using Home_Security.Authentication;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
@@ -10,22 +11,22 @@ using System.Security.Claims;
 public class LogController : Controller
 {
     ILogControl _logControl;
-    public LogController(ILogControl logControl)
+    IJWTAuthentication _jwtAuthentication;
+    public LogController(ILogControl logControl, JWTAuthentication jwtAuthentication)
     {
         _logControl = logControl;
+        _jwtAuthentication = jwtAuthentication;
     }
     [Authorize]
     [HttpPost("GetLogById")]
     public async Task<IActionResult> GetLogById(int id)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var log = await _logControl.GetLogById(getAuthControlInfoDto, id);
         if (log.Status == true)
@@ -38,14 +39,12 @@ public class LogController : Controller
     [HttpPost("GetAllLogsByPersonId")]
     public async Task<IActionResult> GetAllLogsBySectionId(int personId)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var log = await _logControl.GetAllLogsByPersonId(getAuthControlInfoDto, personId);
         if (log.Status == true)
@@ -58,14 +57,12 @@ public class LogController : Controller
     [HttpPost("GetAllLogsByActionType")]
     public async Task<IActionResult> GetAllLogsByActionType(string actionType)
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var log = await _logControl.GetAllLogsByActionType(getAuthControlInfoDto, actionType);
         if (log.Status == true)
@@ -79,14 +76,12 @@ public class LogController : Controller
     [HttpPost("GetAllLogs")]
     public async Task<IActionResult> GetAllLogs()
     {
-        var UserIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-        var PersonIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var AuthorizationCode = User.FindFirst(ClaimTypes.Authentication)?.Value;
-        if (!int.TryParse(UserIdString, out int loggedInUserId) || !int.TryParse(PersonIdString, out int loggedInPersonId))
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = loggedInPersonId,
-            AuthorizationCode = AuthorizationCode.ToString(),
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
         };
         var log = await _logControl.GetAllLogs(getAuthControlInfoDto);
         if (log.Status == true)

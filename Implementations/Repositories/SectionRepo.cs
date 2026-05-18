@@ -11,14 +11,14 @@ public class SectionRepo : BaseRepository<Section>, ISectionRepo
     }
     public async Task<Section> GetById(int id)
     {
-        return await context.Section.Include(x => x.Room).Include(x => x.Appliance).Include(x => x.Light).Include(x => x.Door).Include(x => x.Window).SingleOrDefaultAsync(x => x.Id == id && x.IsDeleted == false);
+        return await context.Section.Include(x => x.Room).Include(x => x.Appliance).Include(x => x.Light).Include(x => x.Door).Include(x => x.Window).Include(x => x.Camera).ThenInclude(c => c.Recordings).Include(x => x.External).SingleOrDefaultAsync(x => x.Id == id && x.IsDeleted == false);
     }
     public async Task<List<Section>> GetBySectionName(string SectionName)
     {
-        return await context.Section.Include(x => x.Room).Include(x => x.Appliance).Include(x => x.Light).Include(x => x.Door).Include(x => x.Window).Where(x => x.SectionName.StartsWith(SectionName) && x.IsDeleted == false).ToListAsync();
+        return await context.Section.Include(x => x.Room).Include(x => x.Appliance).Include(x => x.Light).Include(x => x.Door).Include(x => x.Window).Include(x => x.Camera).ThenInclude(c => c.Recordings).Include(x => x.External).Where(x => x.SectionName.StartsWith(SectionName) && x.IsDeleted == false).ToListAsync();
     }
     public async Task<List<Section>> List()
     {
-        return await context.Section.Include(x => x.Room).Include(x => x.Appliance).Include(x => x.Light).Include(x => x.Door).Include(x => x.Window).Where(x => x.IsDeleted == false).ToListAsync();
+        return await context.Section.Include(x => x.Room).Include(x => x.Appliance).Include(x => x.Light).Include(x => x.Door).Include(x => x.Window).Include(x => x.Camera).ThenInclude(c => c.Recordings).Include(x => x.External).Where(x => x.IsDeleted == false).ToListAsync();
     }
 }

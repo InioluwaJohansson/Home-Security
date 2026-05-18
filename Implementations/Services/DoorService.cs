@@ -10,10 +10,10 @@ namespace Home_Security.Implementations.Services;
 public class DoorService : IDoorService
 {
     IDoorRepo _doorRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
 
-    public DoorService(IDoorRepo doorRepo, RealtimeNotificationService realtime, IMqttService mqtt)
+    public DoorService(IDoorRepo doorRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _doorRepo = doorRepo;
         _realtime = realtime;
@@ -50,7 +50,7 @@ public class DoorService : IDoorService
 
             await _mqtt.PublishDeviceUpdate(door.DoorId, new GenericDeviceUpdateState
             {
-                FacilityType = 2,
+                FacilityType = FacilityType.Door,
                 Id = door.Id,
                 IsLocked = door.IsLocked,
                 IsOpen = door.IsOpen,
@@ -94,7 +94,7 @@ public class DoorService : IDoorService
 
             await _mqtt.PublishDeviceUpdate(door.DoorId, new GenericDeviceUpdateState
             {
-                FacilityType = 2,
+                FacilityType = FacilityType.Door,
                 Id = door.Id,
                 IsLocked = door.IsLocked,
                 IsOpen = door.IsOpen,
@@ -251,7 +251,7 @@ public class DoorService : IDoorService
 
             await _mqtt.PublishDeviceUpdate(door.DoorId, new GenericDeviceUpdateState
             {
-                FacilityType = 2,
+                FacilityType = FacilityType.Door,
                 Id = door.Id,
                 IsLocked = false,
                 IsOpen = false,
