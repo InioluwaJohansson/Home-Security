@@ -100,21 +100,17 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer("Bearer", options =>
 {
     options.Authority = "Owner";
     options.Audience = "Home_Security";
-
     options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
     {
         OnMessageReceived = context =>
         {
             var accessToken = context.Request.Query["access_token"];
-
-            // SignalR sends token via query string
             var path = context.HttpContext.Request.Path;
             if (!string.IsNullOrEmpty(accessToken) &&
                 path.StartsWithSegments("/Home_Security"))
             {
                 context.Token = accessToken;
             }
-
             return Task.CompletedTask;
         }
     };

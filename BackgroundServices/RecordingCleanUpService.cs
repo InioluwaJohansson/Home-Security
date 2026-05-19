@@ -14,7 +14,6 @@ public class RecordingCleanupService : BackgroundService
             {
                 // TODO: add logging here
             }
-
             await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
         }
     }

@@ -6,7 +6,7 @@ This document contains all recommended SignalR realtime events, payload structur
 
 # 🏠 Hub Endpoint
 
-typescript
+```typescript
 const connection = new signalR.HubConnectionBuilder()
   .withUrl("https://localhost:5001/homeSecurityHub", {
     accessTokenFactory: () => token
@@ -15,7 +15,7 @@ const connection = new signalR.HubConnectionBuilder()
   .build();
 
 await connection.start();
-
+```
 
 ---
 
@@ -23,14 +23,14 @@ await connection.start();
 
 All realtime events should follow this format:
 
-json
+```json
 {
   "eventType": "string",
   "message": "string",
   "timestamp": "2026-05-18T10:30:00Z",
   "data": {}
 }
-
+```
 
 ---
 
@@ -42,7 +42,7 @@ json
 
 ### Backend
 
-csharp
+```csharp
 await _realtimeNotificationService.NotifyAuthenticatedUsers(
     "PersonCreated",
     new
@@ -52,11 +52,11 @@ await _realtimeNotificationService.NotifyAuthenticatedUsers(
         timestamp = DateTime.UtcNow,
         data = GetDetails(person)
     });
-
+```
 
 ### Payload
 
-json
+```json
 {
   "eventType": "PersonCreated",
   "message": "New person created",
@@ -67,13 +67,13 @@ json
     "disabled": false
   }
 }
-
+```
 
 ---
 
 ## PersonUpdated
 
-json
+```json
 {
   "eventType": "PersonUpdated",
   "message": "Person profile updated",
@@ -82,13 +82,13 @@ json
     "id": 1
   }
 }
-
+```
 
 ---
 
 ## PersonDeleted
 
-json
+```json
 {
   "eventType": "PersonDeleted",
   "message": "Person deleted",
@@ -97,13 +97,13 @@ json
     "personId": 1
   }
 }
-
+```
 
 ---
 
 ## PersonDisabled
 
-json
+```json
 {
   "eventType": "PersonDisabled",
   "message": "Person disabled status changed",
@@ -113,7 +113,7 @@ json
     "disabled": true
   }
 }
-
+```
 
 ---
 
@@ -123,7 +123,7 @@ json
 
 ## SectionCreated
 
-json
+```json
 {
   "eventType": "SectionCreated",
   "message": "Section created",
@@ -133,13 +133,13 @@ json
     "sectionName": "Ground Floor"
   }
 }
-
+```
 
 ---
 
 ## SectionUpdated
 
-json
+```json
 {
   "eventType": "SectionUpdated",
   "message": "Section updated",
@@ -148,13 +148,13 @@ json
     "id": 1
   }
 }
-
+```
 
 ---
 
 ## SectionDeleted
 
-json
+```json
 {
   "eventType": "SectionDeleted",
   "message": "Section deleted",
@@ -163,7 +163,7 @@ json
     "sectionId": 1
   }
 }
-
+```
 
 ---
 
@@ -173,7 +173,7 @@ json
 
 ## LightUpdated
 
-json
+```json
 {
   "eventType": "LightUpdated",
   "message": "Light state updated",
@@ -184,13 +184,13 @@ json
     "brightnessLevel": 80
   }
 }
-
+```
 
 ---
 
 ## LightCreated
 
-json
+```json
 {
   "eventType": "LightCreated",
   "message": "Light added",
@@ -199,13 +199,13 @@ json
     "id": 2
   }
 }
-
+```
 
 ---
 
 ## LightDeleted
 
-json
+```json
 {
   "eventType": "LightDeleted",
   "message": "Light deleted",
@@ -214,7 +214,7 @@ json
     "lightId": 2
   }
 }
-
+```
 
 ---
 
@@ -224,7 +224,7 @@ json
 
 ## ApplianceUpdated
 
-json
+```json
 {
   "eventType": "ApplianceUpdated",
   "message": "Appliance updated",
@@ -234,13 +234,13 @@ json
     "isActive": true
   }
 }
-
+```
 
 ---
 
 ## AppliancePowerChanged
 
-json
+```json
 {
   "eventType": "AppliancePowerChanged",
   "message": "Appliance power usage changed",
@@ -252,7 +252,7 @@ json
     "power": 506
   }
 }
-
+```
 
 ---
 
@@ -262,7 +262,7 @@ json
 
 ## DoorUpdated
 
-json
+```json
 {
   "eventType": "DoorUpdated",
   "message": "Door updated",
@@ -273,13 +273,13 @@ json
     "isOpen": false
   }
 }
-
+```
 
 ---
 
 ## DoorOpened
 
-json
+```json
 {
   "eventType": "DoorOpened",
   "message": "Door opened",
@@ -288,13 +288,13 @@ json
     "doorId": 7
   }
 }
-
+```
 
 ---
 
 ## DoorLocked
 
-json
+```json
 {
   "eventType": "DoorLocked",
   "message": "Door locked",
@@ -303,7 +303,7 @@ json
     "doorId": 7
   }
 }
-
+```
 
 ---
 
@@ -313,7 +313,7 @@ json
 
 ## WindowUpdated
 
-json
+```json
 {
   "eventType": "WindowUpdated",
   "message": "Window updated",
@@ -324,7 +324,7 @@ json
     "isOpen": true
   }
 }
-
+```
 
 ---
 
@@ -334,7 +334,7 @@ json
 
 ## CameraUpdated
 
-json
+```json
 {
   "eventType": "CameraUpdated",
   "message": "Camera updated",
@@ -344,13 +344,13 @@ json
     "isActive": true
   }
 }
-
+```
 
 ---
 
 ## CameraStreaming
 
-json
+```json
 {
   "eventType": "CameraStreaming",
   "message": "Camera stream started",
@@ -360,7 +360,7 @@ json
     "streamUrl": "rtsp://..."
   }
 }
-
+```
 
 ---
 
@@ -370,7 +370,7 @@ json
 
 ## ActionCreated
 
-json
+```json
 {
   "eventType": "ActionCreated",
   "message": "Action created",
@@ -380,13 +380,13 @@ json
     "actionName": "Night Mode"
   }
 }
-
+```
 
 ---
 
 ## ActionUpdated
 
-json
+```json
 {
   "eventType": "ActionUpdated",
   "message": "Action updated",
@@ -395,13 +395,13 @@ json
     "id": 1
   }
 }
-
+```
 
 ---
 
 ## ActionTriggered
 
-json
+```json
 {
   "eventType": "ActionTriggered",
   "message": "Automation triggered",
@@ -411,13 +411,13 @@ json
     "actionName": "Night Mode"
   }
 }
-
+```
 
 ---
 
 ## ActionStepUpdated
 
-json
+```json
 {
   "eventType": "ActionStepUpdated",
   "message": "Action step updated",
@@ -426,7 +426,7 @@ json
     "actionStepId": 3
   }
 }
-
+```
 
 ---
 
@@ -436,7 +436,7 @@ json
 
 ## LogCreated
 
-json
+```json
 {
   "eventType": "LogCreated",
   "message": "New log added",
@@ -447,7 +447,7 @@ json
     "logDetails": "Door Triggered by Sensor"
   }
 }
-
+```
 
 ---
 
@@ -457,7 +457,7 @@ json
 
 ## DeviceStateUpdated
 
-json
+```json
 {
   "eventType": "DeviceStateUpdated",
   "message": "Device state updated from ESP32",
@@ -468,13 +468,13 @@ json
     "isActive": true
   }
 }
-
+```
 
 ---
 
 ## HardwareConnected
 
-json
+```json
 {
   "eventType": "HardwareConnected",
   "message": "ESP32 connected",
@@ -483,13 +483,13 @@ json
     "hardwareId": "HW123"
   }
 }
-
+```
 
 ---
 
 ## HardwareDisconnected
 
-json
+```json
 {
   "eventType": "HardwareDisconnected",
   "message": "ESP32 disconnected",
@@ -498,7 +498,7 @@ json
     "hardwareId": "HW123"
   }
 }
-
+```
 
 ---
 
@@ -508,7 +508,7 @@ json
 
 ## IntrusionDetected
 
-json
+```json
 {
   "eventType": "IntrusionDetected",
   "message": "Possible intrusion detected",
@@ -518,13 +518,13 @@ json
     "location": "Back Door"
   }
 }
-
+```
 
 ---
 
 ## FingerprintVerified
 
-json
+```json
 {
   "eventType": "FingerprintVerified",
   "message": "Fingerprint authentication successful",
@@ -533,7 +533,7 @@ json
     "personId": 1
   }
 }
-
+```
 
 ---
 
@@ -541,7 +541,7 @@ json
 
 ## React Example
 
-typescript
+```typescript
 connection.on("LightUpdated", (payload) => {
     console.log(payload);
 
@@ -557,7 +557,7 @@ connection.on("LightUpdated", (payload) => {
         )
     );
 });
-
+```
 
 ---
 
@@ -565,14 +565,14 @@ connection.on("LightUpdated", (payload) => {
 
 Your backend service should use:
 
-csharp
+```csharp
 await _hub.Clients.Group("AuthenticatedUsers")
     .SendAsync(eventName, payload);
-
+```
 
 And in your hub:
 
-csharp
+```csharp
 public override async Task OnConnectedAsync()
 {
     if (Context.User.Identity?.IsAuthenticated == true)
@@ -585,7 +585,7 @@ public override async Task OnConnectedAsync()
 
     await base.OnConnectedAsync();
 }
-
+```
 
 ---
 
@@ -593,9 +593,9 @@ public override async Task OnConnectedAsync()
 
 Create:
 
-text
+```text
 /services/signalrService.ts
-
+```
 
 Responsibilities:
 
