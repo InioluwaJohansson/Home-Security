@@ -19,6 +19,6 @@ public class Message : AuditableEntity
 
     public DateTime SentAt { get; set; } = DateTime.UtcNow;
 
-    public ICollection<MessageAttachment> Attachments { get; set; }
-        = new List<MessageAttachment>();
+    public ICollection<MessageAttachment> Attachments { get; set; } = new List<MessageAttachment>();
+    public Person SenderPerson { get; set; }
 }

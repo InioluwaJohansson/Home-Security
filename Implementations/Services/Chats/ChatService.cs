@@ -149,6 +149,23 @@ public class ChatService : IChatService
         await _chatRepo.Update(chat);
 
     }
+    public async Task MarkAsReadAsync(int chatId, int personId)
+    {
+        var chat = await _chatRepo
+            .GetChatWithParticipantsAsync(chatId);
+
+        if (chat == null)
+            throw new Exception("Chat not found");
+
+        var participant = chat.Participants.FirstOrDefault(x => x.PersonId == personId);
+
+        if (participant == null)
+            throw new Exception("Access denied");
+
+        participant.LastReadAt = DateTime.UtcNow;
+
+        await _chatRepo.Update(chat);
+    }
     public async Task<bool> IsParticipantAsync(int chatId, int personId)
     {
         return await _chatRepo.IsParticipantAsync(chatId, personId);
@@ -157,7 +174,75 @@ public class ChatService : IChatService
     {
         return new ChatDto
         {
-            
+            Id = chat.Id,
+
+            Name = chat.Name,
+
+            Description = chat.Description,
+
+            IsGroup = chat.IsGroup,
+
+            ImageUrl = chat.ImageUrl,
+
+            CreatedAt = chat.CreatedAt,
+
+            Participants = chat.Participants?
+                .Select(p => new ChatParticipantDto
+                {
+                    PersonId = p.PersonId,
+
+                    IsAdmin = p.IsAdmin,
+
+                    IsOnline = false,
+
+                    FullName = "",
+
+                    ProfileImageUrl = null
+                })
+                .ToList() ?? new List<ChatParticipantDto>(),
+
+            LastMessage = chat.Messages?
+                .OrderByDescending(x => x.SentAt)
+                .Select(x => new MessageDto
+                {
+                    Id = x.Id,
+
+                    ChatId = x.ChatId,
+
+                    SenderPersonId = x.SenderPersonId,
+
+                    Content = x.Content,
+
+                    Type = x.Type,
+
+                    IsEdited = x.IsEdited,
+
+                    IsDeleted = x.IsDeleted,
+
+                    SentAt = x.SentAt,
+
+                    SenderName = "",
+
+                    SenderProfileImage = null,
+
+                    Attachments = x.Attachments?
+                        .Select(a => new MessageAttachmentDto
+                        {
+                            FileName = a.FileName,
+
+                            FilePath = a.FilePath,
+
+                            ContentType = a.ContentType,
+
+                            FileSize = a.FileSize,
+
+                            ThumbnailPath = a.ThumbnailPath
+                        })
+                        .ToList() ?? new List<MessageAttachmentDto>()
+                })
+                .FirstOrDefault(),
+
+            UnreadCount = 0
         };
     }
 }

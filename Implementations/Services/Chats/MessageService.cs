@@ -99,13 +99,56 @@ public class MessageService : IMessageService
 
         return await _messageRepo.GetUnreadCountAsync(chatId, participant?.LastReadAt);
     }
-    
-
     private MessageDto MapToDto(Message message)
     {
         return new MessageDto
         {
-            
+            Id = message.Id,
+
+            ChatId = message.ChatId,
+
+            SenderPersonId = message.SenderPersonId,
+
+            Content = message.Content,
+
+            Type = message.Type,
+
+            IsEdited = message.IsEdited,
+
+            IsDeleted = message.IsDeleted,
+
+            SentAt = message.SentAt,
+
+            SenderName = $"{message.SenderPerson.PersonDetails.FirstName} {message.SenderPerson.PersonDetails.LastName}",
+
+            SenderProfileImage = ConvertImageToBase64(message.SenderPerson.PersonDetails.ImageUrl) ?? "",
+
+            Attachments = message.Attachments?
+                .Select(a => new MessageAttachmentDto
+                {
+                    FileName = a.FileName,
+
+                    FilePath = a.FilePath,
+
+                    ContentType = a.ContentType,
+
+                    FileSize = a.FileSize,
+
+                    ThumbnailPath = a.ThumbnailPath
+                })
+                .ToList() ?? new List<MessageAttachmentDto>()
         };
+    }
+    public static string? ConvertImageToBase64(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return null;
+
+        if (!File.Exists(path))
+            return null;
+
+        var bytes = File.ReadAllBytes(path);
+
+        return Convert.ToBase64String(bytes);
     }
 }

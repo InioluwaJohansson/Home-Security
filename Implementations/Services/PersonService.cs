@@ -445,7 +445,7 @@ public class PersonService : IPersonService
                 Id = person.PersonDetails.Id,
                 FirstName = person.PersonDetails.FirstName,
                 LastName = person.PersonDetails.LastName,
-                ImageUrl = person.PersonDetails.ImageUrl,
+                ImageUrl = ConvertImageToBase64(person.PersonDetails.ImageUrl) ?? "",
                 Gender = person.PersonDetails.Gender,
                 GetContactDetailsDtos = person.PersonDetails.ContactDetails.Select(x => GetContactDetails(x)).ToList(),
                 GetAddressDtos = person.PersonDetails.Addresses.Select(x => GetAddressDetails(x)).ToList(),
@@ -478,6 +478,18 @@ public class PersonService : IPersonService
             PhoneNumber = contactDetails.PhoneNumber,
             Email = contactDetails.Email,
         };
+    }
+    public static string? ConvertImageToBase64(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return null;
+
+        if (!File.Exists(path))
+            return null;
+
+        var bytes = File.ReadAllBytes(path);
+
+        return Convert.ToBase64String(bytes);
     }
     public async Task<bool> InjectDefaultUser()
     {
