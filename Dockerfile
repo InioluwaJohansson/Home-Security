@@ -10,7 +10,7 @@ COPY . ./
 # Build the application
 RUN dotnet publish -c Release -o out
 # Use the runtime image to run the application
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 # Set the working directory in the container
 WORKDIR /app
 # Copy the built application from the build stage
