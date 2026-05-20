@@ -14,6 +14,7 @@ using System.Text;
 using Microsoft.Extensions.FileProviders;
 using Home_Security.RealTimeServices;
 using Home_Security.BackgroundServices;
+using SixLabors.ImageSharp.Memory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,26 +101,60 @@ builder.Services.AddAuthentication("Bearer").AddJwtBearer("Bearer", options =>
 {
     options.Authority = "Owner";
     options.Audience = "Home_Security";
-
     options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
     {
         OnMessageReceived = context =>
         {
             var accessToken = context.Request.Query["access_token"];
-
-            // SignalR sends token via query string
             var path = context.HttpContext.Request.Path;
             if (!string.IsNullOrEmpty(accessToken) &&
                 path.StartsWithSegments("/Home_Security"))
             {
                 context.Token = accessToken;
             }
-
             return Task.CompletedTask;
         }
     };
 });
 var key = "HomeSecurity1234567890";
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = "Home_Security",
+                ValidAudience = "All",
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(key))
+            };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken =
+                    context.Request.Query["access_token"];
+
+                var path =
+                    context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    path.StartsWithSegments("/chatHub"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
+    });
 builder.Services.AddSingleton<JWTAuthentication>(new JWTAuthentication(key));
 builder.Services.AddAuthentication(x =>
 {
@@ -134,8 +169,8 @@ builder.Services.AddAuthentication(x =>
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
-        ValidateIssuer = false,
-        ValidateAudience = false,
+        ValidateIssuer = true,
+        ValidateAudience = true,
     };
 });
 
