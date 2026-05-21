@@ -77,6 +77,8 @@ public class ExternalService : IExternalService
             Externals.ExternalName = updateExternalDto.ExternalName ?? Externals.ExternalName;
             Externals.LastModifiedBy = personId;
             Externals.LastModifiedOn = DateTime.Now;
+            Externals.PowerActive = updateExternalDto.PowerActive;
+            Externals.IsTriggered = updateExternalDto.IsTriggered;
             Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds;
 
             await _externalRepo.Update(Externals);
