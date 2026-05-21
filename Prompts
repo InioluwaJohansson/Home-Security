@@ -108,6 +108,52 @@ Female = 2,
 RatherNotSay = 3,
 } these are the enums used in the app. In the actions page, restructure the view action modal make the fonts consistent and the icon buttons to add, delete, edit step is not working. It should be opening modals with the right field since the reference class for each field to edit and add step has bene supplied
 
+In the app all back button for all the facility pages should redirect back to the facility overview page sing a left icon.public class CreateCameraDto : CreateBaseDefaultDto
+{
+public string CameraName { get; set; }
+code
+Code
+public string IpAddress { get; set; }
+
+public string Username { get; set; }
+public string Password { get; set; }
+
+public string StreamPath { get; set; }  
+
+public int Port { get; set; }
+}
+public class UpdateCameraDto : CreateBaseDefaultDto
+{
+public int Id { get; set; }
+public string CameraName { get; set; }
+public bool IsActive { get; set; }
+public string IpAddress { get; set; }
+code
+Code
+public string Username { get; set; }
+public string Password { get; set; }
+
+public string StreamPath { get; set; }  
+
+public int Port { get; set; }
+}public class CreateBaseDefaultDto
+{
+public int RoomId { get; set; }
+public int SectionId { get; set; }
+}based on this,make changes to the update modal and add new camera modal . Also for the window and door items move the lock and close butons to the same level as the door/window status text
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 namespace Home_Security.Models.DTOs;
