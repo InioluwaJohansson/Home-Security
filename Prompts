@@ -1,0 +1,359 @@
+Also the scrollbar is not working in the edit contact and add contact modals. I also said the contact avatar in the two modals must be selected via an input button which opens up a modal to crop the image before displaying the image in the modals and apply the file selection and cropping to the profile image edit button in the profile page. Also in the lights card, the percentage of the light intensity is displayed twice instead on once fix this. Also remove the delete icon to the room and devices under a section and add an edit icon to open a modal to edit the details of a section. The facilities overview is showing a second page that is listing all the doors, windows, appliances and cameras which shouldn't be and should only show minute details of each facility category and the no of items with respective statuses not the items under each facility. Under the facilities overview also add cards for the room, scenes and sections facilities and arrange them in the facilities overview page alphabetically with the having a maximum no of cards per row to be 4. In the user's room add the door items the window items, appliance items, light items, and camera items and arrange them in order of security priority. When a camera card is selected, open a big modal that displays the camera feed.
+
+
+
+}these are the class and fields you will need to build the action page the edit modal, view action modal. Also create icons to add, edit and update action steps in the view action modal
+
+
+
+
+namespace Home_Security.Models.DTOs;
+public class CreateCameraDto : CreateBaseDefaultDto
+{
+    public string CameraName { get; set; }
+
+    public string IpAddress { get; set; }
+
+    public string Username { get; set; }
+    public string Password { get; set; }
+
+    public string StreamPath { get; set; }  
+
+    public int Port { get; set; } 
+}
+public class UpdateCameraDto : CreateBaseDefaultDto
+{
+    public int Id { get; set; }
+    public string CameraName { get; set; }
+    public bool IsActive { get; set; }
+}
+public class GetCameraDto : BaseDefaultDto
+{
+    public int Id { get; set; }
+    public string CameraName { get; set; }
+    public string CameraId { get; set; }
+    public string LiveStreamUrl { get; set; }
+    public List<GetRecordingDto> Recordings { get; set; }
+}
+public class CameraResponseModel : BaseResponse
+{
+    public GetCameraDto Data { get; set; }
+}
+public class CamerasResponseModel : BaseResponse
+{
+    public ICollection<GetCameraDto> Data { get; set; } = new HashSet<GetCameraDto>();
+}
+public class GetRecordingDto
+{
+    public string FilePath { get; set; }
+
+    public DateTime StartTime { get; set; }
+
+    public DateTime EndTime { get; set; }
+}
+This is the updated camera dto for the camera page. When a camera is clicked, open the view camera details modal and then display the camera info and the recordings should be displayed in a table. Include a play, download and delete icons for each recording. When the play is clicked on, replace the live feed video with the video provided from the FilePath in the recording and when the live button is clicked it return to the live feed url which is the LiveStreamUrl. Move the edit icon and delete icon into the view camera modal
+
+
+
+Externals can also be sorted by section and by room and can be searched by name. Remove the recording page. IN the authorization required modal, add a numeric keypad to the right and make the current contents be towards the left and remove the modal footer. In the doors and windows page, replace the lock and open buttons to icons only with out text and place them towards the left and increasing the font size. Remve the user icon next to the user name and profile picture in the sidebar. Iwant you to include signalR cause we'll be listening for live updates
+
+
+
+
+﻿namespace Home_Security.Models.DTOs;
+public class CreateApplianceDto : CreateBaseDefaultDto
+{
+    public string ApplianceName { get; set; }
+}
+public class UpdateApplianceDto : CreateBaseDefaultDto
+{
+    public int Id { get; set; }
+    public string ApplianceName { get; set; }
+    public bool IsActive { get; set; }
+}
+public class GetApplianceDto : BaseDefaultDto
+{
+    public int Id { get; set; }
+    public string ApplianceName { get; set; }
+    public string ApplianceId { get; set; }
+}
+public class ApplianceResponseModel : BaseResponse
+{
+    public GetApplianceDto Data { get; set; }
+}
+public class AppliancesResponseModel : BaseResponse
+{
+    public ICollection<GetApplianceDto> Data { get; set; } = new HashSet<GetApplianceDto>();
+} 
+public class BaseDefaultDto
+{
+    public bool IsActive { get; set; }
+    public bool PowerActive { get; set; }
+    public int RoomId { get; set; }
+    public string RoomName { get; set; }
+    public int SectionId { get; set; }
+    public string SectionName { get; set; }
+    public int CreatedBy { get; set; }
+    public string CreatedByName { get; set; }
+    public DateTime CreatedOn { get; set; }
+    public int LastModifiedBy { get; set; }
+    public string LastModifiedByName { get; set; }
+    public DateTime? LastModifiedOn { get; set; }
+    public DateTime? DeletedOn { get; set; }
+    public int DeletedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public int personId { get; set; }
+    public string PeronName { get; set; }
+} public class CreateBaseDefaultDto
+{
+    public int RoomId { get; set; }
+    public int SectionId { get; set; }    
+}This is updated Appliance dto for all the appliance page. BaseDefaultDto and CreateBaseDefaultDto will be used by other classes in other  pages too. Ensure the details for the selected appliance are displayed in a view appliance modal. Then move the edit button and delete button into the modal.
+
+
+using Home_Security.Models.Enums;
+namespace Home_Security.Models.DTOs;
+public class CreateDoorDto : CreateBaseDefaultDto
+{
+    public string DoorName { get; set; }
+    public DoorType DoorType { get; set; }
+    public bool IsLocked { get; set; }
+    public bool IsOpen { get; set; }
+    public int OpenedBy { get; set; }
+    public int LockedBy { get; set; }
+    public int UnlockedBy { get; set; }
+}
+public class UpdateDoorDto : CreateBaseDefaultDto
+{
+    public int Id { get; set; }
+    public string DoorName { get; set; }
+    public DoorType DoorType { get; set; }
+    public bool IsLocked { get; set; }
+    public bool IsOpen { get; set; }
+    public int OpenedBy { get; set; }
+    public int LockedBy { get; set; }
+    public int UnlockedBy { get; set; }
+}
+public class GetDoorDto : BaseDefaultDto
+{
+    public int Id { get; set; }
+    public string DoorName { get; set; }
+    public string DoorId { get; set; }
+    public DoorType DoorType { get; set; }
+    public bool IsLocked { get; set; }
+    public bool IsOpen { get; set; }
+    public int OpenedBy { get; set; }
+    public int LockedBy { get; set; }
+    public int UnlockedBy { get; set; }
+}
+public class DoorResponseModel : BaseResponse
+{
+    public GetDoorDto Data { get; set; }
+}
+public class DoorsResponseModel : BaseResponse
+{
+    public ICollection<GetDoorDto> Data { get; set; } = new HashSet<GetDoorDto>();
+}This is updated Door dto for all the door page. BaseDefaultDto will be used by other classes in other  pages too. Ensure the details for the selected door are displayed in a view door modal. Then move the edit button and delete button into the modal.
+
+
+
+namespace Home_Security.Models.DTOs;
+public class CreateLightDto : CreateBaseDefaultDto
+{
+    public string LightName { get; set; }
+    public int BrightnessLevel { get; set; }
+}
+public class UpdateLightDto : CreateBaseDefaultDto
+{
+    public int Id { get; set; }
+    public string LightName { get; set; }
+    public int BrightnessLevel { get; set; }
+    public bool IsActive { get; set; }
+}
+public class GetLightDto : BaseDefaultDto
+{
+    public int Id { get; set; }
+    public string LightName { get; set; }
+    public string LightId { get; set; }
+    public int BrightnessLevel { get; set; }
+}
+public class LightResponseModel : BaseResponse
+{
+    public GetLightDto Data { get; set; }
+}
+public class LightsResponseModel : BaseResponse
+{
+    public ICollection<GetLightDto> Data { get; set; } = new HashSet<GetLightDto>();
+}This is updated Light dto for all the light page. BaseDefaultDto will be used by other classes in other  pages too. Ensure the details for the selected light are displayed in a view light modal. Then move the edit button and delete button into the modal.
+
+
+
+using Home_Security.Entities;
+namespace Home_Security.Models.DTOs;
+public class CreateRoomDto
+{
+    public string RoomName { get; set; }
+    public int PersonId { get; set; }
+    public int SectionId { get; set; }
+}
+public class UpdateRoomDto
+{
+    public int Id { get; set; }
+    public string RoomName { get; set; }
+    public int PersonId { get; set; }
+    public int SectionId { get; set; }
+    public bool IsHidden { get; set; }
+}
+public class GetRoomDto : UserBaseDefaultDto
+{
+    public int Id { get; set; }
+    public string RoomName { get; set; }
+    public string RoomId { get; set; }
+    public int PersonId { get; set; }
+    public int SectionId { get; set; }
+    public bool IsHidden {get; set; }
+    public List<GetDoorDto> Doors { get; set; }
+    public List<GetLightDto> Lights { get; set; }
+    public List<GetWindowDto> Windows { get; set; }
+    public List<GetApplianceDto> Appliances { get; set; }
+    public List<GetCameraDto> Cameras { get; set; }
+    public List<GetExternalDto> Externals { get; set; }
+}
+public class UserBaseDefaultDto
+{
+    public int CreatedBy { get; set; }
+    public string CreatedByName { get; set; }
+    public DateTime CreatedOn { get; set; }
+    public int LastModifiedBy { get; set; }
+    public string LastModifiedByName { get; set; }
+    public DateTime? LastModifiedOn { get; set; }
+    public DateTime? DeletedOn { get; set; }
+    public int DeletedBy { get; set; }
+    public bool IsDeleted { get; set; }
+    public int personId { get; set; }
+    public string PeronName { get; set; }
+}
+public class RoomResponseModel : BaseResponse
+{
+    public GetRoomDto Data { get; set; }
+}
+public class RoomsResponseModel : BaseResponse
+{
+    public ICollection<GetRoomDto> Data { get; set; } = new HashSet<GetRoomDto>();
+}
+This is updated Room dto for all the Room page. UserBaseDefaultDto will be used by other classes in other  pages too. Ensure the details for the selected room are displayed in a view room modal. Then move the edit button and delete button into the modal.
+
+using Home_Security.Entities;
+namespace Home_Security.Models.DTOs;
+public class CreateSectionDto
+{   
+    public string SectionName { get; set; }
+}
+public class UpdateSectionDto
+{
+    public int Id { get; set; }
+    public string SectionName { get; set; }
+    public bool IsHidden {get; set; }
+}
+public class GetSectionDto : UserBaseDefaultDto
+{
+    public int Id { get; set; }
+    public string SectionName { get; set; }
+    public string SectionId { get; set; }
+    public bool IsHidden {get; set; }
+    public List<GetRoomDto> Rooms { get; set; }
+    public List<GetDoorDto> Doors { get; set; }
+    public List<GetLightDto> Lights { get; set; }
+    public List<GetWindowDto> Windows { get; set; }
+    public List<GetApplianceDto> Appliances { get; set; }
+    public List<GetCameraDto> Cameras { get; set; }
+    public List<GetExternalDto> Externals { get; set; }
+}
+public class SectionResponseModel : BaseResponse
+{
+    public GetSectionDto Data { get; set; }
+}
+public class SectionsResponseModel : BaseResponse
+{
+    public ICollection<GetSectionDto> Data { get; set; } = new HashSet<GetSectionDto>();
+}This is updated Section dto for all the Section page. UserBaseDefaultDto will be used by other classes in other  pages too. Ensure the details for the selected section are displayed in a view section modal. Then move the edit button and delete button into the modal.
+
+using Home_Security.Entities;
+namespace Home_Security.Models.DTOs;
+public class CreateWindowDto : CreateBaseDefaultDto
+{
+    public string WindowName { get; set; }
+    public string WindowId { get; set; }
+    public bool IsOpen { get; set; }
+    public bool IsLocked { get; set; }
+    public int OpenedBy { get; set; }
+    public int LockedBy { get; set; }
+    public int UnlockedBy { get; set; }
+}
+public class UpdateWindowDto : CreateBaseDefaultDto
+{
+    public int Id { get; set; }
+    public string WindowName { get; set; }
+    public bool IsOpen { get; set; }
+    public bool IsLocked { get; set; }
+    public int OpenedBy { get; set; }
+    public int LockedBy { get; set; }
+    public int UnlockedBy { get; set; }
+}
+public class GetWindowDto : BaseDefaultDto
+{
+    public int Id { get; set; }
+    public string WindowName { get; set; }
+    public string WindowId { get; set; }
+    public bool IsOpen { get; set; }
+    public bool IsLocked { get; set; }
+    public int OpenedBy { get; set; }
+    public int LockedBy { get; set; }
+    public int UnlockedBy { get; set; }
+}
+public class WindowResponseModel : BaseResponse
+{
+    public GetWindowDto Data { get; set; }
+}
+public class WindowsResponseModel : BaseResponse
+{
+    public ICollection<GetWindowDto> Data { get; set; } = new HashSet<GetWindowDto>();
+}This is updated Window dto for all the window page. BaseDefaultDto will be used by other classes in other  pages too. Ensure the details for the selected light are displayed in a view window modal. Then move the edit button and delete button into the modal.
+
+
+public class GetLogDto
+{
+    public int Id { get; set; }
+    public GetPersonDto GetPersonDto { get; set; }
+    public int PersonId { get; set; }
+    public string ActionType { get; set; }
+    public DateTime TimeOfAction { get; set; }
+    public string LogDetails { get; set; }
+}
+public class GetPersonDto
+{
+    public int Id { get; set; }
+    public string PersonId { get; set; }
+    public bool Disabled { get; set; }
+    public GetPersonDetailsDto GetPersonDetailsDto { get; set; }
+    public GetUserDto GetUserDto { get; set; }
+}
+public class GetPersonDetailsDto
+{
+    public int Id { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public Gender Gender { get; set; }
+    public string ImageUrl { get; set; }
+    public bool Disabled { get; set; }
+    public List<GetAddressDto> GetAddressDtos { get; set; }
+    public List<GetContactDetailsDto> GetContactDetailsDtos { get; set; }
+}
+public class LogResponseModel : BaseResponse
+{
+    public GetLogDto Data { get; set; }
+}
+public class LogsResponseModel : BaseResponse
+{
+    public ICollection<GetLogDto> Data { get; set; } = new HashSet<GetLogDto>();
+}This is updated log dto for all the log page. Ensure the details for the selected log are displayed in a view log modal. The log is loaded every 50 items when the user get to the end of the current loaded logs, the next 50 is loaded 
