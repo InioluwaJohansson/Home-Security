@@ -8,6 +8,7 @@ public class UpdateExternalDto : CreateBaseDefaultDto
 {
     public int Id { get; set; }
     public string ExternalName { get; set; }
+    public bool IsActive { get; set; }
     public List<int> ActionIds { get; set; }
 }
 public class GetExternalDto : BaseDefaultDto
@@ -16,6 +17,7 @@ public class GetExternalDto : BaseDefaultDto
     public string ExternalsName { get; set; }
     public string ExternalsId { get; set; }
     public bool IsTriggered { get; set; }
+    public bool IsActive { get; set; }
     public List<int> ActionIds { get; set; }
 }
 public class ExternalResponseModel : BaseResponse
