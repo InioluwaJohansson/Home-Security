@@ -37,6 +37,8 @@ public class ExternalService : IExternalService
                 CreatedOn = DateTime.Now,
                 ActionIds = createExternalDto.ActionIds,
                 IsTriggered = false,
+                IsActive = true,
+                PowerActive = true,
             };
 
             await _externalRepo.Create(external);
@@ -53,7 +55,6 @@ public class ExternalService : IExternalService
                 IsLocked = false,
                 IsOpen = false
             });
-
             return new BaseResponse()
             {
                 Status = true,
