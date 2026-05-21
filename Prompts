@@ -4,6 +4,109 @@ Also the scrollbar is not working in the edit contact and add contact modals. I 
 
 }these are the class and fields you will need to build the action page the edit modal, view action modal. Also create icons to add, edit and update action steps in the view action modal
 
+The light and the window is still not showing the fields in the BaseDefaultDto in the view details modals. I said, The rooms and sections page should have a back button icon only to the overview page not with the overview text.
+using Home_Security.Models.Enums;
+namespace Home_Security.Models.DTOs;
+public class CreateActionDto
+{
+public string ActionName { get; set; }
+public string Description { get; set; }
+public int personId { get; set; }
+}
+public class UpdateActionDto
+{
+public int Id { get; set; }
+public int personId { get; set; }
+public string ActionName { get; set; }
+public string Description { get; set; }
+}
+public class CreateActionStepDto
+{
+public int ActionId { get; set; }
+public FacilityType FacilityType { get; set; }
+public int FacilityTypeId { get; set; }
+public int BrightnessLevel { get; set; }
+public bool IsLocked { get; set; }
+public bool IsOpen { get; set; }
+public bool IsActive { get; set; }
+}
+public class UpdateActionStepDto
+{
+public int Id { get; set; }
+public int ActionId { get; set; }
+public FacilityType FacilityType { get; set; }
+public int FacilityTypeId { get; set; }
+public int BrightnessLevel { get; set; }
+public bool IsLocked { get; set; }
+public bool IsOpen { get; set; }
+public bool IsActive { get; set; }
+}
+public class GetActionStepDto
+{
+public int Id { get; set; }
+public int ActionId { get; set; }
+public FacilityType FacilityType { get; set; }
+public int FacilityTypeId { get; set; }
+public int BrightnessLevel { get; set; }
+public bool IsLocked { get; set; }
+public bool IsOpen { get; set; }
+public bool IsActive { get; set; }
+}
+public class GetActionDto : UserBaseDefaultDto
+{
+public int Id { get; set; }
+public string ActionId { get; set; }
+public string ActionName { get; set; }
+public string ActionDescription { get; set; }
+public bool ActionActive { get; set; }
+public List<GetActionStepDto> GetActionStepDtos { get; set; }
+}
+public class ActionResponseModel : BaseResponse
+{
+public GetActionDto Data { get; set; }
+}
+public class ActionsResponseModel : BaseResponse
+{
+public ICollection<GetActionDto> Data { get; set; } = new HashSet<GetActionDto>();
+} these are the class and fields you will need to build the action page the edit modal, view action modal. Also create icons to add, edit and update action steps in the view action modal.
+
+public class UpdateExternalDto : CreateBaseDefaultDto
+{
+public int Id { get; set; }
+public string ExternalName { get; set; }
+public bool IsTriggered { get; set; }
+public bool IsActive { get; set; }
+public List<int> ActionIds { get; set; }
+}
+public class GetExternalDto : BaseDefaultDto
+{
+public int Id { get; set; }
+public string ExternalName { get; set; }
+public string ExternalId { get; set; }
+public bool IsTriggered { get; set; }
+public List<int> ActionIds { get; set; }
+} IsActive is a toggle button. Base defaultDto data fields should also be displayed in the view external modal. add the delete icon and move the edit icon next to the close icon in the view external modal. Also remove the test/ reset signal button. ﻿namespace Home_Security.Models.Enums;
+public enum DoorType
+{
+Interior = 1,
+Exterior,
+Gate
+} namespace Home_Security.Models.Enums;
+public enum FacilityType
+{
+Appliance = 1,
+Camera,
+Door,
+External,
+Light,
+Window
+} namespace Home_Security.Models.Enums;
+public enum Gender
+{
+Male = 1,
+Female = 2,
+RatherNotSay = 3,
+} these are the enums used in the app. In the actions page, restructure the view action modal make the fonts consistent and the icon buttons to add, delete, edit step is not working. It should be opening modals with the right field since the reference class for each field to edit and add step has bene supplied
 
 
 
