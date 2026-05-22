@@ -3,6 +3,7 @@ namespace Home_Security.Models.DTOs;
 public class CreateSectionDto
 {   
     public string SectionName { get; set; }
+    public bool IsHidden { get; set; }
 }
 public class UpdateSectionDto
 {
