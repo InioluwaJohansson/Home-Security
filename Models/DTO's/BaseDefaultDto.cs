@@ -2,7 +2,8 @@
 public class CreateBaseDefaultDto
 {
     public int RoomId { get; set; }
-    public int SectionId { get; set; }    
+    public int SectionId { get; set; }
+    public bool IsHidden { get; set; }
 }
 public class BaseDefaultDto
 {
