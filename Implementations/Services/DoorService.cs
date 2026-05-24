@@ -297,6 +297,7 @@ public class DoorService : IDoorService
             LastModifiedOn = door.LastModifiedOn,
             CreatedOn = door.CreatedOn,
             IsDeleted = door.IsDeleted,
+            IsHidden = door.IsHidden,
         };
     }
 }
