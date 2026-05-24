@@ -24,6 +24,7 @@ public class BaseDefaultDto
     public bool IsDeleted { get; set; }
     public int personId { get; set; }
     public string PeronName { get; set; }
+    public bool IsHidden { get; set; }
 }
 public class BaseDefaultDtoOther
 {
