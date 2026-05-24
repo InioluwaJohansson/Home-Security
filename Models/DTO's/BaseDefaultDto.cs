@@ -51,3 +51,19 @@ public class UserBaseDefaultDto
     public int personId { get; set; }
     public string PeronName { get; set; }
 }
+public class AppNamesDetailList{
+    public List<GenericNames> ApplianceIdNames { get; set; }
+    public List<GenericNames> CameraIdNames { get; set; }
+    public List<GenericIdNames> LightIdNames { get; set; }
+    public List<GenericNames> WindowIdNames { get; set; }
+    public List<GenericNames> DoorIdNames { get; set; }
+    public List<GenericNames> ExternalIdNames { get; set; }
+    public List<GenericIdNames> ContactCategoryIdNames { get; set; }
+    public List<GenericIdNames> PersonIdNames { get; set; }
+    public List<GenericIdNames> ApplianceType { get; set; }
+    public List<GenericIdNames> Gender { get; set; }
+    public List<GenericIdNames> DoorType { get; set; }
+}
+public class GenericNames : GenericIdNames{
+    public IsHidden { get; set; }
+}
