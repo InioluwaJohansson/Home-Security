@@ -115,4 +115,15 @@ public class UserController : Controller
         }
         return Ok(token);
     }
+    [Authorize]
+    [HttpPost("VerifyCode")]
+    public async Task<IActionResult> GenerateToken(string authCode)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        if(authCode = user.AuthorizationCode)
+           return Ok(true)
+        return Ok(false);
+    }
 }
