@@ -3,6 +3,7 @@ namespace Home_Security.Models.DTOs;
 public class CreateRoomDto
 {
     public string RoomName { get; set; }
+    public string Icon { get; set; }
     public int PersonId { get; set; }
     public int SectionId { get; set; }
     public bool IsHidden { get; set; }
@@ -11,6 +12,7 @@ public class UpdateRoomDto
 {
     public int Id { get; set; }
     public string RoomName { get; set; }
+    public string Icon { get; set; }
     public int PersonId { get; set; }
     public int SectionId { get; set; }
     public bool IsHidden { get; set; }
@@ -20,6 +22,7 @@ public class GetRoomDto : UserBaseDefaultDto
     public int Id { get; set; }
     public string RoomName { get; set; }
     public string RoomId { get; set; }
+    public string Icon { get; set; }
     public int PersonId { get; set; }
     public int SectionId { get; set; }
     public bool IsHidden { get; set; }
