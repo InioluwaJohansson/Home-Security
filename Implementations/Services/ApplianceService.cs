@@ -256,7 +256,7 @@ public class ApplianceService : IApplianceService
             RoomId = appliance.RoomId,
             SectionId = appliance.SectionId,
             ApplianceId = appliance.ApplianceId,
-            ApplianceType = appliance.ApplianceType,
+            ApplianceType = appliance.ApplianceType.ToString(),
             LastModifiedBy = appliance.LastModifiedBy,
             DeletedBy = appliance.DeletedBy,
             CreatedBy = appliance.CreatedBy,
