@@ -260,6 +260,7 @@ public class LightService : ILightService
             CreatedOn = light.CreatedOn,
             IsDeleted = light.IsDeleted,
             BrightnessLevel = light.BrightnessLevel,
+            IsHidden = light.IsHidden,
         };
     }
 }
