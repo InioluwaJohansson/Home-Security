@@ -343,6 +343,7 @@ public class RoomService : IRoomService
             LastModifiedOn = window.LastModifiedOn,
             CreatedOn = window.CreatedOn,
             IsDeleted = window.IsDeleted,
+            IsHidden = window.IsHidden,
         };
     }
 }
