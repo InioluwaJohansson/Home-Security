@@ -273,6 +273,7 @@ public class CameraService : ICameraService
             CreatedOn = camera.CreatedOn,
 
             LiveStreamUrl = camera.LiveStreamUrl,
+            IsHidden = camera.IsHidden,
 
             Recordings = camera.Recordings == null
                 ? new List<GetRecordingDto>()
