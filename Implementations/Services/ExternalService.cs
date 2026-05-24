@@ -264,6 +264,7 @@ public class ExternalService : IExternalService
             LastModifiedOn = External.LastModifiedOn,
             CreatedOn = External.CreatedOn,
             IsDeleted = External.IsDeleted,
+            IsHidden = External.IsHidden,
         };
     }
 }
