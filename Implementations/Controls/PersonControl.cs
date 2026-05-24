@@ -18,7 +18,7 @@ public class PersonControl : IPersonControl
     public async Task<BaseResponse> CreatePerson(GetAuthControlInfoDto getAuthControlInfoDto, CreatePersonDto createPersonDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
+        if (auth.Status != false && auth.Role == Role.Owner)
         {
             var person = await _personService.CreatePerson(createPersonDto);
             if (person.Status == true)
@@ -82,7 +82,7 @@ public class PersonControl : IPersonControl
     public async Task<BaseResponse> AddPersonDetails(GetAuthControlInfoDto getAuthControlInfoDto, int personId, List<CreateContactDetailsDto> createContactDetailsDtos)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
+        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
             var person = await _personService.AddPersonContactDetails(personId, createContactDetailsDtos);
             if (person.Status == true)
@@ -148,7 +148,7 @@ public class PersonControl : IPersonControl
     public async Task<BaseResponse> DeletePerson(GetAuthControlInfoDto getAuthControlInfoDto, int personId)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
+        if (auth.Status != false && auth.Role == Role.Owner)
         {
             var person = await _personService.Delete(personId, auth.Id);
             if (person.Status == true)
@@ -172,7 +172,7 @@ public class PersonControl : IPersonControl
     public async Task<BaseResponse> DisablePerson(GetAuthControlInfoDto getAuthControlInfoDto, int personId)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
+        if (auth.Status != false && auth.Role == Role.Owner)
         {
             var person = await _personService.DisablePerson(personId);
             if (person.Status == true)

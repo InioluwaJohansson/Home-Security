@@ -54,18 +54,18 @@ public class UserBaseDefaultDto
 public class AppNamesDetailList{
     public List<GenericNames> ApplianceIdNames { get; set; }
     public List<GenericNames> CameraIdNames { get; set; }
-    public List<GenericIdNames> LightIdNames { get; set; }
+    public List<GenericNames> LightIdNames { get; set; }
     public List<GenericNames> WindowIdNames { get; set; }
     public List<GenericNames> DoorIdNames { get; set; }
     public List<GenericNames> ExternalIdNames { get; set; }
+    public List<GenericNames> PersonIdNames { get; set; }
     public List<GenericIdNames> ContactCategoryIdNames { get; set; }
-    public List<GenericIdNames> PersonIdNames { get; set; }
     public List<GenericIdNames> ApplianceType { get; set; }
     public List<GenericIdNames> Gender { get; set; }
     public List<GenericIdNames> DoorType { get; set; }
     public List<GenericIdNames> FacilityType { get; set; }
 }
 public class GenericNames : GenericIdNames{
-    public IsHidden { get; set; }
-    public ImageUrl { get; set; }
+    public bool IsHidden { get; set; }
+    public string ImageUrl { get; set; }
 }

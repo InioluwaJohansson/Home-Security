@@ -147,16 +147,17 @@ public class DoorControl : IDoorControl
         {
             var door = await _doorService.GetById(id);
             door.Data = DtoRefactor(door.Data);
-            return door;
-        }
-        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
-        {
-            return new DoorResponseModel()
+            if (door.Data.IsHidden && auth.Role == Role.Owner || auth.Role == Role.Wife)
+                return door;
+            else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
             {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+                return new DoorResponseModel()
+                {
+                    Data = null,
+                    Status = _authControl.AuthFaliure().Status,
+                    Message = "Unauthorized Action"
+                };
+            }
         }
         return new DoorResponseModel()
         {
@@ -165,23 +166,20 @@ public class DoorControl : IDoorControl
             Message = _authControl.AuthFaliure().Message
         };
     }
-    public async Task<DoorsResponseModel> GetAllDoorsByRoomId(GetAuthControlInfoDto getAuthControlInfoDto, int doorId)
+    public async Task<DoorsResponseModel> GetAllDoorsByRoomId(GetAuthControlInfoDto getAuthControlInfoDto, int roomId)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
-            var door = await _doorService.GetAllDoorsByRoomId(doorId);
+            var door = await _doorService.GetAllDoorsByRoomId(roomId);
             door.Data = door.Data.Select(x => DtoRefactor(x)).ToList();
             return door;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new DoorsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var door = await _doorService.GetAllDoorsByRoomId(roomId);
+            door.Data = door.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return door;
         }
         return new DoorsResponseModel()
         {
@@ -201,12 +199,9 @@ public class DoorControl : IDoorControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new DoorsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var door = await _doorService.GetAllDoorsBySectionId(sectionId);
+            door.Data = door.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return door;
         }
         return new DoorsResponseModel()
         {
@@ -226,12 +221,9 @@ public class DoorControl : IDoorControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new DoorsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var door = await _doorService.GetAllDoorsByDoorType(doorType);
+            door.Data = door.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return door;
         }
         return new DoorsResponseModel()
         {
@@ -251,12 +243,9 @@ public class DoorControl : IDoorControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new DoorsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var door = await _doorService.GetAllDoors();
+            door.Data = door.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return door;
         }
         return new DoorsResponseModel()
         {

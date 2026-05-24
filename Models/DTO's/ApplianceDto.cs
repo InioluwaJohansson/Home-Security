@@ -1,5 +1,6 @@
-﻿namespace Home_Security.Models.DTOs;
-namespace Home_Security.Models.Enums;
+﻿using Home_Security.Models.Enums;
+
+namespace Home_Security.Models.DTOs;
 public class CreateApplianceDto : CreateBaseDefaultDto
 {
     public string ApplianceName { get; set; }

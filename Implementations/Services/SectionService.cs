@@ -76,7 +76,7 @@ public class SectionService : ISectionService
 
     public async Task<BaseResponse> UpdateSection(int personId, UpdateSectionDto updateSectionDto)
     {
-        var Section = await _sectionRepo.GetById(id);
+        var Section = await _sectionRepo.GetById(updateSectionDto.Id);
         if (Section != null)
         {
             Section.SectionName = updateSectionDto.SectionName ?? Section.SectionName;
@@ -84,12 +84,15 @@ public class SectionService : ISectionService
             Section.LastModifiedBy = personId;
             Section.LastModifiedOn = DateTime.Now;
             if(Section.IsHidden != updateSectionDto.IsHidden){
- //Hideall rooms, appliance, lights,externals, doors, windows
-
-
-Section.IsHidden = updateSectionDto.IsHide
-den;
-}
+                foreach(var room in Section.Room) room.IsHidden = updateSectionDto.IsHidden;
+                foreach(var appliance in Section.Appliance) appliance.IsHidden = updateSectionDto.IsHidden;
+                foreach(var light in Section.Light) light.IsHidden = updateSectionDto.IsHidden;
+                foreach(var external in Section.External) external.IsHidden = updateSectionDto.IsHidden;
+                foreach(var door in Section.Door) door.IsHidden = updateSectionDto.IsHidden;
+                foreach(var window in Section.Window) window.IsHidden = updateSectionDto.IsHidden;
+                foreach(var camera in Section.Camera) camera.IsHidden = updateSectionDto.IsHidden;
+                Section.IsHidden = updateSectionDto.IsHidden;
+            }
             await _sectionRepo.Update(Section);
 
             await _realtime.NotifyAll("SectionUpdated", new
@@ -296,13 +299,13 @@ den;
         return new GetExternalDto()
         {
             Id = External.Id,
-            ExternalsName = External.ExternalName,
+            ExternalName = External.ExternalName,
             IsTriggered = External.IsTriggered,
             IsActive = External.IsActive,
             PowerActive = External.PowerActive,
             RoomId = External.RoomId,
             SectionId = External.SectionId,
-            ExternalsId = External.ExternalId,
+            ExternalId = External.ExternalId,
             LastModifiedBy = External.LastModifiedBy,
             DeletedBy = External.DeletedBy,
             CreatedBy = External.CreatedBy,

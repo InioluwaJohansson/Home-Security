@@ -1,5 +1,5 @@
 ﻿namespace Home_Security.Models.Enums;
-public enum ApplianceTyoe{
+public enum ApplianceType{
  HVAC = 1, 
  Others
 }

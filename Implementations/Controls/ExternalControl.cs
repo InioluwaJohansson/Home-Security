@@ -56,16 +56,17 @@ public class ExternalControl : IExternalControl
         {
             var external = await _externalService.GetById(id);
             external.Data = DtoRefactor(external.Data);
-            return external;
-        }
-        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
-        {
-            return new ExternalResponseModel()
+            if (external.Data.IsHidden && auth.Role == Role.Owner || auth.Role == Role.Wife)
+                return external;
+            else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
             {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+                return new ExternalResponseModel()
+                {
+                    Data = null,
+                    Status = _authControl.AuthFaliure().Status,
+                    Message = "Unauthorized Action"
+                };
+            }
         }
         return new ExternalResponseModel()
         {
@@ -85,12 +86,9 @@ public class ExternalControl : IExternalControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new ExternalsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var external = await _externalService.GetAllExternalsBySectionId(sectionId);
+            external.Data = external.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return external;
         }
         return new ExternalsResponseModel()
         {
@@ -110,12 +108,9 @@ public class ExternalControl : IExternalControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new ExternalsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var external = await _externalService.GetAllExternalsByRoomId(roomId);
+            external.Data = external.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return external;
         }
         return new ExternalsResponseModel()
         {
@@ -135,12 +130,9 @@ public class ExternalControl : IExternalControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new ExternalsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var external = await _externalService.GetAllExternals();
+            external.Data = external.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return external;
         }
         return new ExternalsResponseModel()
         {

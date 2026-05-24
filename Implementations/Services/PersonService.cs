@@ -119,13 +119,7 @@ public class PersonService : IPersonService
 
                 await _fingerPrintRepo.Create(finger);
             }
-            await _realTime.NotifyAll("PersonCreated", new
-            {
-                getPerson.Id,
-                getPerson.PersonId,
-                createPersonDto.CreatePersonDetailsDto.FirstName,
-                createPersonDto.CreatePersonDetailsDto.LastName
-            });
+            await _realTime.NotifyAll("PersonCreated", GetDetails(person));
 
             return new BaseResponse()
             {
@@ -179,7 +173,7 @@ public class PersonService : IPersonService
 
             await _personRepo.Update(person);
 
-            await _realTime.NotifyAll("PersonUpdated", person.Id);
+            await _realTime.NotifyAll("PersonUpdated", GetDetails(person));
 
             return new BaseResponse()
             {

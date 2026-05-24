@@ -56,16 +56,17 @@ public class LightControl : ILightControl
         {
             var light = await _lightService.GetById(id);
             light.Data = DtoRefactor(light.Data);
-            return light;
-        }
-        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
-        {
-            return new LightResponseModel()
+            if (light.Data.IsHidden && auth.Role == Role.Owner || auth.Role == Role.Wife)
+                return light;
+            else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
             {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+                return new LightResponseModel()
+                {
+                    Data = null,
+                    Status = _authControl.AuthFaliure().Status,
+                    Message = "Unauthorized Action"
+                };
+            }
         }
         return new LightResponseModel()
         {
@@ -85,12 +86,9 @@ public class LightControl : ILightControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new LightsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var light = await _lightService.GetAllLightsBySectionId(sectionId);
+            light.Data = light.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return light;
         }
         return new LightsResponseModel()
         {
@@ -110,12 +108,9 @@ public class LightControl : ILightControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new LightsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var light = await _lightService.GetAllLightsByRoomId(roomId);
+            light.Data = light.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return light;
         }
         return new LightsResponseModel()
         {
@@ -135,12 +130,9 @@ public class LightControl : ILightControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new LightsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var light = await _lightService.GetAllLights();
+            light.Data = light.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return light;
         }
         return new LightsResponseModel()
         {

@@ -59,13 +59,22 @@ public class RoomService : IRoomService
     }
     public async Task<BaseResponse> UpdateRoom(UpdateRoomDto updateRoomDto, int personId)
     {
-        var room = await _roomRepo.Get(x => x.Id == updateRoomDto.Id && x.IsDeleted == false);
+        var room = await _roomRepo.GetById(updateRoomDto.Id);
         if (room != null)
         {
             room.PersonId = updateRoomDto.PersonId;
             room.SectionId = updateRoomDto.SectionId;
             room.RoomName = updateRoomDto.RoomName ?? room.RoomName;
             room.Icon = updateRoomDto.Icon ?? room.Icon;
+            if(room.IsHidden != updateRoomDto.IsHidden){
+                foreach(var appliance in room.Appliance) appliance.IsHidden = updateRoomDto.IsHidden;
+                foreach(var light in room.Light) light.IsHidden = updateRoomDto.IsHidden;
+                foreach(var external in room.External) external.IsHidden = updateRoomDto.IsHidden;
+                foreach(var door in room.Door) door.IsHidden = updateRoomDto.IsHidden;
+                foreach(var window in room.Window) window.IsHidden = updateRoomDto.IsHidden;
+                foreach(var camera in room.Camera) camera.IsHidden = updateRoomDto.IsHidden;
+                room.IsHidden = updateRoomDto.IsHidden;
+            }
             room.LastModifiedBy = personId;
             room.LastModifiedOn = DateTime.Now;
 
@@ -290,13 +299,13 @@ public class RoomService : IRoomService
         return new GetExternalDto()
         {
             Id = External.Id,
-            ExternalsName = External.ExternalName,
+            ExternalName = External.ExternalName,
             IsTriggered = External.IsTriggered,
             IsActive = External.IsActive,
             PowerActive = External.PowerActive,
             RoomId = External.RoomId,
             SectionId = External.SectionId,
-            ExternalsId = External.ExternalId,
+            ExternalId = External.ExternalId,
             LastModifiedBy = External.LastModifiedBy,
             DeletedBy = External.DeletedBy,
             CreatedBy = External.CreatedBy,

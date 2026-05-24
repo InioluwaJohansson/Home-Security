@@ -123,9 +123,8 @@ public class UserController : Controller
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
             return Unauthorized();
-        if(authCode = user.AuthorizationCode)
         if (user != null && BCrypt.Net.BCrypt.EnhancedVerify(authCode, user.AuthorizationCode))
-           return Ok(true)
+           return Ok(true);
         return Ok(false);
     }
 }

@@ -89,7 +89,7 @@ public class LogControl : ILogControl
     public async Task<LogsResponseModel> GetAllLogs(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
+        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
             var log = await _logService.GetAllLogs();
             return log;
