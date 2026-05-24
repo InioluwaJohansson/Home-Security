@@ -47,6 +47,7 @@ public class SectionService : ISectionService
                 CreatedBy = personId,
                 LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now,
+                IsHidden = false,
                 IsDeleted = false,
             };
 
@@ -75,13 +76,20 @@ public class SectionService : ISectionService
 
     public async Task<BaseResponse> UpdateSection(int personId, UpdateSectionDto updateSectionDto)
     {
-        var Section = await _sectionRepo.Get(x => x.Id == updateSectionDto.Id && x.IsDeleted == false);
+        var Section = await _sectionRepo.GetById(id);
         if (Section != null)
         {
             Section.SectionName = updateSectionDto.SectionName ?? Section.SectionName;
+            
             Section.LastModifiedBy = personId;
             Section.LastModifiedOn = DateTime.Now;
+            if(Section.IsHidden != updateSectionDto.IsHidden){
+ //Hideall rooms, appliance, lights,externals, doors, windows
 
+
+Section.IsHidden = updateSectionDto.IsHide
+den;
+}
             await _sectionRepo.Update(Section);
 
             await _realtime.NotifyAll("SectionUpdated", new
@@ -249,6 +257,7 @@ public class SectionService : ISectionService
             CreatedBy = appliance.CreatedBy,
             LastModifiedOn = appliance.LastModifiedOn,
             CreatedOn = appliance.CreatedOn,
+            IsHidden = appliance.IsHidden,
         };
     }
     public GetCameraDto GetCameraDetails(Camera camera)
@@ -271,7 +280,7 @@ public class SectionService : ISectionService
 
             LastModifiedOn = camera.LastModifiedOn,
             CreatedOn = camera.CreatedOn,
-
+            IsHidden = camera.IsHidden,
             LiveStreamUrl = camera.LiveStreamUrl,
             Recordings = camera.Recordings.Select(x => new GetRecordingDto
             {
@@ -299,6 +308,7 @@ public class SectionService : ISectionService
             LastModifiedOn = External.LastModifiedOn,
             CreatedOn = External.CreatedOn,
             IsDeleted = External.IsDeleted,
+            IsHidden = External.IsHidden,
         };
     }
     public GetDoorDto GetDoorDetails(Door door)
@@ -323,6 +333,7 @@ public class SectionService : ISectionService
             CreatedBy = door.CreatedBy,
             LastModifiedOn = door.LastModifiedOn,
             CreatedOn = door.CreatedOn,
+            IsHidden = door.IsHidden,
         };
     }
 
@@ -343,6 +354,7 @@ public class SectionService : ISectionService
             LastModifiedOn = light.LastModifiedOn,
             CreatedOn = light.CreatedOn,
             BrightnessLevel = light.BrightnessLevel,
+            IsHidden = light.IsHidden,
         };
     }
 
@@ -367,6 +379,7 @@ public class SectionService : ISectionService
             CreatedBy = window.CreatedBy,
             LastModifiedOn = window.LastModifiedOn,
             CreatedOn = window.CreatedOn,
+            IsHidden = window.IsHidden,
         };
     }
 }
