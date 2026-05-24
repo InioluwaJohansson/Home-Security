@@ -4,6 +4,7 @@ public class Room : AuditableEntity
 {
     public string RoomName { get; set; }
     public string RoomId { get; set; }
+    public string Icon { get; set; }
     public Person Person { get; set; }
     public int PersonId { get; set; }
     public int SectionId { get; set; }
