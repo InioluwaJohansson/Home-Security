@@ -6,6 +6,7 @@ using Home_Security.Interfaces.Repositories;
 using Home_Security.Models.DTOs;
 using Microsoft.Extensions.Caching.Memory;
 using Home_Security.Models.Enums;
+using System.Collections.Generic;
 
 namespace Home_Security.Implementations.Controls;
 public class AuthControl : IAuthControl
@@ -361,7 +362,10 @@ public class AuthControl : IAuthControl
                 Id = c.Id,
                 Name = c.Name,
             }).ToList(),
-            ApplianceType = (new GenericIdNames(A)).ToList(),
+            ApplianceType = (new List<GenericIdNames>{new GenericIdNames { Id = (int)ApplianceType.HVAC, Name = ApplianceType.HVAC.ToString() } }, new GenericIdNames { Id = (int)ApplianceType.Others, Name = ApplianceType.Others.ToString() } ).ToList(),
+            Gender = (new List<GenericIdNames>{new GenericIdNames { Id = (int)Gender.Male, Name = Gender.Male.ToString() }, new GenericIdNames { Id = (int)Gender.Female, Name = Gender.Female.ToString() }, new GenericIdNames { Id = (int)Gender.RatherNotSay, Name = Gender.RatherNotSay.ToString() } }).ToList(),
+            DoorType = (new List<GenericIdNames>{new GenericIdNames { Id = (int)DoorType.Interior, Name = DoorType.Interior.ToString() }, new GenericIdNames { Id = (int)DoorType.Exterior, Name = DoorType.Exterior.ToString() }, new GenericIdNames { Id = (int)DoorType.Gate, Name = DoorType.Gate.ToString() } }).ToList(),
+            FacilityType = (new List<GenericIdNames>{new GenericIdNames { Id = (int)FacilityType.Appliance, Name = FacilityType.Appliance.ToString() }, new GenericIdNames { Id = (int)FacilityType.Camera, Name = FacilityType.Camera.ToString() }, new GenericIdNames { Id = (int)FacilityType.Light, Name = FacilityType.Light.ToString() }, new GenericIdNames { Id = (int)FacilityType.Window, Name = FacilityType.Window.ToString() }, new GenericIdNames { Id = (int)FacilityType.Door, Name = FacilityType.Door.ToString() }, new GenericIdNames { Id = (int)FacilityType.External, Name = FacilityType.External.ToString() } }).ToList()
         };
     }
 }
