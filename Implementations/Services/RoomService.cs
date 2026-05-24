@@ -34,6 +34,7 @@ public class RoomService : IRoomService
                 PersonId = createRoomDto.PersonId,
                 SectionId = createRoomDto.SectionId,
                 RoomName = createRoomDto.RoomName,
+                Icon = createRoomDto.Icon,
                 CreatedOn = DateTime.Now,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
@@ -64,6 +65,7 @@ public class RoomService : IRoomService
             room.PersonId = updateRoomDto.PersonId;
             room.SectionId = updateRoomDto.SectionId;
             room.RoomName = updateRoomDto.RoomName ?? room.RoomName;
+            room.Icon = updateRoomDto.Icon ?? room.Icon;
             room.LastModifiedBy = personId;
             room.LastModifiedOn = DateTime.Now;
 
@@ -195,6 +197,8 @@ public class RoomService : IRoomService
             RoomName = room.RoomName,
             SectionId = room.SectionId,
             PersonId = room.PersonId,
+            Icon = room.Icon,
+            IsHidden = room.IsHidden,
             Doors = room.Door.Select(x => GetDoorDetails(x)).ToList(),
             Appliances = room.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
             Lights = room.Light.Select(x => GetLightDetails(x)).ToList(),
