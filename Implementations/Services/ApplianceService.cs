@@ -263,6 +263,7 @@ public class ApplianceService : IApplianceService
             LastModifiedOn = appliance.LastModifiedOn,
             CreatedOn = appliance.CreatedOn,
             IsDeleted = appliance.IsDeleted,
+            IsHidden = appliance.IsHidden,
         };
     }
 }
