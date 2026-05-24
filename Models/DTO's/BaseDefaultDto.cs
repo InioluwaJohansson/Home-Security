@@ -63,7 +63,9 @@ public class AppNamesDetailList{
     public List<GenericIdNames> ApplianceType { get; set; }
     public List<GenericIdNames> Gender { get; set; }
     public List<GenericIdNames> DoorType { get; set; }
+    public List<GenericIdNames> FacilityType { get; set; }
 }
 public class GenericNames : GenericIdNames{
     public IsHidden { get; set; }
+    public ImageUrl { get; set; }
 }
