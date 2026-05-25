@@ -64,6 +64,7 @@ public class AppNamesDetailList{
     public List<GenericIdNames> Gender { get; set; }
     public List<GenericIdNames> DoorType { get; set; }
     public List<GenericIdNames> FacilityType { get; set; }
+    public List<GenericIdNames> Role { get; set; }
 }
 public class GenericNames : GenericIdNames{
     public bool IsHidden { get; set; }
