@@ -349,12 +349,12 @@ public class AuthControl : IAuthControl
                 Name = c.ExternalName,
                 IsHidden = c.IsHidden,
             }).ToList(),
-            PersonIdNames = (await _userRepo.(x => x.IsDeleted == false))
+            PersonIdNames = (await _personRepo.List())
             .Select(c => new GenericNames
             {
                 Id = c.Id,
-                Name = c,
-                IsHidden = c.,
+                Name = c.PersonDetails.FirstName + " " + c.PersonDetails.LastName,
+                IsHidden = c.Disabled,
             }).ToList(),
             ContactCategoryIdNames = (await _contactCategoryRepo.GetByExpression(x => x.IsDeleted == false))
             .Select(c => new GenericIdNames
@@ -362,8 +362,8 @@ public class AuthControl : IAuthControl
                 Id = c.Id,
                 Name = c.Name,
             }).ToList(),
-            ApplianceType = (new List<GenericIdNames>{new GenericIdNames { Id = (int)ApplianceType.HVAC, Name = ApplianceType.HVAC.ToString() } }, new GenericIdNames { Id = (int)ApplianceType.Others, Name = ApplianceType.Others.ToString() } ).ToList(),
-            Gender = (new List<GenericIdNames>{new GenericIdNames { Id = (int)Gender.Male, Name = Gender.Male.ToString() }, new GenericIdNames { Id = (int)Gender.Female, Name = Gender.Female.ToString() }, new GenericIdNames { Id = (int)Gender.RatherNotSay, Name = Gender.RatherNotSay.ToString() } }).ToList(),
+            ApplianceType = (new List<GenericIdNames>{new GenericIdNames { Id = (int)ApplianceType.HVAC, Name = ApplianceType.HVAC.ToString()}, new GenericIdNames { Id = (int)ApplianceType.Others, Name = ApplianceType.Others.ToString()}}),
+            Gender = (new List<GenericIdNames>{new GenericIdNames { Id = (int)Gender.Male, Name = Gender.Male.ToString() }, new GenericIdNames { Id = (int)Gender.Female, Name = Gender.Female.ToString() }, new GenericIdNames { Id = (int)Gender.RatherNotSay, Name = Gender.RatherNotSay.ToString() } }),
             DoorType = (new List<GenericIdNames>{new GenericIdNames { Id = (int)DoorType.Interior, Name = DoorType.Interior.ToString() }, new GenericIdNames { Id = (int)DoorType.Exterior, Name = DoorType.Exterior.ToString() }, new GenericIdNames { Id = (int)DoorType.Gate, Name = DoorType.Gate.ToString() } }).ToList(),
             FacilityType = (new List<GenericIdNames>{new GenericIdNames { Id = (int)FacilityType.Appliance, Name = FacilityType.Appliance.ToString() }, new GenericIdNames { Id = (int)FacilityType.Camera, Name = FacilityType.Camera.ToString() }, new GenericIdNames { Id = (int)FacilityType.Light, Name = FacilityType.Light.ToString() }, new GenericIdNames { Id = (int)FacilityType.Window, Name = FacilityType.Window.ToString() }, new GenericIdNames { Id = (int)FacilityType.Door, Name = FacilityType.Door.ToString() }, new GenericIdNames { Id = (int)FacilityType.External, Name = FacilityType.External.ToString() } }).ToList()
         };

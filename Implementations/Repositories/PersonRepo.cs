@@ -11,10 +11,10 @@ public class PersonRepo : BaseRepository<Person>, IPersonRepo
     }
     public async Task<Person> GetById(int id)
     {
-        return await context.Person.Include(x => x.PersonDetails).Include(x => x.PersonDetails.ContactDetails).Include(x => x.PersonDetails.Addresses).Include(x => x.User).Include(x => x.User.UserRole).Include(x => x.PersonDetails.FingerPrints).FirstOrDefaultAsync(x => x.Id == id);
+        return await context.Person.Include(x => x.PersonDetails).Include(x => x.PersonDetails.ContactDetails).Include(x => x.PersonDetails.Addresses).Include(x => x.User).Include(x => x.User.UserRole).Include(x => x.PersonDetails.FingerPrints).FirstOrDefaultAsync(x => x.Id == id && x.IsDeleted == false);
     }
     public async Task<List<Person>> List()
     {
-        return await context.Person.Include(x => x.PersonDetails).Include(x => x.PersonDetails.ContactDetails).Include(x => x.PersonDetails.Addresses).Include(x => x.User).Include(x => x.User.UserRole).Include(x => x.PersonDetails.FingerPrints).ToListAsync();
+        return await context.Person.Include(x => x.PersonDetails).Include(x => x.PersonDetails.ContactDetails).Include(x => x.PersonDetails.Addresses).Include(x => x.User).Include(x => x.User.UserRole).Include(x => x.PersonDetails.FingerPrints).Where(x => x.IsDeleted == false).ToListAsync();
     }
 }
