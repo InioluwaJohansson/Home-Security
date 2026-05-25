@@ -362,10 +362,22 @@ public class AuthControl : IAuthControl
                 Id = c.Id,
                 Name = c.Name,
             }).ToList(),
-            ApplianceType = (new List<GenericIdNames>{new GenericIdNames { Id = (int)ApplianceType.HVAC, Name = ApplianceType.HVAC.ToString()}, new GenericIdNames { Id = (int)ApplianceType.Others, Name = ApplianceType.Others.ToString()}}),
-            Gender = (new List<GenericIdNames>{new GenericIdNames { Id = (int)Gender.Male, Name = Gender.Male.ToString() }, new GenericIdNames { Id = (int)Gender.Female, Name = Gender.Female.ToString() }, new GenericIdNames { Id = (int)Gender.RatherNotSay, Name = Gender.RatherNotSay.ToString() } }),
-            DoorType = (new List<GenericIdNames>{new GenericIdNames { Id = (int)DoorType.Interior, Name = DoorType.Interior.ToString() }, new GenericIdNames { Id = (int)DoorType.Exterior, Name = DoorType.Exterior.ToString() }, new GenericIdNames { Id = (int)DoorType.Gate, Name = DoorType.Gate.ToString() } }).ToList(),
-            FacilityType = (new List<GenericIdNames>{new GenericIdNames { Id = (int)FacilityType.Appliance, Name = FacilityType.Appliance.ToString() }, new GenericIdNames { Id = (int)FacilityType.Camera, Name = FacilityType.Camera.ToString() }, new GenericIdNames { Id = (int)FacilityType.Light, Name = FacilityType.Light.ToString() }, new GenericIdNames { Id = (int)FacilityType.Window, Name = FacilityType.Window.ToString() }, new GenericIdNames { Id = (int)FacilityType.Door, Name = FacilityType.Door.ToString() }, new GenericIdNames { Id = (int)FacilityType.External, Name = FacilityType.External.ToString() } }).ToList()
+            ApplianceType = EnumToList<ApplianceType>();
+            Gender = EnumToList<Gender>();
+            DoorType = EnumToList<DoorType>();
+            FacilityType = EnumToList<FacilityType>();
+            Role = EnumToList<Role>();
         };
     }
+    public static List<GenericIdNames> EnumToList<T>() where T : Enum
+{
+    return Enum.GetValues(typeof(T))
+        .Cast<T>()
+        .Select(e => new GenericIdNames
+        {
+            Id = Convert.ToInt32(e),
+            Name = e.ToString()
+        })
+        .ToList();
+}
 }
