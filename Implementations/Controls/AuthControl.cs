@@ -362,11 +362,11 @@ public class AuthControl : IAuthControl
                 Id = c.Id,
                 Name = c.Name,
             }).ToList(),
-            ApplianceType = EnumToList<ApplianceType>();
-            Gender = EnumToList<Gender>();
-            DoorType = EnumToList<DoorType>();
-            FacilityType = EnumToList<FacilityType>();
-            Role = EnumToList<Role>();
+            ApplianceType = EnumToList<ApplianceType>(),
+            Gender = EnumToList<Gender>(),
+            DoorType = EnumToList<DoorType>(),
+            FacilityType = EnumToList<FacilityType>(),
+            Role = EnumToList<Role>()
         };
     }
     public static List<GenericIdNames> EnumToList<T>() where T : Enum
