@@ -2,6 +2,10 @@ Also the scrollbar is not working in the edit contact and add contact modals. I 
 
 
 
+In the add new camera modal, the modal body should have a scroll effect due to overflow and the modal footer should have the add camera button. The save changes button in the edit external modal footer should have the double tick standard icon and this save changes button  format should be the same for all edit modals across the app. The add new room modal body, edit room modal body, should be scrollable to cater for overflows. The distance between the bottom of the modal header in the add new window, edit window, add light, edit light, add door, edit door, add camera, edit camera, add appliance, edit appliance modals and the first text in the modal body should be reduced to 3px. Add =Window modal title should be Add New Window not Add New Light and the submit button should be add Window not Add Light with the icon retained
+
+
+
 }these are the class and fields you will need to build the action page the edit modal, view action modal. Also create icons to add, edit and update action steps in the view action modal
 
 The light and the window is still not showing the fields in the BaseDefaultDto in the view details modals. I said, The rooms and sections page should have a back button icon only to the overview page not with the overview text.
