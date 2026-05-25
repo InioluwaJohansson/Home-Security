@@ -60,6 +60,7 @@ public class AppNamesDetailList{
     public List<GenericNames> ExternalIdNames { get; set; }
     public List<GenericNames> PersonIdNames { get; set; }
     public List<GenericIdNames> ContactCategoryIdNames { get; set; }
+    public List<GenericIdNames> ActionIdNames { get; set; }
     public List<GenericIdNames> ApplianceType { get; set; }
     public List<GenericIdNames> Gender { get; set; }
     public List<GenericIdNames> DoorType { get; set; }

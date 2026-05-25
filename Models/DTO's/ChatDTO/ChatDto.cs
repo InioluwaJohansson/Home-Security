@@ -10,7 +10,7 @@ public class CreateGroupChatDto
 
     public string? Description { get; set; }
 
-    public string? ImageUrl { get; set; }
+    public IFormFile? ImageUrl { get; set; }
 
     public List<int> ParticipantPersonIds { get; set; }
         = new();
@@ -44,6 +44,18 @@ public class SendMessageDto
         = new();
 }
 public class MessageAttachmentDto
+{
+    public string FileName { get; set; }
+
+    public IFormFile FilePath { get; set; }
+
+    public string ContentType { get; set; }
+
+    public long FileSize { get; set; }
+
+    public string? ThumbnailPath { get; set; }
+}
+public class GetMessageAttachmentDto
 {
     public string FileName { get; set; }
 
@@ -119,7 +131,7 @@ public class MessageDto
 
     public DateTime SentAt { get; set; }
 
-    public List<MessageAttachmentDto> Attachments { get; set; }
+    public List<GetMessageAttachmentDto> Attachments { get; set; }
         = new();
 }
 public class RealtimeMessageDto

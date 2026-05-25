@@ -355,12 +355,19 @@ public class AuthControl : IAuthControl
                 Id = c.Id,
                 Name = c.PersonDetails.FirstName + " " + c.PersonDetails.LastName,
                 IsHidden = c.Disabled,
+                ImageUrl = ConvertImageToBase64(c.PersonDetails.ImageUrl) ?? "",
             }).ToList(),
             ContactCategoryIdNames = (await _contactCategoryRepo.GetByExpression(x => x.IsDeleted == false))
             .Select(c => new GenericIdNames
             {
                 Id = c.Id,
                 Name = c.Name,
+            }).ToList(),
+            ActionIdNames = (await _actionRepo.GetByExpression(x => x.IsDeleted == false))
+            .Select(c => new GenericIdNames
+            {
+                Id = c.Id,
+                Name = c.ActionName,
             }).ToList(),
             ApplianceType = EnumToList<ApplianceType>(),
             Gender = EnumToList<Gender>(),
@@ -369,15 +376,27 @@ public class AuthControl : IAuthControl
             Role = EnumToList<Role>()
         };
     }
+    public static string? ConvertImageToBase64(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return null;
+
+        if (!File.Exists(path))
+            return null;
+
+        var bytes = File.ReadAllBytes(path);
+
+        return Convert.ToBase64String(bytes);
+    }
     public static List<GenericIdNames> EnumToList<T>() where T : Enum
-{
-    return Enum.GetValues(typeof(T))
-        .Cast<T>()
-        .Select(e => new GenericIdNames
-        {
-            Id = Convert.ToInt32(e),
-            Name = e.ToString()
-        })
-        .ToList();
-}
+    {
+        return Enum.GetValues(typeof(T))
+            .Cast<T>()
+            .Select(e => new GenericIdNames
+            {
+                Id = Convert.ToInt32(e),
+                Name = e.ToString()
+            })
+            .ToList();
+    }
 }

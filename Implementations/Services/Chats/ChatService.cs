@@ -47,7 +47,7 @@ public class ChatService : IChatService
             IsGroup = true,
             Name = dto.Name,
             Description = dto.Description,
-            ImageUrl = dto.ImageUrl,
+            ImageUrl = await GetImageUrl(dto.ImageUrl ?? null),
             CreatedByPersonId = currentPersonId,
             Participants = dto.ParticipantPersonIds
                 .Append(currentPersonId)
@@ -182,7 +182,7 @@ public class ChatService : IChatService
 
             IsGroup = chat.IsGroup,
 
-            ImageUrl = chat.ImageUrl,
+            ImageUrl = ConvertImageToBase64(chat.ImageUrl),
 
             CreatedAt = chat.CreatedAt,
 
@@ -226,7 +226,7 @@ public class ChatService : IChatService
                     SenderProfileImage = null,
 
                     Attachments = x.Attachments?
-                        .Select(a => new MessageAttachmentDto
+                        .Select(a => new GetMessageAttachmentDto
                         {
                             FileName = a.FileName,
 
@@ -238,11 +238,43 @@ public class ChatService : IChatService
 
                             ThumbnailPath = a.ThumbnailPath
                         })
-                        .ToList() ?? new List<MessageAttachmentDto>()
+                        .ToList() ?? new List<GetMessageAttachmentDto>()
                 })
                 .FirstOrDefault(),
-
             UnreadCount = 0
         };
+    }
+    public static string? ConvertImageToBase64(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return null;
+        if (!File.Exists(path))
+            return null;
+        var bytes = File.ReadAllBytes(path);
+        return Convert.ToBase64String(bytes);
+    }
+    public async Task<string> GetImageUrl(IFormFile file){
+        var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Chats\\");
+        if (!System.IO.Directory.Exists(folderPath))
+        {
+            Directory.CreateDirectory(folderPath);
+        }
+
+        var imagePath = "";
+        if (file != null)
+        {
+            var fileName = Path.GetFileNameWithoutExtension(file.FileName);
+            var filePath = Path.Combine(folderPath, file.FileName);
+
+            if (!System.IO.Directory.Exists(filePath))
+            {
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+                imagePath = fileName;
+            }
+        }
+        return imagePath;
     }
 }
