@@ -11,18 +11,18 @@ using System.Collections.Generic;
 namespace Home_Security.Implementations.Controls;
 public class AuthControl : IAuthControl
 {
-    public readonly IMemoryCache _cache;
-    public readonly IMemoryCache _roomCache;
-    public readonly IMemoryCache _sectionCache;
-    public readonly IMemoryCache _applianceCache;
-    public readonly IMemoryCache _lightCache;
-    public readonly IMemoryCache _cameraCache;
-    public readonly IMemoryCache _windowCache;
-    public readonly IMemoryCache _doorCache;
-    public readonly IMemoryCache _actionCache;
-    public readonly IMemoryCache _externalCache;
-    public readonly IMemoryCache _contactCache;
-    public readonly IMemoryCache _contactCategoryCache;
+    public readonly List<> _cache;
+    public readonly List<> _roomCache;
+    public readonly List<> _sectionCache;
+    public readonly List<> _applianceCache;
+    public readonly List<> _lightCache;
+    public readonly List<> _cameraCache;
+    public readonly List<> _windowCache;
+    public readonly List<> _doorCache;
+    public readonly List<> _actionCache;
+    public readonly List<> _externalCache;
+    public readonly List<> _contactCache;
+    public readonly List<> _contactCategoryCache;
     IPersonRepo _personRepo;
     IUserRepo _userRepo;
     IRoomRepo _roomRepo;
@@ -36,7 +36,7 @@ public class AuthControl : IAuthControl
     IExternalRepo _externalRepo;
     IContactRepo _contactRepo;
     IContactCategoryRepo _contactCategoryRepo;
-    public AuthControl(IUserRepo userRepo, IMemoryCache cache, IMemoryCache roomCache, IMemoryCache sectionCache, IMemoryCache applianceCache, IMemoryCache lightCache, IMemoryCache cameraCache, IMemoryCache windowCache, IMemoryCache doorCache, IMemoryCache actionCache, IMemoryCache externalCache, IMemoryCache contactCache, IMemoryCache contactCategoryCache, IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo,IApplianceRepo applianceRepo,ILightRepo lightRepo, ICameraRepo cameraRepo,IWindowRepo windowRepo, IDoorRepo doorRepo,IActionRepo actionRepo, IExternalRepo externalRepo, IContactRepo contactRepo, IContactCategoryRepo contactCategoryRepo)
+    public AuthControl(IUserRepo userRepo, List<> cache, List<> roomCache, List<> sectionCache, List<> applianceCache, List<> lightCache, List<> cameraCache, List<> windowCache, List<> doorCache, List<> actionCache, List<> externalCache, List<> contactCache, List<> contactCategoryCache, IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo,IApplianceRepo applianceRepo,ILightRepo lightRepo, ICameraRepo cameraRepo,IWindowRepo windowRepo, IDoorRepo doorRepo,IActionRepo actionRepo, IExternalRepo externalRepo, IContactRepo contactRepo, IContactCategoryRepo contactCategoryRepo)
     {
         _cache = cache;
         _roomCache = roomCache;
