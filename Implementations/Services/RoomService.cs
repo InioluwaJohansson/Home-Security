@@ -113,6 +113,25 @@ public class RoomService : IRoomService
             Message = "Unable To Retrieve Room!"
         };
     }
+    public async Task<RoomsResponseModel> GetRoomByPersonId(int id)
+    {
+        var rooms = await _roomRepo.GetByPersonId(id);
+        if (rooms != null)
+        {
+            return new RoomsResponseModel()
+            {
+                Data = rooms.Select(x => GetDetails(x)).ToList(),
+                Status = true,
+                Message = "Rooms Retrieved Successfully!"
+            };
+        }
+        return new RoomsResponseModel()
+        {
+            Data = null,
+            Status = false,
+            Message = "Unable To Retrieve Room!"
+        };
+    }
     public async Task<RoomsResponseModel> GetRoomByRoomName(string roomName)
     {
         var rooms = await _roomRepo.GetByRoomName(roomName);

@@ -125,6 +125,28 @@ public class RoomControl : IRoomControl
             Message = _authControl.AuthFaliure().Message
         };
     }
+    public async Task<RoomsResponseModel> GetAllRoomsByPersonId(GetAuthControlInfoDto getAuthControlInfoDto)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
+        {
+            var room = await _roomService.GetRoomByPersonId(auth.Id);
+            room.Data = room.Data.Select(x => DtoRefactor(x)).ToList();
+            return room;
+        }
+        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
+        {
+            var room = await _roomService.GetRoomByPersonId(auth.Id);
+            room.Data = room.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return room;
+        }
+        return new RoomsResponseModel()
+        {
+            Data = null,
+            Status = _authControl.AuthFaliure().Status,
+            Message = _authControl.AuthFaliure().Message
+        };
+    }
     public async Task<RoomsResponseModel> GetAllRooms(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);

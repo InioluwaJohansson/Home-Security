@@ -3,14 +3,14 @@ public class CreateContactCategoryDto
 {
     public string Name { get; set; }
     public string Description { get; set; }
-    public int personId { get; set; }
+    public string Icon { get; set; }
 }
 public class UpdateContactCategoryDto
 {
     public int Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
-    public int personId { get; set; }
+    public string Icon { get; set; }
 }
 public class GetContactCategoryDto : BaseDefaultDtoOther
 {
@@ -18,7 +18,7 @@ public class GetContactCategoryDto : BaseDefaultDtoOther
     public string CategoryId { get; set; }   
     public string Name { get; set; }
     public string Description { get; set; }
-    public int personId { get; set; }
+    public string Icon { get; set; }
 }
 public class ContactCategoryResponseModel : BaseResponse
 {

@@ -21,8 +21,7 @@ public class ContactCategoryControl : IContactCategoryControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
-            createContactCategoryDto.personId = auth.Id;
-            var contactCategory = await _contactCategoryService.CreateContactCategory(createContactCategoryDto);
+            var contactCategory = await _contactCategoryService.CreateContactCategory(createContactCategoryDto, auth.Id);
             if (contactCategory.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -39,8 +38,7 @@ public class ContactCategoryControl : IContactCategoryControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
-            updateContactCategoryDto.personId = auth.Id;
-            var contactCategory = await _contactCategoryService.UpdateContactCategory(updateContactCategoryDto);
+            var contactCategory = await _contactCategoryService.UpdateContactCategory(updateContactCategoryDto, auth.Id);
             if (contactCategory.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);

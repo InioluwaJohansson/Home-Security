@@ -74,6 +74,27 @@ public class MqttService : BackgroundService, IMqttService
                         return;
                     }
                 }
+                if (topic.EndsWith("/fingerprint"))
+                {
+                    var update = JsonSerializer.Deserialize<FingerPrintDataDto>(payload,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                    if (update != null)
+                    {
+                        using var scope = _scopeFactory.CreateScope();
+                        var hardwareVerification = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
+                        if (!hardwareVerification.ValidateHardwareToken(update.Token) == true)
+                        {
+                            var _fingerPrintService = scope.ServiceProvider.GetRequiredService<IFingerPrintService>();
+                            await _fingerPrintService.ReceiveFingerPrint(update);
+                            _logger.LogInformation("FINGERPRINT DATA SENT");
+                        }
+                        _logger.LogWarning("INVALID HARDWARE TOKEN");
+                        return;
+                    }
+                }
                 // DEVICE FULL SYNC
                 if (topic.EndsWith("/sync"))
                 {
@@ -165,6 +186,12 @@ public class MqttService : BackgroundService, IMqttService
         var topic = $"home/{hardwareId}/status";
         await PublishAsync(topic, data, true);
         _logger.LogInformation("DEVICE STATUS SENT");
+    }
+    public async Task PublishFingerPrint(string hardwareId, object objectToPublish)
+    {
+        var topic = $"home/{hardwareId}/fingerprint";
+        await PublishAsync(topic, objectToPublish, true);
+        _logger.LogInformation("FINGERPRINT DATA SENT");
     }
     // GENERIC MQTT PUBLISHER
     private async Task PublishAsync(string topic, object payload, bool retain = false)

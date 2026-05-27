@@ -3,14 +3,24 @@ using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 using Home_Security.Entities;
 using SourceAFIS;
+using Home_Security.RealTimeServices;
+using Home_Security.Entities.Chats;
 namespace Home_Security.Implementations.Services;
 
 public class FingerPrintService : IFingerPrintService
 {
     IFingerPrintRepo _fingerPrintRepo;
-    public FingerPrintService(IFingerPrintRepo fingerPrintRepo)
+    IPersonRepo _personRepo;
+    IHardwareRepo _hardwareRepo;
+    IRealtimeNotificationService _realtimeNotificationService;
+    IMqttService _mqttService;
+    public FingerPrintService(IFingerPrintRepo fingerPrintRepo, IPersonRepo personRepo, IHardwareRepo hardwareRepo, IRealtimeNotificationService realtimeNotificationService, IMqttService mqttService)
     {
         _fingerPrintRepo = fingerPrintRepo;
+        _personRepo = personRepo;
+        _hardwareRepo = hardwareRepo;
+        _realtimeNotificationService = realtimeNotificationService;
+        _mqttService = mqttService;
     }
     public async Task<FingerPrintResponseModel> VerifyFingerPrint(byte[] data)
     {
@@ -55,27 +65,71 @@ public class FingerPrintService : IFingerPrintService
             Message = $"No match found (best score: {bestScore})"
         };
     }
-    public async Task<FingerPrintResponseModel> CreateFingerPrint(CreateFingerPrintDto createFingerPrintDto)
+    public async Task<FingerPrintResponseModel> CreateFingerPrint(CreateFingerPrintDto createFingerPrintDto, int personId)
     {
-        var template = new FingerprintTemplate(new FingerprintImage(createFingerPrintDto.FingerPrintEncoding));
-        var entity = new FingerPrint
-        {
-            PersonId = createFingerPrintDto.PersonId,
-            FingerPrintEncoding = template.ToByteArray(),
-            FingerPrintId = Guid.NewGuid().ToString(),
-            IsDeleted = false
-        };
-        await _fingerPrintRepo.Create(entity);
+        if(createFingerPrintDto != null){
+            foreach(var fingerprint in createFingerPrintDto.FingerPrintEncoding){
+                var template = new FingerprintTemplate(new FingerprintImage(fingerprint));
+                var entity = new FingerPrint
+                {
+                    PersonId = createFingerPrintDto.PersonId,
+                    FingerPrintEncoding = template.ToByteArray(),
+                    FingerPrintId = Guid.NewGuid().ToString(),
+                    IsDeleted = false,
+                    LastModifiedBy = personId,
+                    LastModifiedOn = DateTime.UtcNow,
+                    CreatedBy = personId,
+                    CreatedOn = DateTime.UtcNow
+                };
+                await _fingerPrintRepo.Create(entity);
+            }
+            return new FingerPrintResponseModel
+            {
+                Status = true,
+                Message = "Fingerprints enrolled successfully",
+                Data = new GetFingerPrintDto
+                {
+                    PersonId = createFingerPrintDto.PersonId,
+                }
+            };
+        }
         return new FingerPrintResponseModel
         {
-            Status = true,
-            Message = "Fingerprint enrolled successfully",
-            Data = new GetFingerPrintDto
-            {
-                Id = entity.Id,
-                PersonId = entity.PersonId,
-                FingerPrintId = entity.FingerPrintId
-            }
+            Status = false,
+            Message = "Failed to enroll fingerprints"
         };
+    }
+    public async Task<BaseResponse> RequestFingerPrint(int personId, int hardwareId)
+    {
+        var person = await _personRepo.Get(x => x.Id == personId);
+        var hardware = await _hardwareRepo.Get(x => x.Id == hardwareId);
+        // Implementation for requesting fingerprint enrollment
+        if(person != null && hardware != null)
+        {
+            await _mqttService.PublishFingerPrint(hardware.HardwareId, new FingerPrintPayload
+            {
+                PersonId = person.Id,
+                Message = $"Requesting fingerprint enrollment"
+            });
+            return new BaseResponse
+            {
+                Status = true,
+                Message = "Fingerprint enrollment request sent! Awaiting data..."
+            };
+        }
+        return new BaseResponse
+        {
+            Status = false,
+            Message = "Failed to send fingerprint enrollment request!"
+        };
+    }
+    public async Task ReceiveFingerPrint(FingerPrintDataDto fingerPrintDataDto)
+    {
+        await _realtimeNotificationService.NotifyAll("fingerprint_received", new
+        {
+            PersonId = fingerPrintDataDto.PersonId,
+            Message = "Fingerprint data received",
+            FingerPrintEncoding = fingerPrintDataDto.FingerPrintEncoding
+        });
     }
 }

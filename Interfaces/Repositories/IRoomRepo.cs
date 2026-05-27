@@ -5,6 +5,7 @@ namespace Home_Security.Interfaces.Repositories;
 public interface IRoomRepo : IRepo<Room>
 {
     public Task<Room> GetById(int id);
+    public Task<List<Room>> GetByPersonId(int personId);
     public Task<List<Room>> GetByRoomName(string roomName);
     public Task<List<Room>> GetBySectionId(int sectionId);
     public Task<List<Room>> List();
