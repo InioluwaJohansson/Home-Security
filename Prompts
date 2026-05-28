@@ -1,1 +1,4 @@
 
+IN the chat modal, when the user has no chats, the spinning settings and the chat icon at the center, remove them and replace them with a big chat icon instead without the spinning animation.
+IN the search bar to search for a chat, add a search icon, and remove the rounded borders and make the background color of the input match its parent div; same applies to the message box in the messages section and message box in the send files modal. 
+In the dashboard page, in the user's room card, create multiple cards like it for each room.
