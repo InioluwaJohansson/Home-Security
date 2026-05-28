@@ -79,6 +79,7 @@ builder.Services.AddScoped<IRoomControl, RoomControl>();
 builder.Services.AddScoped<ISectionControl, SectionControl>();
 builder.Services.AddScoped<ITokenControl, TokenControl>();
 builder.Services.AddScoped<IWindowControl, WindowControl>();
+builder.Services.AddScoped<IDashboardControl, DashboardControl>();
 builder.Services.AddScoped<IJWTAuthentication, JWTAuthentication>();
 builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
 builder.Services.AddScoped<IMqttService, MqttService>();
