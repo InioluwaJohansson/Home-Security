@@ -1,5 +1,1 @@
-Its also possible for the user to have multiple rooms.
-The request fingerprint button and the select user field at the next of it are not well aligned without changing the properied of the button. The save changes button in the add new contact category modal is not correct it should be add new category with the circled plus icon and then align the button at the center of the footer vertically allow for overflow in the modal body to enable the footer be shown without changing the properied of the button.
 
-In the app all modals should have scrollbars should be invisible and still work.
-I want the listing items in the my rooms page to look like the room items in the room facility page. The circular left icon should be a angular left icon. My rooms does not have a back button. The searchbar should look like the searchbar in the room facility page.
