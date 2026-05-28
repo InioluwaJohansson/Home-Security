@@ -5,6 +5,7 @@ public class Person : AuditableEntity
 {
     public string PersonId { get; set; }
     public PersonDetails PersonDetails { get; set; }
+    public List<int> CameraIds { get; set; }
     public User User { get; set; }
     public int UserId { get; set; }
     public bool Disabled { get; set; }

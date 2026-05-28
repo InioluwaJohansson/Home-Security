@@ -11,6 +11,7 @@ public class CreatePersonDto
 public class UpdatePersonDto
 {
     public int Id { get; set; }
+    public List<int> CameraIds { get; set; }
     public UpdatePersonDetailsDto UpdatePersonDetailsDto { get; set; }
     public UpdateUserDto UpdateUserDto { get; set; }
 }
@@ -19,6 +20,7 @@ public class GetPersonDto
     public int Id { get; set; }
     public string PersonId { get; set; }
     public bool Disabled { get; set; }
+    public List<int> CameraIds { get; set; }
     public GetPersonDetailsDto GetPersonDetailsDto { get; set; }
     public GetUserDto GetUserDto { get; set; }
 }

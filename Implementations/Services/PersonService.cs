@@ -13,16 +13,14 @@ namespace Home_Security.Implementations.Services;
 public class PersonService : IPersonService
 {
     IPersonRepo _personRepo;
-    IFingerPrintRepo _fingerPrintRepo;
     IUserRepo _userRepo;
     IAddressRepo _addressRepo;
     IContactDetailsRepo _contactDetailsRepo;
     IRealtimeNotificationService _realTime;
 
-    public PersonService(IPersonRepo personRepo,IFingerPrintRepo fingerPrintRepo,IUserRepo userRepo,IAddressRepo addressRepo,IContactDetailsRepo contactDetailsRepo, IRealtimeNotificationService realTime)
+    public PersonService(IPersonRepo personRepo,IUserRepo userRepo,IAddressRepo addressRepo,IContactDetailsRepo contactDetailsRepo, IRealtimeNotificationService realTime)
     {
         _personRepo = personRepo;
-        _fingerPrintRepo = fingerPrintRepo;
         _userRepo = userRepo;
         _addressRepo = addressRepo;
         _contactDetailsRepo = contactDetailsRepo;
@@ -55,12 +53,12 @@ public class PersonService : IPersonService
                     imagePath = fileName;
                 }
             }
-
             var user = new User()
             {
                 UserName = createPersonDto.CreateUserDto.UserName,
                 Password = BCrypt.Net.BCrypt.HashPassword(createPersonDto.CreateUserDto.Password),
                 AuthorizationCode = BCrypt.Net.BCrypt.EnhancedHashPassword(createPersonDto.CreateUserDto.AuthorizationCode),
+                NFID = BCrypt.Net.BCrypt.EnhancedHashPassword($"NFID{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16).ToUpper()}"),
                 IsDeleted = false,
                 CreatedOn = DateTime.Now,
                 LastModifiedOn = DateTime.Now,
@@ -84,6 +82,8 @@ public class PersonService : IPersonService
             {
                 PersonId = $"PERSON{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 UserId = getUser.Id,
+                CameraIds = new List<int>(),
+                IsDeleted = false,
                 PersonDetails = new PersonDetails()
                 {
                     FirstName = createPersonDto.CreatePersonDetailsDto.FirstName,
@@ -95,7 +95,9 @@ public class PersonService : IPersonService
                     IsDeleted = false,
                     CreatedOn = DateTime.Now,
                     LastModifiedOn = DateTime.Now,
-                }
+                },
+                CreatedOn = DateTime.Now,
+                LastModifiedOn = DateTime.Now,
             };
 
             await _personRepo.Create(person);
@@ -103,29 +105,7 @@ public class PersonService : IPersonService
             var getUserId = await _userRepo.Get(x => x.UserName == createPersonDto.CreateUserDto.UserName);
             var getPerson = await _personRepo.Get(x => x.UserId == getUserId.Id);
 
-            foreach (var fingerprint in createPersonDto.CreatePersonDetailsDto.CreateFingerPrintDtos)
-            {
-                var finger = new FingerPrint()
-                {
-                    PersonId = getPerson.Id,
-                    FingerPrintId = $"FINGER{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
-                    FingerPrintEncoding = fingerprint.FingerPrintEncoding ?? Array.Empty<byte>(),
-                    IsDeleted = false,
-                    LastModifiedBy = getPerson.Id,
-                    LastModifiedOn = DateTime.Now,
-                    CreatedOn = DateTime.Now,
-                    CreatedBy = getPerson.Id
-                };
-
-                await _fingerPrintRepo.Create(finger);
-            }
-            await _realTime.NotifyAll("PersonCreated", new
-            {
-                getPerson.Id,
-                getPerson.PersonId,
-                createPersonDto.CreatePersonDetailsDto.FirstName,
-                createPersonDto.CreatePersonDetailsDto.LastName
-            });
+            await _realTime.NotifyAll("PersonCreated", GetDetails(person));
 
             return new BaseResponse()
             {
@@ -170,7 +150,7 @@ public class PersonService : IPersonService
 
             person.User.UserName = updatePersonDto.UpdateUserDto.UserName ?? person.User.UserName;
             person.User.UserRole.Role = updatePersonDto.UpdateUserDto.Role;
-
+            person.CameraIds = updatePersonDto.CameraIds ?? person.CameraIds;
             person.PersonDetails.FirstName = updatePersonDto.UpdatePersonDetailsDto.FirstName ?? person.PersonDetails.FirstName;
             person.PersonDetails.LastName = updatePersonDto.UpdatePersonDetailsDto.LastName ?? person.PersonDetails.LastName;
             person.PersonDetails.ImageUrl = imagePath ?? person.PersonDetails.ImageUrl;
@@ -179,7 +159,7 @@ public class PersonService : IPersonService
 
             await _personRepo.Update(person);
 
-            await _realTime.NotifyAll("PersonUpdated", person.Id);
+            await _realTime.NotifyAll("PersonUpdated", GetDetails(person));
 
             return new BaseResponse()
             {
@@ -433,6 +413,7 @@ public class PersonService : IPersonService
             Id = person.Id,
             PersonId = person.PersonId,
             Disabled = person.Disabled,
+            CameraIds = person.CameraIds,
             GetUserDto = new GetUserDto()
             {
                 Id = person.User.Id,

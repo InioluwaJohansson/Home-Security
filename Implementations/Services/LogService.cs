@@ -60,46 +60,21 @@ public class LogService : ILogService
         };
     }
 
-    public async Task<LogResponseModel> GetLogById(int id)
+    public async Task<LogsResponseModel> GetLogsByPersonId(int personId, int page = 1, int pageSize = 50)
     {
-        var log = await _logRepo.Get(x => x.Id == id && x.IsDeleted == false);
-        if (log != null)
-        {
-            return new LogResponseModel()
-            {
-                Data = await GetDetails(log),
-                Status = true,
-                Message = "Log Retrieved Successfully!"
-            };
-        }
-
-        return new LogResponseModel()
-        {
-            Status = false,
-            Message = "Unable To Retrieve Log!"
-        };
-    }
-
-    public async Task<LogsResponseModel> GetLogsByActionType(string actionType)
-    {
-        var logs = await _logRepo.GetByExpression(x => x.ActionType == actionType && x.IsDeleted == false);
+        var logs = await _logRepo.GetByExpression(x => x.PersonId == personId && !x.IsDeleted);
         if (logs != null)
         {
+            var pagedLogs = logs.OrderByDescending(x => x.TimeOfAction).Skip((page - 1) * pageSize).Take(pageSize).ToList();
             var sortedLogs = new List<GetLogDto>();
-
-            foreach (var item in logs)
+            foreach (var item in pagedLogs)
             {
                 var logDetails = await GetDetails(item);
                 sortedLogs.Add(logDetails);
             }
-
-            var result = sortedLogs.OrderBy(x => x.TimeOfAction).ToList();
-
-            await _realtime.NotifyAll("LogsUpdated", result);
-
             return new LogsResponseModel()
             {
-                Data = result,
+                Data = sortedLogs,
                 Status = true,
                 Message = "Logs Retrieved Successfully!"
             };
@@ -112,63 +87,54 @@ public class LogService : ILogService
         };
     }
 
-    public async Task<LogsResponseModel> GetLogsByPersonId(int personId)
+    public async Task<LogsResponseModel> GetLogsByDate(DateOnly startDate, DateOnly endDate, int page = 1, int pageSize = 50)
     {
-        var logs = await _logRepo.GetByExpression(x => x.PersonId == personId && x.IsDeleted == false);
+        var start = startDate.ToDateTime(TimeOnly.MinValue);
+        var end = endDate.ToDateTime(TimeOnly.MaxValue);
+        var logs = await _logRepo.GetByExpression(x => x.TimeOfAction >= start && x.TimeOfAction <= end && !x.IsDeleted);
+
         if (logs != null)
         {
+            var pagedLogs = logs.OrderByDescending(x => x.TimeOfAction).Skip((page - 1) * pageSize).Take(pageSize).ToList();
             var sortedLogs = new List<GetLogDto>();
-
-            foreach (var item in logs)
+            foreach (var item in pagedLogs)
             {
                 var logDetails = await GetDetails(item);
                 sortedLogs.Add(logDetails);
             }
-
-            var result = sortedLogs.OrderBy(x => x.TimeOfAction).ToList();
-
-            await _realtime.NotifyAll("LogsUpdated", result);
-
             return new LogsResponseModel()
             {
-                Data = result,
+                Data = sortedLogs,
                 Status = true,
                 Message = "Logs Retrieved Successfully!"
             };
         }
-
         return new LogsResponseModel()
         {
             Status = false,
             Message = "Unable To Retrieve Logs!"
         };
     }
-
-    public async Task<LogsResponseModel> GetAllLogs()
+    public async Task<LogsResponseModel> GetAllLogs(int page = 1, int pageSize = 50)
     {
         var logs = await _logRepo.GetByExpression(x => x.IsDeleted == false);
+
         if (logs != null)
         {
+            var pagedLogs = logs.OrderByDescending(x => x.TimeOfAction).Skip((page - 1) * pageSize).Take(pageSize).ToList();
             var sortedLogs = new List<GetLogDto>();
-
-            foreach (var item in logs)
+            foreach (var item in pagedLogs)
             {
                 var logDetails = await GetDetails(item);
                 sortedLogs.Add(logDetails);
             }
-
-            var result = sortedLogs.OrderBy(x => x.TimeOfAction).ToList();
-
-            await _realtime.NotifyAll("LogsUpdated", result);
-
             return new LogsResponseModel()
             {
-                Data = result,
+                Data = sortedLogs,
                 Status = true,
                 Message = "Logs Retrieved Successfully!"
             };
         }
-
         return new LogsResponseModel()
         {
             Status = false,
@@ -179,9 +145,7 @@ public class LogService : ILogService
     public async Task<GetLogDto> GetDetails(Logs log)
     {
         var person = await _personRepo.GetById(log.PersonId);
-
         GetPersonDto getPerson = new GetPersonDto();
-
         if (person != null)
         {
             getPerson = new GetPersonDto()

@@ -90,6 +90,24 @@ public class RoomController : Controller
         return Ok(room);
     }
     [Authorize]
+    [HttpPost("GetAllRoomsByPersonId")]
+    public async Task<IActionResult> GetAllRoomsByPersonId()
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        var room = await _roomControl.GetAllRoomsByPersonId(getAuthControlInfoDto);
+        if (room.Status == true)
+        {
+            return Ok(room);
+        }
+        return Ok(room);
+    }
+    [Authorize]
     [HttpPost("GetRoomByRoomName")]
     public async Task<IActionResult> GetRoomByRoomName(string roomName)
     {

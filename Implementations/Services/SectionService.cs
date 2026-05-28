@@ -47,6 +47,7 @@ public class SectionService : ISectionService
                 CreatedBy = personId,
                 LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now,
+                IsHidden = false,
                 IsDeleted = false,
             };
 
@@ -75,13 +76,23 @@ public class SectionService : ISectionService
 
     public async Task<BaseResponse> UpdateSection(int personId, UpdateSectionDto updateSectionDto)
     {
-        var Section = await _sectionRepo.Get(x => x.Id == updateSectionDto.Id && x.IsDeleted == false);
+        var Section = await _sectionRepo.GetById(updateSectionDto.Id);
         if (Section != null)
         {
             Section.SectionName = updateSectionDto.SectionName ?? Section.SectionName;
+            
             Section.LastModifiedBy = personId;
             Section.LastModifiedOn = DateTime.Now;
-
+            if(Section.IsHidden != updateSectionDto.IsHidden){
+                foreach(var room in Section.Room) room.IsHidden = updateSectionDto.IsHidden;
+                foreach(var appliance in Section.Appliance) appliance.IsHidden = updateSectionDto.IsHidden;
+                foreach(var light in Section.Light) light.IsHidden = updateSectionDto.IsHidden;
+                foreach(var external in Section.External) external.IsHidden = updateSectionDto.IsHidden;
+                foreach(var door in Section.Door) door.IsHidden = updateSectionDto.IsHidden;
+                foreach(var window in Section.Window) window.IsHidden = updateSectionDto.IsHidden;
+                foreach(var camera in Section.Camera) camera.IsHidden = updateSectionDto.IsHidden;
+                Section.IsHidden = updateSectionDto.IsHidden;
+            }
             await _sectionRepo.Update(Section);
 
             await _realtime.NotifyAll("SectionUpdated", new
@@ -207,6 +218,7 @@ public class SectionService : ISectionService
             Id = Section.Id,
             SectionId = Section.SectionId,
             SectionName = Section.SectionName,
+            IsHidden = Section.IsHidden,
             Doors = Section.Door.Select(x => GetDoorDetails(x)).ToList(),
             Appliances = Section.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
             Lights = Section.Light.Select(x => GetLightDetails(x)).ToList(),
@@ -249,6 +261,7 @@ public class SectionService : ISectionService
             CreatedBy = appliance.CreatedBy,
             LastModifiedOn = appliance.LastModifiedOn,
             CreatedOn = appliance.CreatedOn,
+            IsHidden = appliance.IsHidden,
         };
     }
     public GetCameraDto GetCameraDetails(Camera camera)
@@ -271,7 +284,7 @@ public class SectionService : ISectionService
 
             LastModifiedOn = camera.LastModifiedOn,
             CreatedOn = camera.CreatedOn,
-
+            IsHidden = camera.IsHidden,
             LiveStreamUrl = camera.LiveStreamUrl,
             Recordings = camera.Recordings.Select(x => new GetRecordingDto
             {
@@ -286,19 +299,20 @@ public class SectionService : ISectionService
         return new GetExternalDto()
         {
             Id = External.Id,
-            ExternalsName = External.ExternalName,
+            ExternalName = External.ExternalName,
             IsTriggered = External.IsTriggered,
             IsActive = External.IsActive,
             PowerActive = External.PowerActive,
             RoomId = External.RoomId,
             SectionId = External.SectionId,
-            ExternalsId = External.ExternalId,
+            ExternalId = External.ExternalId,
             LastModifiedBy = External.LastModifiedBy,
             DeletedBy = External.DeletedBy,
             CreatedBy = External.CreatedBy,
             LastModifiedOn = External.LastModifiedOn,
             CreatedOn = External.CreatedOn,
             IsDeleted = External.IsDeleted,
+            IsHidden = External.IsHidden,
         };
     }
     public GetDoorDto GetDoorDetails(Door door)
@@ -323,6 +337,7 @@ public class SectionService : ISectionService
             CreatedBy = door.CreatedBy,
             LastModifiedOn = door.LastModifiedOn,
             CreatedOn = door.CreatedOn,
+            IsHidden = door.IsHidden,
         };
     }
 
@@ -343,6 +358,7 @@ public class SectionService : ISectionService
             LastModifiedOn = light.LastModifiedOn,
             CreatedOn = light.CreatedOn,
             BrightnessLevel = light.BrightnessLevel,
+            IsHidden = light.IsHidden,
         };
     }
 
@@ -367,6 +383,7 @@ public class SectionService : ISectionService
             CreatedBy = window.CreatedBy,
             LastModifiedOn = window.LastModifiedOn,
             CreatedOn = window.CreatedOn,
+            IsHidden = window.IsHidden,
         };
     }
 }

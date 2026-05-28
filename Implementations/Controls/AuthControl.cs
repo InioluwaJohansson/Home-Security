@@ -1,26 +1,32 @@
 ﻿using BCrypt.Net;
 using Home_Security.Entities.Identity;
+using Home_Security.Entities;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Models.DTOs;
 using Microsoft.Extensions.Caching.Memory;
+using Home_Security.Models.Enums;
+using System.Collections.Generic;
+using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Controls;
 public class AuthControl : IAuthControl
 {
-    public readonly IMemoryCache _cache;
-    public readonly IMemoryCache _roomCache;
-    public readonly IMemoryCache _sectionCache;
-    public readonly IMemoryCache _applianceCache;
-    public readonly IMemoryCache _lightCache;
-    public readonly IMemoryCache _cameraCache;
-    public readonly IMemoryCache _windowCache;
-    public readonly IMemoryCache _doorCache;
-    public readonly IMemoryCache _actionCache;
-    public readonly IMemoryCache _externalCache;
-    public readonly IMemoryCache _contactCache;
-    public readonly IMemoryCache _contactCategoryCache;
+    public readonly List<Person> _cache;
+    public readonly List<Room> _roomCache;
+    public readonly List<Section> _sectionCache;
+    public readonly List<Appliance> _applianceCache;
+    public readonly List<Light> _lightCache;
+    public readonly List<Camera> _cameraCache;
+    public readonly List<Window> _windowCache;
+    public readonly List<Door> _doorCache;
+    public readonly List<Entities.Action> _actionCache;
+    public readonly List<External> _externalCache;
+    public readonly List<Contact> _contactCache;
+    public readonly List<ContactCategory> _contactCategoryCache;
+    public readonly List<Hardware> _hardwareCache;
     IPersonRepo _personRepo;
+    IUserRepo _userRepo;
     IRoomRepo _roomRepo;
     ISectionRepo _sectionRepo;
     IApplianceRepo _applianceRepo;
@@ -30,9 +36,11 @@ public class AuthControl : IAuthControl
     IDoorRepo _doorRepo;
     IActionRepo _actionRepo;
     IExternalRepo _externalRepo;
+    IHardwareRepo _hardwareRepo;
     IContactRepo _contactRepo;
     IContactCategoryRepo _contactCategoryRepo;
-    public AuthControl(IMemoryCache cache, IMemoryCache roomCache, IMemoryCache sectionCache, IMemoryCache applianceCache, IMemoryCache lightCache, IMemoryCache cameraCache, IMemoryCache windowCache, IMemoryCache doorCache, IMemoryCache actionCache, IMemoryCache externalCache, IMemoryCache contactCache, IMemoryCache contactCategoryCache, IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo,IApplianceRepo applianceRepo,ILightRepo lightRepo, ICameraRepo cameraRepo,IWindowRepo windowRepo, IDoorRepo doorRepo,IActionRepo actionRepo, IExternalRepo externalRepo, IContactRepo contactRepo, IContactCategoryRepo contactCategoryRepo)
+    IRealtimeNotificationService _realtimeNotificationService;
+    public AuthControl(IUserRepo userRepo, List<Person> cache, List<Room> roomCache, List<Section> sectionCache, List<Appliance> applianceCache, List<Light> lightCache, List<Camera> cameraCache, List<Window> windowCache, List<Door> doorCache, List<Entities.Action> actionCache, List<External> externalCache, List<Contact> contactCache, List<ContactCategory> contactCategoryCache, List<Hardware> hardwareCache, IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo,IApplianceRepo applianceRepo,ILightRepo lightRepo, ICameraRepo cameraRepo,IWindowRepo windowRepo, IDoorRepo doorRepo,IActionRepo actionRepo, IExternalRepo externalRepo, IHardwareRepo hardwareRepo, IContactRepo contactRepo, IContactCategoryRepo contactCategoryRepo, IRealtimeNotificationService realtimeNotificationService)
     {
         _cache = cache;
         _roomCache = roomCache;
@@ -44,8 +52,10 @@ public class AuthControl : IAuthControl
         _doorCache = doorCache;
         _actionCache = actionCache;
         _externalCache = externalCache;
+        _hardwareCache = hardwareCache;
         _contactCache = contactCache;
         _contactCategoryCache = contactCategoryCache;
+        _userRepo = userRepo;
         _personRepo = personRepo;
         _roomRepo = roomRepo;
         _sectionRepo = sectionRepo;
@@ -55,13 +65,15 @@ public class AuthControl : IAuthControl
         _windowRepo = windowRepo;
         _doorRepo = doorRepo;
         _externalRepo = externalRepo;
+        _hardwareRepo = hardwareRepo;
         _actionRepo = actionRepo;
         _contactRepo = contactRepo;
         _contactCategoryRepo = contactCategoryRepo;
+        _realtimeNotificationService = realtimeNotificationService;
     }
     public async Task<GetAuthControlDto> GetAuthDetails(int personId, string authorizationCode)
     {
-        var person = await _personRepo.GetById(personId);
+        var person = _cache.FirstOrDefault(x => x.Id == personId);
         if (person != null && BCrypt.Net.BCrypt.EnhancedVerify(authorizationCode, person.User.AuthorizationCode) && person.Disabled == false)
         {
             return new GetAuthControlDto
@@ -96,270 +108,204 @@ public class AuthControl : IAuthControl
     }
     public async Task GetAllPersons()
     {
-        var persons = await _personRepo.GetAll();
+        var persons = await _personRepo.List();
         if (persons != null && persons.Any())
-        {
-            foreach (var person in persons)
-            {
-                var name = $"{person.PersonDetails.FirstName} {person.PersonDetails.LastName}"; 
-                _cache.Set(person.Id, name);
-            }
-        }
+            foreach (var person in persons) _cache.Add(person);
     }
     public string GetUserPersonName(int id)
     {
-        if (_cache.TryGetValue(id, out string name))
+        var person = _cache.FirstOrDefault(x => x.Id == id);
+        if (person != null)
         {
-            return name;
+            return  $"{person.PersonDetails.FirstName} {person.PersonDetails.LastName}"; 
         }
         return null;
     }
     public async Task GetAllRooms()
     {
-        var rooms = await _roomRepo.GetAll();
+        var rooms = await _roomRepo.GetByExpression(x => x.IsDeleted == false);
         if (rooms != null && rooms.Any())
-        {
-            foreach (var room in rooms)
-            {
-                var name = room.RoomName; 
-                _roomCache.Set(room.Id, name);
-            }
-        }
+            foreach (var room in rooms) _roomCache.Add(room);
     }
     public string GetRoomName(int id)
     {
-        if (_roomCache.TryGetValue(id, out string name))
-        {
-            return name;
-        }
+        var room = _roomCache.FirstOrDefault(x => x.Id == id);
+        if (room != null)
+            return room.RoomName; 
         return null;
     }
     public async Task GetAllSections()
     {
-        var sections = await _sectionRepo.GetAll();
+        var sections = await _sectionRepo.GetByExpression(x => x.IsDeleted == false);
         if (sections != null && sections.Any())
-        {
-            foreach (var section in sections)
-            {
-                var name = section.SectionName; 
-                _sectionCache.Set(section.Id, name);
-            }
-        }
+            foreach (var section in sections) _sectionCache.Add(section);
     }
     public string GetSectionName(int id)
     {
-        if (_sectionCache.TryGetValue(id, out string name))
-        {
-            return name;
-        }
+        var section = _sectionCache.FirstOrDefault(x => x.Id == id);
+        if (section != null)
+            return section.SectionName;
         return null;
     }
     public async Task GetAllAppliances()
     {
-        var appliances = await _applianceRepo.GetAll();
+        var appliances = await _applianceRepo.GetByExpression(x => x.IsDeleted == false);
         if (appliances != null && appliances.Any())
-        {
-            foreach (var appliance in appliances)
-            {
-                var name = appliance.ApplianceName; 
-                _applianceCache.Set(appliance.Id, name);
-            }
-        }
+            foreach (var appliance in appliances) _applianceCache.Add(appliance);
     }
     public string GetApplianceName(int id)
     {
-        if (_applianceCache.TryGetValue(id, out string name))
-        {
-            return name;
-        }
+        var appliance = _applianceCache.FirstOrDefault(x => x.Id == id);
+        if (appliance != null)
+            return appliance.ApplianceName; 
         return null;
     }
     public async Task GetAllLights()
     {
-        var lights = await _lightRepo.GetAll();
+        var lights = await _lightRepo.GetByExpression(x => x.IsDeleted == false);
         if (lights != null && lights.Any())
-        {
-            foreach (var light in lights)
-            {
-                var name = light.LightName; 
-                _lightCache.Set(light.Id, name);
-            }
-        }
+            foreach (var light in lights) _lightCache.Add(light);
     }
     public string GetLightName(int id)
     {
-        if (_lightCache.TryGetValue(id, out string name))
-        {
-            return name;
-        }
+        var light = _lightCache.FirstOrDefault(x => x.Id == id);
+        if (light != null)
+            return light.LightName;
         return null;
     }
-public async Task GetAllCameras()
+    public async Task GetAllCameras()
     {
-        var cameras = await _cameraRepo.GetAll();
+        var cameras = await _cameraRepo.GetByExpression(x => x.IsDeleted == false);
         if (cameras != null && cameras.Any())
-        {
-            foreach (var camera in cameras)
-            {
-                var name = camera.CameraName; 
-                _cameraCache.Set(camera.Id, name);
-            }
-        }
+            foreach (var camera in cameras) _cameraCache.Add(camera);
     }
     public string GetCameraName(int id)
     {
-        if (_cameraCache.TryGetValue(id, out string name))
-        {
-            return name;
-        }
+        var camera = _cameraCache.FirstOrDefault(x => x.Id == id);
+        if (camera != null)
+            return camera.CameraName; 
         return null;
     }
     public async Task GetAllWindows()
     {
-        var windows = await _windowRepo.GetAll();
+        var windows = await _windowRepo.GetByExpression(x => x.IsDeleted == false);
         if (windows != null && windows.Any())
-        {
-            foreach (var window in windows)
-            {
-                var name = window.WindowName; 
-                _windowCache.Set(window.Id, name);
-            }
-        }
+            foreach (var window in windows) _windowCache.Add(window);
     }
     public string GetWindowName(int id)
     {
-        if (_windowCache.TryGetValue(id, out string name))
-        {
-            return name;
-        }
+        var window = _windowCache.FirstOrDefault(x => x.Id == id);
+        if (window != null)
+            return window.WindowName; 
         return null;
     }
     public async Task GetAllDoors()
     {
-        var doors = await _doorRepo.GetAll();
+        var doors = await _doorRepo.GetByExpression(x => x.IsDeleted == false);
         if (doors != null && doors.Any())
-        {
-            foreach (var door in doors)
-            {
-                var name = door.DoorName; 
-                _doorCache.Set(door.Id, name);
-            }
-        }
+            foreach (var door in doors) _doorCache.Add(door);
     }
     public string GetDoorName(int id)
     {
-        if (_doorCache.TryGetValue(id, out string name))
-        {
-            return name;
-        }
+        var door = _doorCache.FirstOrDefault(x => x.Id == id);
+        if (door != null)
+            return door.DoorName; 
         return null;
     }
     public async Task GetAllActions()
     {
-        var actions = await _actionRepo.GetAll();
+        var actions = await _actionRepo.GetByExpression(x => x.IsDeleted == false);
         if (actions != null && actions.Any())
-        {
-            foreach (var action in actions)
-            {
-                var name = action.ActionName; 
-                _actionCache.Set(action.Id, name);
-            }
-        }
+            foreach (var action in actions) _actionCache.Add(action);
     }
     public string GetActionName(int id)
     {
-        if (_doorCache.TryGetValue(id, out string name))
-        {
-            return name;
-        }
+        var action = _actionCache.FirstOrDefault(x => x.Id == id);
+        if (action != null)
+            return action.ActionName;
         return null;
     }
     public async Task GetAllExternals()
     {
-        var externals = await _externalRepo.GetAll();
+        var externals = await _externalRepo.GetByExpression(x => x.IsDeleted == false);
         if (externals != null && externals.Any())
-        {
-            foreach (var external in externals)
-            {
-                var name = external.ExternalName; 
-                _actionCache.Set(external.Id, name);
-            }
-        }
+            foreach (var external in externals) _externalCache.Add(external);
     }
     public string GetExternalName(int id)
     {
-        if (_externalCache.TryGetValue(id, out string name))
-        {
-            return name;
-        }
+        var external = _externalCache.FirstOrDefault(x => x.Id == id);
+        if (external != null)
+            return external.ExternalName;
+        return null;
+    }
+    public async Task GetAllHardwares()
+    {
+        var hardwares = await _hardwareRepo.GetByExpression(x => x.IsDeleted == false);
+        if (hardwares != null && hardwares.Any())
+            foreach (var hardware in hardwares) _hardwareCache.Add(hardware);
+    }
+    public string GetHardwareName(int id)
+    {
+        var hardware = _hardwareCache.FirstOrDefault(x => x.Id == id);
+        if (hardware != null)
+            return hardware.HardwareName;
         return null;
     }
     public async Task GetAllContacts()
     {
-        var contacts = await _contactRepo.GetAll();
+        var contacts = await _contactRepo.GetByExpression(x => x.IsDeleted == false);
         if (contacts != null && contacts.Any())
-        {
-            foreach (var contact in contacts)
-            {
-                var name = $"{contact.FirstName} {contact.LastName}";
-                _contactCache.Set(contact.Id, name);
-            }
-        }
+            foreach (var contact in contacts) _contactCache.Add(contact);
     }
     public string GetContactName(int id)
     {
-        if (_contactCache.TryGetValue(id, out string name))
-        {
-            return name;
-        }
+        var contact = _contactCache.FirstOrDefault(x => x.Id == id);
+        if (contact != null)
+            return $"{contact.FirstName} {contact.LastName}";
         return null;
     }
     public async Task GetAllContactCategories()
     {
-        var contactCategories = await _contactCategoryRepo.GetAll();
+        var contactCategories = await _contactCategoryRepo.GetByExpression(x => x.IsDeleted == false);
         if (contactCategories != null && contactCategories.Any())
-        {
-            foreach (var category in contactCategories)
-            {
-                var name = category.Name;
-                _contactCategoryCache.Set(category.Id, name);
-            }
-        }
+            foreach (var category in contactCategories) _contactCategoryCache.Add(category);
     }
     public string GetContactCategoryName(int id)
     {
-        if (_contactCategoryCache.TryGetValue(id, out string name))
-        {
-            return name;
-        }
+        var contactCategory = _contactCategoryCache.FirstOrDefault(x => x.Id == id);
+        if (contactCategory != null)
+            return contactCategory.Name;
         return null;
     }
     public async Task RunAllFacilities()
     {
-        _actionCache.Dispose();
+        _actionCache.Clear();
         await GetAllActions();
-        _applianceCache.Dispose();
+        _applianceCache.Clear();
         await GetAllAppliances();
-        _cameraCache.Dispose();
+        _cameraCache.Clear();
         await GetAllCameras();
-        _lightCache.Dispose();
+        _lightCache.Clear();
         await GetAllLights();
-        _cache.Dispose();
+        _cache.Clear();
         await GetAllPersons();
-        _roomCache.Dispose();
+        _roomCache.Clear();
         await GetAllRooms();
-        _sectionCache.Dispose();
+        _sectionCache.Clear();
         await GetAllSections();
-        _doorCache.Dispose();
+        _doorCache.Clear();
         await GetAllDoors();
-        _externalCache.Dispose();
+        _externalCache.Clear();
         await GetAllExternals();
-        _windowCache.Dispose();
+        _hardwareCache.Clear();
+        await GetAllHardwares();
+        _windowCache.Clear();
         await GetAllWindows();
-        _contactCategoryCache.Dispose();
+        _contactCategoryCache.Clear();
         await GetAllContactCategories();
-        _contactCache.Dispose();
+        _contactCache.Clear();
         await GetAllContacts();
+        await _realtimeNotificationService.NotifyAll("GetAppNamesDetails", GetAppNamesDetails());
     }
     public bool CompareRole(Role based, Role quote)
     {
@@ -391,5 +337,107 @@ public async Task GetAllCameras()
             LogDetails = "",
             ActionType = ""
         };
+    }
+    public async Task<AppNamesDetailList> GetAppNamesDetails()
+    {
+        return new AppNamesDetailList
+        {
+            ApplianceIdNames = _applianceCache.Where(x => x.IsDeleted == false)
+            .Select(c => new GenericNames
+            {
+                Id = c.Id,
+                Name = c.ApplianceName,
+                IsHidden = c.IsHidden,
+            }).ToList(),
+            CameraIdNames = _cameraCache.Where(x => x.IsDeleted == false)
+            .Select(c => new GenericNames
+            {
+                Id = c.Id,
+                Name = c.CameraName,
+                IsHidden = c.IsHidden,
+            }).ToList(),
+            LightIdNames = _lightCache.Where(x => x.IsDeleted == false)
+            .Select(c => new GenericNames
+            {
+                Id = c.Id,
+                Name = c.LightName,
+                IsHidden = c.IsHidden,
+            }).ToList(),
+            WindowIdNames = _windowCache.Where(x => x.IsDeleted == false)
+            .Select(c => new GenericNames
+            {
+                Id = c.Id,
+                Name = c.WindowName,
+                IsHidden = c.IsHidden,
+            }).ToList(),
+            DoorIdNames = _doorCache.Where(x => x.IsDeleted == false)
+            .Select(c => new GenericNames
+            {
+                Id = c.Id,
+                Name = c.DoorName,
+                IsHidden = c.IsHidden,
+            }).ToList(),
+            ExternalIdNames = _externalCache.Where(x => x.IsDeleted == false)
+            .Select(c => new GenericNames
+            {
+                Id = c.Id,
+                Name = c.ExternalName,
+                IsHidden = c.IsHidden,
+            }).ToList(),
+            PersonIdNames = _cache
+            .Select(c => new GenericNames
+            {
+                Id = c.Id,
+                Name = c.PersonDetails.FirstName + " " + c.PersonDetails.LastName,
+                IsHidden = c.Disabled,
+                ImageUrl = ConvertImageToBase64(c.PersonDetails.ImageUrl) ?? "",
+            }).ToList(),
+            ContactCategoryIdNames = _contactCategoryCache.Where(x => x.IsDeleted == false)
+            .Select(c => new GenericIdNames
+            {
+                Id = c.Id,
+                Name = c.Name,
+            }).ToList(),
+            ActionIdNames = _actionCache.Where(x => x.IsDeleted == false)
+            .Select(c => new GenericIdNames
+            {
+                Id = c.Id,
+                Name = c.ActionName,
+            }).ToList(),
+            HArdwareIdNames = _hardwareCache.Where(x => x.IsDeleted == false)
+            .Select(c => new GenericIdNames
+            {
+                Id = c.Id,
+                Name = c.HardwareName,
+            }).ToList(),
+            ApplianceType = EnumToList<ApplianceType>(),
+            Gender = EnumToList<Gender>(),
+            DoorType = EnumToList<DoorType>(),
+            FacilityType = EnumToList<FacilityType>(),
+            Role = EnumToList<Role>()
+        };
+    }
+    public static string? ConvertImageToBase64(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return null;
+
+        if (!File.Exists(path))
+            return null;
+
+        var bytes = File.ReadAllBytes(path);
+
+        return Convert.ToBase64String(bytes);
+    }
+    public static List<GenericIdNames> EnumToList<T>() where T : Enum
+    {
+        return Enum.GetValues(typeof(T))
+            .Cast<T>()
+            .Select(e => new GenericIdNames
+            {
+                Id = Convert.ToInt32(e),
+                Name = e.ToString()
+            })
+            .ToList();
     }
 }

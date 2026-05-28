@@ -21,8 +21,7 @@ public class ContactCategoryControl : IContactCategoryControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
-            createContactCategoryDto.personId = auth.Id;
-            var contactCategory = await _contactCategoryService.CreateContactCategory(createContactCategoryDto);
+            var contactCategory = await _contactCategoryService.CreateContactCategory(createContactCategoryDto, auth.Id);
             if (contactCategory.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -39,8 +38,7 @@ public class ContactCategoryControl : IContactCategoryControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
-            updateContactCategoryDto.personId = auth.Id;
-            var contactCategory = await _contactCategoryService.UpdateContactCategory(updateContactCategoryDto);
+            var contactCategory = await _contactCategoryService.UpdateContactCategory(updateContactCategoryDto, auth.Id);
             if (contactCategory.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
@@ -79,7 +77,7 @@ public class ContactCategoryControl : IContactCategoryControl
     public async Task<ContactCategoriesResponseModel> GetAllContactCategories(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
+        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
             var contactCategory = await _contactCategoryService.GetAllContactCategories();
             return contactCategory;
@@ -103,7 +101,7 @@ public class ContactCategoryControl : IContactCategoryControl
     public async Task<BaseResponse> DeleteContactCategory(GetAuthControlInfoDto getAuthControlInfoDto, int contactCategoryId)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner)
+        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
             var contactCategory = await _contactCategoryService.Delete(contactCategoryId, auth.Id);
             if (contactCategory.Status == true)

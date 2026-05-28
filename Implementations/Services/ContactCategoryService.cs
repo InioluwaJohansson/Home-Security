@@ -18,7 +18,7 @@ public class ContactCategoryService : IContactCategoryService
         _realtime = realtime;
     }
 
-    public async Task<BaseResponse> CreateContactCategory(CreateContactCategoryDto createContactCategoryDto)
+    public async Task<BaseResponse> CreateContactCategory(CreateContactCategoryDto createContactCategoryDto, int personId)
     {
         if (createContactCategoryDto != null)
         {
@@ -27,10 +27,10 @@ public class ContactCategoryService : IContactCategoryService
                 CategoryId = $"CATEGORY{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 Name = createContactCategoryDto.Name,
                 Description = createContactCategoryDto.Description,
+                Icon = createContactCategoryDto.Icon,
                 IsDeleted = false,
-                PersonId = createContactCategoryDto.personId,
-                CreatedBy = createContactCategoryDto.personId,
-                LastModifiedBy = createContactCategoryDto.personId,
+                CreatedBy = personId,
+                LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now,
                 CreatedOn = DateTime.Now,
             };
@@ -53,7 +53,7 @@ public class ContactCategoryService : IContactCategoryService
         };
     }
 
-    public async Task<BaseResponse> UpdateContactCategory(UpdateContactCategoryDto updateContactCategoryDto)
+    public async Task<BaseResponse> UpdateContactCategory(UpdateContactCategoryDto updateContactCategoryDto, int personId)
     {
         if (updateContactCategoryDto != null)
         {
@@ -61,7 +61,8 @@ public class ContactCategoryService : IContactCategoryService
 
             contactCategory.Name = updateContactCategoryDto.Name ?? contactCategory.Name;
             contactCategory.Description = updateContactCategoryDto.Description ?? contactCategory.Description;
-            contactCategory.LastModifiedBy = updateContactCategoryDto.personId;
+            contactCategory.Icon = updateContactCategoryDto.Icon ?? contactCategory.Icon;
+            contactCategory.LastModifiedBy = personId;
             contactCategory.LastModifiedOn = DateTime.Now;
 
             await _contactCategoryRepo.Update(contactCategory);
@@ -166,8 +167,8 @@ public class ContactCategoryService : IContactCategoryService
         {
             Id = contactCategory.Id,
             Name = contactCategory.Name,
+            Icon = contactCategory.Icon,
             CategoryId = contactCategory.CategoryId,
-            personId = contactCategory.PersonId,
             LastModifiedBy = contactCategory.LastModifiedBy,
             DeletedBy = contactCategory.DeletedBy,
             CreatedBy = contactCategory.CreatedBy,

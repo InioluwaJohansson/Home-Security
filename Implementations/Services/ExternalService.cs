@@ -37,6 +37,8 @@ public class ExternalService : IExternalService
                 CreatedOn = DateTime.Now,
                 ActionIds = createExternalDto.ActionIds,
                 IsTriggered = false,
+                IsActive = true,
+                PowerActive = true,
             };
 
             await _externalRepo.Create(external);
@@ -53,7 +55,6 @@ public class ExternalService : IExternalService
                 IsLocked = false,
                 IsOpen = false
             });
-
             return new BaseResponse()
             {
                 Status = true,
@@ -77,6 +78,8 @@ public class ExternalService : IExternalService
             Externals.ExternalName = updateExternalDto.ExternalName ?? Externals.ExternalName;
             Externals.LastModifiedBy = personId;
             Externals.LastModifiedOn = DateTime.Now;
+            Externals.PowerActive = updateExternalDto.PowerActive;
+            Externals.IsTriggered = updateExternalDto.IsTriggered;
             Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds;
 
             await _externalRepo.Update(Externals);
@@ -261,6 +264,7 @@ public class ExternalService : IExternalService
             LastModifiedOn = External.LastModifiedOn,
             CreatedOn = External.CreatedOn,
             IsDeleted = External.IsDeleted,
+            IsHidden = External.IsHidden,
         };
     }
 }

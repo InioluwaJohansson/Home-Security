@@ -29,6 +29,7 @@ public class ApplianceDeviceState
 {
     public int ApplianceId { get; set; }
     public bool IsActive { get; set; }
+    public ApplianceType ApplianceType { get; set; }
 }
 public class LightDeviceState
 {

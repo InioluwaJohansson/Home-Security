@@ -1,3 +1,4 @@
+﻿using BCrypt.Net;
 ﻿using Home_Security.Authentication;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
@@ -114,5 +115,16 @@ public class UserController : Controller
             return Ok(token);
         }
         return Ok(token);
+    }
+    [Authorize]
+    [HttpPost("VerifyAuthCode")]
+    public async Task<IActionResult> VerifyAuthCode(string authCode)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        if (user != null && BCrypt.Net.BCrypt.EnhancedVerify(authCode, user.AuthorizationCode))
+           return Ok(true);
+        return Ok(false);
     }
 }

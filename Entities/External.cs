@@ -4,7 +4,6 @@ public class External : BaseDefault
     public string ExternalName { get; set; }
     public string ExternalId { get; set; }
     public bool IsTriggered { get; set; }
-    public bool IsActive { get; set; }
     public List<int> ActionIds { get; set; }
     public Action Action{ get; set; }
 }

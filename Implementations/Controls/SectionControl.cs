@@ -61,17 +61,17 @@ public class SectionControl : ISectionControl
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var section = await _sectionService.GetSectionById(id);
-            section.Data = DtoRefactor(section.Data);
-            return section;
-        }
-        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
-        {
-            return new SectionResponseModel()
+            if (section.Data.IsHidden && auth.Role == Role.Owner || auth.Role == Role.Wife)
+                return section;
+            else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
             {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+                return new SectionResponseModel()
+                {
+                    Data = null,
+                    Status = _authControl.AuthFaliure().Status,
+                    Message = "Unauthorized Action"
+                };
+            }
         }
         return new SectionResponseModel()
         {
@@ -91,12 +91,9 @@ public class SectionControl : ISectionControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new SectionsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var section = await _sectionService.GetSectionBySectionName(sectionName);
+            section.Data = section.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return section;
         }
         return new SectionsResponseModel()
         {
@@ -116,12 +113,9 @@ public class SectionControl : ISectionControl
         }
         else if (auth.Status != false && auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new SectionsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var section = await _sectionService.GetAllSections();
+            section.Data = section.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return section;
         }
         return new SectionsResponseModel()
         {

@@ -1,4 +1,5 @@
 ﻿using BCrypt.Net;
+using Home_Security.Authentication;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
@@ -8,12 +9,14 @@ public class UserService : IUserService
 {
     IUserRepo _userRepo;
     IPersonRepo _personRepo;
+    IJWTAuthentication _jWTAuthentication;
     ILogService _logService;
     IAuthControl _authControl;
-    public UserService(IUserRepo userRepo, IPersonRepo personRepo, ILogService logService, IAuthControl authControl)
+    public UserService(IUserRepo userRepo, IPersonRepo personRepo, IJWTAuthentication jWTAuthentication, ILogService logService, IAuthControl authControl)
     {
         _userRepo = userRepo;
         _personRepo = personRepo;
+        _jWTAuthentication = jWTAuthentication;
         _logService = logService;
         _authControl = authControl;
     }
@@ -25,6 +28,36 @@ public class UserService : IUserService
         log.LogDetails = $"{user.UserName} attempted to login!";
         await _logService.CreateLog(log);
         if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password))
+        {
+            return new UserLoginResponse()
+            {
+                Data = new GetUserDto()
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    RoleName = user.UserRole.Role.ToString(),
+                    Role = user.UserRole.Role,
+                    PersonId = (await _personRepo.Get(x => x.UserId == user.Id))?.Id ?? 0,
+                },
+                Message = "Login Successful",
+                Status = true,
+            };
+        }
+        return new UserLoginResponse()
+        {
+            Data = null,
+            Message = "Invalid Username Or Password!",
+            Status = false
+        };
+    }
+    public async Task<UserLoginResponse> NFIDLogin(string token, string NFID)
+    {
+        var user = await _userRepo.Get(x => x.NFID == NFID);
+        var log = _authControl.CreateLog(user.Id);
+        log.ActionType = "Attempted Login";
+        log.LogDetails = $"{user.UserName} attempted to login via NFID";
+        await _logService.CreateLog(log);
+        if (_jWTAuthentication.ValidateHardwareToken(token) == true && user != null)
         {
             return new UserLoginResponse()
             {

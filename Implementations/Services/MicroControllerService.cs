@@ -204,6 +204,7 @@ public class MicroControllerService : IMicroControllerService
                 applianceDeviceStates.Add(new ApplianceDeviceState()
                 {
                     ApplianceId = appliance.Id,
+                    ApplianceType = appliance.ApplianceType,
                     IsActive = appliance.IsActive,
                 });
             }

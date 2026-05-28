@@ -118,16 +118,17 @@ public class WindowControl : IWindowControl
         {
             var window = await _windowService.GetById(id);
             window.Data = DtoRefactor(window.Data);
-            return window;
-        }
-        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
-        {
-            return new WindowResponseModel()
+            if (window.Data.IsHidden && auth.Role == Role.Owner || auth.Role == Role.Wife)
+                return window;
+            else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
             {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+                return new WindowResponseModel()
+                {
+                    Data = null,
+                    Status = _authControl.AuthFaliure().Status,
+                    Message = "Unauthorized Action"
+                };
+            }
         }
         return new WindowResponseModel()
         {
@@ -136,23 +137,20 @@ public class WindowControl : IWindowControl
             Message = _authControl.AuthFaliure().Message
         };
     }
-    public async Task<WindowsResponseModel> GetAllWindowsByRoomId(GetAuthControlInfoDto getAuthControlInfoDto, int windowId)
+    public async Task<WindowsResponseModel> GetAllWindowsByRoomId(GetAuthControlInfoDto getAuthControlInfoDto, int roomId)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
-            var window = await _windowService.GetAllWindowsByRoomId(windowId);
+            var window = await _windowService.GetAllWindowsByRoomId(roomId);
             window.Data = window.Data.Select(x => DtoRefactor(x)).ToList();
             return window;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new WindowsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var window = await _windowService.GetAllWindowsByRoomId(roomId);
+            window.Data = window.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return window;
         }
         return new WindowsResponseModel()
         {
@@ -172,12 +170,9 @@ public class WindowControl : IWindowControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new WindowsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var window = await _windowService.GetAllWindowsBySectionId(sectionId);
+            window.Data = window.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return window;
         }
         return new WindowsResponseModel()
         {
@@ -197,12 +192,9 @@ public class WindowControl : IWindowControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new WindowsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var window = await _windowService.GetAllWindows();
+            window.Data = window.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return window;
         }
         return new WindowsResponseModel()
         {

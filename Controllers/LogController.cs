@@ -18,26 +18,8 @@ public class LogController : Controller
         _jwtAuthentication = jwtAuthentication;
     }
     [Authorize]
-    [HttpPost("GetLogById")]
-    public async Task<IActionResult> GetLogById(int id)
-    {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
-        if (user == null)
-            return Unauthorized();
-        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = user.PersonId,
-            AuthorizationCode = user.AuthorizationCode,
-        };
-        var log = await _logControl.GetLogById(getAuthControlInfoDto, id);
-        if (log.Status == true)
-        {
-            return Ok(log);
-        }
-        return Ok(log);
-    }
-    [Authorize]
     [HttpPost("GetAllLogsByPersonId")]
-    public async Task<IActionResult> GetAllLogsBySectionId(int personId)
+    public async Task<IActionResult> GetAllLogsByPersonId(int personId, int page = 1, int pageSize = 50)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -46,7 +28,7 @@ public class LogController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var log = await _logControl.GetAllLogsByPersonId(getAuthControlInfoDto, personId);
+        var log = await _logControl.GetAllLogsByPersonId(getAuthControlInfoDto, personId, page, pageSize);
         if (log.Status == true)
         {
             return Ok(log);
@@ -54,8 +36,8 @@ public class LogController : Controller
         return Ok(log);
     }
     [Authorize]
-    [HttpPost("GetAllLogsByActionType")]
-    public async Task<IActionResult> GetAllLogsByActionType(string actionType)
+    [HttpPost("GetAllLogsByDate")]
+    public async Task<IActionResult> GetAllLogsByDate(DateOnly startDate, DateOnly endDate, int page = 1, int pageSize = 50)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -64,7 +46,7 @@ public class LogController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var log = await _logControl.GetAllLogsByActionType(getAuthControlInfoDto, actionType);
+        var log = await _logControl.GetAllLogsByDate(getAuthControlInfoDto, startDate, endDate, page, pageSize);
         if (log.Status == true)
         {
             return Ok(log);
@@ -72,9 +54,8 @@ public class LogController : Controller
         return Ok(log);
     }
     [Authorize]
-    //Ned review due to fetching of large sumps of data
     [HttpPost("GetAllLogs")]
-    public async Task<IActionResult> GetAllLogs()
+    public async Task<IActionResult> GetAllLogs(int page = 1, int pageSize = 50)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -83,7 +64,7 @@ public class LogController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var log = await _logControl.GetAllLogs(getAuthControlInfoDto);
+        var log = await _logControl.GetAllLogs(getAuthControlInfoDto, page, pageSize);
         if (log.Status == true)
         {
             return Ok(log);

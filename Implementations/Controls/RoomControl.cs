@@ -62,16 +62,17 @@ public class RoomControl : IRoomControl
         {
             var room = await _roomService.GetRoomById(id);
             room.Data = DtoRefactor(room.Data);
-            return room;
-        }
-        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
-        {
-            return new RoomResponseModel()
+            if (room.Data.IsHidden && auth.Role == Role.Owner || auth.Role == Role.Wife)
+                return room;
+            else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
             {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+                return new RoomResponseModel()
+                {
+                    Data = null,
+                    Status = _authControl.AuthFaliure().Status,
+                    Message = "Unauthorized Action"
+                };
+            }
         }
         return new RoomResponseModel()
         {
@@ -89,14 +90,11 @@ public class RoomControl : IRoomControl
             room.Data = room.Data.Select(x => DtoRefactor(x)).ToList();
             return room;
         }
-        else if(auth.Status != false && auth.Role == Role.Child || auth.Role ==  Role.Relative || auth.Role == Role.Visitor)
+        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new RoomsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var room = await _roomService.GetRoomByRoomName(roomName);
+            room.Data = room.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return room;
         }
         return new RoomsResponseModel()
         {
@@ -116,12 +114,31 @@ public class RoomControl : IRoomControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new RoomsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var room = await _roomService.GetAllRoomsBySectionId(sectionId);
+            room.Data = room.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return room;
+        }
+        return new RoomsResponseModel()
+        {
+            Data = null,
+            Status = _authControl.AuthFaliure().Status,
+            Message = _authControl.AuthFaliure().Message
+        };
+    }
+    public async Task<RoomsResponseModel> GetAllRoomsByPersonId(GetAuthControlInfoDto getAuthControlInfoDto)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
+        {
+            var room = await _roomService.GetRoomByPersonId(auth.Id);
+            room.Data = room.Data.Select(x => DtoRefactor(x)).ToList();
+            return room;
+        }
+        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
+        {
+            var room = await _roomService.GetRoomByPersonId(auth.Id);
+            room.Data = room.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return room;
         }
         return new RoomsResponseModel()
         {
@@ -141,12 +158,9 @@ public class RoomControl : IRoomControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new RoomsResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var room = await _roomService.GetAllRooms();
+            room.Data = room.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return room;
         }
         return new RoomsResponseModel()
         {

@@ -32,6 +32,7 @@ public class ApplianceService : IApplianceService
                 PowerActive = false,
                 SectionId = createApplianceDto.SectionId,
                 RoomId = createApplianceDto.RoomId,
+                ApplianceType = createApplianceDto.ApplianceType,
                 IsDeleted = false,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
@@ -80,7 +81,7 @@ public class ApplianceService : IApplianceService
             appliance.IsActive = updateApplianceDto.IsActive;
             appliance.LastModifiedBy = personId;
             appliance.LastModifiedOn = DateTime.Now;
-
+            appliance.ApplianceType = updateApplianceDto.ApplianceType;
             await _applianceRepo.Update(appliance);
 
             await _realtime.NotifyAll("ApplianceUpdated", GetDetails(appliance));
@@ -255,12 +256,14 @@ public class ApplianceService : IApplianceService
             RoomId = appliance.RoomId,
             SectionId = appliance.SectionId,
             ApplianceId = appliance.ApplianceId,
+            ApplianceType = appliance.ApplianceType.ToString(),
             LastModifiedBy = appliance.LastModifiedBy,
             DeletedBy = appliance.DeletedBy,
             CreatedBy = appliance.CreatedBy,
             LastModifiedOn = appliance.LastModifiedOn,
             CreatedOn = appliance.CreatedOn,
             IsDeleted = appliance.IsDeleted,
+            IsHidden = appliance.IsHidden,
         };
     }
 }

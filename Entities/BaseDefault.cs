@@ -6,4 +6,5 @@ public class BaseDefault : AuditableEntity
     public bool PowerActive { get; set; }
     public int RoomId { get; set; }
     public int SectionId { get; set; }
+    public bool IsHidden { get; set; }
 }

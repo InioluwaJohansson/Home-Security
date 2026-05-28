@@ -19,7 +19,6 @@ public class ApplianceControl : IApplianceControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner)
         {
-            
             var appliance = await _applianceService.CreateAppliance(createApplianceDto, auth.Id);
             if (appliance.Status == true)
             {
@@ -57,7 +56,16 @@ public class ApplianceControl : IApplianceControl
         {
             var appliance = await _applianceService.GetById(id);
             appliance.Data = DtoRefactor(appliance.Data);
-            return appliance;
+            if (appliance.Data.IsHidden && auth.Role == Role.Owner || auth.Role == Role.Wife)
+            {
+                return appliance;
+            }
+            return new ApplianceResponseModel()
+            {
+                Data = null,
+                Status = _authControl.AuthFaliure().Status,
+                Message = "Unauthorized Action"
+            };
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
@@ -86,12 +94,9 @@ public class ApplianceControl : IApplianceControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new AppliancesResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var appliance = await _applianceService.GetAllAppliancesBySectionId(sectionId);
+            appliance.Data = appliance.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return appliance;
         }
         return new AppliancesResponseModel()
         {
@@ -105,18 +110,15 @@ public class ApplianceControl : IApplianceControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
-            var appliance = await _applianceService.GetAllAppliancesBySectionId(roomId);
+            var appliance = await _applianceService.GetAllAppliancesByRoomId(roomId);
             appliance.Data = appliance.Data.Select(x => DtoRefactor(x)).ToList();
             return appliance;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new AppliancesResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var appliance = await _applianceService.GetAllAppliancesByRoomId(roomId);
+            appliance.Data = appliance.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return appliance;
         }
         return new AppliancesResponseModel()
         {
@@ -136,12 +138,9 @@ public class ApplianceControl : IApplianceControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new AppliancesResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var appliance = await _applianceService.GetAllAppliances();
+            appliance.Data = appliance.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return appliance;
         }
         return new AppliancesResponseModel()
         {

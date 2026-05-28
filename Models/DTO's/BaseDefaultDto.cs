@@ -2,7 +2,8 @@
 public class CreateBaseDefaultDto
 {
     public int RoomId { get; set; }
-    public int SectionId { get; set; }    
+    public int SectionId { get; set; }
+    public bool IsHidden { get; set; }
 }
 public class BaseDefaultDto
 {
@@ -23,6 +24,7 @@ public class BaseDefaultDto
     public bool IsDeleted { get; set; }
     public int personId { get; set; }
     public string PeronName { get; set; }
+    public bool IsHidden { get; set; }
 }
 public class BaseDefaultDtoOther
 {
@@ -48,4 +50,25 @@ public class UserBaseDefaultDto
     public bool IsDeleted { get; set; }
     public int personId { get; set; }
     public string PeronName { get; set; }
+}
+public class AppNamesDetailList{
+    public List<GenericNames> ApplianceIdNames { get; set; }
+    public List<GenericNames> CameraIdNames { get; set; }
+    public List<GenericNames> LightIdNames { get; set; }
+    public List<GenericNames> WindowIdNames { get; set; }
+    public List<GenericNames> DoorIdNames { get; set; }
+    public List<GenericNames> ExternalIdNames { get; set; }
+    public List<GenericNames> PersonIdNames { get; set; }
+    public List<GenericIdNames> ContactCategoryIdNames { get; set; }
+    public List<GenericIdNames> ActionIdNames { get; set; }
+    public List<GenericIdNames> HArdwareIdNames { get; set; }
+    public List<GenericIdNames> ApplianceType { get; set; }
+    public List<GenericIdNames> Gender { get; set; }
+    public List<GenericIdNames> DoorType { get; set; }
+    public List<GenericIdNames> FacilityType { get; set; }
+    public List<GenericIdNames> Role { get; set; }
+}
+public class GenericNames : GenericIdNames{
+    public bool IsHidden { get; set; }
+    public string ImageUrl { get; set; }
 }

@@ -57,16 +57,17 @@ public class CameraControl : ICameraControl
         {
             var camera = await _cameraService.GetById(id);
             camera.Data = DtoRefactor(camera.Data);
-            return camera;
-        }
-        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
-        {
-            return new CameraResponseModel()
+            if (camera.Data.IsHidden && auth.Role == Role.Owner || auth.Role == Role.Wife)
+                return camera;
+            else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
             {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+                return new CameraResponseModel()
+                {
+                    Data = null,
+                    Status = _authControl.AuthFaliure().Status,
+                    Message = "Unauthorized Action"
+                };
+            }
         }
         return new CameraResponseModel()
         {
@@ -86,12 +87,9 @@ public class CameraControl : ICameraControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new CamerasResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var camera = await _cameraService.GetAllCamerasBySectionId(sectionId);
+            camera.Data = camera.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return camera;
         }
         return new CamerasResponseModel()
         {
@@ -111,12 +109,9 @@ public class CameraControl : ICameraControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new CamerasResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var camera = await _cameraService.GetAllCamerasByRoomId(roomId);
+            camera.Data = camera.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return camera;
         }
         return new CamerasResponseModel()
         {
@@ -136,12 +131,9 @@ public class CameraControl : ICameraControl
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            return new CamerasResponseModel()
-            {
-                Data = null,
-                Status = _authControl.AuthFaliure().Status,
-                Message = "Unauthorized Action"
-            };
+            var camera = await _cameraService.GetAllCameras();
+            camera.Data = camera.Data.Select(x => DtoRefactor(x)).Where(x => x.IsHidden == false).ToList();
+            return camera;
         }
         return new CamerasResponseModel()
         {
