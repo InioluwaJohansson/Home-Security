@@ -404,7 +404,7 @@ public class AuthControl : IAuthControl
                 Id = c.Id,
                 Name = c.ActionName,
             }).ToList(),
-            HArdwareIdNames = _hardwareCache.Where(x => x.IsDeleted == false)
+            HardwareIdNames = _hardwareCache.Where(x => x.IsDeleted == false)
             .Select(c => new GenericIdNames
             {
                 Id = c.Id,

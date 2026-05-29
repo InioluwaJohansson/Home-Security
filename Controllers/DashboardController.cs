@@ -33,4 +33,20 @@ public class DashboardController : Controller
             return Ok(dashboard);
         return Unauthorized();
     }
+    [Authorize]
+    [HttpPost("GetAppNamesIdList")]
+    public async Task<IActionResult> GetAppNamesIdList()
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        var dashboard = await _dashboardControl.GetAppNamesIdList(getAuthControlInfoDto);
+        if (dashboard.Status)
+            return Ok(dashboard);
+        return Unauthorized();
+    }
 }

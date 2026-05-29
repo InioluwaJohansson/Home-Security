@@ -23,6 +23,8 @@ public class BackgroundServices : BackgroundService
         await personService.InjectDefaultUser();
         var authService = scope.ServiceProvider.GetRequiredService<IAuthControl>();
         await authService.RunAllFacilities();
+        var hardwareService = scope.ServiceProvider.GetRequiredService<IHardwareService>();
+        await hardwareService.CheckHardwareStatus();
         Task.Delay(180000, stoppingToken).Wait();
     }
 }

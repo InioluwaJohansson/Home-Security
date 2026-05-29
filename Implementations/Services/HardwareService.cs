@@ -105,6 +105,27 @@ public class HardwareService : IHardwareService
             Status = true
         };
     }
+    public async Task CheckHardwareStatus()
+    {
+        var hardwares = await _hardwareRepo.GetByExpression(x => x.IsDeleted == false && x.PowerActive == true);
+        if (hardwares != null)
+        {
+            foreach (var hardware in hardwares)
+            {
+                if (hardware.LastModifiedOn < DateTime.Now.AddMinutes(-5))
+                {
+                    hardware.PowerActive = false;
+                    await _hardwareRepo.Update(hardware);
+                }
+            }
+        }
+        return new HardwaresResponseModel()
+        {
+            Data = null,
+            Message = "Unable To Retrieve Hardwares!",
+            Status = true
+        };
+    }
     public GetHardwareDto GetDetails(Hardware hardware)
     {
         return new GetHardwareDto()

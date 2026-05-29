@@ -61,7 +61,7 @@ public class AppNamesDetailList{
     public List<GenericNames> PersonIdNames { get; set; }
     public List<GenericIdNames> ContactCategoryIdNames { get; set; }
     public List<GenericIdNames> ActionIdNames { get; set; }
-    public List<GenericIdNames> HArdwareIdNames { get; set; }
+    public List<GenericIdNames> HardwareIdNames { get; set; }
     public List<GenericIdNames> ApplianceType { get; set; }
     public List<GenericIdNames> Gender { get; set; }
     public List<GenericIdNames> DoorType { get; set; }
