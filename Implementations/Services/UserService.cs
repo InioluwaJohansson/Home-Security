@@ -50,14 +50,14 @@ public class UserService : IUserService
             Status = false
         };
     }
-    public async Task<UserLoginResponse> NFIDLogin(string token, string NFID)
+    public async Task<UserLoginResponse> NFIDLogin(string token, string NFIDCode)
     {
-        var user = await _userRepo.Get(x => x.NFID == NFID);
+        var user = await _userRepo.Get(x => x.NFIDCode == NFIDCode);
         var log = _authControl.CreateLog(user.Id);
         log.ActionType = "Attempted Login";
         log.LogDetails = $"{user.UserName} attempted to login via NFID";
         await _logService.CreateLog(log);
-        if (_jWTAuthentication.ValidateHardwareToken(token) == true && user != null)
+        if (_jWTAuthentication.ValidateHardwareToken(token) == true && user != null && BCrypt.Net.BCrypt.Verify(user.NFID, NFIDCode))
         {
             return new UserLoginResponse()
             {

@@ -437,7 +437,6 @@ public class ContactService : IContactService
                 Id = contact.Category.Id,
                 Name = contact.Category.Name,
                 Description = contact.Category.Description,
-                personId = contact.Category.PersonId,
             },
             ContactDetails = contact.ContactDetails.Select(x => GetContactDetails(x)).ToList(),
             Address = contact.Address.Select(x => GetAddressDetails(x)).ToList(),

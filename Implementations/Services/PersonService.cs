@@ -53,12 +53,14 @@ public class PersonService : IPersonService
                     imagePath = fileName;
                 }
             }
+            var NFID = $"NFID{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16).ToUpper()}";
             var user = new User()
             {
                 UserName = createPersonDto.CreateUserDto.UserName,
                 Password = BCrypt.Net.BCrypt.HashPassword(createPersonDto.CreateUserDto.Password),
                 AuthorizationCode = BCrypt.Net.BCrypt.EnhancedHashPassword(createPersonDto.CreateUserDto.AuthorizationCode),
-                NFID = BCrypt.Net.BCrypt.EnhancedHashPassword($"NFID{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16).ToUpper()}"),
+                NFIDCode = NFID,
+                NFID = BCrypt.Net.BCrypt.EnhancedHashPassword(NFID),
                 IsDeleted = false,
                 CreatedOn = DateTime.Now,
                 LastModifiedOn = DateTime.Now,
@@ -101,9 +103,6 @@ public class PersonService : IPersonService
             };
 
             await _personRepo.Create(person);
-
-            var getUserId = await _userRepo.Get(x => x.UserName == createPersonDto.CreateUserDto.UserName);
-            var getPerson = await _personRepo.Get(x => x.UserId == getUserId.Id);
 
             await _realTime.NotifyAll("PersonCreated", GetDetails(person));
 
