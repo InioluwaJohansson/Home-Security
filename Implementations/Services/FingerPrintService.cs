@@ -103,7 +103,6 @@ public class FingerPrintService : IFingerPrintService
     {
         var person = await _personRepo.Get(x => x.Id == personId);
         var hardware = await _hardwareRepo.Get(x => x.Id == hardwareId);
-        // Implementation for requesting fingerprint enrollment
         if(person != null && hardware != null)
         {
             await _mqttService.PublishFingerPrint(hardware.HardwareId, new FingerPrintPayload
@@ -131,5 +130,24 @@ public class FingerPrintService : IFingerPrintService
             Message = "Fingerprint data received",
             FingerPrintEncoding = fingerPrintDataDto.FingerPrintEncoding
         });
+    }
+    public async Task<BaseResponse> SendNFIDCode(int personId, int hardwareId)
+    {
+        var user = await _userRepo.Get(x => x.Id == personId);
+        var hardware = await _hardwareRepo.Get(x => x.Id == hardwareId);
+        if(user != null && hardware != null)
+        {
+            await _mqttService.PublishNFIDCode(hardware.HardwareId, user.NFIDCode);
+            return new BaseResponse
+            {
+                Status = true,
+                Message = "NFID code sent to hardware! Kindly place the finger on the scanner within 30 seconds to complete verification."
+            };
+        }
+        return new BaseResponse
+        {
+            Status = false,
+            Message = "Failed to send NFID code!"
+        };
     }
 }

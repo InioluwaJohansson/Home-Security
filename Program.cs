@@ -62,6 +62,7 @@ builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IWindowService, WindowService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 builder.Services.AddScoped<IActionControl, ActionControl>();
 builder.Services.AddScoped<IApplianceControl, ApplianceControl>();

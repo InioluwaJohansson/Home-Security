@@ -46,7 +46,17 @@ public class GenericIdNames
     public int Id { get; set; }
     public string Name { get; set; }
 }
-
+public class HardwareHeartBeatDto
+{
+    public string Token { get; set; }
+    public int HardwareId { get; set; }
+    public bool PowerActive { get; set; }
+}
+public class NFIDCodeDto
+{
+    public string Token { get; set; }
+    public string NFIDCode { get; set; }
+}
 public class HardwareResponseModel : BaseResponse
 {
     public GetHardwareDto Data { get; set; }

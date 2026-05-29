@@ -72,3 +72,17 @@ public class GenericNames : GenericIdNames{
     public bool IsHidden { get; set; }
     public string ImageUrl { get; set; }
 }
+public class DashBoardResponseModel
+{
+    public int TotalContacts { get; set; }
+    public List<GetRoomDto> Rooms { get; set; }
+    public List<GetActionsDto> Actions { get; set; }
+    public List<CameraNameUrl> CameraNamesUrls { get; set; }
+    public List<GetLogDto> Logs { get; set; }
+    public bool Status { get; set; }
+}
+public class CameraNameUrl
+{
+    public string Name { get; set; }
+    public string StreamUrl { get; set; }
+}

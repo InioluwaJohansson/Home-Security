@@ -6,4 +6,5 @@ public interface IFingerPrintService
     public Task<FingerPrintResponseModel> VerifyFingerPrint(byte [] data);
     public Task ReceiveFingerPrint(FingerPrintDataDto fingerPrintDataDto);
     public Task<BaseResponse> RequestFingerPrint(int personId, int hardwareId);
+    public Task<BaseResponse> SendNFIDCode(int personId, int hardwareId);
 }

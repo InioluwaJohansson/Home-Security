@@ -10,4 +10,5 @@ public interface IRoomService
     public Task<RoomsResponseModel> GetAllRoomsBySectionId(int sectionId);
     public Task<RoomsResponseModel> GetAllRooms();
     public Task<BaseResponse> Delete(int id, int personId);
+    public GetRoomDto GetDetails(Room room);
 }

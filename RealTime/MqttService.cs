@@ -95,6 +95,62 @@ public class MqttService : BackgroundService, IMqttService
                         return;
                     }
                 }
+                if (topic.EndsWith("/heartbeat"))
+                {
+                    var update = JsonSerializer.Deserialize<HardwareHeartBeatDto>(payload,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                    if (update != null)
+                    {
+                        using var scope = _scopeFactory.CreateScope();
+                        var hardwareVerification = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
+                        if (!hardwareVerification.ValidateHardwareToken(update.Token) == true)
+                        {
+                            var _hardwareRepo = scope.ServiceProvider.GetRequiredService<IHardwareRepo>();
+                            var hardware = await _hardwareRepo.GetByExpression(h => h.HardwareId == update.HardwareId);
+                            if(hardware != null)
+                            {
+                                hardware.PowerActive = update.PowerActive;
+                                hardware.LastModifiedOn = DateTime.UtcNow;
+                                _logger.LogInformation("HARDWARE HEARTBEAT RECEIVED | HardwareId: {HardwareId} | PowerActive: {PowerActive}", update.HardwareId, update.PowerActive);
+                            }
+                            await _hardwareRepo.Update(update);
+                            _logger.LogInformation("HARDWARE HEARTBEAT UPDATED");
+                        }
+                        _logger.LogWarning("INVALID HARDWARE TOKEN");
+                        return;
+                    }
+                }
+                if (topic.EndsWith("/NFID"))
+                {
+                    var update = JsonSerializer.Deserialize<HardwareHeartBeatDto>(payload,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                    if (update != null)
+                    {
+                        using var scope = _scopeFactory.CreateScope();
+                        var hardwareVerification = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
+                        if (!hardwareVerification.ValidateHardwareToken(update.Token) == true)
+                        {
+                            var _userService = scope.ServiceProvider.GetRequiredService<IUserService>();
+                            var data = await _userService.NFIDLogin(update.Token, update.NFIDCode);
+                            if(hardware != null)
+                            {
+                                hardware.PowerActive = update.PowerActive;
+                                hardware.LastModifiedOn = DateTime.UtcNow;
+                                _logger.LogInformation("HARDWARE HEARTBEAT RECEIVED | HardwareId: {HardwareId} | PowerActive: {PowerActive}", update.HardwareId, update.PowerActive);
+                            }
+                            await _hardwareRepo.Update(update);
+                            _logger.LogInformation("HARDWARE HEARTBEAT UPDATED");
+                        }
+                        _logger.LogWarning("INVALID HARDWARE TOKEN");
+                        return;
+                    }
+                }
                 // DEVICE FULL SYNC
                 if (topic.EndsWith("/sync"))
                 {
@@ -192,6 +248,12 @@ public class MqttService : BackgroundService, IMqttService
         var topic = $"home/{hardwareId}/fingerprint";
         await PublishAsync(topic, objectToPublish, true);
         _logger.LogInformation("FINGERPRINT DATA SENT");
+    }
+    public async Task PublishNFIDCode(string hardwareId, string nfidCode)
+    {
+        var topic = $"home/{hardwareId}/NFID";
+        await PublishAsync(topic, new { NFIDCode = nfidCode }, true);
+        _logger.LogInformation("NFID CODE SENT");
     }
     // GENERIC MQTT PUBLISHER
     private async Task PublishAsync(string topic, object payload, bool retain = false)

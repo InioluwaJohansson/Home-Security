@@ -20,10 +20,27 @@ public class DashboardControl : IDashboardControl
         _dashboardService = dashboardService;
         _jwtAuthentication = jwtAuthentication;
     }
-    public async Task<DashboardResponseModel> GetDashboardDataAsync(string token)
+    public async Task<DashboardResponseModel> GetDashboardData(GetAuthControlInfoDto getAuthControlInfoDto, int personId)
     {
-        var personId = _jwtAuthentication.GetPersonIdFromToken(token);
-        var dashboardData = await _dashboardService.GetDashboardDataAsync(personId);
-        return dashboardData;
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
+        {
+            var dashboard = await _dashboardService.GetDashboardData(auth.Id);
+            if (dashboard != null)  return dashboard;
+        }
+        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
+        {
+            var dashboard = await _dashboardService.GetDashboardData(auth.Id);
+            if (dashboard != null) {
+                if(dashboard.Rooms != null)
+                {
+                    dashboard.Rooms = dashboard.Rooms.Where(x => x.IsHidden == false).ToList();
+                }
+            }
+        }
+        return new DashboardResponseModel()
+        {
+            Status = false,
+        };
     }
 }

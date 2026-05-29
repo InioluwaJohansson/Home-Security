@@ -6,4 +6,5 @@ public interface IMqttService
     Task PublishDeviceUpdate(string hardwareId, GenericDeviceUpdateState update);
     public Task PublishDeviceStatus(string hardwareId, object data);
     Task PublishFingerPrint(string hardwareId, object objectToPublish);
+    public Task PublishNFIDCode(string hardwareId, string nfidCode);
 }

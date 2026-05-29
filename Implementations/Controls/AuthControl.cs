@@ -432,12 +432,12 @@ public class AuthControl : IAuthControl
     public static List<GenericIdNames> EnumToList<T>() where T : Enum
     {
         return Enum.GetValues(typeof(T))
-            .Cast<T>()
-            .Select(e => new GenericIdNames
-            {
-                Id = Convert.ToInt32(e),
-                Name = e.ToString()
-            })
-            .ToList();
+        .Cast<T>()
+        .Select(e => new GenericIdNames
+        {
+            Id = Convert.ToInt32(e),
+            Name = e.ToString()
+        })
+        .ToList();
     }
 }
