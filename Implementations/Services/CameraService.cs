@@ -121,10 +121,10 @@ public class CameraService : ICameraService
 
         await _cameraRepo.Update(camera);
 
-        // if (camera.IsStreaming)
-        // {
-        //     await _cameraStreamingService.RestartStream(camera);
-        // }
+        if (camera.IsStreaming)
+        {
+            await _cameraStreamingService.RestartStream(camera);
+        }
 
         await _realtime.NotifyAll("CameraUpdated", GetDetails(camera));
 
