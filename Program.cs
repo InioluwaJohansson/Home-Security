@@ -178,6 +178,7 @@ builder.Services.AddAuthentication(x =>
 
 var app = builder.Build();
 app.MapHub<HomeSecurityHub>("/homeSecurityHub");
+app.MapHub<ChatHub>("/homeSecurityChatHub");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
