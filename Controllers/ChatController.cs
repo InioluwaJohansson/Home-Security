@@ -1,5 +1,6 @@
 using Home_Security.Authentication;
 using Home_Security.Interfaces.Controls.Chats;
+using Home_Security.Models.ChatDTO;
 using Home_Security.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ public class ChatController : Controller
     }
     [Authorize]
     [HttpPost("CreateChat")]
-    public async Task<IActionResult> CreateChat([FromBody] CreateChatDto createChatDto)
+    public async Task<IActionResult> CreateChat(int recipientPersonId)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -28,16 +29,12 @@ public class ChatController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var chat = await _chatControl.CreateChat(getAuthControlInfoDto, createChatDto);
-        if (chat.Status == true)
-        {
-            return Ok(chat);
-        }
+        var chat = await _chatControl.CreateDirectChat(getAuthControlInfoDto, recipientPersonId);
         return Ok(chat);
     }
     [Authorize]
-    [HttpPut("UpdateChat")]
-    public async Task<IActionResult> UpdateChat([FromBody] UpdateChatDto updateChatDto)
+    [HttpPost("CreateGroupChat")]
+    public async Task<IActionResult> CreateGroupChat(CreateGroupChatDto createGroupChatDto)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -46,15 +43,11 @@ public class ChatController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var chat = await _chatControl.UpdateChat(getAuthControlInfoDto, updateChatDto);
-        if (chat.Status == true)
-        {
-            return Ok(chat);
-        }
+        var chat = await _chatControl.CreateGroupChat(getAuthControlInfoDto, createGroupChatDto);
         return Ok(chat);
     }
     [Authorize]
-    [HttpPost("GetChatById")]
+    [HttpGet("GetChatById")]
     public async Task<IActionResult> GetChatById(int id)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
@@ -65,15 +58,11 @@ public class ChatController : Controller
             AuthorizationCode = user.AuthorizationCode,
         };
         var chat = await _chatControl.GetChatById(getAuthControlInfoDto, id);
-        if (chat.Status == true)
-        {
-            return Ok(chat);
-        }
         return Ok(chat);
     }
     [Authorize]
-    [HttpPost("GetAllChatsBySectionId")]
-    public async Task<IActionResult> GetAllChatsBySectionId(int sectionId)
+    [HttpPost("AddParticipants")]
+    public async Task<IActionResult> AddParticipants(int chatId, AddParticipantsDto addParticipantsDto)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -82,16 +71,12 @@ public class ChatController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var chat = await _chatControl.GetAllChatsBySectionId(getAuthControlInfoDto, sectionId);
-        if (chat.Status == true)
-        {
-            return Ok(chat);
-        }
-        return Ok(chat);
+        await _chatControl.AddParticipants(getAuthControlInfoDto, chatId, addParticipantsDto);
+        return Ok();
     }
     [Authorize]
-    [HttpPost("GetAllChatsByRoomId")]
-    public async Task<IActionResult> GetAllChatsByRoomId(int roomId)
+    [HttpGet("GetMyChats")]
+    public async Task<IActionResult> GetMyChats()
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -100,16 +85,12 @@ public class ChatController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var chat = await _chatControl.GetAllChatsByRoomId(getAuthControlInfoDto, roomId);
-        if (chat.Status == true)
-        {
-            return Ok(chat);
-        }
+        var chat = await _chatControl.GetMyChats(getAuthControlInfoDto);
         return Ok(chat);
     }
     [Authorize]
-    [HttpPost("GetAllChats")]
-    public async Task<IActionResult> GetAllChats()
+    [HttpPut("RemoveParticipant")]
+    public async Task<IActionResult> RemoveParticipant(int chatId, int recipientId)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -118,29 +99,7 @@ public class ChatController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var chat = await _chatControl.GetAllChats(getAuthControlInfoDto);
-        if (chat.Status == true)
-        {
-            return Ok(chat);
-        }
-        return Ok(chat);
-    }
-    [Authorize]
-    [HttpPut("DeleteChat")]
-    public async Task<IActionResult> DeleteChat(int chatId)
-    {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
-        if (user == null)
-            return Unauthorized();
-        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = user.PersonId,
-            AuthorizationCode = user.AuthorizationCode,
-        };
-        var chat = await _chatControl.DeleteChat(getAuthControlInfoDto, chatId);
-        if (chat.Status == true)
-        {
-            return Ok(chat);
-        }
-        return Ok(chat);
+        await _chatControl.RemoveParticipant(getAuthControlInfoDto, chatId, recipientId);
+        return Ok();
     }
 }
