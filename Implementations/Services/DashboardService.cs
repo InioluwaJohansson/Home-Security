@@ -9,37 +9,39 @@ public class DashboardService : IDashboardService
 {
     IContactRepo _contactRepo;
     IRoomService _roomService;
+    ILogService _logService;
     IPersonRepo _personRepo;
     IActionRepo _actionRepo;
     ILogRepo _logRepo;
     ICameraRepo _cameraRepo;
-    public DashboardService(IContactRepo contactRepo, IRoomService roomService, IPersonRepo personRepo, IActionRepo actionRepo, ICameraRepo cameraRepo, ILogRepo logRepo)
+    public DashboardService(IContactRepo contactRepo, IRoomService roomService, ILogService logService, IPersonRepo personRepo, IActionRepo actionRepo, ICameraRepo cameraRepo, ILogRepo logRepo)
     {
         _contactRepo = contactRepo;
         _roomService = roomService;
+        _logService = logService;
         _personRepo = personRepo;
         _actionRepo = actionRepo;
         _cameraRepo = cameraRepo;
         _logRepo = logRepo;
     }
-    public async Task<DashboardResponseModel> GetDashboardData(int personId)
+    public async Task<DashBoardResponseModel> GetDashboardData(int personId)
     {
         var contact = await _contactRepo.GetByExpression(x => x.IsDeleted != false);
         var action = (await _actionRepo.GetByExpression(x => !x.IsDeleted)).Take(2).ToList();
         var logs = (await _logRepo.GetByExpression(x => !x.IsDeleted)).OrderByDescending(x => x.TimeOfAction).Take(3).ToList();
-        var person = await _personRepo.GetByExpression(x => !x.IsDeleted && x.Id == personId);
+        var person = await _personRepo.Get(x => !x.IsDeleted && x.Id == personId);
         if(person != null){
             var rooms = await _roomService.GetRoomByPersonId(personId);
             List<CameraNameUrl> CameraNamesUrls = new List<CameraNameUrl>();
             foreach(var cameraId in person.CameraIds)
             {
-                var cameras = await _cameraRepo.GetByExpression(x => !x.IsDeleted && x.Id == cameraId);
-                if(cameras != null)
+                var camera = await _cameraRepo.Get(x => !x.IsDeleted && x.Id == cameraId);
+                if(camera != null)
                 {
                     CameraNamesUrls.Add(new CameraNameUrl()
                     {
-                        Name = cameras.Name,
-                        StreamUrl = cameras.StreamUrl
+                        Name = camera.CameraName,
+                        StreamUrl = camera.LiveStreamUrl
                     });
                 }
             }
@@ -52,22 +54,22 @@ public class DashboardService : IDashboardService
                     sortedLogs.Add(logDetails);
                 }
             }
-            return new DashboardResponseModel()
+            return new DashBoardResponseModel()
             {
-                TotalContacts = contact.Count() ?? 0,
-                Actions = action.Select(x => new GetActionsDto()
+                TotalContacts = contact.Count(),
+                Actions = action.Select(x => new GetActionDto()
                 {
-                    Id = action.Id,
-                    ActionName = action.ActionName,
-                    ActionDescription = action.Description,
-                }).ToList() ?? new List<GetActionsDto>(),
+                    Id = x.Id,
+                    ActionName = x.ActionName,
+                    ActionDescription = x.Description,
+                }).ToList() ?? new List<GetActionDto>(),
                 Logs = sortedLogs,
                 CameraNamesUrls = CameraNamesUrls,
-                Rooms = rooms.Data,
+                Rooms = rooms.Data.ToList(),
                 Status = true,
             };
         }
-        return new DashboardResponseModel()
+        return new DashBoardResponseModel()
         {
             Status = false,
         };

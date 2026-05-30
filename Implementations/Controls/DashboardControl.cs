@@ -4,6 +4,7 @@ using Home_Security.Entities.Identity;
 using Home_Security.Entities;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Repositories;
+using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 using Microsoft.Extensions.Caching.Memory;
 using Home_Security.Models.Enums;
@@ -20,7 +21,7 @@ public class DashboardControl : IDashboardControl
         _dashboardService = dashboardService;
         _authControl = authControl;
     }
-    public async Task<DashboardResponseModel> GetDashboardData(GetAuthControlInfoDto getAuthControlInfoDto, int personId)
+    public async Task<DashBoardResponseModel> GetDashboardData(GetAuthControlInfoDto getAuthControlInfoDto, int personId)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
@@ -38,22 +39,22 @@ public class DashboardControl : IDashboardControl
                 }
             }
         }
-        return new DashboardResponseModel()
+        return new DashBoardResponseModel()
         {
             Status = false,
         };
     }
-    public async Task<DashboardResponseModel> GetAppNamesIdList(GetAuthControlInfoDto getAuthControlInfoDto)
+    public async Task<AppNamesDetailList> GetAppNamesIdList(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
-            var dashboard = await _authControl.GetAppNamesDetails(auth.Id);
+            var dashboard = await _authControl.GetAppNamesDetails();
             if (dashboard != null)  return dashboard;
         }
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
-            var dashboard = await _authControl.GetAppNamesDetails(auth.Id);
+            var dashboard = await _authControl.GetAppNamesDetails();
             if (dashboard != null) {
                 dashboard.ApplianceIdNames = dashboard.ApplianceIdNames.Where(x => x.IsHidden == false).ToList();
                 dashboard.CameraIdNames = dashboard.CameraIdNames.Where(x => x.IsHidden == false).ToList();
@@ -63,9 +64,6 @@ public class DashboardControl : IDashboardControl
                 dashboard.ExternalIdNames = dashboard.ExternalIdNames.Where(x => x.IsHidden == false).ToList();
             }
         }
-        return new DashboardResponseModel()
-        {
-            Status = false,
-        };
+        return new AppNamesDetailList();
     }
 }

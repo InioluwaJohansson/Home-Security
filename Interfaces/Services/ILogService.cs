@@ -1,4 +1,5 @@
-﻿using Home_Security.Models.DTOs;
+﻿using Home_Security.Entities;
+using Home_Security.Models.DTOs;
 namespace Home_Security.Interfaces.Services;
 public interface ILogService
 {
