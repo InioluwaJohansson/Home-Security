@@ -10,8 +10,7 @@ public class HomeSecurityContextFactory : IDesignTimeDbContextFactory<HomeSecuri
     {
         IConfigurationRoot config = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.Development.json")
-            .Build();
+            .AddJsonFile("appsettings.Development.json").Build();
         var connectionString = config.GetConnectionString("HomeSecurityContext");
         var optionsBuilder = new DbContextOptionsBuilder<HomeSecurityContext>();
         optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
