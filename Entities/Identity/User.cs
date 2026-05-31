@@ -7,5 +7,6 @@ public class User : AuditableEntity
     public string Password { get; set; }
     public string AuthorizationCode { get; set; }
     public string NFID  { get; set; }
+    public string NFIDCode { get; set; }
     public UserRole UserRole { get; set; }
 }

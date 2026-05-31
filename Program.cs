@@ -14,7 +14,7 @@ using System.Text;
 using Microsoft.Extensions.FileProviders;
 using Home_Security.RealTimeServices;
 using Home_Security.BackgroundServices;
-using SixLabors.ImageSharp.Memory;
+using Home_Security.Streaming;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,10 +62,11 @@ builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IWindowService, WindowService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
+builder.Services.AddScoped<IAuthControl, AuthControl>();
 builder.Services.AddScoped<IActionControl, ActionControl>();
 builder.Services.AddScoped<IApplianceControl, ApplianceControl>();
-builder.Services.AddScoped<IAuthControl, AuthControl>();
 builder.Services.AddScoped<ICameraControl, CameraControl>();
 builder.Services.AddScoped<IContactCategoryControl, ContactCategoryControl>();
 builder.Services.AddScoped<IContactControl, ContactControl>();
@@ -80,13 +81,15 @@ builder.Services.AddScoped<ISectionControl, SectionControl>();
 builder.Services.AddScoped<ITokenControl, TokenControl>();
 builder.Services.AddScoped<IWindowControl, WindowControl>();
 builder.Services.AddScoped<IDashboardControl, DashboardControl>();
+
 builder.Services.AddScoped<IJWTAuthentication, JWTAuthentication>();
+
+builder.Services.AddScoped<ICameraStreamingService, CameraStreamingService>();
 builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
 builder.Services.AddScoped<IMqttService, MqttService>();
 builder.Services.AddHostedService<BackgroundServices>();
 builder.Services.AddHostedService<RecordingCleanupService>();
-builder.Services.AddMemoryCache();
-builder.Services.AddHostedService(sp => (MqttService)sp.GetRequiredService<IMqttService>());
+builder.Services.AddSignalR();
 builder.Services.AddHttpContextAccessor();
 var connectionString = builder.Configuration.GetConnectionString("HomeSecurityContext");
 builder.Services.AddDbContext<HomeSecurityContext>(c => c.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
@@ -98,53 +101,35 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo {Title = "Home Security", Version = "v1"});
 });
 
-builder.Services.AddAuthentication("Bearer").AddJwtBearer("Bearer", options =>
-{
-    options.Authority = "Owner";
-    options.Audience = "Home_Security";
-    options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            var accessToken = context.Request.Query["access_token"];
-            var path = context.HttpContext.Request.Path;
-            if (!string.IsNullOrEmpty(accessToken) &&
-                path.StartsWithSegments("/Home_Security"))
-            {
-                context.Token = accessToken;
-            }
-            return Task.CompletedTask;
-        }
-    };
-});
-var key = "HomeSecurity1234567890";
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var key = jwtSection["SecretKey"];
+var issuer = jwtSection["Issuer"];
+var audience = jwtSection["Audience"];
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters =
-            new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = "Home_Security",
-                ValidAudience = "All",
-                IssuerSigningKey =
-                    new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(key))
-            };
+        options.Authority = issuer;
+        options.Audience = audience;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = issuer,
+            ValidAudience = audience,
+
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(key))
+        };
 
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
             {
-                var accessToken =
-                    context.Request.Query["access_token"];
-
-                var path =
-                    context.HttpContext.Request.Path;
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
 
                 if (!string.IsNullOrEmpty(accessToken) &&
                     path.StartsWithSegments("/chatHub"))
@@ -155,37 +140,42 @@ builder.Services
                 return Task.CompletedTask;
             }
         };
+         options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    path.StartsWithSegments("/HomeSecurityHub"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
-builder.Services.AddSingleton<JWTAuthentication>(new JWTAuthentication(key));
-builder.Services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 
-}).AddJwtBearer(x =>
-{
-    x.RequireHttpsMetadata = false;
-    x.SaveToken = true;
-    x.TokenValidationParameters = new TokenValidationParameters()
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
-        ValidateIssuer = true,
-        ValidateAudience = true,
-    };
-});
 
 var app = builder.Build();
 app.MapHub<HomeSecurityHub>("/homeSecurityHub");
+app.MapHub<ChatHub>("/homeSecurityChatHub");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+var storagePath = Path.Combine(Directory.GetCurrentDirectory(), "storage");
+
+if (!Directory.Exists(storagePath))
+{
+    Directory.CreateDirectory(storagePath);
+}
+
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "storage")),
+    FileProvider = new PhysicalFileProvider(storagePath),
     RequestPath = "/storage"
 });
 app.UseCors("Home_Security");

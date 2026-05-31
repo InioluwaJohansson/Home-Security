@@ -5,13 +5,15 @@ using Home_Security.Models.DTOs;
 using Microsoft.IdentityModel.Tokens;
 using Home_Security.Entities.Identity;
 using Home_Security.Entities;
+using Microsoft.Extensions.Options;
 namespace Home_Security.Authentication;
+
 public class JWTAuthentication : IJWTAuthentication
 {
     public string _key;
-    public JWTAuthentication(string key)
+    public JWTAuthentication(IConfiguration config)
     {
-        _key = key;
+        _key = config.GetSection("Jwt:SecretKey").Value ?? "HomeSecurity1234567890";
     }
     public string GenerateToken(GetUserDto getUserDto)
     {

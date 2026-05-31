@@ -22,4 +22,5 @@ public interface IAuthControl
     public bool CompareRole(Role based, Role quote);
     public BaseResponse AuthFaliure();
     public CreateLogDto CreateLog(int personId);
+    public Task<AppNamesDetailList> GetAppNamesDetails();
 }

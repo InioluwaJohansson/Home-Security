@@ -1,4 +1,5 @@
-﻿using Home_Security.Models.DTOs;
+﻿using Home_Security.Entities;
+using Home_Security.Models.DTOs;
 namespace Home_Security.Interfaces.Services;
 public interface IRoomService
 {
@@ -10,4 +11,5 @@ public interface IRoomService
     public Task<RoomsResponseModel> GetAllRoomsBySectionId(int sectionId);
     public Task<RoomsResponseModel> GetAllRooms();
     public Task<BaseResponse> Delete(int id, int personId);
+    public GetRoomDto GetDetails(Room room);
 }

@@ -14,13 +14,15 @@ public class UserController : Controller
 {
     IUserService _userService;
     ITokenControl _tokenControl;
+    IAuthControl _authControl;
     ITokenService _tokenService;
     IJWTAuthentication _jwtAuthentication;
-    public UserController(IUserService userService, ITokenService tokenService, ITokenControl tokenControl, IJWTAuthentication jwtAuthentication)
+    public UserController(IUserService userService, ITokenService tokenService, ITokenControl tokenControl, IAuthControl authControl, IJWTAuthentication jwtAuthentication)
     {
         _userService = userService;
         _tokenService = tokenService;
         _tokenControl = tokenControl;
+        _authControl = authControl;
         _jwtAuthentication = jwtAuthentication;
     }
     [HttpGet("Login")]
@@ -28,11 +30,20 @@ public class UserController : Controller
     {
         var user = await _userService.Login(userName, password);
         if (user.Status == true)
-        {
-            user.Token = _jwtAuthentication.GenerateToken(user.Data);
             return Ok(user);
-        }
         return Ok(user);
+    }
+    [Authorize]
+    [HttpGet("NFIDLogin")]
+    public async Task<IActionResult> NFIDLogin(string token, string NFIDCode)
+    {
+        if(_jwtAuthentication.ValidateHardwareToken(token) == true)
+        {
+            var user = await _userService.NFIDLogin(token, NFIDCode);
+            if (user.Status == true)
+                return Ok(user);            
+        }
+        return Unauthorized();
     }
     [Authorize]
     [HttpPut("UpdateUserRole")]
@@ -126,5 +137,32 @@ public class UserController : Controller
         if (user != null && BCrypt.Net.BCrypt.EnhancedVerify(authCode, user.AuthorizationCode))
            return Ok(true);
         return Ok(false);
+    }
+    [Authorize]
+    [HttpPost("RefreshLoginToken")]
+    public async Task<IActionResult> RefreshLoginToken()
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        if (user != null){
+            var data = new UserLoginResponse()
+            {
+                Data = new GetUserDto()
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    RoleName = user.Role.ToString(),
+                    Role = user.Role,
+                    AuthorizationCode = user.AuthorizationCode,
+                },
+                Message = "Login Successful",
+                Status = true,
+            };
+            data.Token = _jwtAuthentication.GenerateToken(data.Data);
+            data.Data.AuthorizationCode = "";
+            return Ok(user);
+        }
+        return Unauthorized();
     }
 }

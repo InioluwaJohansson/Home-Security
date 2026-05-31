@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Home_Security.Streaming;
 
-public class CameraStreamingService : BackgroundService
+public class CameraStreamingService : BackgroundService, ICameraStreamingService
 {
     private readonly IServiceScopeFactory _scopeFactory;
 
@@ -14,10 +14,12 @@ public class CameraStreamingService : BackgroundService
 
     private const int MaxConcurrentStarts = 5;
     private readonly SemaphoreSlim _streamLock = new(MaxConcurrentStarts);
+    ICameraRepo cameraRepo;
 
-    public CameraStreamingService(IServiceScopeFactory scopeFactory)
+    public CameraStreamingService(IServiceScopeFactory scopeFactory, ICameraRepo _cameraRepo)
     {
         _scopeFactory = scopeFactory;
+        cameraRepo = _cameraRepo;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -30,7 +32,7 @@ public class CameraStreamingService : BackgroundService
 
             var cameras = await cameraRepo.GetByExpression(x => x.IsDeleted == false);
 
-            var tasks = cameras.Select(camera => ProcessCamera(camera, cameraRepo, stoppingToken));
+            var tasks = cameras.Select(camera => ProcessCamera(camera, stoppingToken));
 
             await Task.WhenAll(tasks);
 
@@ -38,7 +40,7 @@ public class CameraStreamingService : BackgroundService
         }
     }
 
-    private async Task ProcessCamera(Camera camera, ICameraRepo cameraRepo, CancellationToken token)
+    public async Task ProcessCamera(Camera camera, CancellationToken token)
     {
         try
         {
@@ -48,7 +50,7 @@ public class CameraStreamingService : BackgroundService
 
             if (!online)
             {
-                StopStreaming(camera);
+                StopStream(camera);
                 camera.IsStreaming = false;
 
                 await cameraRepo.Update(camera);
@@ -61,7 +63,7 @@ public class CameraStreamingService : BackgroundService
 
                 try
                 {
-                    StartStreaming(camera);
+                    StartStream(camera);
 
                     camera.IsStreaming = true;
                     camera.LastStreamStart = DateTime.UtcNow;
@@ -80,7 +82,32 @@ public class CameraStreamingService : BackgroundService
             await cameraRepo.Update(camera);
         }
     }
-    private async Task<bool> CheckStreamAsync(string streamUrl)
+    public async Task RestartStream(Camera camera)
+    {
+        if (_streamProcesses.TryGetValue(camera.Id, out var process))
+        {
+            try
+            {
+                if (!process.HasExited)
+                {
+                    process.Kill(true);
+                    process.WaitForExit(5000);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to stop stream for camera {camera.CameraId}: {ex.Message}");
+            }
+            finally
+            {
+                process.Dispose();
+                _streamProcesses.Remove(camera.Id);
+            }
+        }
+
+        StartStream(camera);
+    }
+    public async Task<bool> CheckStreamAsync(string streamUrl)
     {
         try
         {
@@ -95,8 +122,7 @@ public class CameraStreamingService : BackgroundService
             return false;
         }
     }
-
-    private void StartStreaming(Camera camera)
+    public async Task<string> StartStream(Camera camera)
     {
         Directory.CreateDirectory($"storage/hls/cam_{camera.CameraId}");
         Directory.CreateDirectory($"storage/recordings/cam_{camera.CameraId}");
@@ -136,9 +162,10 @@ public class CameraStreamingService : BackgroundService
 
         camera.LiveStreamUrl =
             $"http://localhost:5000/storage/hls/cam_{camera.CameraId}/live.m3u8";
+        return camera.LiveStreamUrl;
     }
 
-    private void StopStreaming(Camera camera)
+    public async Task StopStream(Camera camera)
     {
         if (_streamProcesses.TryGetValue(camera.Id, out var process))
         {
@@ -155,7 +182,7 @@ public class CameraStreamingService : BackgroundService
         }
     }
 
-    private bool IsProcessAlive(int cameraId)
+    public bool IsProcessAlive(int cameraId)
     {
         return _streamProcesses.ContainsKey(cameraId) &&
                !_streamProcesses[cameraId].HasExited;

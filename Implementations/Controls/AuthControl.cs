@@ -12,19 +12,19 @@ using Home_Security.RealTimeServices;
 namespace Home_Security.Implementations.Controls;
 public class AuthControl : IAuthControl
 {
-    public readonly List<Person> _cache;
-    public readonly List<Room> _roomCache;
-    public readonly List<Section> _sectionCache;
-    public readonly List<Appliance> _applianceCache;
-    public readonly List<Light> _lightCache;
-    public readonly List<Camera> _cameraCache;
-    public readonly List<Window> _windowCache;
-    public readonly List<Door> _doorCache;
-    public readonly List<Entities.Action> _actionCache;
-    public readonly List<External> _externalCache;
-    public readonly List<Contact> _contactCache;
-    public readonly List<ContactCategory> _contactCategoryCache;
-    public readonly List<Hardware> _hardwareCache;
+    public readonly List<Person> _cache =  new ();
+    public readonly List<Room> _roomCache =  new ();
+    public readonly List<Section> _sectionCache =  new ();
+    public readonly List<Appliance> _applianceCache =  new ();
+    public readonly List<Light> _lightCache =  new ();
+    public readonly List<Camera> _cameraCache =  new ();
+    public readonly List<Window> _windowCache =  new ();
+    public readonly List<Door> _doorCache =  new ();
+    public readonly List<Entities.Action> _actionCache =  new ();
+    public readonly List<External> _externalCache =  new ();
+    public readonly List<Contact> _contactCache =  new ();
+    public readonly List<ContactCategory> _contactCategoryCache =  new ();
+    public readonly List<Hardware> _hardwareCache =  new ();
     IPersonRepo _personRepo;
     IUserRepo _userRepo;
     IRoomRepo _roomRepo;
@@ -40,21 +40,8 @@ public class AuthControl : IAuthControl
     IContactRepo _contactRepo;
     IContactCategoryRepo _contactCategoryRepo;
     IRealtimeNotificationService _realtimeNotificationService;
-    public AuthControl(IUserRepo userRepo, List<Person> cache, List<Room> roomCache, List<Section> sectionCache, List<Appliance> applianceCache, List<Light> lightCache, List<Camera> cameraCache, List<Window> windowCache, List<Door> doorCache, List<Entities.Action> actionCache, List<External> externalCache, List<Contact> contactCache, List<ContactCategory> contactCategoryCache, List<Hardware> hardwareCache, IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo,IApplianceRepo applianceRepo,ILightRepo lightRepo, ICameraRepo cameraRepo,IWindowRepo windowRepo, IDoorRepo doorRepo,IActionRepo actionRepo, IExternalRepo externalRepo, IHardwareRepo hardwareRepo, IContactRepo contactRepo, IContactCategoryRepo contactCategoryRepo, IRealtimeNotificationService realtimeNotificationService)
+    public AuthControl(IUserRepo userRepo, IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo,IApplianceRepo applianceRepo,ILightRepo lightRepo, ICameraRepo cameraRepo,IWindowRepo windowRepo, IDoorRepo doorRepo,IActionRepo actionRepo, IExternalRepo externalRepo, IHardwareRepo hardwareRepo, IContactRepo contactRepo, IContactCategoryRepo contactCategoryRepo, IRealtimeNotificationService realtimeNotificationService)
     {
-        _cache = cache;
-        _roomCache = roomCache;
-        _sectionCache = sectionCache;
-        _applianceCache = applianceCache;
-        _lightCache = lightCache;
-        _cameraCache = cameraCache;
-        _windowCache = windowCache;
-        _doorCache = doorCache;
-        _actionCache = actionCache;
-        _externalCache = externalCache;
-        _hardwareCache = hardwareCache;
-        _contactCache = contactCache;
-        _contactCategoryCache = contactCategoryCache;
         _userRepo = userRepo;
         _personRepo = personRepo;
         _roomRepo = roomRepo;
@@ -404,7 +391,7 @@ public class AuthControl : IAuthControl
                 Id = c.Id,
                 Name = c.ActionName,
             }).ToList(),
-            HArdwareIdNames = _hardwareCache.Where(x => x.IsDeleted == false)
+            HardwareIdNames = _hardwareCache.Where(x => x.IsDeleted == false)
             .Select(c => new GenericIdNames
             {
                 Id = c.Id,
@@ -432,12 +419,12 @@ public class AuthControl : IAuthControl
     public static List<GenericIdNames> EnumToList<T>() where T : Enum
     {
         return Enum.GetValues(typeof(T))
-            .Cast<T>()
-            .Select(e => new GenericIdNames
-            {
-                Id = Convert.ToInt32(e),
-                Name = e.ToString()
-            })
-            .ToList();
+        .Cast<T>()
+        .Select(e => new GenericIdNames
+        {
+            Id = Convert.ToInt32(e),
+            Name = e.ToString()
+        })
+        .ToList();
     }
 }
