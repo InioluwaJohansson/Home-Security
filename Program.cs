@@ -14,9 +14,6 @@ using System.Text;
 using Microsoft.Extensions.FileProviders;
 using Home_Security.RealTimeServices;
 using Home_Security.BackgroundServices;
-using SixLabors.ImageSharp.Memory;
-using Home_Security.Models.DTOs;
-using Microsoft.Extensions.Options;
 using Home_Security.Streaming;
 
 var builder = WebApplication.CreateBuilder(args);

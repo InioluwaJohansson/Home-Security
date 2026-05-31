@@ -12,7 +12,3 @@ public class GetAuthControlInfoDto
     public int PersonId { get; set; }
     public string AuthorizationCode { get; set; }
 }
-public class JwtSettings
-{
-    public string SecretKey { get; set; }
-}
