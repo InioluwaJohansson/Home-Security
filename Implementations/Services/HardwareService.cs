@@ -119,12 +119,6 @@ public class HardwareService : IHardwareService
                 }
             }
         }
-        return new HardwaresResponseModel()
-        {
-            Data = null,
-            Message = "Unable To Retrieve Hardwares!",
-            Status = true
-        };
     }
     public GetHardwareDto GetDetails(Hardware hardware)
     {

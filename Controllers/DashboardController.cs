@@ -45,7 +45,6 @@ public class DashboardController : Controller
             AuthorizationCode = user.AuthorizationCode,
         };
         var dashboard = await _dashboardControl.GetAppNamesIdList(getAuthControlInfoDto);
-        if (dashboard.Status)
             return Ok(dashboard);
         return Unauthorized();
     }

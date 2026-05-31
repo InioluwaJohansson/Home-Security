@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 using Home_Security.Interfaces.Services.Chats;
 using Home_Security.Models.ChatDTO;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using Microsoft.AspNetCore.Authorization;
 using Home_Security.Interfaces.Controls;
 
@@ -83,22 +82,22 @@ public class ChatHub : Hub
 
         await base.OnConnectedAsync();
     }
-public override async Task OnDisconnectedAsync(Exception exception)
-{
-    var personId = GetPersonId();
-
-    if (_connections.ContainsKey(personId))
+    public override async Task OnDisconnectedAsync(Exception exception)
     {
-        _connections[personId].Remove(Context.ConnectionId);
+        var personId = GetPersonId();
 
-        if (_connections[personId].Count == 0)
+        if (_connections.ContainsKey(personId))
         {
-            _connections.Remove(personId);
+            _connections[personId].Remove(Context.ConnectionId);
 
-            await Clients.All.SendAsync("UserOffline", personId);
+            if (_connections[personId].Count == 0)
+            {
+                _connections.Remove(personId);
+
+                await Clients.All.SendAsync("UserOffline", personId);
+            }
         }
-    }
 
-    await base.OnDisconnectedAsync(exception);
-}
+        await base.OnDisconnectedAsync(exception);
+    }
 }

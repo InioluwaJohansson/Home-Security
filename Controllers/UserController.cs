@@ -34,6 +34,18 @@ public class UserController : Controller
         return Ok(user);
     }
     [Authorize]
+    [HttpGet("NFIDLogin")]
+    public async Task<IActionResult> NFIDLogin(string token, string NFIDCode)
+    {
+        if(_jwtAuthentication.ValidateHardwareToken(token) == true)
+        {
+            var user = await _userService.NFIDLogin(token, NFIDCode);
+            if (user.Status == true)
+                return Ok(user);            
+        }
+        return Unauthorized();
+    }
+    [Authorize]
     [HttpPut("UpdateUserRole")]
     public async Task<IActionResult> UpdateUserRole(UpdateUserDto updateUserDto)
     {
@@ -134,10 +146,21 @@ public class UserController : Controller
         if (user == null)
             return Unauthorized();
         if (user != null){
-            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
-            user.Role = auth.Role;
-            user.Token = _jwtAuthentication.GenerateToken(user);
-            user.Data.AuthorizationCode = "";
+            var data = new UserLoginResponse()
+            {
+                Data = new GetUserDto()
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    RoleName = user.Role.ToString(),
+                    Role = user.Role,
+                    AuthorizationCode = user.AuthorizationCode,
+                },
+                Message = "Login Successful",
+                Status = true,
+            };
+            data.Token = _jwtAuthentication.GenerateToken(data.Data);
+            data.Data.AuthorizationCode = "";
             return Ok(user);
         }
         return Unauthorized();

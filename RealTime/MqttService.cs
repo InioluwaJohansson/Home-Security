@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Home_Security.Authentication;
+using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 using MQTTnet;
@@ -109,42 +110,14 @@ public class MqttService : BackgroundService, IMqttService
                         if (!hardwareVerification.ValidateHardwareToken(update.Token) == true)
                         {
                             var _hardwareRepo = scope.ServiceProvider.GetRequiredService<IHardwareRepo>();
-                            var hardware = await _hardwareRepo.GetByExpression(h => h.HardwareId == update.HardwareId);
+                            var hardware = await _hardwareRepo.Get(h => h.HardwareId == update.HardwareId);
                             if(hardware != null)
                             {
                                 hardware.PowerActive = update.PowerActive;
                                 hardware.LastModifiedOn = DateTime.UtcNow;
                                 _logger.LogInformation("HARDWARE HEARTBEAT RECEIVED | HardwareId: {HardwareId} | PowerActive: {PowerActive}", update.HardwareId, update.PowerActive);
+                                await _hardwareRepo.Update(hardware);
                             }
-                            await _hardwareRepo.Update(update);
-                            _logger.LogInformation("HARDWARE HEARTBEAT UPDATED");
-                        }
-                        _logger.LogWarning("INVALID HARDWARE TOKEN");
-                        return;
-                    }
-                }
-                if (topic.EndsWith("/NFID"))
-                {
-                    var update = JsonSerializer.Deserialize<HardwareHeartBeatDto>(payload,
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-                    if (update != null)
-                    {
-                        using var scope = _scopeFactory.CreateScope();
-                        var hardwareVerification = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
-                        if (!hardwareVerification.ValidateHardwareToken(update.Token) == true)
-                        {
-                            var _userService = scope.ServiceProvider.GetRequiredService<IUserService>();
-                            var data = await _userService.NFIDLogin(update.Token, update.NFIDCode);
-                            if(hardware != null)
-                            {
-                                hardware.PowerActive = update.PowerActive;
-                                hardware.LastModifiedOn = DateTime.UtcNow;
-                                _logger.LogInformation("HARDWARE HEARTBEAT RECEIVED | HardwareId: {HardwareId} | PowerActive: {PowerActive}", update.HardwareId, update.PowerActive);
-                            }
-                            await _hardwareRepo.Update(update);
                             _logger.LogInformation("HARDWARE HEARTBEAT UPDATED");
                         }
                         _logger.LogWarning("INVALID HARDWARE TOKEN");

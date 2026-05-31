@@ -49,7 +49,7 @@ public class GenericIdNames
 public class HardwareHeartBeatDto
 {
     public string Token { get; set; }
-    public int HardwareId { get; set; }
+    public string HardwareId { get; set; }
     public bool PowerActive { get; set; }
 }
 public class NFIDCodeDto

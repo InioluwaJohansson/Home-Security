@@ -43,8 +43,8 @@ public class UserService : IUserService
                 Message = "Login Successful",
                 Status = true,
             };
-            user.Token = _jwtAuthentication.GenerateToken(data.Data);
-            user.Data.AuthorizationCode = "";
+            data.Token = _jWTAuthentication.GenerateToken(data.Data);
+            data.Data.AuthorizationCode = "";
             return data;
         }
         return new UserLoginResponse()
@@ -61,7 +61,7 @@ public class UserService : IUserService
         log.ActionType = "Attempted Login";
         log.LogDetails = $"{user.UserName} attempted to login via NFID";
         await _logService.CreateLog(log);
-        if (_jWTAuthentication.ValidateHardwareToken(token) == true && user != null && BCrypt.Net.BCrypt.EnhancedVerify(user.NFIDCode, NFID))
+        if (_jWTAuthentication.ValidateHardwareToken(token) == true && user != null && BCrypt.Net.BCrypt.EnhancedVerify(NFIDCode, user.NFID))
         {
             return new UserLoginResponse()
             {

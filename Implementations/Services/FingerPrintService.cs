@@ -11,15 +11,17 @@ public class FingerPrintService : IFingerPrintService
 {
     IFingerPrintRepo _fingerPrintRepo;
     IPersonRepo _personRepo;
+    IUserRepo _userRepo;
     IHardwareRepo _hardwareRepo;
     IRealtimeNotificationService _realtimeNotificationService;
     IMqttService _mqttService;
-    public FingerPrintService(IFingerPrintRepo fingerPrintRepo, IPersonRepo personRepo, IHardwareRepo hardwareRepo, IRealtimeNotificationService realtimeNotificationService, IMqttService mqttService)
+    public FingerPrintService(IFingerPrintRepo fingerPrintRepo, IPersonRepo personRepo, IUserRepo userRepo, IHardwareRepo hardwareRepo, IRealtimeNotificationService realtimeNotificationService, IMqttService mqttService)
     {
         _fingerPrintRepo = fingerPrintRepo;
         _personRepo = personRepo;
         _hardwareRepo = hardwareRepo;
         _realtimeNotificationService = realtimeNotificationService;
+        _userRepo = userRepo;
         _mqttService = mqttService;
     }
     public async Task<FingerPrintResponseModel> VerifyFingerPrint(byte[] data)

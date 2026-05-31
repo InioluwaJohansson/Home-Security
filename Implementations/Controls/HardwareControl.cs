@@ -11,7 +11,7 @@ public class HardwareControl : IHardwareControl
     IHardwareService _hardwareService;
     IAuthControl _authControl;
     ILogService _logService;
-    HardwareControl(IHardwareService hardwareService, IAuthControl authControl, ILogService logService)
+    public HardwareControl(IHardwareService hardwareService, IAuthControl authControl, ILogService logService)
     {
         _hardwareService = hardwareService;
         _authControl = authControl;

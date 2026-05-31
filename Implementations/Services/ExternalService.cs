@@ -10,10 +10,10 @@ namespace Home_Security.Implementations.Services;
 public class ExternalService : IExternalService
 {
     IExternalRepo _externalRepo;
-    RealtimeNotificationService _realtime;
+    IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
 
-    public ExternalService(IExternalRepo externalRepo, RealtimeNotificationService realtime, IMqttService mqtt)
+    public ExternalService(IExternalRepo externalRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _externalRepo = externalRepo;
         _realtime = realtime;
@@ -78,7 +78,7 @@ public class ExternalService : IExternalService
             Externals.ExternalName = updateExternalDto.ExternalName ?? Externals.ExternalName;
             Externals.LastModifiedBy = personId;
             Externals.LastModifiedOn = DateTime.Now;
-            Externals.PowerActive = updateExternalDto.PowerActive;
+            Externals.IsActive = updateExternalDto.IsActive;
             Externals.IsTriggered = updateExternalDto.IsTriggered;
             Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds;
 
@@ -251,13 +251,13 @@ public class ExternalService : IExternalService
         return new GetExternalDto()
         {
             Id = External.Id,
-            ExternalsName = External.ExternalName,
+            ExternalName = External.ExternalName,
             IsTriggered = External.IsTriggered,
             IsActive = External.IsActive,
             PowerActive = External.PowerActive,
             RoomId = External.RoomId,
             SectionId = External.SectionId,
-            ExternalsId = External.ExternalId,
+            ExternalId = External.ExternalId,
             LastModifiedBy = External.LastModifiedBy,
             DeletedBy = External.DeletedBy,
             CreatedBy = External.CreatedBy,
