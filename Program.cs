@@ -113,6 +113,7 @@ builder.Services
     {
         options.Authority = issuer;
         options.Audience = audience;
+        options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -165,9 +166,9 @@ app.MapHub<ChatHub>("/homeSecurityChatHub");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
 }
+    app.UseSwaggerUI();
+    app.UseSwagger();
 var storagePath = Path.Combine(Directory.GetCurrentDirectory(), "storage");
 
 if (!Directory.Exists(storagePath))
