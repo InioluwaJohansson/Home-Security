@@ -103,9 +103,7 @@ public class PersonService : IPersonService
             };
 
             await _personRepo.Create(person);
-            person.User = getUser;
-            person.PersonDetails.ContactDetails = new List<ContactDetails>();
-            await _realTime.NotifyAll("PersonCreated", GetDetails(person));
+            await _realTime.NotifyAll("PersonCreated", person);
 
             return new BaseResponse()
             {
