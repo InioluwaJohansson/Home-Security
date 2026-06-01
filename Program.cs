@@ -88,6 +88,8 @@ builder.Services.AddScoped<ICameraStreamingService, CameraStreamingService>();
 builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
 builder.Services.AddScoped<IMqttService, MqttService>();
 builder.Services.AddHostedService<BackgroundServices>();
+builder.Services.AddHostedService<AuthServices>();
+builder.Services.AddHostedService<HardwareServices>();
 builder.Services.AddHostedService<RecordingCleanupService>();
 builder.Services.AddSignalR();
 builder.Services.AddHttpContextAccessor();

@@ -17,14 +17,57 @@ public class BackgroundServices : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using var scope = _serviceScopeFactory.CreateAsyncScope();
+        
+        
+        var hardwareService = scope.ServiceProvider.GetRequiredService<IHardwareService>();
+        await hardwareService.CheckHardwareStatus();
+        await Task.CompletedTask;
+    }
+}
+public class StartupInitializer : IHostedService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+
+    public StartupInitializer(IServiceScopeFactory scopeFactory)
+    {
+        _scopeFactory = scopeFactory;
+    }
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<HomeSecurityContext>();
         await context.Database.MigrateAsync();
         var personService = scope.ServiceProvider.GetRequiredService<IPersonService>();
         await personService.InjectDefaultUser();
-        var authService = scope.ServiceProvider.GetRequiredService<IAuthControl>();
-        await authService.RunAllFacilities();
+    }
+    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+}
+public class AuthServices : BackgroundService
+{
+    IServiceScopeFactory _serviceScopeFactory;
+    public AuthServices(IServiceScopeFactory serviceScopeFactory)
+    {
+        _serviceScopeFactory = serviceScopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _serviceScopeFactory.CreateAsyncScope();
+
+        await Task.Delay(0, stoppingToken);
+    }
+}
+public class HardwareServices : BackgroundService
+{
+    IServiceScopeFactory _serviceScopeFactory;
+    public HardwareServices(IServiceScopeFactory serviceScopeFactory)
+    {
+        _serviceScopeFactory = serviceScopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _serviceScopeFactory.CreateAsyncScope();
         var hardwareService = scope.ServiceProvider.GetRequiredService<IHardwareService>();
         await hardwareService.CheckHardwareStatus();
-        Task.Delay(180000, stoppingToken).Wait();
+        await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
     }
 }
