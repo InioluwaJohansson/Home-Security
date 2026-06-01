@@ -103,7 +103,8 @@ public class PersonService : IPersonService
             };
 
             await _personRepo.Create(person);
-
+            person.User = getUser;
+            person.PersonDetails.ContactDetails = new List<ContactDetails>();
             await _realTime.NotifyAll("PersonCreated", GetDetails(person));
 
             return new BaseResponse()
@@ -427,7 +428,7 @@ public class PersonService : IPersonService
                 LastName = person.PersonDetails.LastName,
                 ImageUrl = ConvertImageToBase64(person.PersonDetails.ImageUrl) ?? "",
                 Gender = person.PersonDetails.Gender,
-                GetContactDetailsDtos = person.PersonDetails.ContactDetails.Select(x => GetContactDetails(x)).ToList(),
+                GetContactDetailsDtos = person.PersonDetails.ContactDetails.Select(x => GetContactDetails(x)).ToList() ?? new List<GetContactDetailsDto>(),
                 GetAddressDtos = person.PersonDetails.Addresses.Select(x => GetAddressDetails(x)).ToList(),
             }
         };
