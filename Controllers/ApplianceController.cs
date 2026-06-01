@@ -111,6 +111,7 @@ public class ApplianceController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
+        Console.WriteLine(getAuthControlInfoDto.PersonId + " " + getAuthControlInfoDto.AuthorizationCode);
         var appliance = await _applianceControl.GetAllAppliances(getAuthControlInfoDto);
         if (appliance.Status == true)
         {

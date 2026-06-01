@@ -237,7 +237,7 @@ public class SectionService : ISectionService
             RoomId = room.RoomId,
             RoomName = room.RoomName,
             SectionId = room.SectionId,
-            PersonId = room.PersonId,
+            personId = room.PersonId,
             Doors = room.Door.Select(x => GetDoorDetails(x)).ToList(),
             Appliances = room.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
             Lights = room.Light.Select(x => GetLightDetails(x)).ToList(),

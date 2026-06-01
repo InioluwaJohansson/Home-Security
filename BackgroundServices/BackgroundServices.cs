@@ -19,8 +19,8 @@ public class BackgroundServices : BackgroundService
         using var scope = _serviceScopeFactory.CreateAsyncScope();
         
         
-        var hardwareService = scope.ServiceProvider.GetRequiredService<IHardwareService>();
-        await hardwareService.CheckHardwareStatus();
+        // var hardwareService = scope.ServiceProvider.GetRequiredService<IHardwareService>();
+        // await hardwareService.CheckHardwareStatus();
         await Task.CompletedTask;
     }
 }
@@ -52,8 +52,9 @@ public class AuthServices : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using var scope = _serviceScopeFactory.CreateAsyncScope();
-
-        await Task.Delay(0, stoppingToken);
+        var authControl = scope.ServiceProvider.GetRequiredService<IAuthControl>();
+        await authControl.RunAllFacilities();
+        await Task.Delay(TimeSpan.FromMinutes(3), stoppingToken);
     }
 }
 public class HardwareServices : BackgroundService

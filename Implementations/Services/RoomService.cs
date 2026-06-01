@@ -224,7 +224,7 @@ public class RoomService : IRoomService
             RoomId = room.RoomId,
             RoomName = room.RoomName,
             SectionId = room.SectionId,
-            PersonId = room.PersonId,
+            personId = room.PersonId,
             Icon = room.Icon,
             IsHidden = room.IsHidden,
             Doors = room.Door.Select(x => GetDoorDetails(x)).ToList(),

@@ -82,6 +82,8 @@ builder.Services.AddScoped<ITokenControl, TokenControl>();
 builder.Services.AddScoped<IWindowControl, WindowControl>();
 builder.Services.AddScoped<IDashboardControl, DashboardControl>();
 
+builder.Services.AddSingleton<IAuthCache, AuthCache>();
+
 builder.Services.AddScoped<IJWTAuthentication, JWTAuthentication>();
 
 builder.Services.AddScoped<ICameraStreamingService, CameraStreamingService>();
@@ -107,11 +109,9 @@ var jwtSection = builder.Configuration.GetSection("Jwt");
 var key = jwtSection["SecretKey"];
 var issuer = jwtSection["Issuer"];
 var audience = jwtSection["Audience"];
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
     {
-        options.Authority = issuer;
+        options.Authority = null;
         options.Audience = audience;
         options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new TokenValidationParameters
@@ -158,7 +158,13 @@ builder.Services
             }
         };
     });
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Home_Security", policy =>
+    {
+        policy.WithOrigins("https://ais-dev-ypl2vxtjhgwlthzmvnxusu-717948104271.europe-west2.run.app").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+    });
+});
 
 var app = builder.Build();
 app.MapHub<HomeSecurityHub>("/homeSecurityHub");
@@ -183,7 +189,11 @@ app.UseStaticFiles(new StaticFileOptions
 });
 app.UseCors("Home_Security");
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"➡️ Incoming Request: {context.Request.Method} {context.Request.Path}");
+    await next.Invoke();
+});
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
