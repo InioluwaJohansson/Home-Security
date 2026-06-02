@@ -64,7 +64,7 @@ public class JWTAuthentication : IJWTAuthentication
 
             var claims = principal.Claims;
 
-            var user = new GetUserDto
+            return new GetUserDto
             {
                 Id = int.Parse(claims.First(x => x.Type == "UserId").Value),
                 PersonId = int.Parse(claims.First(x => x.Type == "PersonId").Value),
@@ -72,8 +72,6 @@ public class JWTAuthentication : IJWTAuthentication
                 RoleName = claims.First(x => x.Type == "RoleName").Value,
                 AuthorizationCode = claims.First(x => x.Type == "AuthorizationCode").Value
             };
-            Console.WriteLine(user.UserName + "" + user.RoleName);
-            return user;
         }
         catch
         {

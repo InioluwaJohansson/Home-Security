@@ -127,7 +127,7 @@ public class ExternalController : Controller
     }
     [Authorize]
     [HttpPut("DeleteExternal")]
-    public async Task<IActionResult> DeleteExternal(int lightId)
+    public async Task<IActionResult> DeleteExternal(int externalId)
     {
         var user = _jWTAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -136,7 +136,7 @@ public class ExternalController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var light = await _lightControl.DeleteExternal(getAuthControlInfoDto, lightId);
+        var light = await _lightControl.DeleteExternal(getAuthControlInfoDto, externalId);
         if (light.Status == true)
         {
             return Ok(light);

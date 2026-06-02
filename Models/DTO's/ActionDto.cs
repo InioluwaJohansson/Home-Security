@@ -5,12 +5,10 @@ public class CreateActionDto
 {
     public string ActionName { get; set; }
     public string Description { get; set; }
-    public int personId { get; set; }
 }
 public class UpdateActionDto
 {
     public int Id { get; set; }
-    public int personId { get; set; }
     public string ActionName { get; set; }
     public string Description { get; set; }
 }
