@@ -14,8 +14,8 @@ public class TokenService : ITokenService
     {
         var token = new Token()
         {
-            TokenCode = Guid.NewGuid().ToString().Substring(0,15),
-            ExpiryTime = DateTime.Now,
+            TokenCode = Guid.NewGuid().ToString().Substring(0,30).Replace("-",""),
+            ExpiryTime = DateTime.Now.AddMinutes(5),
             IsDeleted = false,
             CreatedBy = personId,
             LastModifiedBy = personId,
@@ -35,7 +35,17 @@ public class TokenService : ITokenService
     {
         if (tokenCode != null)
         {
+            Console.WriteLine($"Received token: {tokenCode}");
             var token = await _tokenRepo.Get(x => x.TokenCode == tokenCode);
+            if(token == null)
+            {
+                Console.WriteLine("Token not found in database.");
+                return new BaseResponse()
+                {
+                    Status = false,
+                    Message = "Invalid Token!"
+                };
+            }
             token.IsDeleted = true;
             await _tokenRepo.Update(token);
             return new BaseResponse()

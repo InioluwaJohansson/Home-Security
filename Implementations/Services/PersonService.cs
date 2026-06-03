@@ -519,32 +519,12 @@ public class PersonService : IPersonService
                 Age = 21,
                 Gender = Gender.Male,
                 ImageUrl = null,
-                CreateAddressDtos = new List<CreateAddressDto>
-                {
-                    new CreateAddressDto
-                    {
-                        NumberLine = "12",
-                        Street = "Ore-Ofe",
-                        City = "Abeokuta",
-                        Region = "Odeda",
-                        State = "Ogun",
-                        Country = "Nigeria",
-                        PostalCode = "110121",
-                    },
-                },
-                CreateFingerPrintDtos = new List<CreateFingerPrintDto>
-                {
-                    new CreateFingerPrintDto
-                    {
-                        FingerPrintEncoding = null,
-                    },
-                }
             },
             CreateUserDto = new CreateUserDto
             {
                 UserName = "inioluwa_johansson",
                 Password = "Johansson13", // ⚠️ Consider hashing or securing this
-                AuthorizationCode = "1308",
+                AuthorizationCode = "132003",
                 Role = Role.Owner,
             }
         };
