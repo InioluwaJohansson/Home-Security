@@ -28,6 +28,6 @@ public class UpdatePersonDetailsDto
     public string LastName { get; set; }
     public Gender Gender { get; set; }
     public IFormFile ImageUrl { get; set; }
-    public List<GetContactDetailsDto> GetContactDetailsDtos { get; set; }
-    public List<UpdateAddressDto> UpdateAddressDtos { get; set; }
+    // public List<GetContactDetailsDto> GetContactDetailsDtos { get; set; }
+    // public List<UpdateAddressDto> UpdateAddressDtos { get; set; }
 }

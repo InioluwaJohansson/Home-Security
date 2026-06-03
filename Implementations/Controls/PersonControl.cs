@@ -61,16 +61,16 @@ public class PersonControl : IPersonControl
         }
         return _authControl.AuthFaliure();
     }
-    public async Task<BaseResponse> AddPersonAddress(GetAuthControlInfoDto getAuthControlInfoDto, int personId, List<CreateAddressDto> createAddressDtos)
+    public async Task<BaseResponse> AddPersonAddress(GetAuthControlInfoDto getAuthControlInfoDto, List<CreateAddressDto> createAddressDtos)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
-            var person = await _personService.AddPersonAddress(personId, createAddressDtos);
+            var person = await _personService.AddPersonAddress(auth.Id, createAddressDtos);
             if (person.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
-                var getPerson = _authControl.GetUserPersonName(personId);
+                var getPerson = _authControl.GetUserPersonName(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{getPerson} Profile Address was recently updated!";
                 await _logService.CreateLog(log);
@@ -79,16 +79,16 @@ public class PersonControl : IPersonControl
         }
         return _authControl.AuthFaliure();
     }
-    public async Task<BaseResponse> AddPersonDetails(GetAuthControlInfoDto getAuthControlInfoDto, int personId, List<CreateContactDetailsDto> createContactDetailsDtos)
+    public async Task<BaseResponse> AddPersonDetails(GetAuthControlInfoDto getAuthControlInfoDto, List<CreateContactDetailsDto> createContactDetailsDtos)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
-            var person = await _personService.AddPersonContactDetails(personId, createContactDetailsDtos);
+            var person = await _personService.AddPersonContactDetails(auth.Id, createContactDetailsDtos);
             if (person.Status == true)
             {
                 var log = _authControl.CreateLog(auth.Id);
-                var getPerson = _authControl.GetUserPersonName(personId);
+                var getPerson = _authControl.GetUserPersonName(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{getPerson} Profile Details was recently updated!";
                 await _logService.CreateLog(log);
@@ -193,7 +193,7 @@ public class PersonControl : IPersonControl
         }
         return _authControl.AuthFaliure();
     }
-    public async Task<BaseResponse> DeletePersonContactDetails(GetAuthControlInfoDto getAuthControlInfoDto, int personId, int personDetailId)
+    public async Task<BaseResponse> DeletePersonContactDetails(GetAuthControlInfoDto getAuthControlInfoDto, int personDetailId)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
@@ -201,7 +201,7 @@ public class PersonControl : IPersonControl
             var person = await _personService.DeleteContactDetails(personDetailId, auth.Id);
             if (person.Status == true)
             {
-                var getPerson = _authControl.GetUserPersonName(personId);
+                var getPerson = _authControl.GetUserPersonName(auth.Id);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getPerson} Person Detail was Deleted!";
@@ -217,7 +217,7 @@ public class PersonControl : IPersonControl
         }
         return _authControl.AuthFaliure();
     }
-    public async Task<BaseResponse> DeletePersonContactAddress(GetAuthControlInfoDto getAuthControlInfoDto, int personId, int personAddressId)
+    public async Task<BaseResponse> DeletePersonContactAddress(GetAuthControlInfoDto getAuthControlInfoDto, int personAddressId)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
@@ -225,7 +225,7 @@ public class PersonControl : IPersonControl
             var person = await _personService.DeleteContactAddress(personAddressId, auth.Id);
             if (person.Status == true)
             {
-                var getPerson = _authControl.GetUserPersonName(personId);
+                var getPerson = _authControl.GetUserPersonName(auth.Id);
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getPerson} Person Address was Deleted!";

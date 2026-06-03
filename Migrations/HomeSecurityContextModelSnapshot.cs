@@ -197,7 +197,7 @@ namespace Home_Security.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("ContactId")
+                    b.Property<int?>("ContactId")
                         .HasColumnType("int");
 
                     b.Property<string>("Country")
@@ -229,7 +229,7 @@ namespace Home_Security.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("PersonDetailsId")
+                    b.Property<int?>("PersonDetailsId")
                         .HasColumnType("int");
 
                     b.Property<string>("PostalCode")
@@ -637,7 +637,7 @@ namespace Home_Security.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ContactId")
+                    b.Property<int?>("ContactId")
                         .HasColumnType("int");
 
                     b.Property<int>("CreatedBy")
@@ -665,7 +665,7 @@ namespace Home_Security.Migrations
                     b.Property<DateTime?>("LastModifiedOn")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("PersonDetailsId")
+                    b.Property<int?>("PersonDetailsId")
                         .HasColumnType("int");
 
                     b.Property<string>("PhoneNumber")
@@ -1633,15 +1633,11 @@ namespace Home_Security.Migrations
                 {
                     b.HasOne("Home_Security.Entities.Contact", null)
                         .WithMany("Address")
-                        .HasForeignKey("ContactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ContactId");
 
                     b.HasOne("Home_Security.Entities.PersonDetails", null)
                         .WithMany("Addresses")
-                        .HasForeignKey("PersonDetailsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PersonDetailsId");
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Appliance", b =>
@@ -1708,15 +1704,11 @@ namespace Home_Security.Migrations
                 {
                     b.HasOne("Home_Security.Entities.Contact", null)
                         .WithMany("ContactDetails")
-                        .HasForeignKey("ContactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ContactId");
 
                     b.HasOne("Home_Security.Entities.PersonDetails", null)
                         .WithMany("ContactDetails")
-                        .HasForeignKey("PersonDetailsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PersonDetailsId");
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Door", b =>

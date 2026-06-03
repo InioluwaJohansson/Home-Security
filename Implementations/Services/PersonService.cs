@@ -208,9 +208,27 @@ public class PersonService : IPersonService
         {
             foreach (var addresses in createAddressDtos)
             {
+                if (addresses.Id != 0)
+                {
+                    var address1 = await _addressRepo.Get(x => x.Id == addresses.Id && x.IsDeleted == false);
+                    if (address1 != null)
+                    {
+                        address1.NumberLine = addresses.NumberLine ?? address1.NumberLine;
+                        address1.Street = addresses.Street ?? address1.Street;
+                        address1.City = addresses.City ?? address1.City;
+                        address1.Region = addresses.Region ?? address1.Region;
+                        address1.State = addresses.State ?? address1.State;
+                        address1.Country = addresses.Country ?? address1.Country;
+                        address1.PostalCode = addresses.PostalCode ?? address1.PostalCode;
+                        address1.LastModifiedBy = personId;
+                        address1.LastModifiedOn = DateTime.Now;
+                        await _addressRepo.Update(address1);
+                    }
+                }
                 var address = new Address()
                 {
                     PersonDetailsId = person.PersonDetails.Id,
+                    ContactId = null,
                     NumberLine = addresses.NumberLine,
                     Street = addresses.Street,
                     City = addresses.City,
@@ -245,11 +263,24 @@ public class PersonService : IPersonService
         {
             foreach (var contactDetail in createContactDetailsDto)
             {
+                if (contactDetail.Id != 0)
+                {
+                    var contactDetailes1 = await _contactDetailsRepo.Get(x => x.Id == contactDetail.Id && x.IsDeleted == false);
+                    if (contactDetailes1 != null)
+                    {
+                        contactDetailes1.PhoneNumber = contactDetail.PhoneNumber ?? contactDetailes1.PhoneNumber;
+                        contactDetailes1.Email = contactDetail.Email ?? contactDetailes1.Email;
+                        contactDetailes1.LastModifiedBy = personId;
+                        contactDetailes1.LastModifiedOn = DateTime.Now;
+                        await _contactDetailsRepo.Update(contactDetailes1);
+                    }
+                }
                 var contactDetailes = new ContactDetails()
                 {
                     PersonDetailsId = person.PersonDetails.Id,
-                    PhoneNumber = contactDetail.PhoneNumber,
-                    Email = contactDetail.Email,
+                    ContactId = null,
+                    PhoneNumber = contactDetail.PhoneNumber ?? "",
+                    Email = contactDetail.Email ?? "",
                     IsDeleted = false,
                     CreatedBy = personId,
                     LastModifiedBy = personId,
@@ -436,8 +467,8 @@ public class PersonService : IPersonService
         return new GetAddressDto()
         {
             Id = address.Id,
-            ContactId = address.ContactId,
-            PersonId = address.PersonDetailsId,
+            ContactId = address.ContactId ?? 0,
+            PersonId = address.PersonDetailsId ?? 0,
             NumberLine = address.NumberLine,
             Street = address.Street,
             City = address.City,
@@ -452,8 +483,7 @@ public class PersonService : IPersonService
         return new GetContactDetailsDto()
         {
             Id = contactDetails.Id,
-            ContactId = contactDetails.ContactId,
-            PersonDetailsId = contactDetails.PersonDetailsId,
+            ContactId = contactDetails.ContactId ?? 0,
             PhoneNumber = contactDetails.PhoneNumber,
             Email = contactDetails.Email,
         };

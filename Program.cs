@@ -89,6 +89,8 @@ builder.Services.AddScoped<IJWTAuthentication, JWTAuthentication>();
 builder.Services.AddScoped<ICameraStreamingService, CameraStreamingService>();
 builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
 builder.Services.AddScoped<IMqttService, MqttService>();
+
+builder.Services.AddHostedService<StartupInitializer>();
 builder.Services.AddHostedService<BackgroundServices>();
 builder.Services.AddHostedService<AuthServices>();
 builder.Services.AddHostedService<HardwareServices>();

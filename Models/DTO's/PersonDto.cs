@@ -11,7 +11,7 @@ public class CreatePersonDto
 public class UpdatePersonDto
 {
     public int Id { get; set; }
-    public List<int> CameraIds { get; set; }
+    public List<int>? CameraIds { get; set; }
     public UpdatePersonDetailsDto UpdatePersonDetailsDto { get; set; }
     public UpdateUserDto UpdateUserDto { get; set; }
 }
