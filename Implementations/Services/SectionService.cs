@@ -217,7 +217,7 @@ public class SectionService : ISectionService
         {
             Id = Section.Id,
             SectionId = Section.SectionId,
-            SectionName = Section.SectionName,
+            Name = Section.SectionName,
             IsHidden = Section.IsHidden,
             Doors = Section.Door.Select(x => GetDoorDetails(x)).ToList(),
             Appliances = Section.Appliance.Select(x => GetApplianceDetails(x)).ToList(),

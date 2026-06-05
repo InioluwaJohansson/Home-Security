@@ -8,8 +8,6 @@ public class CreatePersonDetailsDto
     public int Age { get; set; }
     public Gender Gender { get; set; }
     public IFormFile ImageUrl { get; set; }
-    public List<CreateAddressDto> CreateAddressDtos { get; set; }
-    public List<CreateFingerPrintDto> CreateFingerPrintDtos { get; set; }
 }
 public class GetPersonDetailsDto
 {

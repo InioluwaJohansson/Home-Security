@@ -98,7 +98,7 @@ builder.Services.AddHostedService<RecordingCleanupService>();
 builder.Services.AddSignalR();
 builder.Services.AddHttpContextAccessor();
 var connectionString = builder.Configuration.GetConnectionString("HomeSecurityContext");
-builder.Services.AddDbContext<HomeSecurityContext>(c => c.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+builder.Services.AddDbContext<HomeSecurityContext>(c => c.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 42))));
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -164,11 +164,21 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Home_Security", policy =>
     {
-        policy.WithOrigins("https://ais-dev-ypl2vxtjhgwlthzmvnxusu-717948104271.europe-west2.run.app").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        policy.WithOrigins("https://ais-dev-ypl2vxtjhgwlthzmvnxusu-717948104271.europe-west2.run.app", "https://ais-dev-62beulbfxtpne7lrxwnd4x-717948104271.europe-west2.run.app").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 
 var app = builder.Build();
+try
+{
+    using var scope = app.Services.CreateScope();
+    var initializer = scope.ServiceProvider.GetRequiredService<StartupInitializer>();
+    await initializer.StartAsync(CancellationToken.None);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Startup DB init failed: {ex.Message}");
+}
 app.MapHub<HomeSecurityHub>("/homeSecurityHub");
 app.MapHub<ChatHub>("/homeSecurityChatHub");
 // Configure the HTTP request pipeline.
