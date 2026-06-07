@@ -9,9 +9,9 @@ public class BaseDefaultDto
 {
     public bool IsActive { get; set; }
     public bool PowerActive { get; set; }
-    public int RoomId { get; set; }
+    public int? RoomId { get; set; }
     public string RoomName { get; set; }
-    public int SectionId { get; set; }
+    public int? SectionId { get; set; }
     public string SectionName { get; set; }
     public int CreatedBy { get; set; }
     public string CreatedByName { get; set; }
