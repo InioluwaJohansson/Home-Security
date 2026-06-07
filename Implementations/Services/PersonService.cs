@@ -32,27 +32,26 @@ public class PersonService : IPersonService
         var checkUser = await _userRepo.Get(x => x.UserName == createPersonDto.CreateUserDto.UserName);
         if (checkUser == null)
         {
-            var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Persons\\");
-            if (!System.IO.Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
+            // var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Persons\\");
+            // if (!System.IO.Directory.Exists(folderPath))
+            // {
+            //     Directory.CreateDirectory(folderPath);
+            // }
 
-            var imagePath = "";
-            if (createPersonDto.CreatePersonDetailsDto.ImageUrl != null)
-            {
-                var fileName = Path.GetFileNameWithoutExtension(createPersonDto.CreatePersonDetailsDto.ImageUrl.FileName);
-                var filePath = Path.Combine(folderPath, createPersonDto.CreatePersonDetailsDto.ImageUrl.FileName);
+            // if (createPersonDto.CreatePersonDetailsDto.ImageUrl != null)
+            // {
+            //     var fileName = Path.GetFileNameWithoutExtension(createPersonDto.CreatePersonDetailsDto.ImageUrl.FileName);
+            //     var filePath = Path.Combine(folderPath, createPersonDto.CreatePersonDetailsDto.ImageUrl.FileName);
 
-                if (!System.IO.Directory.Exists(filePath))
-                {
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await createPersonDto.CreatePersonDetailsDto.ImageUrl.CopyToAsync(stream);
-                    }
-                    imagePath = fileName;
-                }
-            }
+            //     if (!System.IO.Directory.Exists(filePath))
+            //     {
+            //         using (var stream = new FileStream(filePath, FileMode.Create))
+            //         {
+            //             await createPersonDto.CreatePersonDetailsDto.ImageUrl.CopyToAsync(stream);
+            //         }
+            //         imagePath = fileName;
+            //     }
+            // }
             var NFID = $"NFID{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16).ToUpper()}";
             var user = new User()
             {
@@ -91,9 +90,9 @@ public class PersonService : IPersonService
                     FirstName = createPersonDto.CreatePersonDetailsDto.FirstName,
                     LastName = createPersonDto.CreatePersonDetailsDto.LastName,
                     DateOfBirth = createPersonDto.CreatePersonDetailsDto.DateOfBirth,
-                    Age = createPersonDto.CreatePersonDetailsDto.Age,
+                    Age = DateTime.Now.Year - createPersonDto.CreatePersonDetailsDto.DateOfBirth.Year,
                     Gender = createPersonDto.CreatePersonDetailsDto.Gender,
-                    ImageUrl = imagePath,
+                    ImageUrl = "",
                     IsDeleted = false,
                     CreatedOn = DateTime.Now,
                     LastModifiedOn = DateTime.Now,
@@ -152,7 +151,7 @@ public class PersonService : IPersonService
             person.PersonDetails.FirstName = updatePersonDto.UpdatePersonDetailsDto.FirstName ?? person.PersonDetails.FirstName;
             person.PersonDetails.LastName = updatePersonDto.UpdatePersonDetailsDto.LastName ?? person.PersonDetails.LastName;
             person.PersonDetails.ImageUrl = imagePath ?? person.PersonDetails.ImageUrl;
-            person.PersonDetails.Gender = updatePersonDto.UpdatePersonDetailsDto.Gender;
+            person.PersonDetails.Age = DateTime.Now.Year - person.PersonDetails.DateOfBirth.Year;
             person.LastModifiedOn = DateTime.Now;
 
             await _personRepo.Update(person);
@@ -516,9 +515,7 @@ public class PersonService : IPersonService
                 FirstName = "Inioluwa",
                 LastName = "Johansson",
                 DateOfBirth = new DateOnly(2003, 08, 13),
-                Age = 21,
                 Gender = Gender.Male,
-                ImageUrl = null,
             },
             CreateUserDto = new CreateUserDto
             {
