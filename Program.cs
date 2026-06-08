@@ -15,6 +15,7 @@ using Microsoft.Extensions.FileProviders;
 using Home_Security.RealTimeServices;
 using Home_Security.BackgroundServices;
 using Home_Security.Streaming;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,6 +101,24 @@ builder.Services.AddHttpContextAccessor();
 var connectionString = builder.Configuration.GetConnectionString("HomeSecurityContext");
 builder.Services.AddDbContext<HomeSecurityContext>(c => c.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 42))));
 builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(x => x.Value.Errors.Count > 0)
+                .Select(x => new
+                {
+                    Field = x.Key,
+                    Errors = x.Value.Errors.Select(e => e.ErrorMessage)
+                });
+
+            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(errors));
+
+            return new BadRequestObjectResult(errors);
+        };
+    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

@@ -44,31 +44,55 @@ public class StartupInitializer : IHostedService
 }
 public class AuthServices : BackgroundService
 {
-    IServiceScopeFactory _serviceScopeFactory;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+
     public AuthServices(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
     }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var scope = _serviceScopeFactory.CreateAsyncScope();
-        var authControl = scope.ServiceProvider.GetRequiredService<IAuthControl>();
-        await authControl.RunAllFacilities();
-        await Task.Delay(TimeSpan.FromMinutes(3), stoppingToken);
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                using var scope = _serviceScopeFactory.CreateScope();
+                var authControl = scope.ServiceProvider.GetRequiredService<IAuthControl>();
+                await authControl.RunAllFacilities();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Background service error: {ex.Message}");
+            }
+            await Task.Delay(TimeSpan.FromMinutes(3), stoppingToken);
+        }
     }
 }
 public class HardwareServices : BackgroundService
 {
-    IServiceScopeFactory _serviceScopeFactory;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+
     public HardwareServices(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
     }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var scope = _serviceScopeFactory.CreateAsyncScope();
-        var hardwareService = scope.ServiceProvider.GetRequiredService<IHardwareService>();
-        await hardwareService.CheckHardwareStatus();
-        await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                using var scope = _serviceScopeFactory.CreateScope();
+                var hardwareService = scope.ServiceProvider.GetRequiredService<IHardwareService>();
+                await hardwareService.CheckHardwareStatus();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"HardwareServices error: {ex.Message}");
+            }
+            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+        }
     }
 }

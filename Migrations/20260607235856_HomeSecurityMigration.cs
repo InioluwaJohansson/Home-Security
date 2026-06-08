@@ -703,8 +703,8 @@ namespace Home_Security.Migrations
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     PowerActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    RoomId = table.Column<int>(type: "int", nullable: false),
-                    SectionId = table.Column<int>(type: "int", nullable: false),
+                    RoomId = table.Column<int>(type: "int", nullable: true),
+                    SectionId = table.Column<int>(type: "int", nullable: true),
                     IsHidden = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
@@ -714,14 +714,12 @@ namespace Home_Security.Migrations
                         name: "FK_Appliance_Room_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Room",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Appliance_Section_SectionId",
                         column: x => x.SectionId,
                         principalTable: "Section",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -755,8 +753,8 @@ namespace Home_Security.Migrations
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     PowerActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    RoomId = table.Column<int>(type: "int", nullable: false),
-                    SectionId = table.Column<int>(type: "int", nullable: false),
+                    RoomId = table.Column<int>(type: "int", nullable: true),
+                    SectionId = table.Column<int>(type: "int", nullable: true),
                     IsHidden = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
@@ -766,14 +764,12 @@ namespace Home_Security.Migrations
                         name: "FK_Camera_Room_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Room",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Camera_Section_SectionId",
                         column: x => x.SectionId,
                         principalTable: "Section",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -802,8 +798,8 @@ namespace Home_Security.Migrations
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     PowerActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    RoomId = table.Column<int>(type: "int", nullable: false),
-                    SectionId = table.Column<int>(type: "int", nullable: false),
+                    RoomId = table.Column<int>(type: "int", nullable: true),
+                    SectionId = table.Column<int>(type: "int", nullable: true),
                     IsHidden = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
@@ -813,14 +809,12 @@ namespace Home_Security.Migrations
                         name: "FK_Door_Room_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Room",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Door_Section_SectionId",
                         column: x => x.SectionId,
                         principalTable: "Section",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -847,8 +841,8 @@ namespace Home_Security.Migrations
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     PowerActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    RoomId = table.Column<int>(type: "int", nullable: false),
-                    SectionId = table.Column<int>(type: "int", nullable: false),
+                    RoomId = table.Column<int>(type: "int", nullable: true),
+                    SectionId = table.Column<int>(type: "int", nullable: true),
                     IsHidden = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
@@ -864,14 +858,12 @@ namespace Home_Security.Migrations
                         name: "FK_External_Room_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Room",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_External_Section_SectionId",
                         column: x => x.SectionId,
                         principalTable: "Section",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -895,8 +887,8 @@ namespace Home_Security.Migrations
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     PowerActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    RoomId = table.Column<int>(type: "int", nullable: false),
-                    SectionId = table.Column<int>(type: "int", nullable: false),
+                    RoomId = table.Column<int>(type: "int", nullable: true),
+                    SectionId = table.Column<int>(type: "int", nullable: true),
                     IsHidden = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
@@ -906,14 +898,12 @@ namespace Home_Security.Migrations
                         name: "FK_Light_Room_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Room",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Light_Section_SectionId",
                         column: x => x.SectionId,
                         principalTable: "Section",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -941,8 +931,8 @@ namespace Home_Security.Migrations
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     PowerActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    RoomId = table.Column<int>(type: "int", nullable: false),
-                    SectionId = table.Column<int>(type: "int", nullable: false),
+                    RoomId = table.Column<int>(type: "int", nullable: true),
+                    SectionId = table.Column<int>(type: "int", nullable: true),
                     IsHidden = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
@@ -952,14 +942,12 @@ namespace Home_Security.Migrations
                         name: "FK_Window_Room_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Room",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Window_Section_SectionId",
                         column: x => x.SectionId,
                         principalTable: "Section",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 

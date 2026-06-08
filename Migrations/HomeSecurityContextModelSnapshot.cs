@@ -306,10 +306,10 @@ namespace Home_Security.Migrations
                     b.Property<bool>("PowerActive")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("RoomId")
+                    b.Property<int?>("RoomId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SectionId")
+                    b.Property<int?>("SectionId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -392,10 +392,10 @@ namespace Home_Security.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("RoomId")
+                    b.Property<int?>("RoomId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SectionId")
+                    b.Property<int?>("SectionId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -742,10 +742,10 @@ namespace Home_Security.Migrations
                     b.Property<bool>("PowerActive")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("RoomId")
+                    b.Property<int?>("RoomId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SectionId")
+                    b.Property<int?>("SectionId")
                         .HasColumnType("int");
 
                     b.Property<int>("UnlockedBy")
@@ -816,10 +816,10 @@ namespace Home_Security.Migrations
                     b.Property<bool>("PowerActive")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("RoomId")
+                    b.Property<int?>("RoomId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SectionId")
+                    b.Property<int?>("SectionId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -1107,10 +1107,10 @@ namespace Home_Security.Migrations
                     b.Property<bool>("PowerActive")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("RoomId")
+                    b.Property<int?>("RoomId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SectionId")
+                    b.Property<int?>("SectionId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -1526,10 +1526,10 @@ namespace Home_Security.Migrations
                     b.Property<bool>("PowerActive")
                         .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("RoomId")
+                    b.Property<int?>("RoomId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SectionId")
+                    b.Property<int?>("SectionId")
                         .HasColumnType("int");
 
                     b.Property<int>("UnlockedBy")
@@ -1644,30 +1644,22 @@ namespace Home_Security.Migrations
                 {
                     b.HasOne("Home_Security.Entities.Room", null)
                         .WithMany("Appliance")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RoomId");
 
                     b.HasOne("Home_Security.Entities.Section", null)
                         .WithMany("Appliance")
-                        .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SectionId");
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Camera", b =>
                 {
                     b.HasOne("Home_Security.Entities.Room", null)
                         .WithMany("Camera")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RoomId");
 
                     b.HasOne("Home_Security.Entities.Section", null)
                         .WithMany("Camera")
-                        .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SectionId");
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Chats.Message", b =>
@@ -1715,15 +1707,11 @@ namespace Home_Security.Migrations
                 {
                     b.HasOne("Home_Security.Entities.Room", null)
                         .WithMany("Door")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RoomId");
 
                     b.HasOne("Home_Security.Entities.Section", null)
                         .WithMany("Door")
-                        .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SectionId");
                 });
 
             modelBuilder.Entity("Home_Security.Entities.External", b =>
@@ -1736,15 +1724,11 @@ namespace Home_Security.Migrations
 
                     b.HasOne("Home_Security.Entities.Room", null)
                         .WithMany("External")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RoomId");
 
                     b.HasOne("Home_Security.Entities.Section", null)
                         .WithMany("External")
-                        .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SectionId");
 
                     b.Navigation("Action");
                 });
@@ -1779,15 +1763,11 @@ namespace Home_Security.Migrations
                 {
                     b.HasOne("Home_Security.Entities.Room", null)
                         .WithMany("Light")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RoomId");
 
                     b.HasOne("Home_Security.Entities.Section", null)
                         .WithMany("Light")
-                        .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SectionId");
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Logs", b =>
@@ -1848,15 +1828,11 @@ namespace Home_Security.Migrations
                 {
                     b.HasOne("Home_Security.Entities.Room", null)
                         .WithMany("Window")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RoomId");
 
                     b.HasOne("Home_Security.Entities.Section", null)
                         .WithMany("Window")
-                        .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SectionId");
                 });
 
             modelBuilder.Entity("MessageAttachment", b =>
