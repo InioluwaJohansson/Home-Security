@@ -954,4 +954,6 @@ public static string? ConvertImageToBase64(string? path)
 }
 
 
-//Contact
+https://kv5zhpcr-7190.uks1.devtunnels.ms/homeSecurityHub is the url for the signalR for the app except for chats while https://kv5zhpcr-7190.uks1.devtunnels.ms/chatHub is for chats
+in the NotifyAll method, the fitst parameter is what the signalr should listen for and the second parameter is the response from the server
+Understand and make provision where necessary in the app. 

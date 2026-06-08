@@ -1,8 +1,8 @@
 ﻿namespace Home_Security.Models.DTOs;
 public class CreateBaseDefaultDto
 {
-    public int RoomId { get; set; }
-    public int SectionId { get; set; }
+    public int? RoomId { get; set; }
+    public int? SectionId { get; set; }
     public bool IsHidden { get; set; }
 }
 public class BaseDefaultDto
@@ -48,7 +48,7 @@ public class UserBaseDefaultDto
     public DateTime? DeletedOn { get; set; }
     public int DeletedBy { get; set; }
     public bool IsDeleted { get; set; }
-    public int personId { get; set; }
+    public int? personId { get; set; }
     public string PeronName { get; set; }
 }
 public class AppNamesDetailList{

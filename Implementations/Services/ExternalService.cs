@@ -41,8 +41,8 @@ public class ExternalService : IExternalService
                 PowerActive = true,
             };
 
-            var externalData = await _externalRepo.Create(external);
-
+            await _externalRepo.Create(external);
+            var externalData = await _externalRepo.Get(x => x.ExternalId == external.ExternalId);
             await _realtime.NotifyAll("ExternalsCreated", GetDetails(externalData));
 
             await _mqtt.PublishDeviceUpdate(external.ExternalId, new GenericDeviceUpdateState

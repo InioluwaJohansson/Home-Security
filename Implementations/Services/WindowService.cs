@@ -43,8 +43,8 @@ public class WindowService : IWindowService
                 LastModifiedOn = DateTime.Now
             };
 
-            var windowData = await _windowRepo.Create(window);
-
+            await _windowRepo.Create(window);
+            var windowData = await _windowRepo.Get(x => x.WindowId == window.WindowId);
             await _realtime.NotifyAll("WindowCreated", GetDetails(windowData));
 
             await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState

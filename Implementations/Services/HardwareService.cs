@@ -32,7 +32,8 @@ public class HardwareService : IHardwareService
                 LastModifiedOn = DateTime.Now,
                 IsDeleted = false,
             };
-            var hardwareData = await _hardwareRepo.Create(hardware);
+            await _hardwareRepo.Create(hardware);
+            var hardwareData = await _hardwareRepo.Get(x => x.HardwareId == hardware.HardwareId);
             await _realtime.NotifyAll("HardwareCreated", GetDetails(hardwareData));
             return new BaseResponse()
             {

@@ -32,9 +32,9 @@ public class RoomService : IRoomService
                 LastModifiedOn = DateTime.Now,
                 IsDeleted = false,
             };
-            var roomData = await _roomRepo.Create(room);
-
-            await _realtime.NotifyAll("RoomCreated", GetDetails(roomData));
+            await _roomRepo.Create(room);
+            var roomData = await _roomRepo.Get(x => x.RoomId == room.RoomId);
+            await _realtime.NotifyAll("RoomCreated", GetDetails(await _roomRepo.GetById(roomData.Id)));
 
             return new BaseResponse()
             {
@@ -213,17 +213,17 @@ public class RoomService : IRoomService
         {
             Id = room.Id,
             RoomId = room.RoomId,
-            RoomName = room.RoomName,
+            Name = room.RoomName,
             SectionId = room.SectionId,
             personId = room.PersonId,
             Icon = room.Icon,
             IsHidden = room.IsHidden,
-            Doors = room.Door.Select(x => GetDoorDetails(x)).ToList(),
-            Appliances = room.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
-            Lights = room.Light.Select(x => GetLightDetails(x)).ToList(),
-            Windows = room.Window.Select(x => GetWindowDetails(x)).ToList(),
-            Cameras = room.Camera.Select(x => GetCameraDetails(x)).ToList(),
-            Externals = room.External.Select(x => GetExternalDetails(x)).ToList(),
+            Doors = room.Door == null ? new List<GetDoorDto>() : room.Door.Select(x => GetDoorDetails(x)).ToList(),
+            Appliances = room.Appliance == null ? new List<GetApplianceDto>() : room.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
+            Lights = room.Light == null ? new List<GetLightDto>() : room.Light.Select(x => GetLightDetails(x)).ToList(),
+            Windows = room.Window == null ? new List<GetWindowDto>() : room.Window.Select(x => GetWindowDetails(x)).ToList(),
+            Cameras = room.Camera == null ? new List<GetCameraDto>() : room.Camera.Select(x => GetCameraDetails(x)).ToList(),
+            Externals = room.External == null ? new List<GetExternalDto>() : room.External.Select(x => GetExternalDetails(x)).ToList(),
             LastModifiedBy = room.LastModifiedBy,
             CreatedBy = room.CreatedBy,
             LastModifiedOn = room.LastModifiedOn,
@@ -235,7 +235,7 @@ public class RoomService : IRoomService
         return new GetApplianceDto()
         {
             Id = appliance.Id,
-            ApplianceName = appliance.ApplianceName,
+            Name = appliance.ApplianceName,
             IsActive = appliance.IsActive,
             PowerActive = appliance.PowerActive,
             RoomId = appliance.RoomId,

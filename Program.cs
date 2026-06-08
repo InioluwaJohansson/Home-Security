@@ -1,5 +1,6 @@
 using Home_Security.Authentication;
 using Home_Security.Context;
+using Home_Security.Entities.Chats;
 using Home_Security.Hubs;
 using Home_Security.Implementations.Controls;
 using Home_Security.Implementations.Repositories;
@@ -16,6 +17,11 @@ using Home_Security.RealTimeServices;
 using Home_Security.BackgroundServices;
 using Home_Security.Streaming;
 using Microsoft.AspNetCore.Mvc;
+using Home_Security.Interfaces.Services.Chats;
+using Home_Security.Interfaces.Repositories.Chats;
+using Home_Security.Interfaces.Controls.Chats;
+using Home_Security.Implementations.Controls.Chats;
+using Home_Security.Implementations.Controls.Messages;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,6 +88,13 @@ builder.Services.AddScoped<ISectionControl, SectionControl>();
 builder.Services.AddScoped<ITokenControl, TokenControl>();
 builder.Services.AddScoped<IWindowControl, WindowControl>();
 builder.Services.AddScoped<IDashboardControl, DashboardControl>();
+
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IChatRepo, ChatRepository>();
+builder.Services.AddScoped<IChatControl, ChatControl>();
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IMessageRepo, MessageRepository>();
+builder.Services.AddScoped<IMessageControl, MessageControl>();
 
 builder.Services.AddSingleton<IAuthCache, AuthCache>();
 
@@ -156,25 +169,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
                 var path = context.HttpContext.Request.Path;
 
                 if (!string.IsNullOrEmpty(accessToken) &&
-                    path.StartsWithSegments("/chatHub"))
+                    path.StartsWithSegments("/HomeSecurityChatHub"))
                 {
                     context.Token = accessToken;
                 }
-
-                return Task.CompletedTask;
-            }
-        };
-         options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                var accessToken = context.Request.Query["access_token"];
-                var path = context.HttpContext.Request.Path;
                 if (!string.IsNullOrEmpty(accessToken) &&
                     path.StartsWithSegments("/HomeSecurityHub"))
                 {
                     context.Token = accessToken;
                 }
+
                 return Task.CompletedTask;
             }
         };
@@ -198,8 +202,6 @@ catch (Exception ex)
 {
     Console.WriteLine($"Startup DB init failed: {ex.Message}");
 }
-app.MapHub<HomeSecurityHub>("/homeSecurityHub");
-app.MapHub<ChatHub>("/homeSecurityChatHub");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -228,4 +230,6 @@ app.Use(async (context, next) =>
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<HomeSecurityHub>("/HomeSecurityHub");
+app.MapHub<ChatHub>("/HomeSecurityChatHub");
 app.Run();

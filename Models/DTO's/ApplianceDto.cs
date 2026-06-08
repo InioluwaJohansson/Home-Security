@@ -16,7 +16,7 @@ public class UpdateApplianceDto : CreateBaseDefaultDto
 public class GetApplianceDto : BaseDefaultDto
 {
     public int Id { get; set; }
-    public string ApplianceName { get; set; }
+    public string Name { get; set; }
     public string ApplianceId { get; set; }
     public string ApplianceType { get; set; }
 }

@@ -101,8 +101,9 @@ public class PersonService : IPersonService
                 LastModifiedOn = DateTime.Now,
             };
 
-            var personData = await _personRepo.Create(person);
-            await _realTime.NotifyAll("PersonCreated", personData);
+            await _personRepo.Create(person);
+            var personData = await _personRepo.Get(x => x.PersonId == person.PersonId);
+            await _realTime.NotifyAll("PersonCreated", GetDetails(await _personRepo.GetById(personData.Id)));
 
             return new BaseResponse()
             {

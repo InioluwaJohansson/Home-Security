@@ -44,8 +44,8 @@ public class DoorService : IDoorService
                 LastModifiedOn = DateTime.Now
             };
 
-            var doorData = await _doorRepo.Create(door);
-
+            await _doorRepo.Create(door);
+            var doorData = await _doorRepo.Get(x => x.DoorId == door.DoorId);
             await _realtime.NotifyAll("DoorCreated", GetDetails(doorData));
 
             await _mqtt.PublishDeviceUpdate(door.DoorId, new GenericDeviceUpdateState

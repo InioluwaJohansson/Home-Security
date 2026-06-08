@@ -151,7 +151,7 @@ public class SectionControl : ISectionControl
     public GetSectionDto DtoRefactor(GetSectionDto x)
     {
         x.LastModifiedByName = _authControl.GetUserPersonName(x.LastModifiedBy);
-        x.PeronName = _authControl.GetUserPersonName(x.personId);
+        x.PeronName = _authControl.GetUserPersonName(x.personId ?? 0);
         x.CreatedByName = _authControl.GetUserPersonName(x.CreatedBy);
         return x;
     }

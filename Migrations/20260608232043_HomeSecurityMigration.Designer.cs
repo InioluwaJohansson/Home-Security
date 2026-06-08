@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Home_Security.Migrations
 {
     [DbContext(typeof(HomeSecurityContext))]
-    [Migration("20260607235856_HomeSecurityMigration")]
+    [Migration("20260608232043_HomeSecurityMigration")]
     partial class HomeSecurityMigration
     {
         /// <inheritdoc />
@@ -1370,7 +1370,7 @@ namespace Home_Security.Migrations
                     b.Property<DateTime?>("LastModifiedOn")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("PersonId")
+                    b.Property<int?>("PersonId")
                         .HasColumnType("int");
 
                     b.Property<string>("RoomId")
@@ -1381,7 +1381,7 @@ namespace Home_Security.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("SectionId")
+                    b.Property<int?>("SectionId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -1814,15 +1814,11 @@ namespace Home_Security.Migrations
                 {
                     b.HasOne("Home_Security.Entities.Person", "Person")
                         .WithMany()
-                        .HasForeignKey("PersonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PersonId");
 
                     b.HasOne("Home_Security.Entities.Section", null)
                         .WithMany("Room")
-                        .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SectionId");
 
                     b.Navigation("Person");
                 });

@@ -38,8 +38,8 @@ public class LightService : ILightService
                 BrightnessLevel = 0,
             };
 
-            var lightData = await _lightRepo.Create(light);
-
+            await _lightRepo.Create(light);
+            var lightData = await _lightRepo.Get(x => x.LightId == light.LightId);
             await _realtime.NotifyAll("LightCreated", GetDetails(lightData));
 
             await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
