@@ -40,9 +40,9 @@ public class ApplianceService : IApplianceService
                 CreatedOn = DateTime.Now
             };
 
-            await _applianceRepo.Create(appliance);
+            var applianceData = await _applianceRepo.Create(appliance);
 
-            await _realtime.NotifyAll("ApplianceCreated", GetDetails(appliance));
+            await _realtime.NotifyAll("ApplianceCreated", GetDetails(applianceData));
 
             await _mqtt.PublishDeviceUpdate(appliance.ApplianceId, new GenericDeviceUpdateState
             {
@@ -82,16 +82,16 @@ public class ApplianceService : IApplianceService
             appliance.LastModifiedBy = personId;
             appliance.LastModifiedOn = DateTime.Now;
             appliance.ApplianceType = updateApplianceDto.ApplianceType;
-            await _applianceRepo.Update(appliance);
+            var applianceData = await _applianceRepo.Update(appliance);
 
-            await _realtime.NotifyAll("ApplianceUpdated", GetDetails(appliance));
+            await _realtime.NotifyAll("ApplianceUpdated", GetDetails(applianceData));
 
             await _mqtt.PublishDeviceUpdate(appliance.ApplianceId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Appliance,
-                Id = appliance.Id,
-                IsActive = appliance.IsActive,
-                PowerActive = appliance.PowerActive,
+                Id = applianceData.Id,
+                IsActive = applianceData.IsActive,
+                PowerActive = applianceData.PowerActive,
                 IsLocked = false,
                 IsOpen = false,
                 BrightnessLevel = 0

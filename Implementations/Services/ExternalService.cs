@@ -41,14 +41,14 @@ public class ExternalService : IExternalService
                 PowerActive = true,
             };
 
-            await _externalRepo.Create(external);
+            var externalData = await _externalRepo.Create(external);
 
-            await _realtime.NotifyAll("ExternalsCreated", GetDetails(external));
+            await _realtime.NotifyAll("ExternalsCreated", GetDetails(externalData));
 
             await _mqtt.PublishDeviceUpdate(external.ExternalId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.External,
-                Id = external.Id,
+                Id = externalData.Id,
                 BrightnessLevel = 0,
                 IsActive = true,
                 PowerActive = false,
@@ -82,17 +82,17 @@ public class ExternalService : IExternalService
             Externals.IsTriggered = updateExternalDto.IsTriggered;
             Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds;
 
-            await _externalRepo.Update(Externals);
+            var externalData = await _externalRepo.Update(Externals);
 
-            await _realtime.NotifyAll("ExternalsUpdated", GetDetails(Externals));
+            await _realtime.NotifyAll("ExternalsUpdated", GetDetails(externalData));
 
             await _mqtt.PublishDeviceUpdate(Externals.ExternalId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.External,
-                Id = Externals.Id,
+                Id = externalData.Id,
                 BrightnessLevel = 0,
-                IsActive = Externals.IsActive,
-                PowerActive = Externals.PowerActive,
+                IsActive = externalData.IsActive,
+                PowerActive = externalData.PowerActive,
                 IsLocked = false,
                 IsOpen = false
             });
@@ -213,18 +213,17 @@ public class ExternalService : IExternalService
             Externals.DeletedBy = personId;
             Externals.IsDeleted = true;
 
-            await _externalRepo.Update(Externals);
+            var externalData = await _externalRepo.Update(Externals);
 
             await _realtime.NotifyAll("ExternalsDeleted", new
             {
-                Externals.Id,
-                Externals.ExternalId
+                externalData.Id,
             });
 
-            await _mqtt.PublishDeviceUpdate(Externals.ExternalId, new GenericDeviceUpdateState
+            await _mqtt.PublishDeviceUpdate(externalData.ExternalId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.External,
-                Id = Externals.Id,
+                Id = externalData.Id,
                 BrightnessLevel = 0,
                 IsActive = false,
                 PowerActive = false,

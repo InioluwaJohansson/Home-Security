@@ -51,14 +51,9 @@ public class SectionService : ISectionService
                 IsDeleted = false,
             };
 
-            await _sectionRepo.Create(Section);
+            var sectionData = await _sectionRepo.Create(Section);
 
-            await _realtime.NotifyAll("SectionCreated", new
-            {
-                Section.Id,
-                Section.SectionId,
-                Section.SectionName
-            });
+            await _realtime.NotifyAll("SectionCreated", GetDetails(sectionData));
 
             return new BaseResponse()
             {
@@ -95,11 +90,7 @@ public class SectionService : ISectionService
             }
             await _sectionRepo.Update(Section);
 
-            await _realtime.NotifyAll("SectionUpdated", new
-            {
-                Section.Id,
-                Section.SectionName
-            });
+            await _realtime.NotifyAll("SectionUpdated", GetDetails(Section));
 
             return new BaseResponse()
             {
@@ -131,7 +122,6 @@ public class SectionService : ISectionService
             await _realtime.NotifyAll("SectionDeleted", new
             {
                 Section.Id,
-                Section.SectionId
             });
 
             return new BaseResponse()

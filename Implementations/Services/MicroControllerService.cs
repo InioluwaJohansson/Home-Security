@@ -48,8 +48,6 @@ public class MicroControllerService : IMicroControllerService
                 Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             };
 
-            await _realtime.NotifyAll("DeviceStateSnapshot", state);
-
             return state;
         }
 

@@ -101,8 +101,8 @@ public class PersonService : IPersonService
                 LastModifiedOn = DateTime.Now,
             };
 
-            await _personRepo.Create(person);
-            await _realTime.NotifyAll("PersonCreated", person);
+            var personData = await _personRepo.Create(person);
+            await _realTime.NotifyAll("PersonCreated", personData);
 
             return new BaseResponse()
             {
@@ -376,6 +376,10 @@ public class PersonService : IPersonService
                 user.IsDeleted = true;
             }
             await _personRepo.Update(person);
+            await _realTime.NotifyAll("PersonDeleted", new
+            {
+                person.Id,
+            });
             return new BaseResponse()
             {
                 Message = "Person Profile Deleted Successfully!",

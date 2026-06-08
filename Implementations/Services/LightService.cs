@@ -38,14 +38,14 @@ public class LightService : ILightService
                 BrightnessLevel = 0,
             };
 
-            await _lightRepo.Create(light);
+            var lightData = await _lightRepo.Create(light);
 
-            await _realtime.NotifyAll("LightCreated", GetDetails(light));
+            await _realtime.NotifyAll("LightCreated", GetDetails(lightData));
 
             await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Light,
-                Id = light.Id,
+                Id = lightData.Id,
                 BrightnessLevel = 0,
                 IsActive = true,
                 PowerActive = false,
@@ -214,7 +214,6 @@ public class LightService : ILightService
             await _realtime.NotifyAll("LightDeleted", new
             {
                 light.Id,
-                light.LightId
             });
 
             await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState

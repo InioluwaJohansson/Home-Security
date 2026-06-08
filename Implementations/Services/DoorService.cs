@@ -44,14 +44,14 @@ public class DoorService : IDoorService
                 LastModifiedOn = DateTime.Now
             };
 
-            await _doorRepo.Create(door);
+            var doorData = await _doorRepo.Create(door);
 
-            await _realtime.NotifyAll("DoorCreated", GetDetails(door));
+            await _realtime.NotifyAll("DoorCreated", GetDetails(doorData));
 
             await _mqtt.PublishDeviceUpdate(door.DoorId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Door,
-                Id = door.Id,
+                Id = doorData.Id,
                 IsLocked = door.IsLocked,
                 IsOpen = door.IsOpen,
                 IsActive = door.IsActive,

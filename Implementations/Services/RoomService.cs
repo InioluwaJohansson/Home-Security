@@ -9,19 +9,10 @@ namespace Home_Security.Implementations.Services;
 public class RoomService : IRoomService
 {
     IRoomRepo _roomRepo;
-    ILightRepo _lightRepo;
-    IDoorRepo _doorRepo;
-    IWindowRepo _windowRepo;
-    IApplianceRepo _applianceRepo;
     IRealtimeNotificationService _realtime;
-
-    public RoomService(IRoomRepo roomRepo, ILightRepo lightRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IApplianceRepo applianceRepo, IRealtimeNotificationService realtime)
+    public RoomService(IRoomRepo roomRepo, IRealtimeNotificationService realtime)
     {
         _roomRepo = roomRepo;
-        _lightRepo = lightRepo;
-        _doorRepo = doorRepo;
-        _windowRepo = windowRepo;
-        _applianceRepo = applianceRepo;
         _realtime = realtime;
     }
     public async Task<BaseResponse> CreateRoom(CreateRoomDto createRoomDto, int personId)
@@ -41,9 +32,9 @@ public class RoomService : IRoomService
                 LastModifiedOn = DateTime.Now,
                 IsDeleted = false,
             };
-            await _roomRepo.Create(room);
+            var roomData = await _roomRepo.Create(room);
 
-            await _realtime.NotifyAll("RoomCreated", room.Id);
+            await _realtime.NotifyAll("RoomCreated", GetDetails(roomData));
 
             return new BaseResponse()
             {
@@ -80,7 +71,7 @@ public class RoomService : IRoomService
 
             await _roomRepo.Update(room);
 
-            await _realtime.NotifyAll("RoomUpdated", room.Id);
+            await _realtime.NotifyAll("RoomUpdated", GetDetails(room));
 
             return new BaseResponse()
             {
