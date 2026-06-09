@@ -33,7 +33,7 @@ public class MicroControllerService : IMicroControllerService
 
     public async Task<GenericDeviceState> GetByAuth(string hardWareId, string AuthKey)
     {
-        var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardWareId && x.AuthKey == AuthKey && x.IsDeleted == false);
+        var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardWareId && x.AuthKey == AuthKey && x.IsDeleted == false && x.IsActive == true);
 
         if (hardware != null)
         {
