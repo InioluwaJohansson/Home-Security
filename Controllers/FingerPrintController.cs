@@ -20,16 +20,6 @@ public class FingerPrintController : Controller
         _fingerPrintControl = fingerPrintControl;
         _jwtAuthentication = jwtAuthentication;
     }
-    [HttpGet("VerifyFingerPrint")]
-    public async Task<IActionResult> VerifyFingerPrint(byte [] data)
-    {
-        var fingerPrintService = await _fingerPrintServiceService.VerifyFingerPrint(data);
-        if (fingerPrintService.Status == true)
-        {
-            return Ok(fingerPrintService);
-        }
-        return Ok(fingerPrintService);
-    }
     [Authorize]
     [HttpPost("CreateFingerPrint")]
     public async Task<IActionResult> CreateFingerPrint(CreateFingerPrintDto createFingerPrintDto)
