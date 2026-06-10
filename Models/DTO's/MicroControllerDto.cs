@@ -60,3 +60,8 @@ public class ExternalDeviceState
     public bool IsActive { get; set; }
     public bool IsTriggered { get; set; }
 }
+public class MicroControllerLoginDto
+{
+    public string HardwareId { get; set; }
+    public string AuthKey { get; set; }
+}
