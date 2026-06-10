@@ -24,7 +24,7 @@ public class UpdateDoorDto : CreateBaseDefaultDto
 public class GetDoorDto : BaseDefaultDto
 {
     public int Id { get; set; }
-    public string DoorName { get; set; }
+    public string Name { get; set; }
     public string DoorId { get; set; }
     public DoorType DoorType { get; set; }
     public bool IsLocked { get; set; }

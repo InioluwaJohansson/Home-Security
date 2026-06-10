@@ -368,6 +368,20 @@ public class AuthControl : IAuthControl
                 Name = c.ExternalName,
                 IsHidden = c.IsHidden,
             }).ToList(),
+            SectionIdNames = _authCache._sectionCache.Where(x => x.IsDeleted == false)
+            .Select(c => new GenericNames
+            {
+                Id = c.Id,
+                Name = c.SectionName,
+                IsHidden = c.IsHidden,
+            }).ToList(),
+            RoomIdNames = _authCache._roomCache.Where(x => x.IsDeleted == false)
+            .Select(c => new GenericNames
+            {
+                Id = c.Id,
+                Name = c.RoomName,
+                IsHidden = c.IsHidden,
+            }).ToList(),
             PersonIdNames = _authCache._cache
             .Select(c => new GenericNames
             {

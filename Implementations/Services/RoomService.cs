@@ -254,7 +254,7 @@ public class RoomService : IRoomService
         return new GetDoorDto()
         {
             Id = door.Id,
-            DoorName = door.DoorName,
+            Name = door.DoorName,
             DoorType = door.DoorType,
             IsLocked = door.IsLocked,
             IsOpen = door.IsOpen,
@@ -279,7 +279,7 @@ public class RoomService : IRoomService
         return new GetCameraDto
         {
             Id = camera.Id,
-            CameraName = camera.CameraName,
+            Name = camera.CameraName,
             CameraId = camera.CameraId,
 
             IsActive = camera.IsActive,
@@ -309,7 +309,7 @@ public class RoomService : IRoomService
         return new GetExternalDto()
         {
             Id = External.Id,
-            ExternalName = External.ExternalName,
+            Name = External.ExternalName,
             IsTriggered = External.IsTriggered,
             IsActive = External.IsActive,
             PowerActive = External.PowerActive,
@@ -329,7 +329,7 @@ public class RoomService : IRoomService
         return new GetLightDto()
         {
             Id = light.Id,
-            LightName = light.LightName,
+            Name = light.LightName,
             IsActive = light.IsActive,
             PowerActive = light.PowerActive,
             RoomId = light.RoomId,
@@ -349,7 +349,7 @@ public class RoomService : IRoomService
         return new GetWindowDto()
         {
             Id = window.Id,
-            WindowName = window.WindowName,
+            Name = window.WindowName,
             IsLocked = window.IsLocked,
             IsOpen = window.IsOpen,
             OpenedBy = window.OpenedBy,

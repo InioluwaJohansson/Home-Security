@@ -15,7 +15,7 @@ public class UpdateExternalDto : CreateBaseDefaultDto
 public class GetExternalDto : BaseDefaultDto
 {
     public int Id { get; set; }
-    public string ExternalName { get; set; }
+    public string Name { get; set; }
     public string ExternalId { get; set; }
     public bool IsTriggered { get; set; }
     public List<int> ActionIds { get; set; }

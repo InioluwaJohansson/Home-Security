@@ -41,7 +41,8 @@ public class ApplianceService : IApplianceService
                 LastModifiedOn = DateTime.Now,
                 CreatedOn = DateTime.Now
             };
-
+            Console.WriteLine($"RoomId: {appliance.RoomId}");
+            Console.WriteLine($"SectionId: {appliance.SectionId}");
             await _applianceRepo.Create(appliance);
             var applianceData = await _applianceRepo.Get(x => x.ApplianceId == appliance.ApplianceId);
             await _realtime.NotifyAll("ApplianceCreated", GetDetails(applianceData));

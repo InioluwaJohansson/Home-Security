@@ -14,7 +14,7 @@ public class UpdateLightDto : CreateBaseDefaultDto
 public class GetLightDto : BaseDefaultDto
 {
     public int Id { get; set; }
-    public string LightName { get; set; }
+    public string Name { get; set; }
     public string LightId { get; set; }
     public int BrightnessLevel { get; set; }
 }

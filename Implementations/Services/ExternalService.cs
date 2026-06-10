@@ -254,7 +254,7 @@ public class ExternalService : IExternalService
         return new GetExternalDto()
         {
             Id = External.Id,
-            ExternalName = External.ExternalName,
+            Name = External.ExternalName,
             IsTriggered = External.IsTriggered,
             IsActive = External.IsActive,
             PowerActive = External.PowerActive,

@@ -260,7 +260,7 @@ public class WindowService : IWindowService
         return new GetWindowDto()
         {
             Id = window.Id,
-            WindowName = window.WindowName,
+            Name = window.WindowName,
             IsLocked = window.IsLocked,
             IsOpen = window.IsOpen,
             OpenedBy = window.OpenedBy,

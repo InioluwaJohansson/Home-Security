@@ -249,7 +249,7 @@ public class LightService : ILightService
         return new GetLightDto()
         {
             Id = light.Id,
-            LightName = light.LightName,
+            Name = light.LightName,
             IsActive = light.IsActive,
             PowerActive = light.PowerActive,
             RoomId = light.RoomId,

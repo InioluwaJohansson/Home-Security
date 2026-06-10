@@ -59,6 +59,8 @@ public class AppNamesDetailList{
     public List<GenericNames> DoorIdNames { get; set; }
     public List<GenericNames> ExternalIdNames { get; set; }
     public List<GenericNames> PersonIdNames { get; set; }
+    public List<GenericNames> SectionIdNames { get; set; }
+    public List<GenericNames> RoomIdNames { get; set; }
     public List<GenericIdNames> ContactCategoryIdNames { get; set; }
     public List<GenericIdNames> ActionIdNames { get; set; }
     public List<GenericIdNames> HardwareIdNames { get; set; }

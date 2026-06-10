@@ -130,42 +130,16 @@ public class HardwareService : IHardwareService
     }
     public async Task<string> GetHardwareName(int id, FacilityType facilityType)
     {
-        var hardware = new Hardware();
-        switch (facilityType)
-        {
-            case FacilityType.Appliance:
-                hardware = await _hardwareRepo.Get(x => x.ApplianceIds.Contains(id) && x.IsDeleted == false);
-                if(hardware != null) return hardware.HardwareId;
-                else return null;
-            case FacilityType.Camera:
-                hardware = await _hardwareRepo.Get(x => x.CameraIds.Contains(id) && x.IsDeleted == false);
-                if(hardware != null) return hardware.HardwareId;
-                else return null;
-            case FacilityType.Light:
-                hardware = await _hardwareRepo.Get(x => x.LightIds.Contains(id) && x.IsDeleted == false);
-                if(hardware != null) return hardware.HardwareId;
-                else return null;
-            case FacilityType.Door:
-                hardware = await _hardwareRepo.Get(x => x.DoorIds.Contains(id) && x.IsDeleted == false);
-                if(hardware != null) return hardware.HardwareId;
-                else return null;
-            case FacilityType.Window:
-                hardware = await _hardwareRepo.Get(x => x.WindowIds.Contains(id) && x.IsDeleted == false);
-                if(hardware != null) return hardware.HardwareId;
-                else return null;
-            case FacilityType.External:
-                hardware = await _hardwareRepo.Get(x => x.ExternalIds.Contains(id) && x.IsDeleted == false);
-                if(hardware != null) return hardware.HardwareId;
-                else return null;
-            default: return null;
-        }
+        var hardware = await _hardwareRepo.GetHardwareByFacilityTypeId(id, facilityType);
+        if(hardware != null) return hardware.HardwareId;
+        return null;
     }
     public GetHardwareDto GetDetails(Hardware hardware)
     {
         return new GetHardwareDto()
         {
             Id = hardware.Id,
-            HardwareName = hardware.HardwareName,
+            Name = hardware.HardwareName,
             AuthKey = hardware.AuthKey,
             IsActive = hardware.IsActive,
             PowerActive = hardware.PowerActive,
