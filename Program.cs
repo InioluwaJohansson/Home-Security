@@ -22,6 +22,7 @@ using Home_Security.Interfaces.Repositories.Chats;
 using Home_Security.Interfaces.Controls.Chats;
 using Home_Security.Implementations.Controls.Chats;
 using Home_Security.Implementations.Controls.Messages;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -109,7 +110,11 @@ builder.Services.AddHostedService<BackgroundServices>();
 builder.Services.AddHostedService<AuthServices>();
 builder.Services.AddHostedService<HardwareServices>();
 builder.Services.AddHostedService<RecordingCleanupService>();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+    options.HandshakeTimeout = TimeSpan.FromSeconds(30);
+});
 builder.Services.AddHttpContextAccessor();
 var connectionString = builder.Configuration.GetConnectionString("HomeSecurityContext");
 builder.Services.AddDbContext<HomeSecurityContext>(c => c.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 42))));
@@ -222,6 +227,11 @@ app.UseStaticFiles(new StaticFileOptions
 });
 app.UseCors("Home_Security");
 app.UseHttpsRedirection();
+app.UseRouting();
+app.UseRateLimiter();
+app.UseForwardedHeaders(new ForwardedHeadersOptions{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 app.Use(async (context, next) =>
 {
     Console.WriteLine($"➡️ Incoming Request: {context.Request.Method} {context.Request.Path}");
