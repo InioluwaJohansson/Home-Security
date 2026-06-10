@@ -17,8 +17,9 @@ public class MicroControllerService : IMicroControllerService
     IExternalRepo _externalRepo;
     IActionService _actionService;
     IRealtimeNotificationService _realtime;
+    IMqttService _mqttService;
 
-    public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceRepo applianceRepo, ILightRepo lightRepo, ICameraRepo cameraRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IExternalRepo externalRepo, IActionService actionService, IRealtimeNotificationService realtime)
+    public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceRepo applianceRepo, ILightRepo lightRepo, ICameraRepo cameraRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IExternalRepo externalRepo, IActionService actionService, IRealtimeNotificationService realtime, IMqttService mqttService)
     {
         _hardwareRepo = hardwareRepo;
         _applianceRepo = applianceRepo;
@@ -29,28 +30,30 @@ public class MicroControllerService : IMicroControllerService
         _externalRepo = externalRepo;
         _actionService = actionService;
         _realtime = realtime;
+        _mqttService = mqttService;
     }
 
     public async Task<GenericDeviceState> GetByAuth(string hardWareId, string AuthKey)
     {
-        var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardWareId && x.AuthKey == AuthKey && x.IsDeleted == false && x.IsActive == true);
+        var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardWareId && x.AuthKey == AuthKey && x.IsDeleted == false);
 
-        if (hardware != null)
+        if (hardware != null && hardware.IsActive == false)
         {
+            hardware.IsActive = true;
+            await _hardwareRepo.Update(hardware);
+
             var state = new GenericDeviceState()
             {
-                ApplianceDeviceStates = await GetApplianceDeviceStates(hardware.ApplianceIds),
-                LightDeviceStates = await GetLightDeviceStates(hardware.LightIds),
-                CameraDeviceStates = await GetCameraDeviceStates(hardware.CameraIds),
-                WindowDeviceStates = await GetWindowDeviceStates(hardware.WindowIds),
-                DoorDeviceStates = await GetDoorDeviceStates(hardware.DoorIds),
-                ExternalDeviceStates = await GetExternalDeviceStates(hardware.ExternalIds),
+                ApplianceDeviceStates = await GetApplianceDeviceStates(hardware.ApplianceIds) ?? new List<ApplianceDeviceState>(),
+                LightDeviceStates = await GetLightDeviceStates(hardware.LightIds) ?? new List<LightDeviceState>(),
+                CameraDeviceStates = await GetCameraDeviceStates(hardware.CameraIds) ?? new List<CameraDeviceState>(),
+                WindowDeviceStates = await GetWindowDeviceStates(hardware.WindowIds) ?? new List<WindowDeviceState>(),
+                DoorDeviceStates = await GetDoorDeviceStates(hardware.DoorIds) ?? new List<DoorDeviceState>(),
+                ExternalDeviceStates = await GetExternalDeviceStates(hardware.ExternalIds) ?? new List<ExternalDeviceState>(),
                 Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             };
-
             return state;
         }
-
         var emptyState = new GenericDeviceState()
         {
             ApplianceDeviceStates = new List<ApplianceDeviceState>(),
@@ -61,8 +64,33 @@ public class MicroControllerService : IMicroControllerService
             ExternalDeviceStates = new List<ExternalDeviceState>(),
             Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
         };
-
         return emptyState;
+    }
+
+    public async Task SendUpdatedHardwareData()
+    {
+        var hardwares = await _hardwareRepo.GetByExpression(x => x.IsActive);
+        if(hardwares != null)
+        {
+            foreach (var hardware in hardwares)
+            {
+                if (hardware != null)
+                {
+                    var state = new GenericDeviceState()
+                    {
+                        ApplianceDeviceStates = await GetApplianceDeviceStates(hardware.ApplianceIds) ?? new List<ApplianceDeviceState>(),
+                        LightDeviceStates = await GetLightDeviceStates(hardware.LightIds) ?? new List<LightDeviceState>(),
+                        CameraDeviceStates = await GetCameraDeviceStates(hardware.CameraIds) ?? new List<CameraDeviceState>(),
+                        WindowDeviceStates = await GetWindowDeviceStates(hardware.WindowIds) ?? new List<WindowDeviceState>(),
+                        DoorDeviceStates = await GetDoorDeviceStates(hardware.DoorIds) ?? new List<DoorDeviceState>(),
+                        ExternalDeviceStates = await GetExternalDeviceStates(hardware.ExternalIds) ?? new List<ExternalDeviceState>(),
+                        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                    };
+                    await _mqttService.PublishFullStateSync(hardware.HardwareId, state);
+
+                }
+            }
+        }
     }
 
     public async Task<BaseResponse> UpdateDeviceStates(GenericDeviceUpdateState genericDeviceUpdateState)

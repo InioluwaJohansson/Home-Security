@@ -10,12 +10,14 @@ namespace Home_Security.Implementations.Services;
 public class LightService : ILightService
 {
     ILightRepo _lightRepo;
+    IHardwareService _hardwareService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
 
-    public LightService(ILightRepo lightRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
+    public LightService(ILightRepo lightRepo, IHardwareService hardwareService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _lightRepo = lightRepo;
+        _hardwareService = hardwareService;
         _realtime = realtime;
         _mqtt = mqtt;
     }
@@ -28,8 +30,8 @@ public class LightService : ILightService
             {
                 LightId = $"LIGHT{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 LightName = createLightDto.LightName,
-                SectionId = createLightDto.SectionId,
-                RoomId = createLightDto.RoomId,
+                SectionId = createLightDto.SectionId ?? null,
+                RoomId = createLightDto.RoomId ?? null,
                 IsDeleted = false,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
@@ -41,7 +43,7 @@ public class LightService : ILightService
             await _lightRepo.Create(light);
             var lightData = await _lightRepo.Get(x => x.LightId == light.LightId);
             await _realtime.NotifyAll("LightCreated", GetDetails(lightData));
-
+            var hardware = await _hardwareService.GetHardwareName(lightData.Id, FacilityType.Appliance);
             await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Light,
@@ -77,11 +79,12 @@ public class LightService : ILightService
             light.LastModifiedBy = personId;
             light.LastModifiedOn = DateTime.Now;
             light.BrightnessLevel = updateLightDto.BrightnessLevel;
-
+            light.SectionId = updateLightDto.SectionId ?? null;
+            light.RoomId = updateLightDto.RoomId ?? null;
             await _lightRepo.Update(light);
 
             await _realtime.NotifyAll("LightUpdated", GetDetails(light));
-
+            var hardware = await _hardwareService.GetHardwareName(light.Id, FacilityType.Appliance);
             await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Light,

@@ -12,13 +12,15 @@ public class CameraService : ICameraService
 {
     ICameraRepo _cameraRepo;
     IRealtimeNotificationService _realtime;
+    IHardwareService _hardwareService;
     IMqttService _mqtt;
     ICameraStreamingService _cameraStreamingService;
 
-    public CameraService(ICameraRepo cameraRepo, IRealtimeNotificationService realtime, IMqttService mqtt, ICameraStreamingService cameraStreamingService)
+    public CameraService(ICameraRepo cameraRepo, IRealtimeNotificationService realtime, IHardwareService hardwareService, IMqttService mqtt, ICameraStreamingService cameraStreamingService)
     {
         _cameraRepo = cameraRepo;
         _realtime = realtime;
+        _hardwareService = hardwareService;
         _mqtt = mqtt;
         _cameraStreamingService = cameraStreamingService;
     }
@@ -62,8 +64,8 @@ public class CameraService : ICameraService
             IsActive = false,
             PowerActive = false,
 
-            SectionId = createCameraDto.SectionId,
-            RoomId = createCameraDto.RoomId,
+            SectionId = createCameraDto.SectionId ?? null,
+            RoomId = createCameraDto.RoomId ?? null,
 
             IsDeleted = false,
             CreatedBy = personId,
@@ -82,7 +84,7 @@ public class CameraService : ICameraService
         var cameraData = await _cameraRepo.Update(camera);
 
         await _realtime.NotifyAll("CameraCreated", GetDetails(cameraData));
-
+        var hardware = await _hardwareService.GetHardwareName(cameraData.Id, FacilityType.Appliance);
         await _mqtt.PublishDeviceUpdate(camera.CameraId, new GenericDeviceUpdateState
         {
             FacilityType = FacilityType.Camera,
@@ -118,6 +120,8 @@ public class CameraService : ICameraService
         camera.IsActive = updateCameraDto.IsActive;
         camera.LastModifiedBy = personId;
         camera.LastModifiedOn = DateTime.Now;
+        camera.SectionId = updateCameraDto.SectionId ?? null;
+        camera.RoomId = updateCameraDto.RoomId ?? null;
 
         var cameraData = await _cameraRepo.Update(camera);
 
@@ -127,7 +131,7 @@ public class CameraService : ICameraService
         }
 
         await _realtime.NotifyAll("CameraUpdated", GetDetails(cameraData));
-
+        var hardware = await _hardwareService.GetHardwareName(cameraData.Id, FacilityType.Appliance);
         await _mqtt.PublishDeviceUpdate(camera.CameraId, new GenericDeviceUpdateState
         {
             FacilityType = FacilityType.Camera,
@@ -262,8 +266,8 @@ public class CameraService : ICameraService
             IsActive = camera.IsActive,
             PowerActive = camera.PowerActive,
 
-            RoomId = camera.RoomId,
-            SectionId = camera.SectionId,
+            RoomId = camera.RoomId ?? null,
+            SectionId = camera.SectionId ?? null,
 
             LastModifiedBy = camera.LastModifiedBy,
             DeletedBy = camera.DeletedBy,

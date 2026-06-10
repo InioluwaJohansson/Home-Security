@@ -22,8 +22,8 @@ public class RoomService : IRoomService
             var room = new Room()
             {
                 RoomId = $"ROOM{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
-                PersonId = createRoomDto.PersonId,
-                SectionId = createRoomDto.SectionId,
+                PersonId = createRoomDto.PersonId ?? null,
+                SectionId = createRoomDto.SectionId ?? null,
                 RoomName = createRoomDto.RoomName,
                 Icon = createRoomDto.Icon,
                 CreatedOn = DateTime.Now,
@@ -53,8 +53,8 @@ public class RoomService : IRoomService
         var room = await _roomRepo.GetById(updateRoomDto.Id);
         if (room != null)
         {
-            room.PersonId = updateRoomDto.PersonId;
-            room.SectionId = updateRoomDto.SectionId;
+            room.PersonId = updateRoomDto.PersonId ?? null;
+            room.SectionId = updateRoomDto.SectionId ?? null;
             room.RoomName = updateRoomDto.RoomName ?? room.RoomName;
             room.Icon = updateRoomDto.Icon ?? room.Icon;
             if(room.IsHidden != updateRoomDto.IsHidden){

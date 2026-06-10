@@ -87,6 +87,8 @@ public class HardwareServices : BackgroundService
                 using var scope = _serviceScopeFactory.CreateScope();
                 var hardwareService = scope.ServiceProvider.GetRequiredService<IHardwareService>();
                 await hardwareService.CheckHardwareStatus();
+                var microControllerService = scope.ServiceProvider.GetRequiredService<IMicroControllerService>();
+                await microControllerService.SendUpdatedHardwareData();
             }
             catch (Exception ex)
             {

@@ -128,6 +128,38 @@ public class HardwareService : IHardwareService
             }
         }
     }
+    public async Task<string> GetHardwareName(int id, FacilityType facilityType)
+    {
+        var hardware = new Hardware();
+        switch (facilityType)
+        {
+            case FacilityType.Appliance:
+                hardware = await _hardwareRepo.Get(x => x.ApplianceIds.Contains(id) && x.IsDeleted == false);
+                if(hardware != null) return hardware.HardwareId;
+                else return null;
+            case FacilityType.Camera:
+                hardware = await _hardwareRepo.Get(x => x.CameraIds.Contains(id) && x.IsDeleted == false);
+                if(hardware != null) return hardware.HardwareId;
+                else return null;
+            case FacilityType.Light:
+                hardware = await _hardwareRepo.Get(x => x.LightIds.Contains(id) && x.IsDeleted == false);
+                if(hardware != null) return hardware.HardwareId;
+                else return null;
+            case FacilityType.Door:
+                hardware = await _hardwareRepo.Get(x => x.DoorIds.Contains(id) && x.IsDeleted == false);
+                if(hardware != null) return hardware.HardwareId;
+                else return null;
+            case FacilityType.Window:
+                hardware = await _hardwareRepo.Get(x => x.WindowIds.Contains(id) && x.IsDeleted == false);
+                if(hardware != null) return hardware.HardwareId;
+                else return null;
+            case FacilityType.External:
+                hardware = await _hardwareRepo.Get(x => x.ExternalIds.Contains(id) && x.IsDeleted == false);
+                if(hardware != null) return hardware.HardwareId;
+                else return null;
+            default: return null;
+        }
+    }
     public GetHardwareDto GetDetails(Hardware hardware)
     {
         return new GetHardwareDto()
@@ -204,7 +236,6 @@ public class HardwareService : IHardwareService
                     };
                 }
                 break;
-
         }
         return new GenericIdNames(){
             Id = id,

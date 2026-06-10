@@ -10,12 +10,14 @@ namespace Home_Security.Implementations.Services;
 public class ExternalService : IExternalService
 {
     IExternalRepo _externalRepo;
+    IHardwareService _hardwareService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
 
-    public ExternalService(IExternalRepo externalRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
+    public ExternalService(IExternalRepo externalRepo, IHardwareService hardwareService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _externalRepo = externalRepo;
+        _hardwareService = hardwareService;
         _realtime = realtime;
         _mqtt = mqtt;
     }
@@ -28,8 +30,8 @@ public class ExternalService : IExternalService
             {
                 ExternalId = $"Externals{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 ExternalName = createExternalDto.ExternalName,
-                SectionId = createExternalDto.SectionId,
-                RoomId = createExternalDto.RoomId,
+                SectionId = createExternalDto.SectionId ?? null,
+                RoomId = createExternalDto.RoomId ?? null,
                 IsDeleted = false,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
@@ -44,7 +46,7 @@ public class ExternalService : IExternalService
             await _externalRepo.Create(external);
             var externalData = await _externalRepo.Get(x => x.ExternalId == external.ExternalId);
             await _realtime.NotifyAll("ExternalsCreated", GetDetails(externalData));
-
+            var hardware = await _hardwareService.GetHardwareName(externalData.Id, FacilityType.Appliance);
             await _mqtt.PublishDeviceUpdate(external.ExternalId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.External,
@@ -79,11 +81,13 @@ public class ExternalService : IExternalService
             Externals.LastModifiedBy = personId;
             Externals.LastModifiedOn = DateTime.Now;
             Externals.IsActive = updateExternalDto.IsActive;
+            Externals.SectionId = updateExternalDto.SectionId ?? null;
+            Externals.RoomId = updateExternalDto.RoomId ?? null;
             Externals.IsTriggered = updateExternalDto.IsTriggered;
             Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds;
 
             var externalData = await _externalRepo.Update(Externals);
-
+            var hardware = await _hardwareService.GetHardwareName(Externals.Id, FacilityType.Appliance);
             await _realtime.NotifyAll("ExternalsUpdated", GetDetails(externalData));
 
             await _mqtt.PublishDeviceUpdate(Externals.ExternalId, new GenericDeviceUpdateState
