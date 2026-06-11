@@ -139,7 +139,7 @@ public class HardwareService : IHardwareService
         return new GetHardwareDto()
         {
             Id = hardware.Id,
-            Name = hardware.HardwareName,
+            HardwareName = hardware.HardwareName,
             AuthKey = hardware.AuthKey,
             IsActive = hardware.IsActive,
             PowerActive = hardware.PowerActive,

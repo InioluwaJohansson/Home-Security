@@ -19,7 +19,7 @@ public class UpdateHardwareDto
 public class GetHardwareDto
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string HardwareName { get; set; }
     public string HardwareId { get; set; }
     public string AuthKey { get; set; }
     public bool IsActive { get; set; }

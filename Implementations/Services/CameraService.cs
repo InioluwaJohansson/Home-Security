@@ -260,7 +260,7 @@ public class CameraService : ICameraService
         return new GetCameraDto
         {
             Id = camera.Id,
-            Name = camera.CameraName,
+            CameraName = camera.CameraName,
             CameraId = camera.CameraId,
 
             IsActive = camera.IsActive,

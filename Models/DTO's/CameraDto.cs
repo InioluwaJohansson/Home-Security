@@ -21,7 +21,7 @@ public class UpdateCameraDto : CreateBaseDefaultDto
 public class GetCameraDto : BaseDefaultDto
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string CameraName { get; set; }
     public string CameraId { get; set; }
     public string LiveStreamUrl { get; set; }
     public List<GetRecordingDto> Recordings { get; set; }

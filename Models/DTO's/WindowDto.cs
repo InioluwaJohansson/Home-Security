@@ -23,7 +23,7 @@ public class UpdateWindowDto : CreateBaseDefaultDto
 public class GetWindowDto : BaseDefaultDto
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string WindowName { get; set; }
     public string WindowId { get; set; }
     public bool IsOpen { get; set; }
     public bool IsLocked { get; set; }

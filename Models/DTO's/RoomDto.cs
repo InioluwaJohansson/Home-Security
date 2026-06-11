@@ -20,7 +20,7 @@ public class UpdateRoomDto
 public class GetRoomDto : UserBaseDefaultDto
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string RoomName { get; set; }
     public string RoomId { get; set; }
     public string Icon { get; set; }
     public int? SectionId { get; set; }

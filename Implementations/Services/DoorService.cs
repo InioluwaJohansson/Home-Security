@@ -282,7 +282,7 @@ public class DoorService : IDoorService
         return new GetDoorDto()
         {
             Id = door.Id,
-            Name = door.DoorName,
+            DoorName = door.DoorName,
             DoorType = door.DoorType,
             IsLocked = door.IsLocked,
             IsOpen = door.IsOpen,

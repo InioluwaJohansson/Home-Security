@@ -253,7 +253,7 @@ public class ApplianceService : IApplianceService
         return new GetApplianceDto()
         {
             Id = appliance.Id,
-            Name = appliance.ApplianceName,
+            ApplianceName = appliance.ApplianceName,
             IsActive = appliance.IsActive,
             PowerActive = appliance.PowerActive,
             RoomId = appliance.RoomId,

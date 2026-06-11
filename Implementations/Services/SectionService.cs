@@ -207,7 +207,7 @@ public class SectionService : ISectionService
         {
             Id = Section.Id,
             SectionId = Section.SectionId,
-            Name = Section.SectionName,
+            SectionName = Section.SectionName,
             IsHidden = Section.IsHidden,
             Doors = Section.Door == null ? new List<GetDoorDto>() : Section.Door.Select(x => GetDoorDetails(x)).ToList(),
             Appliances = Section.Appliance == null ? new List<GetApplianceDto>() : Section.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
@@ -225,7 +225,7 @@ public class SectionService : ISectionService
         {
             Id = room.Id,
             RoomId = room.RoomId,
-            Name = room.RoomName,
+            RoomName = room.RoomName,
             SectionId = room.SectionId,
             personId = room.PersonId,
             Doors = room.Door == null ? new List<GetDoorDto>() : room.Door.Select(x => GetDoorDetails(x)).ToList(),
@@ -242,7 +242,7 @@ public class SectionService : ISectionService
         return new GetApplianceDto()
         {
             Id = appliance.Id,
-            Name = appliance.ApplianceName,
+            ApplianceName = appliance.ApplianceName,
             IsActive = appliance.IsActive,
             PowerActive = appliance.PowerActive,
             SectionId = appliance.SectionId,
@@ -261,7 +261,7 @@ public class SectionService : ISectionService
         return new GetCameraDto
         {
             Id = camera.Id,
-            Name = camera.CameraName,
+            CameraName = camera.CameraName,
             CameraId = camera.CameraId,
 
             IsActive = camera.IsActive,
@@ -291,7 +291,7 @@ public class SectionService : ISectionService
         return new GetExternalDto()
         {
             Id = External.Id,
-            Name = External.ExternalName,
+            ExternalName = External.ExternalName,
             IsTriggered = External.IsTriggered,
             IsActive = External.IsActive,
             PowerActive = External.PowerActive,
@@ -312,7 +312,7 @@ public class SectionService : ISectionService
         return new GetDoorDto()
         {
             Id = door.Id,
-            Name = door.DoorName,
+            DoorName = door.DoorName,
             DoorType = door.DoorType,
             IsLocked = door.IsLocked,
             IsOpen = door.IsOpen,
@@ -338,7 +338,7 @@ public class SectionService : ISectionService
         return new GetLightDto()
         {
             Id = light.Id,
-            Name = light.LightName,
+            LightName = light.LightName,
             IsActive = light.IsActive,
             PowerActive = light.PowerActive,
             SectionId = light.SectionId,
@@ -359,7 +359,7 @@ public class SectionService : ISectionService
         return new GetWindowDto()
         {
             Id = window.Id,
-            Name = window.WindowName,
+            WindowName = window.WindowName,
             IsLocked = window.IsLocked,
             IsOpen = window.IsOpen,
             OpenedBy = window.OpenedBy,

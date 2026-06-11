@@ -213,7 +213,7 @@ public class RoomService : IRoomService
         {
             Id = room.Id,
             RoomId = room.RoomId,
-            Name = room.RoomName,
+            RoomName = room.RoomName,
             SectionId = room.SectionId,
             personId = room.PersonId,
             Icon = room.Icon,
@@ -235,7 +235,7 @@ public class RoomService : IRoomService
         return new GetApplianceDto()
         {
             Id = appliance.Id,
-            Name = appliance.ApplianceName,
+            ApplianceName = appliance.ApplianceName,
             IsActive = appliance.IsActive,
             PowerActive = appliance.PowerActive,
             RoomId = appliance.RoomId,
@@ -254,7 +254,7 @@ public class RoomService : IRoomService
         return new GetDoorDto()
         {
             Id = door.Id,
-            Name = door.DoorName,
+            DoorName = door.DoorName,
             DoorType = door.DoorType,
             IsLocked = door.IsLocked,
             IsOpen = door.IsOpen,
@@ -279,7 +279,7 @@ public class RoomService : IRoomService
         return new GetCameraDto
         {
             Id = camera.Id,
-            Name = camera.CameraName,
+            CameraName = camera.CameraName,
             CameraId = camera.CameraId,
 
             IsActive = camera.IsActive,
@@ -309,7 +309,7 @@ public class RoomService : IRoomService
         return new GetExternalDto()
         {
             Id = External.Id,
-            Name = External.ExternalName,
+            ExternalName = External.ExternalName,
             IsTriggered = External.IsTriggered,
             IsActive = External.IsActive,
             PowerActive = External.PowerActive,
@@ -329,7 +329,7 @@ public class RoomService : IRoomService
         return new GetLightDto()
         {
             Id = light.Id,
-            Name = light.LightName,
+            LightName = light.LightName,
             IsActive = light.IsActive,
             PowerActive = light.PowerActive,
             RoomId = light.RoomId,
@@ -349,7 +349,7 @@ public class RoomService : IRoomService
         return new GetWindowDto()
         {
             Id = window.Id,
-            Name = window.WindowName,
+            WindowName = window.WindowName,
             IsLocked = window.IsLocked,
             IsOpen = window.IsOpen,
             OpenedBy = window.OpenedBy,

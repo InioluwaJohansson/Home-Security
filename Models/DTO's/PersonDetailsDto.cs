@@ -22,7 +22,7 @@ public class UpdatePersonDetailsDto
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
-    public IFormFile ImageUrl { get; set; }
+    public IFormFile? ImageUrl { get; set; }
     // public List<GetContactDetailsDto> GetContactDetailsDtos { get; set; }
     // public List<UpdateAddressDto> UpdateAddressDtos { get; set; }
 }
