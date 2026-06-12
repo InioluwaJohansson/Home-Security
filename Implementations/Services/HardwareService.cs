@@ -132,7 +132,7 @@ public class HardwareService : IHardwareService
     {
         var hardware = await _hardwareRepo.GetHardwareByFacilityTypeId(id, facilityType);
         if(hardware != null) return hardware.HardwareId;
-        return null;
+        return "";
     }
     public GetHardwareDto GetDetails(Hardware hardware)
     {
