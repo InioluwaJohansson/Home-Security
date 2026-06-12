@@ -170,8 +170,8 @@ public class LightControl : ILightControl
         x.LastModifiedByName = _authControl.GetUserPersonName(x.LastModifiedBy);
         x.PeronName = _authControl.GetUserPersonName(x.personId);
         x.CreatedByName = _authControl.GetUserPersonName(x.CreatedBy);
-        x.RoomName = _authControl.GetRoomName(x.RoomId);
-        x.SectionName = _authControl.GetSectionName(x.SectionId);
+        x.RoomName = _authControl.GetRoomName(x.RoomId ?? 0);
+        x.SectionName = _authControl.GetSectionName(x.SectionId ?? 0);
         return x;
     }
 }

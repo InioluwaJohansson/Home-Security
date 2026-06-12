@@ -21,6 +21,12 @@ public class FingerPrintPayload
     public int PersonId { get; set; }
     public string Message { get; set; }
 }
+public class FingerPrintVerifyDataDto
+{
+    public byte [] Data { get; set; }
+    public string Token { get; set; }
+    public string HardwareId { get; set;}
+}
 public class FingerPrintResponseModel : BaseResponse
 {
     public GetFingerPrintDto Data { get; set; }

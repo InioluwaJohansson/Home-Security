@@ -36,8 +36,8 @@ public class ContactCategoryService : IContactCategoryService
             };
 
             await _contactCategoryRepo.Create(contactCategory);
-
-            await _realtime.NotifyAll("ContactCategoryCreated", GetDetails(contactCategory));
+            var contactCategoryData = await _contactCategoryRepo.Get(x => x.CategoryId == contactCategory.CategoryId);
+            await _realtime.NotifyAll("ContactCategoryCreated", GetDetails(contactCategoryData));
 
             return new BaseResponse()
             {

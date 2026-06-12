@@ -39,6 +39,11 @@ public class UpdateUserAuthorizationCode
     public string TokenCode { get; set; }
     public string NewAuthorizationCode { get; set; }
 }
+public class NFIDLoginDto
+{
+    public string Token { get; set; }
+    public string NFIDCode { get; set; }
+}
 public class UserLoginResponse : BaseResponse
 {
     public GetUserDto Data { get; set; }

@@ -37,14 +37,8 @@ public class LogService : ILogService
                 IsDeleted = false
             };
             await _logRepo.Create(log);
-            await _realtime.NotifyAll("LogCreated", new
-            {
-                log.Id,
-                log.PersonId,
-                log.ActionType,
-                log.LogDetails,
-                log.TimeOfAction
-            });
+            var logData = await _logRepo.Get(x => x.CreatedOn == log.CreatedOn);
+            await _realtime.NotifyAll("LogCreated", await GetDetails(logData));
 
             return new BaseResponse()
             {

@@ -55,7 +55,7 @@ public class PersonController : Controller
     }
     [Authorize]
     [HttpPut("AddPersonAddress")]
-    public async Task<IActionResult> AddPersonAddress(int personId, [FromBody] List<CreateAddressDto> createAddressDtos)
+    public async Task<IActionResult> AddPersonAddress([FromBody] List<CreateAddressDto> createAddressDtos)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -64,7 +64,7 @@ public class PersonController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var person = await _personControl.AddPersonAddress(getAuthControlInfoDto, personId, createAddressDtos);
+        var person = await _personControl.AddPersonAddress(getAuthControlInfoDto, createAddressDtos);
         if (person.Status == true)
         {
             return Ok(person);
@@ -73,7 +73,7 @@ public class PersonController : Controller
     }
     [Authorize]
     [HttpPut("AddPersonDetails")]
-    public async Task<IActionResult> AddPersonDetails(int personId, [FromBody] List<CreateContactDetailsDto> createContactDetailsDtos)
+    public async Task<IActionResult> AddPersonDetails([FromBody] List<CreateContactDetailsDto> createContactDetailsDtos)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -82,7 +82,7 @@ public class PersonController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var person = await _personControl.AddPersonDetails(getAuthControlInfoDto, personId, createContactDetailsDtos);
+        var person = await _personControl.AddPersonDetails(getAuthControlInfoDto, createContactDetailsDtos);
         if (person.Status == true)
         {
             return Ok(person);
@@ -163,7 +163,7 @@ public class PersonController : Controller
     }
     [Authorize]
     [HttpPut("DeletePersonContactDetails")]
-    public async Task<IActionResult> DeletePersonContactDetails(int personId, int personProfileDetailId)
+    public async Task<IActionResult> DeletePersonContactDetails(int personProfileDetailId)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -172,7 +172,7 @@ public class PersonController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var person = await _personControl.DeletePersonContactDetails(getAuthControlInfoDto, personId, personProfileDetailId);
+        var person = await _personControl.DeletePersonContactDetails(getAuthControlInfoDto, personProfileDetailId);
         if (person.Status == true)
         {
             return Ok(person);
@@ -181,7 +181,7 @@ public class PersonController : Controller
     }
     [Authorize]
     [HttpPut("DeletePersonContactAddress")]
-    public async Task<IActionResult> DeletePersonContactAddress(int personId, int personProfileAddressId)
+    public async Task<IActionResult> DeletePersonContactAddress(int personProfileAddressId)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -190,7 +190,7 @@ public class PersonController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var person = await _personControl.DeletePersonContactAddress(getAuthControlInfoDto, personId, personProfileAddressId);
+        var person = await _personControl.DeletePersonContactAddress(getAuthControlInfoDto, personProfileAddressId);
         if (person.Status == true)
         {
             return Ok(person);

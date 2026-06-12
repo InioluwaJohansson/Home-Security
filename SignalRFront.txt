@@ -1,0 +1,959 @@
+//Action
+await _realtime.NotifyAll("ActionCreated", new
+{
+    ActionId = actionData.Id,
+    actionData.ActionName,
+    actionData.Description
+});
+
+await _realtime.NotifyAll("ActionUpdated", new
+{
+    ActionId = action.Id,
+    action.ActionName,
+    action.Description
+});
+await _realtime.NotifyAll("ActionActivationChanged", new
+{
+    ActionId = action.Id,
+    action.ActionName,
+    action.IsActive
+});
+await _realtime.NotifyAll("ActionDeleted", new
+{
+    ActionId = action.Id,
+    action.ActionName
+});
+await _realtime.NotifyAll("ApplianceTriggered", new
+{
+    appliance.Id,
+    appliance.IsActive
+});
+await _realtime.NotifyAll("CameraTriggered", new
+{
+    camera.Id,
+    camera.IsActive
+});
+await _realtime.NotifyAll("LightTriggered", new
+{
+    light.Id,
+    light.IsActive,
+    light.BrightnessLevel
+});
+await _realtime.NotifyAll("DoorTriggered", new
+{
+    door.Id,
+    door.IsOpen,
+    door.IsLocked
+});
+await _realtime.NotifyAll("WindowTriggered", new
+{
+    window.Id,
+    window.IsOpen,
+    window.IsLocked
+});
+await _realtime.NotifyAll("ActionTriggered", new
+{
+    ActionId = action.Id,
+    action.ActionName
+});
+await _realtime.NotifyAll("ActionStepAdded", new
+{
+    ActionId = actionData.Id,
+    TotalSteps = actionData.ActionSteps.Count,
+    Data = GetActionDetails(actionData)
+});
+await _realtime.NotifyAll("ActionStepUpdated", new
+{
+    ActionId = actionData.Id,
+    TotalSteps = actionData.ActionSteps.Count,
+    Data = GetActionDetails(actionData)
+});
+await _realtime.NotifyAll("ActionStepDeleted", new
+{
+    ActionId = action.Id,
+    ActionStepId = actionStep.Id
+});
+private GetActionDto GetActionDetails(Action action)
+{
+    return new GetActionDto
+    {
+        Id = action.Id,
+        ActionName = action.ActionName,
+        ActionDescription = action.Description,
+        ActionActive = action.IsActive,
+        ActionId = action.ActionId,
+        GetActionStepDtos = action.ActionSteps.Select(x => new GetActionStepDto
+        {
+            Id = x.Id,
+            ActionId = x.ActionId,
+            FacilityType = x.FacilityType,
+            FacilityTypeId = x.FacilityTypeId,
+            BrightnessLevel = x.BrightnessLevel,
+            IsLocked = x.IsLocked,
+            IsOpen = x.IsOpen,
+            IsActive = x.IsActive,
+        }).ToList(),
+    };
+}
+
+//Appliance
+await _realtime.NotifyAll("ApplianceCreated", GetApplianceDetails(applianceData));
+await _realtime.NotifyAll("ApplianceUpdated", GetApplianceDetails(applianceData));
+await _realtime.NotifyAll("ApplianceDeleted", new
+{
+    appliance.Id,
+    appliance.ApplianceId
+});
+public GetApplianceDto GetApplianceDetails(Appliance appliance)
+{
+    return new GetApplianceDto()
+    {
+        Id = appliance.Id,
+        ApplianceName = appliance.ApplianceName,
+        IsActive = appliance.IsActive,
+        PowerActive = appliance.PowerActive,
+        RoomId = appliance.RoomId,
+        SectionId = appliance.SectionId,
+        ApplianceId = appliance.ApplianceId,
+        ApplianceType = appliance.ApplianceType.ToString(),
+        LastModifiedBy = appliance.LastModifiedBy,
+        DeletedBy = appliance.DeletedBy,
+        CreatedBy = appliance.CreatedBy,
+        LastModifiedOn = appliance.LastModifiedOn,
+        CreatedOn = appliance.CreatedOn,
+        IsDeleted = appliance.IsDeleted,
+        IsHidden = appliance.IsHidden,
+    };
+}
+
+//Camera
+await _realtime.NotifyAll("CameraCreated", GetCameraDetails(cameraData));
+await _realtime.NotifyAll("CameraUpdated", GetCameraDetails(cameraData));
+await _realtime.NotifyAll("CameraDeleted", new
+{
+    camera.Id,
+    camera.CameraId
+});
+public GetCameraDto GetCameraDetails(Camera camera)
+{
+    return new GetCameraDto
+    {
+        Id = camera.Id,
+        CameraName = camera.CameraName,
+        CameraId = camera.CameraId,
+
+        IsActive = camera.IsActive,
+        PowerActive = camera.PowerActive,
+
+        RoomId = camera.RoomId,
+        SectionId = camera.SectionId,
+
+        LastModifiedBy = camera.LastModifiedBy,
+        DeletedBy = camera.DeletedBy,
+        CreatedBy = camera.CreatedBy,
+
+        LastModifiedOn = camera.LastModifiedOn,
+        CreatedOn = camera.CreatedOn,
+
+        LiveStreamUrl = camera.LiveStreamUrl,
+        IsHidden = camera.IsHidden,
+
+        Recordings = camera.Recordings == null
+            ? new List<GetRecordingDto>()
+            : camera.Recordings.Select(x => new GetRecordingDto
+            {
+                FilePath = x.FilePath,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime
+            }).ToList()
+    };
+}
+
+//FingerPrint
+await _realtimeNotificationService.NotifyAll("fingerprint_received", new
+{
+    PersonId = fingerPrintDataDto.PersonId,
+    Message = "Fingerprint data received",
+    FingerPrintEncoding = fingerPrintDataDto.FingerPrintEncoding
+});
+
+//External
+await _realtime.NotifyAll("ExternalsCreated", GetExternalDetails(externalData));
+await _realtime.NotifyAll("ExternalsUpdated", GetExternalDetails(externalData));
+await _realtime.NotifyAll("ExternalsDeleted", new
+{
+    externalData.Id,
+});
+public GetExternalDto GetExternalDetails(External External)
+{
+    return new GetExternalDto()
+    {
+        Id = External.Id,
+        ExternalName = External.ExternalName,
+        IsTriggered = External.IsTriggered,
+        IsActive = External.IsActive,
+        PowerActive = External.PowerActive,
+        RoomId = External.RoomId,
+        SectionId = External.SectionId,
+        ExternalId = External.ExternalId,
+        LastModifiedBy = External.LastModifiedBy,
+        DeletedBy = External.DeletedBy,
+        CreatedBy = External.CreatedBy,
+        LastModifiedOn = External.LastModifiedOn,
+        CreatedOn = External.CreatedOn,
+        IsDeleted = External.IsDeleted,
+        IsHidden = External.IsHidden,
+    };
+}
+
+//Light
+await _realtime.NotifyAll("LightCreated", GetLightDetails(lightData));
+await _realtime.NotifyAll("LightUpdated", GetLightDetails(light));
+await _realtime.NotifyAll("LightDeleted", new
+{
+    light.Id,
+});
+public GetLightDto GetLightDetails(Light light)
+{
+    return new GetLightDto()
+    {
+        Id = light.Id,
+        LightName = light.LightName,
+        IsActive = light.IsActive,
+        PowerActive = light.PowerActive,
+        RoomId = light.RoomId,
+        SectionId = light.SectionId,
+        LightId = light.LightId,
+        LastModifiedBy = light.LastModifiedBy,
+        DeletedBy = light.DeletedBy,
+        CreatedBy = light.CreatedBy,
+        LastModifiedOn = light.LastModifiedOn,
+        CreatedOn = light.CreatedOn,
+        IsDeleted = light.IsDeleted,
+        BrightnessLevel = light.BrightnessLevel,
+        IsHidden = light.IsHidden,
+    };
+}
+
+//Logs
+await _realtime.NotifyAll("LogCreated", GetLogDetails(logData));
+public async Task<GetLogDto> GetLogDetails(Logs log)
+{
+    var person = await _personRepo.GetById(log.PersonId);
+    GetPersonDto getPerson = new GetPersonDto();
+    if (person != null)
+    {
+        getPerson = new GetPersonDto()
+        {
+            Id = person.Id,
+            PersonId = person.PersonId,
+            Disabled = person.Disabled,
+            GetUserDto = new GetUserDto()
+            {
+                Id = person.User.Id,
+                UserName = person.User.UserName,
+                Role = person.User.UserRole.Role,
+                RoleName = person.User.UserRole.Role.ToString()
+            },
+            GetPersonDetailsDto = new GetPersonDetailsDto()
+            {
+                Id = person.PersonDetails.Id,
+                FirstName = person.PersonDetails.FirstName,
+                LastName = person.PersonDetails.LastName,
+                ImageUrl = person.PersonDetails.ImageUrl,
+                Gender = person.PersonDetails.Gender,
+            }
+        };
+    }
+    return new GetLogDto()
+    {
+        Id = log.Id,
+        PersonId = log.PersonId,
+        TimeOfAction = log.TimeOfAction,
+        LogDetails = log.LogDetails,
+        ActionType = log.ActionType,
+        GetPersonDto = getPerson,
+    };
+}
+
+//Room
+await _realtime.NotifyAll("RoomCreated", GetRoomDetails(roomData));
+await _realtime.NotifyAll("RoomUpdated", GetRoomDetails(room));
+await _realtime.NotifyAll("RoomDeleted", id);
+public GetRoomDto GetRoomDetails(Room room)
+{
+    return new GetRoomDto()
+    {
+        Id = room.Id,
+        RoomId = room.RoomId,
+        RoomName = room.RoomName,
+        SectionId = room.SectionId,
+        personId = room.PersonId,
+        Icon = room.Icon,
+        IsHidden = room.IsHidden,
+        Doors = room.Door.Select(x => GetDoorDetails(x)).ToList(),
+        Appliances = room.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
+        Lights = room.Light.Select(x => GetLightDetails(x)).ToList(),
+        Windows = room.Window.Select(x => GetWindowDetails(x)).ToList(),
+        Cameras = room.Camera.Select(x => GetCameraDetails(x)).ToList(),
+        Externals = room.External.Select(x => GetExternalDetails(x)).ToList(),
+        LastModifiedBy = room.LastModifiedBy,
+        CreatedBy = room.CreatedBy,
+        LastModifiedOn = room.LastModifiedOn,
+        CreatedOn = room.CreatedOn
+    };
+}
+public GetApplianceDto GetApplianceDetails(Appliance appliance)
+{
+    return new GetApplianceDto()
+    {
+        Id = appliance.Id,
+        ApplianceName = appliance.ApplianceName,
+        IsActive = appliance.IsActive,
+        PowerActive = appliance.PowerActive,
+        RoomId = appliance.RoomId,
+        SectionId = appliance.SectionId,
+        ApplianceId = appliance.ApplianceId,
+        LastModifiedBy = appliance.LastModifiedBy,
+        DeletedBy = appliance.DeletedBy,
+        CreatedBy = appliance.CreatedBy,
+        LastModifiedOn = appliance.LastModifiedOn,
+        CreatedOn = appliance.CreatedOn,
+        IsDeleted = appliance.IsDeleted,
+    };
+}
+public GetDoorDto GetDoorDetails(Door door)
+{
+    return new GetDoorDto()
+    {
+        Id = door.Id,
+        DoorName = door.DoorName,
+        DoorType = door.DoorType,
+        IsLocked = door.IsLocked,
+        IsOpen = door.IsOpen,
+        OpenedBy = door.OpenedBy,
+        LockedBy = door.LockedBy,
+        UnlockedBy = door.UnlockedBy,
+        IsActive = door.IsActive,
+        PowerActive = door.PowerActive,
+        RoomId = door.RoomId,
+        SectionId = door.SectionId,
+        DoorId = door.DoorId,
+        LastModifiedBy = door.LastModifiedBy,
+        DeletedBy = door.DeletedBy,
+        CreatedBy = door.CreatedBy,
+        LastModifiedOn = door.LastModifiedOn,
+        CreatedOn = door.CreatedOn,
+        IsDeleted = door.IsDeleted,
+    };
+}
+public GetCameraDto GetCameraDetails(Camera camera)
+{
+    return new GetCameraDto
+    {
+        Id = camera.Id,
+        CameraName = camera.CameraName,
+        CameraId = camera.CameraId,
+
+        IsActive = camera.IsActive,
+        PowerActive = camera.PowerActive,
+
+        RoomId = camera.RoomId,
+        SectionId = camera.SectionId,
+
+        LastModifiedBy = camera.LastModifiedBy,
+        DeletedBy = camera.DeletedBy,
+        CreatedBy = camera.CreatedBy,
+
+        LastModifiedOn = camera.LastModifiedOn,
+        CreatedOn = camera.CreatedOn,
+
+        LiveStreamUrl = camera.LiveStreamUrl,
+        Recordings = camera.Recordings.Select(x => new GetRecordingDto
+        {
+            FilePath = x.FilePath,
+            StartTime = x.StartTime,
+            EndTime = x.EndTime
+        }).ToList()
+    };
+}
+public GetExternalDto GetExternalDetails(External External)
+{
+    return new GetExternalDto()
+    {
+        Id = External.Id,
+        ExternalName = External.ExternalName,
+        IsTriggered = External.IsTriggered,
+        IsActive = External.IsActive,
+        PowerActive = External.PowerActive,
+        RoomId = External.RoomId,
+        SectionId = External.SectionId,
+        ExternalId = External.ExternalId,
+        LastModifiedBy = External.LastModifiedBy,
+        DeletedBy = External.DeletedBy,
+        CreatedBy = External.CreatedBy,
+        LastModifiedOn = External.LastModifiedOn,
+        CreatedOn = External.CreatedOn,
+        IsDeleted = External.IsDeleted,
+    };
+}
+public GetLightDto GetLightDetails(Light light)
+{
+    return new GetLightDto()
+    {
+        Id = light.Id,
+        LightName = light.LightName,
+        IsActive = light.IsActive,
+        PowerActive = light.PowerActive,
+        RoomId = light.RoomId,
+        SectionId = light.SectionId,
+        LightId = light.LightId,
+        LastModifiedBy = light.LastModifiedBy,
+        DeletedBy = light.DeletedBy,
+        CreatedBy = light.CreatedBy,
+        LastModifiedOn = light.LastModifiedOn,
+        CreatedOn = light.CreatedOn,
+        IsDeleted = light.IsDeleted,
+        BrightnessLevel = light.BrightnessLevel,
+    };
+}
+public GetWindowDto GetWindowDetails(Window window)
+{
+    return new GetWindowDto()
+    {
+        Id = window.Id,
+        WindowName = window.WindowName,
+        IsLocked = window.IsLocked,
+        IsOpen = window.IsOpen,
+        OpenedBy = window.OpenedBy,
+        LockedBy = window.LockedBy,
+        UnlockedBy = window.UnlockedBy,
+        IsActive = window.IsActive,
+        PowerActive = window.PowerActive,
+        RoomId = window.RoomId,
+        SectionId = window.SectionId,
+        WindowId = window.WindowId,
+        LastModifiedBy = window.LastModifiedBy,
+        DeletedBy = window.DeletedBy,
+        CreatedBy = window.CreatedBy,
+        LastModifiedOn = window.LastModifiedOn,
+        CreatedOn = window.CreatedOn,
+        IsDeleted = window.IsDeleted,
+        IsHidden = window.IsHidden,
+    };
+}
+
+//Door
+await _realtime.NotifyAll("DoorCreated", GetDoorDetails(door));
+await _realtime.NotifyAll("DoorUpdated", GetDoorDetails(door));
+public GetDoorDto GetDoorDetails(Door door)
+{
+    return new GetDoorDto()
+    {
+        Id = door.Id,
+        DoorName = door.DoorName,
+        DoorType = door.DoorType,
+        IsLocked = door.IsLocked,
+        IsOpen = door.IsOpen,
+        OpenedBy = door.OpenedBy,
+        LockedBy = door.LockedBy,
+        UnlockedBy = door.UnlockedBy,
+        IsActive = door.IsActive,
+        PowerActive = door.PowerActive,
+        RoomId = door.RoomId,
+        SectionId = door.SectionId,
+        DoorId = door.DoorId,
+        LastModifiedBy = door.LastModifiedBy,
+        DeletedBy = door.DeletedBy,
+        CreatedBy = door.CreatedBy,
+        LastModifiedOn = door.LastModifiedOn,
+        CreatedOn = door.CreatedOn,
+        IsDeleted = door.IsDeleted,
+        IsHidden = door.IsHidden,
+    };
+}
+
+//Window
+await _realtime.NotifyAll("WindowCreated", GetWindowDetails(windowData));
+await _realtime.NotifyAll("WindowUpdated", GetWindowDetails(window));
+public GetWindowDto GetWindowDetails(Window window)
+{
+    return new GetWindowDto()
+    {
+        Id = window.Id,
+        WindowName = window.WindowName,
+        IsLocked = window.IsLocked,
+        IsOpen = window.IsOpen,
+        OpenedBy = window.OpenedBy,
+        LockedBy = window.LockedBy,
+        UnlockedBy = window.UnlockedBy,
+        IsActive = window.IsActive,
+        PowerActive = window.PowerActive,
+        RoomId = window.RoomId,
+        SectionId = window.SectionId,
+        WindowId = window.WindowId,
+        LastModifiedBy = window.LastModifiedBy,
+        DeletedBy = window.DeletedBy,
+        CreatedBy = window.CreatedBy,
+        LastModifiedOn = window.LastModifiedOn,
+        CreatedOn = window.CreatedOn,
+        IsDeleted = window.IsDeleted,
+    };
+}
+
+//Hardware
+await _realtime.NotifyAll("HardwareCreated", GetDetails(hardwareData));
+await _realtime.NotifyAll("HardwareUpdated", GetDetails(hardware));
+public GetHardwareDto GetDetails(Hardware hardware)
+{
+    return new GetHardwareDto()
+    {
+        Id = hardware.Id,
+        HardwareName = hardware.HardwareName,
+        AuthKey = hardware.AuthKey,
+        IsActive = hardware.IsActive,
+        PowerActive = hardware.PowerActive,
+        HardwareId = hardware.HardwareId,
+        ApplianceIdNames = hardware.ApplianceIds.Select(x => GenericIdDetails(x, "appliance")).ToList(),
+        LightIdNames = hardware.LightIds.Select(x => GenericIdDetails(x, "light")).ToList(),
+        CameraIdNames = hardware.CameraIds.Select(x => GenericIdDetails(x, "camera")).ToList(),
+        WindowIdNames = hardware.WindowIds.Select(x => GenericIdDetails(x, "window")).ToList(),
+        DoorIdNames = hardware.DoorIds.Select(x => GenericIdDetails(x, "door")).ToList(),
+        ExternalIdNames = hardware.ExternalIds.Select(x => GenericIdDetails(x, "external")).ToList()
+    };
+}
+private GenericIdNames GenericIdDetails(int id, FacilityType facilityType)
+{
+    switch (facilityType)
+    {
+        case FacilityType.Appliance:
+            string data = _authControl.GetApplianceName(id);
+            if(data != null){
+                return new GenericIdNames(){
+                    Id = id,
+                    Name = data
+                };
+            }
+            break;
+        case FacilityType.Light:
+            string light = _authControl.GetLightName(id);
+            if(light != null){
+                return new GenericIdNames(){
+                    Id = id,
+                    Name = light
+                };
+            }
+            break;
+        case FacilityType.Camera:
+            string camera = _authControl.GetCameraName(id);
+            if(camera != null){
+                return new GenericIdNames(){
+                    Id = id,
+                    Name = camera
+                };
+            }
+            break;
+        case FacilityType.External:
+            string external = _authControl.GetExternalName(id);
+            if(external != null){
+                return new GenericIdNames(){
+                    Id = id,
+                    Name = external
+                };
+            }
+            break;
+        case FacilityType.Door:
+            string door = _authControl.GetDoorName(id);
+            if(door != null){
+                return new GenericIdNames(){
+                    Id = id,
+                    Name = door
+                };
+            }
+            break;
+        case FacilityType.Window:
+            string window = _authControl.GetWindowName(id);
+            if(window != null){
+                return new GenericIdNames(){
+                    Id = id,
+                    Name = window
+                };
+            }
+            break;
+
+    }
+    return new GenericIdNames(){
+        Id = id,
+        Name = null
+    };
+}
+
+//Section
+await _realtime.NotifyAll("SectionCreated", GetSectionDetails(sectionData));
+await _realtime.NotifyAll("SectionUpdated", GetSectionDetails(Section));
+await _realtime.NotifyAll("SectionDeleted", new
+{
+    Section.Id,
+});
+public GetSectionDto GetSectionDetails(Section Section)
+{
+    return new GetSectionDto()
+    {
+        Id = Section.Id,
+        SectionId = Section.SectionId,
+        Name = Section.SectionName,
+        IsHidden = Section.IsHidden,
+        Doors = Section.Door.Select(x => GetDoorDetails(x)).ToList(),
+        Appliances = Section.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
+        Lights = Section.Light.Select(x => GetLightDetails(x)).ToList(),
+        Windows = Section.Window.Select(x => GetWindowDetails(x)).ToList(),
+        Rooms = Section.Room.Select(x => GetRoomDetails(x)).ToList(),
+        Cameras = Section.Camera.Select(x => GetCameraDetails(x)).ToList(),
+        Externals = Section.External.Select(x => GetExternalDetails(x)).ToList(),
+    };
+}
+
+public GetRoomDto GetRoomDetails(Room room)
+{
+    return new GetRoomDto()
+    {
+        Id = room.Id,
+        RoomId = room.RoomId,
+        RoomName = room.RoomName,
+        SectionId = room.SectionId,
+        personId = room.PersonId,
+        Doors = room.Door.Select(x => GetDoorDetails(x)).ToList(),
+        Appliances = room.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
+        Lights = room.Light.Select(x => GetLightDetails(x)).ToList(),
+        Windows = room.Window.Select(x => GetWindowDetails(x)).ToList()
+    };
+}
+
+public GetApplianceDto GetApplianceDetails(Appliance appliance)
+{
+    return new GetApplianceDto()
+    {
+        Id = appliance.Id,
+        ApplianceName = appliance.ApplianceName,
+        IsActive = appliance.IsActive,
+        PowerActive = appliance.PowerActive,
+        SectionId = appliance.SectionId,
+        RoomId = appliance.RoomId,
+        ApplianceId = appliance.ApplianceId,
+        LastModifiedBy = appliance.LastModifiedBy,
+        DeletedBy = appliance.DeletedBy,
+        CreatedBy = appliance.CreatedBy,
+        LastModifiedOn = appliance.LastModifiedOn,
+        CreatedOn = appliance.CreatedOn,
+        IsHidden = appliance.IsHidden,
+    };
+}
+public GetCameraDto GetCameraDetails(Camera camera)
+{
+    return new GetCameraDto
+    {
+        Id = camera.Id,
+        CameraName = camera.CameraName,
+        CameraId = camera.CameraId,
+
+        IsActive = camera.IsActive,
+        PowerActive = camera.PowerActive,
+
+        RoomId = camera.RoomId,
+        SectionId = camera.SectionId,
+
+        LastModifiedBy = camera.LastModifiedBy,
+        DeletedBy = camera.DeletedBy,
+        CreatedBy = camera.CreatedBy,
+
+        LastModifiedOn = camera.LastModifiedOn,
+        CreatedOn = camera.CreatedOn,
+        IsHidden = camera.IsHidden,
+        LiveStreamUrl = camera.LiveStreamUrl,
+        Recordings = camera.Recordings.Select(x => new GetRecordingDto
+        {
+            FilePath = x.FilePath,
+            StartTime = x.StartTime,
+            EndTime = x.EndTime
+        }).ToList()
+    };
+}
+public GetExternalDto GetExternalDetails(External External)
+{
+    return new GetExternalDto()
+    {
+        Id = External.Id,
+        ExternalName = External.ExternalName,
+        IsTriggered = External.IsTriggered,
+        IsActive = External.IsActive,
+        PowerActive = External.PowerActive,
+        RoomId = External.RoomId,
+        SectionId = External.SectionId,
+        ExternalId = External.ExternalId,
+        LastModifiedBy = External.LastModifiedBy,
+        DeletedBy = External.DeletedBy,
+        CreatedBy = External.CreatedBy,
+        LastModifiedOn = External.LastModifiedOn,
+        CreatedOn = External.CreatedOn,
+        IsDeleted = External.IsDeleted,
+        IsHidden = External.IsHidden,
+    };
+}
+public GetDoorDto GetDoorDetails(Door door)
+{
+    return new GetDoorDto()
+    {
+        Id = door.Id,
+        DoorName = door.DoorName,
+        DoorType = door.DoorType,
+        IsLocked = door.IsLocked,
+        IsOpen = door.IsOpen,
+        OpenedBy = door.OpenedBy,
+        LockedBy = door.LockedBy,
+        UnlockedBy = door.UnlockedBy,
+        IsActive = door.IsActive,
+        PowerActive = door.PowerActive,
+        SectionId = door.RoomId,
+        RoomId = door.SectionId,
+        DoorId = door.DoorId,
+        LastModifiedBy = door.LastModifiedBy,
+        DeletedBy = door.DeletedBy,
+        CreatedBy = door.CreatedBy,
+        LastModifiedOn = door.LastModifiedOn,
+        CreatedOn = door.CreatedOn,
+        IsHidden = door.IsHidden,
+    };
+}
+
+public GetLightDto GetLightDetails(Light light)
+{
+    return new GetLightDto()
+    {
+        Id = light.Id,
+        LightName = light.LightName,
+        IsActive = light.IsActive,
+        PowerActive = light.PowerActive,
+        SectionId = light.SectionId,
+        RoomId = light.RoomId,
+        LightId = light.LightId,
+        LastModifiedBy = light.LastModifiedBy,
+        DeletedBy = light.DeletedBy,
+        CreatedBy = light.CreatedBy,
+        LastModifiedOn = light.LastModifiedOn,
+        CreatedOn = light.CreatedOn,
+        BrightnessLevel = light.BrightnessLevel,
+        IsHidden = light.IsHidden,
+    };
+}
+
+public GetWindowDto GetWindowDetails(Window window)
+{
+    return new GetWindowDto()
+    {
+        Id = window.Id,
+        WindowName = window.WindowName,
+        IsLocked = window.IsLocked,
+        IsOpen = window.IsOpen,
+        OpenedBy = window.OpenedBy,
+        LockedBy = window.LockedBy,
+        UnlockedBy = window.UnlockedBy,
+        IsActive = window.IsActive,
+        PowerActive = window.PowerActive,
+        SectionId = window.SectionId,
+        RoomId = window.RoomId,
+        WindowId = window.WindowId,
+        LastModifiedBy = window.LastModifiedBy,
+        DeletedBy = window.DeletedBy,
+        CreatedBy = window.CreatedBy,
+        LastModifiedOn = window.LastModifiedOn,
+        CreatedOn = window.CreatedOn,
+        IsHidden = window.IsHidden,
+    };
+}
+
+//AppNamesDetails
+await _realtimeNotificationService.NotifyAll("GetAppNamesDetails", GetAppNamesDetails());
+public async Task<AppNamesDetailList> GetAppNamesDetails()
+{
+    return new AppNamesDetailList
+    {
+        ApplianceIdNames = _authCache._applianceCache.Where(x => x.IsDeleted == false)
+        .Select(c => new GenericNames
+        {
+            Id = c.Id,
+            Name = c.ApplianceName,
+            IsHidden = c.IsHidden,
+        }).ToList(),
+        CameraIdNames = _authCache._cameraCache.Where(x => x.IsDeleted == false)
+        .Select(c => new GenericNames
+        {
+            Id = c.Id,
+            Name = c.CameraName,
+            IsHidden = c.IsHidden,
+        }).ToList(),
+        LightIdNames = _authCache._lightCache.Where(x => x.IsDeleted == false)
+        .Select(c => new GenericNames
+        {
+            Id = c.Id,
+            Name = c.LightName,
+            IsHidden = c.IsHidden,
+        }).ToList(),
+        WindowIdNames = _authCache._windowCache.Where(x => x.IsDeleted == false)
+        .Select(c => new GenericNames
+        {
+            Id = c.Id,
+            Name = c.WindowName,
+            IsHidden = c.IsHidden,
+        }).ToList(),
+        DoorIdNames = _authCache._doorCache.Where(x => x.IsDeleted == false)
+        .Select(c => new GenericNames
+        {
+            Id = c.Id,
+            Name = c.DoorName,
+            IsHidden = c.IsHidden,
+        }).ToList(),
+        ExternalIdNames = _authCache._externalCache.Where(x => x.IsDeleted == false)
+        .Select(c => new GenericNames
+        {
+            Id = c.Id,
+            Name = c.ExternalName,
+            IsHidden = c.IsHidden,
+        }).ToList(),
+        PersonIdNames = _authCache._cache
+        .Select(c => new GenericNames
+        {
+            Id = c.Id,
+            Name = c.PersonDetails.FirstName + " " + c.PersonDetails.LastName,
+            IsHidden = c.Disabled,
+            ImageUrl = ConvertImageToBase64(c.PersonDetails.ImageUrl) ?? "",
+        }).ToList(),
+        ContactCategoryIdNames = _authCache._contactCategoryCache.Where(x => x.IsDeleted == false)
+        .Select(c => new GenericIdNames
+        {
+            Id = c.Id,
+            Name = c.Name,
+        }).ToList(),
+        ActionIdNames = _authCache._actionCache.Where(x => x.IsDeleted == false)
+        .Select(c => new GenericIdNames
+        {
+            Id = c.Id,
+            Name = c.ActionName,
+        }).ToList(),
+        HardwareIdNames = _authCache._hardwareCache.Where(x => x.IsDeleted == false)
+        .Select(c => new GenericIdNames
+        {
+            Id = c.Id,
+            Name = c.HardwareName,
+        }).ToList(),
+        ApplianceType = EnumToList<ApplianceType>(),
+        Gender = EnumToList<Gender>(),
+        DoorType = EnumToList<DoorType>(),
+        FacilityType = EnumToList<FacilityType>(),
+        Role = EnumToList<Role>()
+    };
+}
+
+//ContactCategory
+await _realtime.NotifyAll("ContactCategoryCreated", GetContactCategoryDetails(contactCategoryData));
+await _realtime.NotifyAll("ContactCategoryUpdated", GetContactCategoryDetails(contactCategory));
+await _realtime.NotifyAll("ContactCategoryDeleted", new
+{
+    contactCategory.Id,
+    contactCategory.CategoryId
+});
+public GetContactCategoryDto GetContactCategoryDetails(ContactCategory contactCategory)
+{
+    return new GetContactCategoryDto()
+    {
+        Id = contactCategory.Id,
+        Name = contactCategory.Name,
+        Icon = contactCategory.Icon,
+        CategoryId = contactCategory.CategoryId,
+        LastModifiedBy = contactCategory.LastModifiedBy,
+        DeletedBy = contactCategory.DeletedBy,
+        CreatedBy = contactCategory.CreatedBy,
+        LastModifiedOn = contactCategory.LastModifiedOn,
+        CreatedOn = contactCategory.CreatedOn,
+        IsDeleted = contactCategory.IsDeleted,
+        Description = contactCategory.Description,
+    };
+}
+
+//Person
+await _realTime.NotifyAll("PersonCreated", GetPersonDetails(personData));
+await _realTime.NotifyAll("PersonUpdated", GetPersonDetails(person));
+await _realTime.NotifyAll("PersonStatusChanged", new
+{
+    person.Id,
+    person.Disabled
+});
+public GetPersonDto GetPersonDetails(Person person)
+{
+    return new GetPersonDto()
+    {
+        Id = person.Id,
+        PersonId = person.PersonId,
+        Disabled = person.Disabled,
+        CameraIds = person.CameraIds,
+        GetUserDto = new GetUserDto()
+        {
+            Id = person.User.Id,
+            UserName = person.User.UserName,
+            Role = person.User.UserRole.Role,
+            RoleName = person.User.UserRole.Role.ToString()
+        },
+        GetPersonDetailsDto = new GetPersonDetailsDto()
+        {
+            Id = person.PersonDetails.Id,
+            FirstName = person.PersonDetails.FirstName,
+            LastName = person.PersonDetails.LastName,
+            ImageUrl = ConvertImageToBase64(person.PersonDetails.ImageUrl) ?? "",
+            Gender = person.PersonDetails.Gender,
+            GetContactDetailsDtos = person.PersonDetails.ContactDetails.Select(x => GetContactDetails(x)).ToList() ?? new List<GetContactDetailsDto>(),
+            GetAddressDtos = person.PersonDetails.Addresses.Select(x => GetAddressDetails(x)).ToList(),
+        }
+    };
+}
+public GetAddressDto GetAddressDetails(Address address)
+{
+    return new GetAddressDto()
+    {
+        Id = address.Id,
+        ContactId = address.ContactId ?? 0,
+        PersonId = address.PersonDetailsId ?? 0,
+        NumberLine = address.NumberLine,
+        Street = address.Street,
+        City = address.City,
+        Region = address.Region,
+        State = address.State,
+        Country = address.Country,
+        PostalCode = address.PostalCode
+    };
+}
+public GetContactDetailsDto GetContactDetails(ContactDetails contactDetails)
+{
+    return new GetContactDetailsDto()
+    {
+        Id = contactDetails.Id,
+        ContactId = contactDetails.ContactId ?? 0,
+        PhoneNumber = contactDetails.PhoneNumber,
+        Email = contactDetails.Email,
+    };
+}
+public static string? ConvertImageToBase64(string? path)
+{
+    if (string.IsNullOrWhiteSpace(path))
+        return null;
+
+    if (!File.Exists(path))
+        return null;
+
+    var bytes = File.ReadAllBytes(path);
+
+    return Convert.ToBase64String(bytes);
+}
+
+
+https://kv5zhpcr-7190.uks1.devtunnels.ms/homeSecurityHub is the url for the signalR for the app except for chats while https://kv5zhpcr-7190.uks1.devtunnels.ms/chatHub is for chats
+in the NotifyAll method, the fitst parameter is what the signalr should listen for and the second parameter is the response from the server
+Understand and make provision where necessary in the app. 

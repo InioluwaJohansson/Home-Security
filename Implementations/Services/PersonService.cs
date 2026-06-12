@@ -32,27 +32,26 @@ public class PersonService : IPersonService
         var checkUser = await _userRepo.Get(x => x.UserName == createPersonDto.CreateUserDto.UserName);
         if (checkUser == null)
         {
-            var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Persons\\");
-            if (!System.IO.Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
+            // var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Persons\\");
+            // if (!System.IO.Directory.Exists(folderPath))
+            // {
+            //     Directory.CreateDirectory(folderPath);
+            // }
 
-            var imagePath = "";
-            if (createPersonDto.CreatePersonDetailsDto.ImageUrl != null)
-            {
-                var fileName = Path.GetFileNameWithoutExtension(createPersonDto.CreatePersonDetailsDto.ImageUrl.FileName);
-                var filePath = Path.Combine(folderPath, createPersonDto.CreatePersonDetailsDto.ImageUrl.FileName);
+            // if (createPersonDto.CreatePersonDetailsDto.ImageUrl != null)
+            // {
+            //     var fileName = Path.GetFileNameWithoutExtension(createPersonDto.CreatePersonDetailsDto.ImageUrl.FileName);
+            //     var filePath = Path.Combine(folderPath, createPersonDto.CreatePersonDetailsDto.ImageUrl.FileName);
 
-                if (!System.IO.Directory.Exists(filePath))
-                {
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await createPersonDto.CreatePersonDetailsDto.ImageUrl.CopyToAsync(stream);
-                    }
-                    imagePath = fileName;
-                }
-            }
+            //     if (!System.IO.Directory.Exists(filePath))
+            //     {
+            //         using (var stream = new FileStream(filePath, FileMode.Create))
+            //         {
+            //             await createPersonDto.CreatePersonDetailsDto.ImageUrl.CopyToAsync(stream);
+            //         }
+            //         imagePath = fileName;
+            //     }
+            // }
             var NFID = $"NFID{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16).ToUpper()}";
             var user = new User()
             {
@@ -91,9 +90,9 @@ public class PersonService : IPersonService
                     FirstName = createPersonDto.CreatePersonDetailsDto.FirstName,
                     LastName = createPersonDto.CreatePersonDetailsDto.LastName,
                     DateOfBirth = createPersonDto.CreatePersonDetailsDto.DateOfBirth,
-                    Age = createPersonDto.CreatePersonDetailsDto.Age,
+                    Age = DateTime.Now.Year - createPersonDto.CreatePersonDetailsDto.DateOfBirth.Year,
                     Gender = createPersonDto.CreatePersonDetailsDto.Gender,
-                    ImageUrl = imagePath,
+                    ImageUrl = "",
                     IsDeleted = false,
                     CreatedOn = DateTime.Now,
                     LastModifiedOn = DateTime.Now,
@@ -103,8 +102,8 @@ public class PersonService : IPersonService
             };
 
             await _personRepo.Create(person);
-
-            await _realTime.NotifyAll("PersonCreated", GetDetails(person));
+            var personData = await _personRepo.Get(x => x.PersonId == person.PersonId);
+            await _realTime.NotifyAll("PersonCreated", GetDetails(await _personRepo.GetById(personData.Id)));
 
             return new BaseResponse()
             {
@@ -153,7 +152,7 @@ public class PersonService : IPersonService
             person.PersonDetails.FirstName = updatePersonDto.UpdatePersonDetailsDto.FirstName ?? person.PersonDetails.FirstName;
             person.PersonDetails.LastName = updatePersonDto.UpdatePersonDetailsDto.LastName ?? person.PersonDetails.LastName;
             person.PersonDetails.ImageUrl = imagePath ?? person.PersonDetails.ImageUrl;
-            person.PersonDetails.Gender = updatePersonDto.UpdatePersonDetailsDto.Gender;
+            person.PersonDetails.Age = DateTime.Now.Year - person.PersonDetails.DateOfBirth.Year;
             person.LastModifiedOn = DateTime.Now;
 
             await _personRepo.Update(person);
@@ -209,9 +208,27 @@ public class PersonService : IPersonService
         {
             foreach (var addresses in createAddressDtos)
             {
+                if (addresses.Id != 0)
+                {
+                    var address1 = await _addressRepo.Get(x => x.Id == addresses.Id && x.IsDeleted == false);
+                    if (address1 != null)
+                    {
+                        address1.NumberLine = addresses.NumberLine ?? address1.NumberLine;
+                        address1.Street = addresses.Street ?? address1.Street;
+                        address1.City = addresses.City ?? address1.City;
+                        address1.Region = addresses.Region ?? address1.Region;
+                        address1.State = addresses.State ?? address1.State;
+                        address1.Country = addresses.Country ?? address1.Country;
+                        address1.PostalCode = addresses.PostalCode ?? address1.PostalCode;
+                        address1.LastModifiedBy = personId;
+                        address1.LastModifiedOn = DateTime.Now;
+                        await _addressRepo.Update(address1);
+                    }
+                }
                 var address = new Address()
                 {
                     PersonDetailsId = person.PersonDetails.Id,
+                    ContactId = null,
                     NumberLine = addresses.NumberLine,
                     Street = addresses.Street,
                     City = addresses.City,
@@ -246,11 +263,24 @@ public class PersonService : IPersonService
         {
             foreach (var contactDetail in createContactDetailsDto)
             {
+                if (contactDetail.Id != 0)
+                {
+                    var contactDetailes1 = await _contactDetailsRepo.Get(x => x.Id == contactDetail.Id && x.IsDeleted == false);
+                    if (contactDetailes1 != null)
+                    {
+                        contactDetailes1.PhoneNumber = contactDetail.PhoneNumber ?? contactDetailes1.PhoneNumber;
+                        contactDetailes1.Email = contactDetail.Email ?? contactDetailes1.Email;
+                        contactDetailes1.LastModifiedBy = personId;
+                        contactDetailes1.LastModifiedOn = DateTime.Now;
+                        await _contactDetailsRepo.Update(contactDetailes1);
+                    }
+                }
                 var contactDetailes = new ContactDetails()
                 {
                     PersonDetailsId = person.PersonDetails.Id,
-                    PhoneNumber = contactDetail.PhoneNumber,
-                    Email = contactDetail.Email,
+                    ContactId = null,
+                    PhoneNumber = contactDetail.PhoneNumber ?? "",
+                    Email = contactDetail.Email ?? "",
                     IsDeleted = false,
                     CreatedBy = personId,
                     LastModifiedBy = personId,
@@ -347,6 +377,10 @@ public class PersonService : IPersonService
                 user.IsDeleted = true;
             }
             await _personRepo.Update(person);
+            await _realTime.NotifyAll("PersonDeleted", new
+            {
+                person.Id,
+            });
             return new BaseResponse()
             {
                 Message = "Person Profile Deleted Successfully!",
@@ -427,7 +461,7 @@ public class PersonService : IPersonService
                 LastName = person.PersonDetails.LastName,
                 ImageUrl = ConvertImageToBase64(person.PersonDetails.ImageUrl) ?? "",
                 Gender = person.PersonDetails.Gender,
-                GetContactDetailsDtos = person.PersonDetails.ContactDetails.Select(x => GetContactDetails(x)).ToList(),
+                GetContactDetailsDtos = person.PersonDetails.ContactDetails.Select(x => GetContactDetails(x)).ToList() ?? new List<GetContactDetailsDto>(),
                 GetAddressDtos = person.PersonDetails.Addresses.Select(x => GetAddressDetails(x)).ToList(),
             }
         };
@@ -437,8 +471,8 @@ public class PersonService : IPersonService
         return new GetAddressDto()
         {
             Id = address.Id,
-            ContactId = address.ContactId,
-            PersonId = address.PersonDetailsId,
+            ContactId = address.ContactId ?? 0,
+            PersonId = address.PersonDetailsId ?? 0,
             NumberLine = address.NumberLine,
             Street = address.Street,
             City = address.City,
@@ -453,8 +487,7 @@ public class PersonService : IPersonService
         return new GetContactDetailsDto()
         {
             Id = contactDetails.Id,
-            ContactId = contactDetails.ContactId,
-            PersonDetailsId = contactDetails.PersonDetailsId,
+            ContactId = contactDetails.ContactId ?? 0,
             PhoneNumber = contactDetails.PhoneNumber,
             Email = contactDetails.Email,
         };
@@ -487,35 +520,13 @@ public class PersonService : IPersonService
                 FirstName = "Inioluwa",
                 LastName = "Johansson",
                 DateOfBirth = new DateOnly(2003, 08, 13),
-                Age = 21,
                 Gender = Gender.Male,
-                ImageUrl = null,
-                CreateAddressDtos = new List<CreateAddressDto>
-                {
-                    new CreateAddressDto
-                    {
-                        NumberLine = "12",
-                        Street = "Ore-Ofe",
-                        City = "Abeokuta",
-                        Region = "Odeda",
-                        State = "Ogun",
-                        Country = "Nigeria",
-                        PostalCode = "110121",
-                    },
-                },
-                CreateFingerPrintDtos = new List<CreateFingerPrintDto>
-                {
-                    new CreateFingerPrintDto
-                    {
-                        FingerPrintEncoding = null,
-                    },
-                }
             },
             CreateUserDto = new CreateUserDto
             {
                 UserName = "inioluwa_johansson",
                 Password = "Johansson13", // ⚠️ Consider hashing or securing this
-                AuthorizationCode = "1308",
+                AuthorizationCode = "132003",
                 Role = Role.Owner,
             }
         };

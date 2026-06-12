@@ -9,19 +9,10 @@ namespace Home_Security.Implementations.Services;
 public class RoomService : IRoomService
 {
     IRoomRepo _roomRepo;
-    ILightRepo _lightRepo;
-    IDoorRepo _doorRepo;
-    IWindowRepo _windowRepo;
-    IApplianceRepo _applianceRepo;
     IRealtimeNotificationService _realtime;
-
-    public RoomService(IRoomRepo roomRepo, ILightRepo lightRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IApplianceRepo applianceRepo, IRealtimeNotificationService realtime)
+    public RoomService(IRoomRepo roomRepo, IRealtimeNotificationService realtime)
     {
         _roomRepo = roomRepo;
-        _lightRepo = lightRepo;
-        _doorRepo = doorRepo;
-        _windowRepo = windowRepo;
-        _applianceRepo = applianceRepo;
         _realtime = realtime;
     }
     public async Task<BaseResponse> CreateRoom(CreateRoomDto createRoomDto, int personId)
@@ -31,8 +22,8 @@ public class RoomService : IRoomService
             var room = new Room()
             {
                 RoomId = $"ROOM{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
-                PersonId = createRoomDto.PersonId,
-                SectionId = createRoomDto.SectionId,
+                PersonId = createRoomDto.PersonId ?? null,
+                SectionId = createRoomDto.SectionId ?? null,
                 RoomName = createRoomDto.RoomName,
                 Icon = createRoomDto.Icon,
                 CreatedOn = DateTime.Now,
@@ -42,8 +33,8 @@ public class RoomService : IRoomService
                 IsDeleted = false,
             };
             await _roomRepo.Create(room);
-
-            await _realtime.NotifyAll("RoomCreated", room.Id);
+            var roomData = await _roomRepo.Get(x => x.RoomId == room.RoomId);
+            await _realtime.NotifyAll("RoomCreated", GetDetails(await _roomRepo.GetById(roomData.Id)));
 
             return new BaseResponse()
             {
@@ -62,8 +53,8 @@ public class RoomService : IRoomService
         var room = await _roomRepo.GetById(updateRoomDto.Id);
         if (room != null)
         {
-            room.PersonId = updateRoomDto.PersonId;
-            room.SectionId = updateRoomDto.SectionId;
+            room.PersonId = updateRoomDto.PersonId ?? null;
+            room.SectionId = updateRoomDto.SectionId ?? null;
             room.RoomName = updateRoomDto.RoomName ?? room.RoomName;
             room.Icon = updateRoomDto.Icon ?? room.Icon;
             if(room.IsHidden != updateRoomDto.IsHidden){
@@ -80,7 +71,7 @@ public class RoomService : IRoomService
 
             await _roomRepo.Update(room);
 
-            await _realtime.NotifyAll("RoomUpdated", room.Id);
+            await _realtime.NotifyAll("RoomUpdated", GetDetails(room));
 
             return new BaseResponse()
             {
@@ -224,15 +215,15 @@ public class RoomService : IRoomService
             RoomId = room.RoomId,
             RoomName = room.RoomName,
             SectionId = room.SectionId,
-            PersonId = room.PersonId,
+            personId = room.PersonId,
             Icon = room.Icon,
             IsHidden = room.IsHidden,
-            Doors = room.Door.Select(x => GetDoorDetails(x)).ToList(),
-            Appliances = room.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
-            Lights = room.Light.Select(x => GetLightDetails(x)).ToList(),
-            Windows = room.Window.Select(x => GetWindowDetails(x)).ToList(),
-            Cameras = room.Camera.Select(x => GetCameraDetails(x)).ToList(),
-            Externals = room.External.Select(x => GetExternalDetails(x)).ToList(),
+            Doors = room.Door == null ? new List<GetDoorDto>() : room.Door.Select(x => GetDoorDetails(x)).ToList(),
+            Appliances = room.Appliance == null ? new List<GetApplianceDto>() : room.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
+            Lights = room.Light == null ? new List<GetLightDto>() : room.Light.Select(x => GetLightDetails(x)).ToList(),
+            Windows = room.Window == null ? new List<GetWindowDto>() : room.Window.Select(x => GetWindowDetails(x)).ToList(),
+            Cameras = room.Camera == null ? new List<GetCameraDto>() : room.Camera.Select(x => GetCameraDetails(x)).ToList(),
+            Externals = room.External == null ? new List<GetExternalDto>() : room.External.Select(x => GetExternalDetails(x)).ToList(),
             LastModifiedBy = room.LastModifiedBy,
             CreatedBy = room.CreatedBy,
             LastModifiedOn = room.LastModifiedOn,

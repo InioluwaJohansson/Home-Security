@@ -10,12 +10,14 @@ namespace Home_Security.Implementations.Services;
 public class ApplianceService : IApplianceService
 {
     IApplianceRepo _applianceRepo;
+    IHardwareService _hardwareService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
 
-    public ApplianceService(IApplianceRepo applianceRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
+    public ApplianceService(IApplianceRepo applianceRepo, IHardwareService hardwareService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _applianceRepo = applianceRepo;
+        _hardwareService = hardwareService;
         _realtime = realtime;
         _mqtt = mqtt;
     }
@@ -30,8 +32,8 @@ public class ApplianceService : IApplianceService
                 ApplianceName = createApplianceDto.ApplianceName,
                 IsActive = false,
                 PowerActive = false,
-                SectionId = createApplianceDto.SectionId,
-                RoomId = createApplianceDto.RoomId,
+                SectionId = createApplianceDto.SectionId ?? null,
+                RoomId = createApplianceDto.RoomId ?? null,
                 ApplianceType = createApplianceDto.ApplianceType,
                 IsDeleted = false,
                 CreatedBy = personId,
@@ -39,15 +41,16 @@ public class ApplianceService : IApplianceService
                 LastModifiedOn = DateTime.Now,
                 CreatedOn = DateTime.Now
             };
-
+            Console.WriteLine($"RoomId: {appliance.RoomId}");
+            Console.WriteLine($"SectionId: {appliance.SectionId}");
             await _applianceRepo.Create(appliance);
-
-            await _realtime.NotifyAll("ApplianceCreated", GetDetails(appliance));
-
-            await _mqtt.PublishDeviceUpdate(appliance.ApplianceId, new GenericDeviceUpdateState
+            var applianceData = await _applianceRepo.Get(x => x.ApplianceId == appliance.ApplianceId);
+            await _realtime.NotifyAll("ApplianceCreated", GetDetails(applianceData));
+            var hardware = await _hardwareService.GetHardwareName(applianceData.Id, FacilityType.Appliance);
+            await _mqtt.PublishDeviceUpdate(hardware, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Appliance,
-                Id = appliance.Id,
+                Id = applianceData.Id,
                 IsActive = appliance.IsActive,
                 PowerActive = appliance.PowerActive,
                 IsLocked = false,
@@ -76,22 +79,22 @@ public class ApplianceService : IApplianceService
             var appliance = await _applianceRepo.Get(x => x.Id == updateApplianceDto.Id);
 
             appliance.ApplianceName = updateApplianceDto.ApplianceName ?? appliance.ApplianceName;
-            appliance.SectionId = updateApplianceDto.SectionId != 0 ? updateApplianceDto.SectionId : appliance.SectionId;
-            appliance.RoomId = updateApplianceDto.RoomId != 0 ? updateApplianceDto.RoomId : appliance.RoomId;
+            appliance.SectionId = updateApplianceDto.SectionId ?? null;
+            appliance.RoomId = updateApplianceDto.RoomId ?? null;
             appliance.IsActive = updateApplianceDto.IsActive;
             appliance.LastModifiedBy = personId;
             appliance.LastModifiedOn = DateTime.Now;
             appliance.ApplianceType = updateApplianceDto.ApplianceType;
-            await _applianceRepo.Update(appliance);
-
-            await _realtime.NotifyAll("ApplianceUpdated", GetDetails(appliance));
+            var applianceData = await _applianceRepo.Update(appliance);
+            var hardware = await _hardwareService.GetHardwareName(applianceData.Id, FacilityType.Appliance);
+            await _realtime.NotifyAll(hardware, GetDetails(applianceData));
 
             await _mqtt.PublishDeviceUpdate(appliance.ApplianceId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Appliance,
-                Id = appliance.Id,
-                IsActive = appliance.IsActive,
-                PowerActive = appliance.PowerActive,
+                Id = applianceData.Id,
+                IsActive = applianceData.IsActive,
+                PowerActive = applianceData.PowerActive,
                 IsLocked = false,
                 IsOpen = false,
                 BrightnessLevel = 0

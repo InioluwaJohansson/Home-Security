@@ -1,5 +1,6 @@
 using Home_Security.Authentication;
 using Home_Security.Context;
+using Home_Security.Entities.Chats;
 using Home_Security.Hubs;
 using Home_Security.Implementations.Controls;
 using Home_Security.Implementations.Repositories;
@@ -15,6 +16,14 @@ using Microsoft.Extensions.FileProviders;
 using Home_Security.RealTimeServices;
 using Home_Security.BackgroundServices;
 using Home_Security.Streaming;
+using Microsoft.AspNetCore.Mvc;
+using Home_Security.Interfaces.Services.Chats;
+using Home_Security.Interfaces.Repositories.Chats;
+using Home_Security.Interfaces.Controls.Chats;
+using Home_Security.Implementations.Controls.Chats;
+using Home_Security.Implementations.Controls.Messages;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,106 +91,159 @@ builder.Services.AddScoped<ITokenControl, TokenControl>();
 builder.Services.AddScoped<IWindowControl, WindowControl>();
 builder.Services.AddScoped<IDashboardControl, DashboardControl>();
 
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IChatRepo, ChatRepository>();
+builder.Services.AddScoped<IChatControl, ChatControl>();
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<IMessageRepo, MessageRepository>();
+builder.Services.AddScoped<IMessageControl, MessageControl>();
+
+builder.Services.AddSingleton<IAuthCache, AuthCache>();
+
 builder.Services.AddScoped<IJWTAuthentication, JWTAuthentication>();
 
 builder.Services.AddScoped<ICameraStreamingService, CameraStreamingService>();
 builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
 builder.Services.AddScoped<IMqttService, MqttService>();
+
+builder.Services.AddHostedService<StartupInitializer>();
 builder.Services.AddHostedService<BackgroundServices>();
+builder.Services.AddHostedService<AuthServices>();
+builder.Services.AddHostedService<HardwareServices>();
 builder.Services.AddHostedService<RecordingCleanupService>();
-builder.Services.AddSignalR();
+
 builder.Services.AddHttpContextAccessor();
-var connectionString = builder.Configuration.GetConnectionString("HomeSecurityContext");
-builder.Services.AddDbContext<HomeSecurityContext>(c => c.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+    options.HandshakeTimeout = TimeSpan.FromSeconds(30);
+});
+
+var jwtSection = builder.Configuration.GetSection("Jwt");
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.Authority = null;
+    options.Audience = jwtSection["Audience"];
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSection["Issuer"],
+        ValidAudience = jwtSection["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["SecretKey"]))
+    };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/HomeSecurityChatHub")) context.Token = accessToken;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/HomeSecurityHub")) context.Token = accessToken;
+
+            return Task.CompletedTask;
+        }
+    };
+});
+
+builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .Where(x => x.Value.Errors.Count > 0)
+            .Select(x => new
+            {
+                Field = x.Key,
+                Errors = x.Value.Errors.Select(e => e.ErrorMessage)
+            });
+
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(errors));
+
+        return new BadRequestObjectResult(errors);
+    };
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo {Title = "Home Security", Version = "v1"});
 });
 
-var jwtSection = builder.Configuration.GetSection("Jwt");
-var key = jwtSection["SecretKey"];
-var issuer = jwtSection["Issuer"];
-var audience = jwtSection["Audience"];
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("default", config =>
     {
-        options.Authority = issuer;
-        options.Audience = audience;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = issuer,
-            ValidAudience = audience,
-
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(key))
-        };
-
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                var accessToken = context.Request.Query["access_token"];
-                var path = context.HttpContext.Request.Path;
-
-                if (!string.IsNullOrEmpty(accessToken) &&
-                    path.StartsWithSegments("/chatHub"))
-                {
-                    context.Token = accessToken;
-                }
-
-                return Task.CompletedTask;
-            }
-        };
-         options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                var accessToken = context.Request.Query["access_token"];
-                var path = context.HttpContext.Request.Path;
-                if (!string.IsNullOrEmpty(accessToken) &&
-                    path.StartsWithSegments("/HomeSecurityHub"))
-                {
-                    context.Token = accessToken;
-                }
-                return Task.CompletedTask;
-            }
-        };
+        config.PermitLimit = 300;
+        config.Window = TimeSpan.FromMinutes(1);
+        config.QueueLimit = 0;
     });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Home_Security", policy =>
+    {
+        policy.WithOrigins("https://ais-dev-ypl2vxtjhgwlthzmvnxusu-717948104271.europe-west2.run.app", "https://ais-dev-62beulbfxtpne7lrxwnd4x-717948104271.europe-west2.run.app").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+    });
+});
 
+var connectionString = builder.Configuration.GetConnectionString("HomeSecurityContext");
+builder.Services.AddDbContext<HomeSecurityContext>(c => c.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 42))));
 
 var app = builder.Build();
-app.MapHub<HomeSecurityHub>("/homeSecurityHub");
-app.MapHub<ChatHub>("/homeSecurityChatHub");
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+try
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    using var scope = app.Services.CreateScope();
+    var initializer = scope.ServiceProvider.GetRequiredService<StartupInitializer>();
+    await initializer.StartAsync(CancellationToken.None);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Startup DB init failed: {ex.Message}");
 }
 var storagePath = Path.Combine(Directory.GetCurrentDirectory(), "storage");
-
-if (!Directory.Exists(storagePath))
-{
-    Directory.CreateDirectory(storagePath);
-}
+if (!Directory.Exists(storagePath)) Directory.CreateDirectory(storagePath);
 
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(storagePath),
     RequestPath = "/storage"
 });
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
+
+
+
 app.UseCors("Home_Security");
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseRouting();
+app.UseRateLimiter();
+app.UseWebSockets();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<HomeSecurityHub>("/HomeSecurityHub");
+app.MapHub<ChatHub>("/HomeSecurityChatHub");
+
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"➡️ Incoming Request: {context.Request.Method} {context.Request.Path}");
+    await next.Invoke();
+});
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+}
+    app.UseSwaggerUI();
+    app.UseSwagger();
+    
 app.Run();

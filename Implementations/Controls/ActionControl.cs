@@ -149,7 +149,7 @@ public class ActionControl : IActionControl
     public GetActionDto DtoRefactor(GetActionDto x)
     {
         x.LastModifiedByName = _authControl.GetUserPersonName(x.LastModifiedBy);
-        x.PeronName = _authControl.GetUserPersonName(x.personId);
+        x.PeronName = _authControl.GetUserPersonName(x.personId ?? 0);
         x.CreatedByName = _authControl.GetUserPersonName(x.CreatedBy);
         return x;
     }

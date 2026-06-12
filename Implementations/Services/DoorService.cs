@@ -10,12 +10,14 @@ namespace Home_Security.Implementations.Services;
 public class DoorService : IDoorService
 {
     IDoorRepo _doorRepo;
+    IHardwareService _hardwareService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
 
-    public DoorService(IDoorRepo doorRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
+    public DoorService(IDoorRepo doorRepo,IHardwareService hardwareService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _doorRepo = doorRepo;
+        _hardwareService = hardwareService;
         _realtime = realtime;
         _mqtt = mqtt;
     }
@@ -36,8 +38,8 @@ public class DoorService : IDoorService
                 UnlockedBy = personId,
                 IsActive = false,
                 PowerActive = false,
-                SectionId = createDoorDto.SectionId,
-                RoomId = createDoorDto.RoomId,
+                SectionId = createDoorDto.SectionId ?? null,
+                RoomId = createDoorDto.RoomId ?? null,
                 IsDeleted = false,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
@@ -45,13 +47,13 @@ public class DoorService : IDoorService
             };
 
             await _doorRepo.Create(door);
-
-            await _realtime.NotifyAll("DoorCreated", GetDetails(door));
-
+            var doorData = await _doorRepo.Get(x => x.DoorId == door.DoorId);
+            await _realtime.NotifyAll("DoorCreated", GetDetails(doorData));
+            var hardware = await _hardwareService.GetHardwareName(doorData.Id, FacilityType.Appliance);
             await _mqtt.PublishDeviceUpdate(door.DoorId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Door,
-                Id = door.Id,
+                Id = doorData.Id,
                 IsLocked = door.IsLocked,
                 IsOpen = door.IsOpen,
                 IsActive = door.IsActive,
@@ -87,11 +89,12 @@ public class DoorService : IDoorService
             door.LockedBy = updateDoorDto.LockedBy;
             door.UnlockedBy = updateDoorDto.UnlockedBy;
             door.LastModifiedOn = DateTime.Now;
-
+            door.SectionId = updateDoorDto.SectionId ?? null;
+            door.RoomId = updateDoorDto.RoomId ?? null;
             await _doorRepo.Update(door);
 
             await _realtime.NotifyAll("DoorUpdated", GetDetails(door));
-
+            var hardware = await _hardwareService.GetHardwareName(door.Id, FacilityType.Appliance);
             await _mqtt.PublishDeviceUpdate(door.DoorId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Door,

@@ -3,14 +3,18 @@ using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 using Home_Security.Interfaces.Controls;
+using Home_Security.RealTimeServices;
+using Home_Security.Models.Enums;
 namespace Home_Security.Implementations.Services;
 public class HardwareService : IHardwareService
 {
     IHardwareRepo _hardwareRepo;
+    IRealtimeNotificationService _realtime;
     IAuthControl _authControl;
-    public HardwareService(IHardwareRepo hardwareRepo, IAuthControl authControl)
+    public HardwareService(IHardwareRepo hardwareRepo, IRealtimeNotificationService realtime, IAuthControl authControl)
     {
         _hardwareRepo = hardwareRepo;
+        _realtime = realtime;
         _authControl = authControl;
     }
     public async Task<BaseResponse> CreateHardware(CreateHardwareDto createHardwareDto, int personId)
@@ -29,6 +33,8 @@ public class HardwareService : IHardwareService
                 IsDeleted = false,
             };
             await _hardwareRepo.Create(hardware);
+            var hardwareData = await _hardwareRepo.Get(x => x.HardwareId == hardware.HardwareId);
+            await _realtime.NotifyAll("HardwareCreated", GetDetails(hardwareData));
             return new BaseResponse()
             {
                 Status = true,
@@ -55,6 +61,7 @@ public class HardwareService : IHardwareService
             hardware.LastModifiedBy = personId;
             hardware.LastModifiedOn = DateTime.Now;
             await _hardwareRepo.Update(hardware);
+            await _realtime.NotifyAll("HardwareUpdated", GetDetails(hardware));
             return new BaseResponse()
             {
                 Status = true,
@@ -116,9 +123,16 @@ public class HardwareService : IHardwareService
                 {
                     hardware.PowerActive = false;
                     await _hardwareRepo.Update(hardware);
+                    await _realtime.NotifyAll("HardwareUpdated", GetDetails(hardware));
                 }
             }
         }
+    }
+    public async Task<string> GetHardwareName(int id, FacilityType facilityType)
+    {
+        var hardware = await _hardwareRepo.GetHardwareByFacilityTypeId(id, facilityType);
+        if(hardware != null) return hardware.HardwareId;
+        return "";
     }
     public GetHardwareDto GetDetails(Hardware hardware)
     {
@@ -130,69 +144,72 @@ public class HardwareService : IHardwareService
             IsActive = hardware.IsActive,
             PowerActive = hardware.PowerActive,
             HardwareId = hardware.HardwareId,
-            ApplianceIdNames = hardware.ApplianceIds.Select(x => GenericIdDetails(x, "appliance")).ToList(),
-            LightIdNames = hardware.LightIds.Select(x => GenericIdDetails(x, "light")).ToList(),
-            CameraIdNames = hardware.CameraIds.Select(x => GenericIdDetails(x, "camera")).ToList(),
-            WindowIdNames = hardware.WindowIds.Select(x => GenericIdDetails(x, "window")).ToList(),
-            DoorIdNames = hardware.DoorIds.Select(x => GenericIdDetails(x, "door")).ToList(),
-            ExternalIdNames = hardware.ExternalIds.Select(x => GenericIdDetails(x, "external")).ToList()
+            ApplianceIdNames = hardware.ApplianceIds.Select(x => GenericIdDetails(x, FacilityType.Appliance)).ToList(),
+            LightIdNames = hardware.LightIds.Select(x => GenericIdDetails(x, FacilityType.Light)).ToList(),
+            CameraIdNames = hardware.CameraIds.Select(x => GenericIdDetails(x, FacilityType.Camera)).ToList(),
+            WindowIdNames = hardware.WindowIds.Select(x => GenericIdDetails(x, FacilityType.Window)).ToList(),
+            DoorIdNames = hardware.DoorIds.Select(x => GenericIdDetails(x, FacilityType.Door)).ToList(),
+            ExternalIdNames = hardware.ExternalIds.Select(x => GenericIdDetails(x, FacilityType.External)).ToList()
         };
     }
-    private GenericIdNames GenericIdDetails(int id, string entityType)
+    private GenericIdNames GenericIdDetails(int id, FacilityType facilityType)
     {
-        if(entityType.Equals("appliance")){
-        string data = _authControl.GetApplianceName(id);
-        if(data != null){
-        return new GenericIdNames(){
-            Id = id,
-            Name = data
-        };
-        }
-        }
-        if(entityType.Equals("light")){
-        string data = _authControl.GetLightName(id);
-        if(data != null){
-        return new GenericIdNames(){
-            Id = id,
-            Name = data
-        };
-        }
-        }
-        if(entityType.Equals("camera")){
-        string data = _authControl.GetCameraName(id);
-        if(data != null){
-        return new GenericIdNames(){
-            Id = id,
-            Name = data
-        };
-        }
-        }
-        if(entityType.Equals("window")){
-        string data = _authControl.GetWindowName(id);
-        if(data != null){
-        return new GenericIdNames(){
-            Id = id,
-            Name = data
-        };
-        }
-        }
-        if(entityType.Equals("door")){
-        string data = _authControl.GetDoorName(id);
-        if(data != null){
-        return new GenericIdNames(){
-            Id = id,
-            Name = data
-        };
-        }
-        }
-        if(entityType.Equals("external")){
-        string data = _authControl.GetExternalName(id);
-        if(data != null){
-        return new GenericIdNames(){
-            Id = id,
-            Name = data
-        };
-        }
+        switch (facilityType)
+        {
+            case FacilityType.Appliance:
+                string data = _authControl.GetApplianceName(id);
+                if(data != null){
+                    return new GenericIdNames(){
+                        Id = id,
+                        Name = data
+                    };
+                }
+                break;
+            case FacilityType.Light:
+                string light = _authControl.GetLightName(id);
+                if(light != null){
+                    return new GenericIdNames(){
+                        Id = id,
+                        Name = light
+                    };
+                }
+                break;
+            case FacilityType.Camera:
+                string camera = _authControl.GetCameraName(id);
+                if(camera != null){
+                    return new GenericIdNames(){
+                        Id = id,
+                        Name = camera
+                    };
+                }
+                break;
+            case FacilityType.External:
+                string external = _authControl.GetExternalName(id);
+                if(external != null){
+                    return new GenericIdNames(){
+                        Id = id,
+                        Name = external
+                    };
+                }
+                break;
+            case FacilityType.Door:
+                string door = _authControl.GetDoorName(id);
+                if(door != null){
+                    return new GenericIdNames(){
+                        Id = id,
+                        Name = door
+                    };
+                }
+                break;
+            case FacilityType.Window:
+                string window = _authControl.GetWindowName(id);
+                if(window != null){
+                    return new GenericIdNames(){
+                        Id = id,
+                        Name = window
+                    };
+                }
+                break;
         }
         return new GenericIdNames(){
             Id = id,

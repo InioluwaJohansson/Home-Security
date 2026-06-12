@@ -28,8 +28,6 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
         {
             using var scope = _scopeFactory.CreateScope();
 
-            var cameraRepo = scope.ServiceProvider.GetRequiredService<ICameraRepo>();
-
             var cameras = await cameraRepo.GetByExpression(x => x.IsDeleted == false);
 
             var tasks = cameras.Select(camera => ProcessCamera(camera, stoppingToken));
@@ -50,7 +48,7 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
 
             if (!online)
             {
-                StopStream(camera);
+                await StopStream(camera);
                 camera.IsStreaming = false;
 
                 await cameraRepo.Update(camera);
@@ -63,7 +61,7 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
 
                 try
                 {
-                    StartStream(camera);
+                    await StartStream(camera);
 
                     camera.IsStreaming = true;
                     camera.LastStreamStart = DateTime.UtcNow;
@@ -105,7 +103,7 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
             }
         }
 
-        StartStream(camera);
+        await StartStream(camera);
     }
     public async Task<bool> CheckStreamAsync(string streamUrl)
     {

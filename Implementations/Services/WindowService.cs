@@ -10,12 +10,14 @@ namespace Home_Security.Implementations.Services;
 public class WindowService : IWindowService
 {
     IWindowRepo _windowRepo;
+    IHardwareService _hardwareService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
 
-    public WindowService(IWindowRepo windowRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
+    public WindowService(IWindowRepo windowRepo, IHardwareService hardwareService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _windowRepo = windowRepo;
+        _hardwareService = hardwareService;
         _realtime = realtime;
         _mqtt = mqtt;
     }
@@ -35,8 +37,8 @@ public class WindowService : IWindowService
                 UnlockedBy = personId,
                 IsActive = false,
                 PowerActive = false,
-                SectionId = createWindowDto.SectionId,
-                RoomId = createWindowDto.RoomId,
+                SectionId = createWindowDto.SectionId ?? null,
+                RoomId = createWindowDto.RoomId ?? null,
                 IsDeleted = false,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
@@ -44,9 +46,9 @@ public class WindowService : IWindowService
             };
 
             await _windowRepo.Create(window);
-
-            await _realtime.NotifyAll("WindowCreated", GetDetails(window));
-
+            var windowData = await _windowRepo.Get(x => x.WindowId == window.WindowId);
+            await _realtime.NotifyAll("WindowCreated", GetDetails(windowData));
+            var hardware = await _hardwareService.GetHardwareName(windowData.Id, FacilityType.Appliance);
             await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Window,
@@ -79,6 +81,8 @@ public class WindowService : IWindowService
             var window = await _windowRepo.Get(x => x.Id == updateWindowDto.Id && x.IsDeleted == false);
 
             window.WindowName = updateWindowDto.WindowName ?? window.WindowName;
+            window.SectionId = updateWindowDto.SectionId ?? null;
+            window.RoomId = updateWindowDto.RoomId ?? null;
             window.LastModifiedBy = personId;
             window.IsLocked = updateWindowDto.IsLocked;
             window.IsOpen = updateWindowDto.IsOpen;
@@ -90,7 +94,7 @@ public class WindowService : IWindowService
             await _windowRepo.Update(window);
 
             await _realtime.NotifyAll("WindowUpdated", GetDetails(window));
-
+            var hardware = await _hardwareService.GetHardwareName(window.Id, FacilityType.Appliance);
             await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Window,

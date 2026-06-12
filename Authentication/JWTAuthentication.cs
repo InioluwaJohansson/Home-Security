@@ -10,16 +10,16 @@ namespace Home_Security.Authentication;
 
 public class JWTAuthentication : IJWTAuthentication
 {
-    public string _key;
+    public IConfiguration _key;
     public JWTAuthentication(IConfiguration config)
     {
-        _key = config.GetSection("Jwt:SecretKey").Value ?? "HomeSecurity1234567890";
+        _key = config.GetSection("Jwt");
     }
     public string GenerateToken(GetUserDto getUserDto)
     {
         List<Claim> claims = new List<Claim>();
         var tokenHandler = new JwtSecurityTokenHandler();
-        var tokenKey = Encoding.ASCII.GetBytes(_key);
+        var tokenKey = Encoding.ASCII.GetBytes(_key["SecretKey"] ?? "HomeSecurity1234567890");
         claims.Add(new Claim("UserId", getUserDto.Id.ToString()));
         claims.Add(new Claim("PersonId", getUserDto.PersonId.ToString()));
         claims.Add(new Claim("UserName", getUserDto.UserName.ToString()));
@@ -33,8 +33,8 @@ public class JWTAuthentication : IJWTAuthentication
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(tokenKey),
                 SecurityAlgorithms.HmacSha256Signature),
-            Audience = "Home",
-            Issuer = "Owner",
+            Audience = _key["Audience"] ?? "Home",
+            Issuer = _key["Issuer"] ?? "Home_Security",
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
@@ -42,14 +42,14 @@ public class JWTAuthentication : IJWTAuthentication
     public GetUserDto? GetUserFromToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_key);
+        var key = Encoding.UTF8.GetBytes(_key["SecretKey"] ?? "HomeSecurity1234567890");
 
         var validationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidIssuer = "Owner",
-            ValidAudience = "Home",
+            ValidIssuer = _key["Issuer"] ?? "Home_Security",
+            ValidAudience = _key["Audience"] ?? "Home",
 
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(key),
@@ -87,7 +87,7 @@ public class JWTAuthentication : IJWTAuthentication
         };
 
         var credentials = new SigningCredentials(
-        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key)),
+        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key["SecretKey"] ?? "HomeSecurity1234567890")),
         SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
@@ -100,7 +100,7 @@ public class JWTAuthentication : IJWTAuthentication
     public bool ValidateHardwareToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_key);
+        var key = Encoding.UTF8.GetBytes(_key["SecretKey"] ?? "HomeSecurity1234567890");
 
         var validationParameters = new TokenValidationParameters
         {

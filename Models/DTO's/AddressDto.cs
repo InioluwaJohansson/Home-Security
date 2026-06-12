@@ -1,6 +1,7 @@
 ﻿namespace Home_Security.Models.DTOs;
 public class CreateAddressDto
 {
+    public int? Id { get; set; }
     public string NumberLine { get; set; }
     public string Street { get; set; }
     public string City { get; set; }

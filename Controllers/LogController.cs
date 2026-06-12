@@ -10,9 +10,9 @@ using System.Security.Claims;
 [ApiController]
 public class LogController : Controller
 {
-    ILogControl _logControl;
     IJWTAuthentication _jwtAuthentication;
-    public LogController(ILogControl logControl, JWTAuthentication jwtAuthentication)
+    ILogControl _logControl;
+    public LogController(ILogControl logControl, IJWTAuthentication jwtAuthentication)
     {
         _logControl = logControl;
         _jwtAuthentication = jwtAuthentication;

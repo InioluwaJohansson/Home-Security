@@ -197,32 +197,74 @@ public class ContactService : IContactService
             contact.ContactCategory = updateContactDto.ContactCategory;
             foreach (var contactDetail in updateContactDto.ContactDetails)
             {
-
-                var contactDetailes = await _contactDetailsRepo.Get(x => x.Id == contactDetail.Id && x.IsDeleted == false);
-                if(contactDetailes != null)
+                if(contactDetail.Id == 0)
                 {
-                    contactDetailes.PhoneNumber = contactDetail.PhoneNumber;
-                    contactDetailes.Email = contactDetail.Email;
-                    contactDetailes.LastModifiedBy = updateContactDto.personId;
-                    contactDetailes.LastModifiedOn = DateTime.Now;
-                    await _contactDetailsRepo.Update(contactDetailes);
-                };
+                    var contactDetailes = new ContactDetails()
+                    {
+                        ContactId = contact.Id,
+                        PersonDetailsId = null,
+                        PhoneNumber = contactDetail.PhoneNumber,
+                        Email = contactDetail.Email,
+                        IsDeleted = false,
+                        CreatedBy = updateContactDto.personId,
+                        LastModifiedBy = updateContactDto.personId,
+                        CreatedOn = DateTime.Now,
+                        LastModifiedOn = DateTime.Now,
+                    };
+                    await _contactDetailsRepo.Create(contactDetailes);
+                }
+                else
+                {
+                    var contactDetailes = await _contactDetailsRepo.Get(x => x.Id == contactDetail.Id && x.IsDeleted == false);
+                    if(contactDetailes != null)
+                    {
+                        contactDetailes.PhoneNumber = contactDetail.PhoneNumber;
+                        contactDetailes.Email = contactDetail.Email;
+                        contactDetailes.LastModifiedBy = updateContactDto.personId;
+                        contactDetailes.LastModifiedOn = DateTime.Now;
+                        await _contactDetailsRepo.Update(contactDetailes);
+                    };
+                }
             }
             foreach (var addresses in updateContactDto.Address)
             {
-                var address = await _addressRepo.Get(x => x.Id == addresses.Id && x.IsDeleted == false);
-                if(address != null)
+                if(addresses.Id == 0)
                 {
-                    address.NumberLine = addresses.NumberLine;
-                    address.Street = addresses.Street;
-                    address.City = addresses.City;
-                    address.Region = addresses.Region;
-                    address.State = addresses.State;
-                    address.Country = addresses.Country;
-                    address.PostalCode = addresses.PostalCode;
-                    address.LastModifiedBy = updateContactDto.personId;
-                    address.LastModifiedOn = DateTime.Now;
-                    await _addressRepo.Update(address);
+                    var address = new Address()
+                    {
+                        PersonDetailsId = null,
+                        ContactId = contact.Id,
+                        NumberLine = addresses.NumberLine,
+                        Street = addresses.Street,
+                        City = addresses.City,
+                        Region = addresses.Region,
+                        State = addresses.State,
+                        Country = addresses.Country,
+                        PostalCode = addresses.PostalCode,
+                        IsDeleted = false,
+                        CreatedBy = updateContactDto.personId,
+                        LastModifiedBy = updateContactDto.personId,
+                        CreatedOn = DateTime.Now,
+                        LastModifiedOn = DateTime.Now,
+                    };
+                    await _addressRepo.Create(address);
+                }
+                else
+                {
+                    var address = await _addressRepo.Get(x => x.Id == addresses.Id && x.IsDeleted == false);
+                    if(address != null)
+                    {
+                        address.NumberLine = addresses.NumberLine;
+                        address.Street = addresses.Street;
+                        address.City = addresses.City;
+                        address.Region = addresses.Region;
+                        address.State = addresses.State;
+                        address.Country = addresses.Country;
+                        address.PostalCode = addresses.PostalCode;
+                        address.LastModifiedBy = updateContactDto.personId;
+                        address.LastModifiedOn = DateTime.Now;
+                        await _addressRepo.Update(address);
+                    }
                 }
             }
             await _contactRepo.Update(contact);
@@ -447,8 +489,8 @@ public class ContactService : IContactService
         return new GetAddressDto()
         {
             Id = address.Id,
-            ContactId = address.ContactId,
-            PersonId = address.PersonDetailsId,
+            ContactId = address.ContactId ?? 0,
+            PersonId = address.PersonDetailsId ?? 0,
             NumberLine = address.NumberLine,
             Street = address.Street,
             City = address.City,
@@ -463,8 +505,7 @@ public class ContactService : IContactService
         return new GetContactDetailsDto()
         {
             Id = contactDetails.Id,
-            ContactId = contactDetails.ContactId,
-            PersonDetailsId = contactDetails.PersonDetailsId,
+            ContactId = contactDetails.ContactId ?? 0,
             PhoneNumber = contactDetails.PhoneNumber,
             Email = contactDetails.Email,
         };

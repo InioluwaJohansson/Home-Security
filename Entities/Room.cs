@@ -6,8 +6,8 @@ public class Room : AuditableEntity
     public string RoomId { get; set; }
     public string Icon { get; set; }
     public Person Person { get; set; }
-    public int PersonId { get; set; }
-    public int SectionId { get; set; }
+    public int? PersonId { get; set; }
+    public int? SectionId { get; set; }
     public bool IsHidden { get; set; }
     public List<Door> Door { get; set; }
     public List<Light> Light { get; set; }

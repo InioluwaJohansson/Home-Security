@@ -53,13 +53,13 @@ public class ActionService : IActionService
                 ActionId = $"ACTION{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}"
             };
 
-            await _actionRepo.Create(action);
+            var actionData = await _actionRepo.Create(action);
 
             await _realtime.NotifyAll("ActionCreated", new
             {
-                ActionId = action.Id,
-                action.ActionName,
-                action.Description
+                ActionId = actionData.Id,
+                actionData.ActionName,
+                actionData.Description
             });
 
             return new BaseResponse
@@ -385,7 +385,8 @@ public class ActionService : IActionService
             await _realtime.NotifyAll("ActionTriggered", new
             {
                 ActionId = action.Id,
-                action.ActionName
+                action.ActionName,
+                action.IsActive
             });
         }
     }
@@ -417,12 +418,13 @@ public class ActionService : IActionService
                 action.ActionSteps.Add(step);
             }
 
-            await _actionRepo.Update(action);
+            var actionData = await _actionRepo.Update(action);
 
             await _realtime.NotifyAll("ActionStepAdded", new
             {
-                ActionId = action.Id,
-                TotalSteps = action.ActionSteps.Count
+                ActionId = actionData.Id,
+                TotalSteps = actionData.ActionSteps.Count,
+                Data = GetDetails(actionData)
             });
 
             return new BaseResponse
@@ -461,12 +463,12 @@ public class ActionService : IActionService
                     step.LastModifiedBy = personId;
                 }
             }
-
-            await _actionRepo.Update(action);
-
+            var actionData = await _actionRepo.Update(action);
             await _realtime.NotifyAll("ActionStepUpdated", new
             {
-                ActionId = action.Id
+                ActionId = actionData.Id,
+                TotalSteps = actionData.ActionSteps.Count,
+                Data = GetDetails(actionData)
             });
 
             return new BaseResponse
@@ -475,7 +477,6 @@ public class ActionService : IActionService
                 Message = "Action Step Updated!",
             };
         }
-
         return new BaseResponse
         {
             Status = false,

@@ -62,6 +62,10 @@ public class DashboardControl : IDashboardControl
                 dashboard.WindowIdNames = dashboard.WindowIdNames.Where(x => x.IsHidden == false).ToList();
                 dashboard.DoorIdNames = dashboard.DoorIdNames.Where(x => x.IsHidden == false).ToList();
                 dashboard.ExternalIdNames = dashboard.ExternalIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.SectionIdNames = dashboard.SectionIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.PersonIdNames = dashboard.PersonIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.RoomIdNames = dashboard.RoomIdNames.Where(x => x.IsHidden == false).ToList();
+                return dashboard;
             }
         }
         return new AppNamesDetailList();

@@ -18,15 +18,15 @@ public class MicroControllerController : Controller
         _microControllerService = microControllerService;
         _jWTAuthentication = jWTAuth;
     }
-    [HttpGet("GetMicroControllerDetails")]
-    public async Task<IActionResult> GetMicroControllerDetails(string hardWareId, string AuthKey)
-    {
-        var microController = await _microControllerService.GetByAuth(hardWareId, AuthKey);
-        if (microController.Status == true)
-        {
-            microController.Token = _jWTAuthentication.GenerateHardwareToken(hardWareId,AuthKey);
-            return Ok(microController);
-        }
-        return Ok(microController);
-    }
+    // [HttpGet("GetMicroControllerDetails")]
+    // public async Task<IActionResult> GetMicroControllerDetails(string hardWareId, string AuthKey)
+    // {
+    //     var microController = await _microControllerService.GetByAuth(hardWareId, AuthKey);
+    //     if (microController.Status == true)
+    //     {
+    //         microController.Token = _jWTAuthentication.GenerateHardwareToken(hardWareId,AuthKey);
+    //         return Ok(microController);
+    //     }
+    //     return Ok(microController);
+    // }
 }

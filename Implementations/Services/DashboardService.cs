@@ -65,7 +65,7 @@ public class DashboardService : IDashboardService
                 }).ToList() ?? new List<GetActionDto>(),
                 Logs = sortedLogs,
                 CameraNamesUrls = CameraNamesUrls,
-                Rooms = rooms.Data.ToList(),
+                Rooms = rooms.Data.ToList() ?? new List<GetRoomDto>(),
                 Status = true,
             };
         }

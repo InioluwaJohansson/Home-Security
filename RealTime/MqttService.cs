@@ -64,8 +64,7 @@ public class MqttService : BackgroundService, IMqttService
                     if (update != null)
                     {
                         using var scope = _scopeFactory.CreateScope();
-                        var hardwareVerification = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
-                        if (!hardwareVerification.ValidateHardwareToken(update.Token) == true)
+                        if (ValidateHardwareToken(update.Token) == true)
                         {
                             var _microControllerService = scope.ServiceProvider.GetRequiredService<IMicroControllerService>();
                             await _microControllerService.UpdateDeviceStates(update);
@@ -85,11 +84,40 @@ public class MqttService : BackgroundService, IMqttService
                     if (update != null)
                     {
                         using var scope = _scopeFactory.CreateScope();
-                        var hardwareVerification = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
-                        if (!hardwareVerification.ValidateHardwareToken(update.Token) == true)
+                        if (ValidateHardwareToken(update.Token) == true)
                         {
                             var _fingerPrintService = scope.ServiceProvider.GetRequiredService<IFingerPrintService>();
                             await _fingerPrintService.ReceiveFingerPrint(update);
+                            _logger.LogInformation("FINGERPRINT DATA SENT");
+                        }
+                        _logger.LogWarning("INVALID HARDWARE TOKEN");
+                        return;
+                    }
+                }
+                if (topic.EndsWith("/fingerprint/verify"))
+                {
+                    var update = JsonSerializer.Deserialize<FingerPrintVerifyDataDto>(payload,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                    if (update != null)
+                    {
+                        using var scope = _scopeFactory.CreateScope();
+                        if (!ValidateHardwareToken(update.Token) == true)
+                        {
+                            var _fingerPrintService = scope.ServiceProvider.GetRequiredService<IFingerPrintService>();
+                            var data = await _fingerPrintService.VerifyFingerPrint(update.Data);
+                            if(data.Status == true)
+                            {
+                                await PublishFingerPrintVerify(update.HardwareId, data.Status);
+                                _logger.LogInformation("FINGERPRINT VERIFY RESPONSE SENT | Status: {Status}", data.Status);
+                            }
+                            else
+                            {
+                                await PublishFingerPrintVerify(update.HardwareId, false);
+                                _logger.LogInformation("FINGERPRINT VERIFY RESPONSE SENT | Status: False");
+                            }
                             _logger.LogInformation("FINGERPRINT DATA SENT");
                         }
                         _logger.LogWarning("INVALID HARDWARE TOKEN");
@@ -106,8 +134,7 @@ public class MqttService : BackgroundService, IMqttService
                     if (update != null)
                     {
                         using var scope = _scopeFactory.CreateScope();
-                        var hardwareVerification = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
-                        if (!hardwareVerification.ValidateHardwareToken(update.Token) == true)
+                        if (!ValidateHardwareToken(update.Token) == true)
                         {
                             var _hardwareRepo = scope.ServiceProvider.GetRequiredService<IHardwareRepo>();
                             var hardware = await _hardwareRepo.Get(h => h.HardwareId == update.HardwareId);
@@ -121,6 +148,48 @@ public class MqttService : BackgroundService, IMqttService
                             _logger.LogInformation("HARDWARE HEARTBEAT UPDATED");
                         }
                         _logger.LogWarning("INVALID HARDWARE TOKEN");
+                        return;
+                    }
+                }
+                if (topic.EndsWith("/NFID/verify"))
+                {
+                    var update = JsonSerializer.Deserialize<NFIDLoginDto>(payload,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                    if (update != null)
+                    {
+                        using var scope = _scopeFactory.CreateScope();
+                        if (!ValidateHardwareToken(update.Token) == true)
+                        {
+                            var _userService = scope.ServiceProvider.GetRequiredService<IUserService>();
+                            var response = await _userService.NFIDLogin(update.Token,update.NFIDCode);
+                            if(response.Status == true)
+                            {
+                                await PublishNFIDVerify(update.Token, response);
+                                _logger.LogInformation("NFID VERIFIED");
+                            }
+                        }
+                        _logger.LogWarning("INVALID HARDWARE TOKEN");
+                        return;
+                    }
+                }
+                if (topic.EndsWith("/Hardware/Auth"))
+                {
+                    var update = JsonSerializer.Deserialize<MicroControllerLoginDto>(payload,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                    if (update != null)
+                    {
+                        using var scope = _scopeFactory.CreateScope();
+                        var _hardwareService = scope.ServiceProvider.GetRequiredService<IMicroControllerService>();
+                        var response = await _hardwareService.GetByAuth(update.HardwareId, update.AuthKey);
+                        await PublishMicroControllerAuth(update.HardwareId, response);
+                        _logger.LogInformation("MICROCONTROLLER VERIFIED");
+
                         return;
                     }
                 }
@@ -189,6 +258,31 @@ public class MqttService : BackgroundService, IMqttService
             MqttQualityOfServiceLevel.AtLeastOnce);
         }).WithTopicFilter(f =>
         {
+            f.WithTopic("home/+/Hardware/Auth");
+            f.WithQualityOfServiceLevel(
+            MqttQualityOfServiceLevel.AtLeastOnce);
+        }).WithTopicFilter(f =>
+        {
+            f.WithTopic("home/+/fingerprint");
+            f.WithQualityOfServiceLevel(
+            MqttQualityOfServiceLevel.AtLeastOnce);
+        }).WithTopicFilter(f =>
+        {
+            f.WithTopic("home/+/fingerprint/verify");
+            f.WithQualityOfServiceLevel(
+            MqttQualityOfServiceLevel.AtLeastOnce);
+        }).WithTopicFilter(f =>
+        {
+            f.WithTopic("home/+/NFID/verify");
+            f.WithQualityOfServiceLevel(
+            MqttQualityOfServiceLevel.AtLeastOnce);
+        }).WithTopicFilter(f =>
+        {
+            f.WithTopic("home/+/heartbeat");
+            f.WithQualityOfServiceLevel(
+            MqttQualityOfServiceLevel.AtLeastOnce);
+        }).WithTopicFilter(f =>
+        {
             f.WithTopic("home/+/status");
             f.WithQualityOfServiceLevel(
             MqttQualityOfServiceLevel.AtLeastOnce);
@@ -201,6 +295,18 @@ public class MqttService : BackgroundService, IMqttService
         var topic = $"home/{hardwareId}/sync";
         await PublishAsync(topic, state, true);
         _logger.LogInformation("FULL STATE SYNC SENT");
+    }
+    private async Task PublishFingerPrintVerify(string hardwareId, bool response)
+    {
+        var topic = $"home/{hardwareId}/fingerprint/verify/response";
+        await PublishAsync(topic, response, true);
+        _logger.LogInformation("FINGERPRINT VERIFY RESPONSE SENT");
+    }
+    private async Task PublishNFIDVerify(string hardwareId, UserLoginResponse data)
+    {
+        var topic = $"home/{hardwareId}/NFID/Data";
+        await PublishAsync(topic, data, true);
+        _logger.LogInformation("NFID VERIFY RESPONSE SENT");
     }
     // SEND SINGLE DEVICE UPDATE
     public async Task PublishDeviceUpdate(string hardwareId, GenericDeviceUpdateState update)
@@ -222,6 +328,12 @@ public class MqttService : BackgroundService, IMqttService
         await PublishAsync(topic, objectToPublish, true);
         _logger.LogInformation("FINGERPRINT DATA SENT");
     }
+    public async Task PublishMicroControllerAuth(string hardwareId, object objectToPublish)
+    {
+        var topic = $"home/{hardwareId}/fingerprint";
+        await PublishAsync(topic, objectToPublish, true);
+        _logger.LogInformation("FINGERPRINT DATA SENT");
+    }
     public async Task PublishNFIDCode(string hardwareId, string nfidCode)
     {
         var topic = $"home/{hardwareId}/NFID";
@@ -235,5 +347,11 @@ public class MqttService : BackgroundService, IMqttService
         var message = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(json).WithRetainFlag(retain).WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce).Build();
         await _client.PublishAsync(message);
         _logger.LogInformation("MQTT MESSAGE PUBLISHED | Topic: {Topic}", topic);
+    }
+    private bool ValidateHardwareToken(string token)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var hardwareVerification = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
+        return hardwareVerification.ValidateHardwareToken(token);
     }
 }
