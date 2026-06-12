@@ -1,1 +1,2 @@
+
 i cant see the data from the get request for the section page applied correctly. I cant even see the section name and the details in the view section details modal. for the facility pages that have a toggle button when the toggle is pressed, it should send an update request to their respective endpoints and those that have a toggle do not need to open the authorization modal with key pad
