@@ -27,10 +27,12 @@ public class BackgroundServices : BackgroundService
 public class StartupInitializer : IHostedService
 {
     private readonly IServiceScopeFactory _scopeFactory;
+private readonly IConfiguration _configuration;
 
-    public StartupInitializer(IServiceScopeFactory scopeFactory)
+    public StartupInitializer(IServiceScopeFactory scopeFactory,IConfiguration configuration)
     {
         _scopeFactory = scopeFactory;
+_configuration = configuration;
     }
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -39,6 +41,9 @@ public class StartupInitializer : IHostedService
         await context.Database.MigrateAsync();
         var personService = scope.ServiceProvider.GetRequiredService<IPersonService>();
         await personService.InjectDefaultUser();
+var person = _configuration
+    .GetSection("SeedPerson")
+    .Get<CreatePersonDto>();
     }
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }
