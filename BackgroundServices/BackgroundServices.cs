@@ -1,8 +1,12 @@
 ﻿using Home_Security.Context;
+using Home_Security.Encryption;
 using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
+using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
+using Home_Security.StartUp;
 using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -27,12 +31,9 @@ public class BackgroundServices : BackgroundService
 public class StartupInitializer : IHostedService
 {
     private readonly IServiceScopeFactory _scopeFactory;
-private readonly IConfiguration _configuration;
-
-    public StartupInitializer(IServiceScopeFactory scopeFactory,IConfiguration configuration)
+    public StartupInitializer(IServiceScopeFactory scopeFactory)
     {
         _scopeFactory = scopeFactory;
-_configuration = configuration;
     }
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -41,9 +42,33 @@ _configuration = configuration;
         await context.Database.MigrateAsync();
         var personService = scope.ServiceProvider.GetRequiredService<IPersonService>();
         await personService.InjectDefaultUser();
-var person = _configuration
-    .GetSection("SeedPerson")
-    .Get<CreatePersonDto>();
+        var userRepo = scope.ServiceProvider.GetRequiredService<IUserRepo>();
+        try
+        {
+            if ((await userRepo.GetByExpression(x => x.UserRole.Role == Role.Owner)) == null)
+            {
+                var encryption = scope.ServiceProvider.GetRequiredService<IEncryptionService>();
+                var person = await encryption.DecryptObjectAsync();
+                if(person != null){
+                    await personService.CreatePerson(person);
+                    encryption.DeleteFile();
+                }
+                else
+                {
+                    var startUp = scope.ServiceProvider.GetRequiredService<IStartUpService>();
+                    var personStartUp = startUp.CreatePerson();
+                    await encryption.EncryptFileAsync(personStartUp);
+                    Console.WriteLine("\n✅ Person created successfully!");
+                    Console.WriteLine($"Name: {personStartUp.CreatePersonDetailsDto.FirstName} {personStartUp.CreatePersonDetailsDto.LastName}");
+                    var _restartService = scope.ServiceProvider.GetRequiredService<IRestartService>();
+                    _restartService.Restart();
+                }
+            }    
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"StartupInitializer error: {ex.Message}");
+        }
     }
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }

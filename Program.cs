@@ -1,6 +1,5 @@
 using Home_Security.Authentication;
 using Home_Security.Context;
-using Home_Security.Entities.Chats;
 using Home_Security.Hubs;
 using Home_Security.Implementations.Controls;
 using Home_Security.Implementations.Repositories;
@@ -24,6 +23,8 @@ using Home_Security.Implementations.Controls.Chats;
 using Home_Security.Implementations.Controls.Messages;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
+using Home_Security.Encryption;
+using Home_Security.StartUp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -105,6 +106,12 @@ builder.Services.AddScoped<IJWTAuthentication, JWTAuthentication>();
 builder.Services.AddScoped<ICameraStreamingService, CameraStreamingService>();
 builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
 builder.Services.AddScoped<IMqttService, MqttService>();
+
+builder.Services.AddScoped<IEncryptionService, EncryptionService>();
+
+builder.Services.AddScoped<IStartUpService, StartUpService>();
+
+builder.Services.AddScoped<IRestartService, RestartService>();
 
 builder.Services.AddHostedService<StartupInitializer>();
 builder.Services.AddHostedService<BackgroundServices>();
