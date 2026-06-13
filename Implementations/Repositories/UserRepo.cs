@@ -19,4 +19,8 @@ public class UserRepo : BaseRepository<User>, IUserRepo
     {
         return await context.Users.Include(x => x.UserRole).FirstOrDefaultAsync(x => x.UserName.Equals(userName) && x.IsDeleted == false);
     }
+    public async Task<IList<User>> GetAllUsers()
+    {
+        return await context.Users.Include(x => x.UserRole).Where(x => x.IsDeleted == false).ToListAsync();
+    }
 }

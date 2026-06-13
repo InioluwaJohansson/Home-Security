@@ -6,4 +6,5 @@ public interface IUserRepo : IRepo<User>
 {
     public Task<User> GetUserById(int id);
     public Task<User> GetUserByUserName(string userName);
+    public Task<IList<User>> GetAllUsers();
 }

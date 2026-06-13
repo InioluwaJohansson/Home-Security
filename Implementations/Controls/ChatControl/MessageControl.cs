@@ -56,7 +56,6 @@ public class MessageControl : IMessageControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
             return await _messageService.GetUnreadCountAsync(chatId, auth.Id);
-
         return 0;
     }
 }
