@@ -42,11 +42,13 @@ public class StartupInitializer : IHostedService
         var context = scope.ServiceProvider.GetRequiredService<HomeSecurityContext>();
         await context.Database.MigrateAsync();
         var personService = scope.ServiceProvider.GetRequiredService<IPersonService>();
-        await personService.InjectDefaultUser();
+        //await personService.InjectDefaultUser();
         var userRepo = scope.ServiceProvider.GetRequiredService<IUserRepo>();
+        var userData = await userRepo.GetAllUsers();
         try
         {
-            if ((await userRepo.GetByExpression(x => x.UserRole.Role == Role.Owner)) == null)
+            foreach(var data in userData) Console.WriteLine(data.UserName ?? "null");
+            if (userData?.FirstOrDefault(x => x.UserRole.Role == Role.Owner) == null)
             {
                 var encryption = scope.ServiceProvider.GetRequiredService<IEncryptionService>();
                 var person = await encryption.DecryptObjectAsync();
@@ -63,8 +65,12 @@ public class StartupInitializer : IHostedService
                     Console.WriteLine("\n✅ Person created successfully!");
                     Console.WriteLine($"Name: {personStartUp.CreatePersonDetailsDto.FirstName} {personStartUp.CreatePersonDetailsDto.LastName}");
                 }
-            } 
+            }
+            else
+            {
             Console.WriteLine("\n✅ Users Exist!");   
+                
+            } 
         }
         catch (Exception ex)
         {
@@ -141,7 +147,6 @@ public class HardwareServices : BackgroundService
         {
             using var scope = _scopeFactory.CreateScope();
             var mqttService = scope.ServiceProvider.GetRequiredService<IMqttService>();
-
             await mqttService.ConnectAsync(stoppingToken);
         }
     }

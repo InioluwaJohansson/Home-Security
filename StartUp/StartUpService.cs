@@ -7,9 +7,9 @@ public class StartUpService : IStartUpService
 {
     public CreatePersonDto CreatePerson()
     {
+        Console.WriteLine("Home Security Initialization\nPlease provide the following details to create a new person:");
         return new CreatePersonDto
         {
-            Relation = ReadRequiredString("Relation"),
             CreatePersonDetailsDto = new CreatePersonDetailsDto
             {
                 FirstName = ReadRequiredString("First Name"),
@@ -23,7 +23,8 @@ public class StartUpService : IStartUpService
                 Password = ReadRequiredString("Password"),
                 AuthorizationCode = ReadSixDigitCode("Authorization Code (6 digits)"),
                 Role = Role.Owner
-            }
+            },
+            Relation = ReadRequiredString("Relation"),
         };
     }
     private string ReadSixDigitCode(string fieldName)

@@ -6,7 +6,6 @@ using Home_Security.Models.DTOs;
 namespace Home_Security.Encryption;
 public class EncryptionService : IEncryptionService
 {
-    private readonly IConfiguration _configuration;
     IConfiguration _encryptionKey;
     public EncryptionService(IConfiguration configuration)
     {
@@ -16,21 +15,28 @@ public class EncryptionService : IEncryptionService
     {
         string json = JsonSerializer.Serialize(createPersonDto);
         string encrypted = Encrypt(json);
-        var storagePath = Path.Combine(Directory.GetCurrentDirectory(), _encryptionKey["Path"]);
+        var storagePath = Path.Combine(Directory.GetCurrentDirectory(), _encryptionKey["Path"].Replace("default.data",""));
         if (!Directory.Exists(storagePath)) Directory.CreateDirectory(storagePath);
-        string encryptedPath = Path.ChangeExtension(storagePath,".homeSecurity");
-        await File.WriteAllTextAsync(encryptedPath, encrypted);
+        var filePath = Path.Combine(storagePath, "default.homeSecurity");
+        if (!System.IO.Directory.Exists(filePath))
+        {
+            using (var stream = new FileStream(filePath, FileMode.Create)){}
+            string encryptedPath = Path.ChangeExtension(filePath,".data");
+            await File.WriteAllTextAsync(encryptedPath, encrypted);
+            Console.WriteLine("Encrypted Path: " + encryptedPath);
+            File.Delete(filePath);
+        }
     }
     public async Task<CreatePersonDto?> DecryptObjectAsync()
     {
         if (!File.Exists(_encryptionKey["Path"]))return default;
-        string encrypted = await File.ReadAllTextAsync(_encryptionKey["Path"].Replace(".data",".homeSecurity"));
+        string encrypted = await File.ReadAllTextAsync(_encryptionKey["Path"]);
         string json = Decrypt(encrypted);
         return JsonSerializer.Deserialize<CreatePersonDto>(json);
     }
     public void DeleteFile()
     {
-        var encryptedPath = Path.Combine(Directory.GetCurrentDirectory(), _encryptionKey["Path"].Replace(".data",".homeSecurity"));
+        var encryptedPath = Path.Combine(Directory.GetCurrentDirectory(), _encryptionKey["Path"]);
         if (File.Exists(encryptedPath)) File.Delete(encryptedPath);
     }
     public string Encrypt(string plainText)
