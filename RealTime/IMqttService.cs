@@ -2,6 +2,7 @@ using Home_Security.Models.DTOs;
 namespace Home_Security.RealTimeServices;
 public interface IMqttService
 {
+    Task ConnectAsync(CancellationToken cancellationToken);
     Task PublishFullStateSync(string hardwareId, GenericDeviceState state);
     Task PublishDeviceUpdate(string hardwareId, GenericDeviceUpdateState update);
     public Task PublishDeviceStatus(string hardwareId, object data);

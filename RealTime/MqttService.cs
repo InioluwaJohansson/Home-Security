@@ -14,32 +14,39 @@ public class MqttService : BackgroundService, IMqttService
     private readonly IConfiguration _configuration;
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<MqttService> _logger;
-    private IMqttClient _client = default!;
+    private IMqttClient _client;
 
     public MqttService(IConfiguration configuration, IServiceScopeFactory scopeFactory, ILogger<MqttService> logger)
     {
         _configuration = configuration;
         _scopeFactory = scopeFactory;
         _logger = logger;
-    }
-    // START MQTT SERVICE
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
         var factory = new MqttFactory();
         _client = factory.CreateMqttClient();
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
         await ConfigureMqttEvents();
-        await ConnectAsync(stoppingToken);
+        try
+        {
+            var factory = new MqttFactory();
+            _client = factory.CreateMqttClient();
+            await ConnectAsync(stoppingToken);
+            Console.WriteLine("MQTT Connected Successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"MQTT Connection Failed: {ex}");
+        }
         while (!stoppingToken.IsCancellationRequested) await Task.Delay(1000, stoppingToken);
     }
     private async Task ConfigureMqttEvents()
     {
-        // CONNECTED
         _client.ConnectedAsync += async e =>
         {
             _logger.LogInformation("MQTT CONNECTED");
             await SubscribeTopics();
         };
-        // DISCONNECTED
         _client.DisconnectedAsync += async e =>
         {
             _logger.LogWarning("MQTT DISCONNECTED");
@@ -53,7 +60,6 @@ public class MqttService : BackgroundService, IMqttService
                 var topic = e.ApplicationMessage.Topic;
                 var payload = Encoding.UTF8.GetString(e.ApplicationMessage.PayloadSegment);
                 _logger.LogInformation("MQTT MESSAGE RECEIVED | Topic: {Topic}",topic);
-                // DEVICE STATE UPDATE
                 if (topic.EndsWith("/state"))
                 {
                     var update = JsonSerializer.Deserialize<GenericDeviceUpdateState>(payload,
@@ -214,18 +220,35 @@ public class MqttService : BackgroundService, IMqttService
         await Task.CompletedTask;
     }
     // CONNECT TO MQTT BROKER
-    private async Task ConnectAsync(CancellationToken cancellationToken)
+    public async Task ConnectAsync(CancellationToken cancellationToken)
     {
+        if (_configuration == null)
+            throw new Exception("Configuration is NOT injected into MqttService");
+
+        var host = _configuration["Mqtt:Host"];
+        var portString = _configuration["Mqtt:Port"];
+        var username = _configuration["Mqtt:Username"];
+        var password = _configuration["Mqtt:Password"];
+
+        if (string.IsNullOrWhiteSpace(host))
+            throw new Exception("MQTT Host is missing in configuration");
+
+        if (!int.TryParse(portString, out var port))
+            throw new Exception("MQTT Port is invalid or missing");
+
+        if (string.IsNullOrWhiteSpace(username))
+            throw new Exception("MQTT Username is missing");
+
+        if (string.IsNullOrWhiteSpace(password))
+            throw new Exception("MQTT Password is missing");
+
         var options = new MqttClientOptionsBuilder()
-            .WithTcpServer(
-                _configuration["Mqtt:Host"],
-                int.Parse(_configuration["Mqtt:Port"]!))
-            .WithCredentials(
-                _configuration["Mqtt:Username"],
-                _configuration["Mqtt:Password"])
+            .WithTcpServer(host, port)
+            .WithCredentials(username, password)
             .WithCleanSession(false)
             .WithKeepAlivePeriod(TimeSpan.FromSeconds(30))
             .Build();
+
         await _client.ConnectAsync(options, cancellationToken);
     }
     // AUTO RECONNECT
@@ -344,7 +367,20 @@ public class MqttService : BackgroundService, IMqttService
     private async Task PublishAsync(string topic, object payload, bool retain = false)
     {
         var json = JsonSerializer.Serialize(payload);
-        var message = new MqttApplicationMessageBuilder().WithTopic(topic).WithPayload(json).WithRetainFlag(retain).WithQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce).Build();
+        if (_client == null)
+            throw new InvalidOperationException("MQTT client not initialized.");
+
+        if (!_client.IsConnected)
+        {
+            await ConnectAsync(CancellationToken.None);
+        }
+
+        var message = new MqttApplicationMessageBuilder()
+            .WithTopic(topic)
+            .WithPayload(JsonSerializer.Serialize(payload))
+            .WithRetainFlag(retain)
+            .Build();
+
         await _client.PublishAsync(message);
         _logger.LogInformation("MQTT MESSAGE PUBLISHED | Topic: {Topic}", topic);
     }

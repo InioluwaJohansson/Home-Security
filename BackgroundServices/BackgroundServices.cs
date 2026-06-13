@@ -6,6 +6,7 @@ using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 using Home_Security.Models.Enums;
+using Home_Security.RealTimeServices;
 using Home_Security.StartUp;
 using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -58,12 +59,12 @@ public class StartupInitializer : IHostedService
                     var startUp = scope.ServiceProvider.GetRequiredService<IStartUpService>();
                     var personStartUp = startUp.CreatePerson();
                     await encryption.EncryptFileAsync(personStartUp);
+                    await personService.CreatePerson(personStartUp);
                     Console.WriteLine("\n✅ Person created successfully!");
                     Console.WriteLine($"Name: {personStartUp.CreatePersonDetailsDto.FirstName} {personStartUp.CreatePersonDetailsDto.LastName}");
-                    var _restartService = scope.ServiceProvider.GetRequiredService<IRestartService>();
-                    _restartService.Restart();
                 }
-            }    
+            } 
+            Console.WriteLine("\n✅ Users Exist!");   
         }
         catch (Exception ex)
         {
@@ -125,6 +126,23 @@ public class HardwareServices : BackgroundService
                 Console.WriteLine($"HardwareServices error: {ex.Message}");
             }
             await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+        }
+    }
+    public class MqttBackgroundService : BackgroundService
+    {
+        private readonly IServiceScopeFactory _scopeFactory;
+
+        public MqttBackgroundService(IServiceScopeFactory scopeFactory)
+        {
+            _scopeFactory = scopeFactory;
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var mqttService = scope.ServiceProvider.GetRequiredService<IMqttService>();
+
+            await mqttService.ConnectAsync(stoppingToken);
         }
     }
 }

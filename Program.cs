@@ -10,6 +10,7 @@ using Home_Security.Interfaces.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using static Home_Security.BackgroundServices.HardwareServices;
 using System.Text;
 using Microsoft.Extensions.FileProviders;
 using Home_Security.RealTimeServices;
@@ -105,15 +106,14 @@ builder.Services.AddScoped<IJWTAuthentication, JWTAuthentication>();
 
 builder.Services.AddScoped<ICameraStreamingService, CameraStreamingService>();
 builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
-builder.Services.AddScoped<IMqttService, MqttService>();
+builder.Services.AddSingleton<IMqttService, MqttService>();
 
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 
 builder.Services.AddScoped<IStartUpService, StartUpService>();
 
-builder.Services.AddScoped<IRestartService, RestartService>();
-
 builder.Services.AddHostedService<StartupInitializer>();
+builder.Services.AddHostedService<MqttBackgroundService>();
 builder.Services.AddHostedService<BackgroundServices>();
 builder.Services.AddHostedService<AuthServices>();
 builder.Services.AddHostedService<HardwareServices>();
@@ -252,5 +252,5 @@ if (app.Environment.IsDevelopment())
 }
     app.UseSwaggerUI();
     app.UseSwagger();
-    
+
 app.Run();

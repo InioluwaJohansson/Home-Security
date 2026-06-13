@@ -6,16 +6,11 @@ public class MessageService : IMessageService
 {
     private readonly IMessageRepo _messageRepo;
     private readonly IChatRepo _chatRepo;
-    private readonly IHttpContextAccessor _http;
 
-    public MessageService(
-        IMessageRepo messageRepo,
-        IChatRepo chatRepo,
-        IHttpContextAccessor http)
+    public MessageService(IMessageRepo messageRepo, IChatRepo chatRepo)
     {
         _messageRepo = messageRepo;
         _chatRepo = chatRepo;
-        _http = http;
     }
     public async Task<MessageDto> SendMessageAsync(SendMessageDto dto, int senderId)
     {
@@ -49,15 +44,10 @@ public class MessageService : IMessageService
     }
     public async Task<List<MessageDto>> GetChatMessagesAsync(int chatId, int personId, int page, int pageSize)
     {
-        var isParticipant = await _chatRepo
-            .IsParticipantAsync(chatId, personId);
-
+        var isParticipant = await _chatRepo.IsParticipantAsync(chatId, personId);
         if (!isParticipant)
             throw new Exception("Access denied");
-
-        var messages = await _messageRepo
-            .GetChatMessagesAsync(chatId, page, pageSize);
-
+        var messages = await _messageRepo.GetChatMessagesAsync(chatId, page, pageSize);
         return messages.Select(MapToDto).ToList();
     }
     public async Task<MessageDto> EditMessageAsync(EditMessageDto dto, int personId)
@@ -154,16 +144,13 @@ public class MessageService : IMessageService
     }
     public async Task<string> GetAttachmentImageUrl(IFormFile file){
         var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Attachment\\");
-        if (!System.IO.Directory.Exists(folderPath))
-        {
-            Directory.CreateDirectory(folderPath);
-        }
+        if (!System.IO.Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
         var imagePath = "";
         if (file != null)
         {
             var fileName = Path.GetFileNameWithoutExtension(file.FileName);
-            var filePath = Path.Combine(folderPath, file.FileName);
+            var filePath = Path.Combine(folderPath, Guid.NewGuid().ToString().Substring(1,15));
 
             if (!System.IO.Directory.Exists(filePath))
             {
