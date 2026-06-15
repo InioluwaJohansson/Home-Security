@@ -14,7 +14,6 @@ public class Message : AuditableEntity
 
     public bool IsEdited { get; set; }
 
-    public bool IsDeleted { get; set; }
     public int? ReplyToMessageId { get; set; }
 
     public DateTime SentAt { get; set; } = DateTime.UtcNow;
