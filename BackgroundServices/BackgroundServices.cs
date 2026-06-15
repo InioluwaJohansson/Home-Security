@@ -51,13 +51,6 @@ public class StartupInitializer : IHostedService
             foreach(var data in userData) Console.WriteLine(data.UserName ?? "null");
             if (userData?.FirstOrDefault(x => x.UserRole.Role == Role.Owner) == null)
             {
-                
-                var process = Process.Start(new ProcessStartInfo
-                {
-                    FileName = Path.Combine(AppContext.BaseDirectory+"/StartUp/UserData","HomeSecurity.Setup.exe"),
-                    UseShellExecute = true
-                });
-                process?.WaitForExit();
                 var encryption = scope.ServiceProvider.GetRequiredService<IEncryptionService>();
                 var person = await encryption.DecryptObjectAsync();
                 if(person != null){
@@ -74,11 +67,7 @@ public class StartupInitializer : IHostedService
                     Console.WriteLine($"Name: {personStartUp.CreatePersonDetailsDto.FirstName} {personStartUp.CreatePersonDetailsDto.LastName}");
                 }
             }
-            else
-            {
-            Console.WriteLine("\n✅ Users Exist!");   
-                
-            } 
+            else Console.WriteLine("\n✅ Users Exist!");
         }
         catch (Exception ex)
         {
