@@ -37,7 +37,7 @@ public class ExternalService : IExternalService
                 LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now,
                 CreatedOn = DateTime.Now,
-                ActionIds = createExternalDto.ActionIds,
+                ActionIds = createExternalDto.ActionIds ?? new List<int>(),
                 IsTriggered = false,
                 IsActive = true,
                 PowerActive = true,
