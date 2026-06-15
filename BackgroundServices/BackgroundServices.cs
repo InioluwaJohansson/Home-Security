@@ -1,4 +1,5 @@
-﻿using Home_Security.Context;
+﻿using System.Diagnostics;
+using Home_Security.Context;
 using Home_Security.Encryption;
 using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
@@ -50,6 +51,13 @@ public class StartupInitializer : IHostedService
             foreach(var data in userData) Console.WriteLine(data.UserName ?? "null");
             if (userData?.FirstOrDefault(x => x.UserRole.Role == Role.Owner) == null)
             {
+                
+                var process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = Path.Combine(AppContext.BaseDirectory+"/StartUp/UserData","HomeSecurity.Setup.exe"),
+                    UseShellExecute = true
+                });
+                process?.WaitForExit();
                 var encryption = scope.ServiceProvider.GetRequiredService<IEncryptionService>();
                 var person = await encryption.DecryptObjectAsync();
                 if(person != null){
