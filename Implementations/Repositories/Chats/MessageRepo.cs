@@ -14,7 +14,7 @@ public class MessageRepository : BaseRepository<Message>, IMessageRepo
     {
         return await context.Message.AsNoTracking().Include(x => x.Attachments).Include(x => x.SenderPerson).ThenInclude(x => x.PersonDetails).FirstOrDefaultAsync(x => x.Id == messageId && !x.IsDeleted);
     }
-    public async Task<Message> GetMessageByExpression()
+    public async Task<Message> GetMessageByExpression(Expression<Func<T, bool>> expression)
     {
         return await context.Message.AsNoTracking().Include(x => x.Attachments).Include(x => x.SenderPerson).ThenInclude(x => x.PersonDetails).FirstOrDefaultAsync(x => x.Id == messageId && !x.IsDeleted);
     }
