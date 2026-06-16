@@ -76,6 +76,36 @@ public class ChatService : IChatService
             throw new Exception("Access denied");
         return MapToDto(chat);
     }
+    public async Task UpdateGroupChatAsync(int chatId, UpdateGroupChatDto dto, int currentPersonId)
+    {
+        var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
+        if (chat == null)
+            throw new Exception("Chat not found");
+        if (!chat.IsGroup)
+            throw new Exception("Cannot add participants to direct chat");
+        var isAdmin = chat.Participants
+            .Any(p => p.PersonId == currentPersonId && p.IsAdmin);
+        if (!isAdmin)
+            throw new Exception("Only admins can add participants");
+        chat.Name = dto.Name ?? chat.Name;
+        chat.Description = dto.Description ?? chat.Description;
+        if (dto.ImageUrl != null)
+            chat.ImageUrl = await GetImageUrl(dto.ImageUrl);
+    }
+    public async Task DeleteChatAsync(int chatId, int currentPersonId)
+    {
+        var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
+        if (chat == null)
+            throw new Exception("Chat not found");
+        if (!chat.IsGroup)
+            throw new Exception("Cannot add participants to direct chat");
+        var isAdmin = chat.Participants.Any(p => p.PersonId == currentPersonId && p.IsAdmin);
+        if (!isAdmin)
+            throw new Exception("Only admins can add participants");
+        chat.IsDeleted = true;
+        await _chatRepo.Update(chat);
+
+    }
     public async Task AddParticipantsAsync(int chatId, AddParticipantsDto dto, int currentPersonId)
     {
         var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
@@ -169,7 +199,7 @@ public class ChatService : IChatService
                 {
                     Id = x.Id,
                     ChatId = x.ChatId,
-                    SenderPersonId = x.PersonId,
+                    SenderPersonId = x.SenderPersonId,
                     Content = x.Content,
                     Type = x.Type,
                     IsEdited = x.IsEdited,

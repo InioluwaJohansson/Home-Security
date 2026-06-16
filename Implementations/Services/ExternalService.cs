@@ -76,7 +76,14 @@ public class ExternalService : IExternalService
         if (updateExternalDto != null)
         {
             var Externals = await _externalRepo.Get(x => x.Id == updateExternalDto.Id);
-
+            if (Externals == null)
+            {
+                return new BaseResponse()
+                {
+                    Status = false,
+                    Message = "Externals Not Found!"
+                };
+            }
             Externals.ExternalName = updateExternalDto.ExternalName ?? Externals.ExternalName;
             Externals.LastModifiedBy = personId;
             Externals.LastModifiedOn = DateTime.Now;

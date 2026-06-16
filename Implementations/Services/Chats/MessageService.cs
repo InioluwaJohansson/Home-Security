@@ -22,7 +22,7 @@ public class MessageService : IMessageService
         var message = new Message
         {
             ChatId = dto.ChatId,
-            PersonId = senderId,
+            SenderPersonId = senderId,
             ReplyToMessageId = dto.ReplyToMessageId,
             Content = dto.Content,
             Type = dto.Type,
@@ -57,7 +57,7 @@ public class MessageService : IMessageService
         if (message == null)
             throw new Exception("Message not found");
 
-        if (message.PersonId != personId)
+        if (message.SenderPersonId != personId)
             throw new Exception("Not allowed");
 
         message.Content = dto.Content;
@@ -74,7 +74,7 @@ public class MessageService : IMessageService
         if (message == null)
             throw new Exception("Message not found");
 
-        if (message.PersonId != personId)
+        if (message.SenderPersonId != personId)
             throw new Exception("Not allowed");
 
         message.IsDeleted = true;
@@ -95,7 +95,7 @@ public class MessageService : IMessageService
         {
             Id = message.Id,
             ChatId = message.ChatId,
-            SenderPersonId = message.PersonId,
+            SenderPersonId = message.SenderPersonId,
             ReplyMessageId = message.ReplyToMessageId,
             Content = message.Content,
             Type = message.Type,

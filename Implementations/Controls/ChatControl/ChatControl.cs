@@ -34,6 +34,18 @@ public class ChatControl : IChatControl
         }
         return null;
     }
+    public async Task UpdateGroupChat(GetAuthControlInfoDto getAuthControlInfoDto, UpdateGroupChatDto updateGroupChatDto)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false)
+            await _chatService.UpdateGroupChatAsync(updateGroupChatDto.ChatId, updateGroupChatDto, auth.Id);
+    }
+    public async Task DeleteChat(GetAuthControlInfoDto getAuthControlInfoDto, int chatId)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false)
+            await _chatService.DeleteChatAsync(chatId, auth.Id);
+    }
     public async Task AddParticipants(GetAuthControlInfoDto getAuthControlInfoDto, int chatId, AddParticipantsDto addParticipantsDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);

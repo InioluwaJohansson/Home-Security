@@ -4,6 +4,8 @@ public interface IChatService
 {
     Task<ChatDto> CreateDirectChatAsync(int recipientPersonId, int currentPersonId);
     Task<ChatDto> CreateGroupChatAsync(CreateGroupChatDto dto, int currentPersonId);
+    Task UpdateGroupChatAsync(int chatId, UpdateGroupChatDto dto, int currentPersonId);
+    Task DeleteChatAsync(int chatId, int currentPersonId);
     Task<List<ChatDto>> GetMyChatsAsync(int personId);
     Task<ChatDto?> GetChatByIdAsync(int chatId, int personId);
     Task AddParticipantsAsync(int chatId, AddParticipantsDto dto, int currentPersonId);
