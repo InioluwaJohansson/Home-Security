@@ -133,19 +133,16 @@ public class PersonService : IPersonService
             var imagePath = "";
             if (updatePersonDto.UpdatePersonDetailsDto.ImageUrl != null)
             {
-                var fileName = Path.GetFileNameWithoutExtension(updatePersonDto.UpdatePersonDetailsDto.ImageUrl.FileName);
-                var filePath = Path.Combine(folderPath, updatePersonDto.UpdatePersonDetailsDto.ImageUrl.FileName);
-
+                var filePath = Path.Combine(folderPath, Guid.NewGuid().ToString().Substring(1,15) + updatePersonDto.UpdatePersonDetailsDto.ImageUrl.FileName);
                 if (!System.IO.Directory.Exists(filePath))
                 {
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await updatePersonDto.UpdatePersonDetailsDto.ImageUrl.CopyToAsync(stream);
                     }
-                    imagePath = fileName;
+                    imagePath = filePath;
                 }
             }
-
             person.User.UserName = updatePersonDto.UpdateUserDto.UserName ?? person.User.UserName;
             person.User.UserRole.Role = updatePersonDto.UpdateUserDto.Role;
             person.CameraIds = updatePersonDto.CameraIds ?? person.CameraIds;
@@ -156,9 +153,7 @@ public class PersonService : IPersonService
             person.LastModifiedOn = DateTime.Now;
 
             await _personRepo.Update(person);
-
             await _realTime.NotifyAll("PersonUpdated", GetDetails(person));
-
             return new BaseResponse()
             {
                 Status = true,

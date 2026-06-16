@@ -49,16 +49,13 @@ public class ChatService : IChatService
             Description = dto.Description,
             ImageUrl = await GetImageUrl(dto.ImageUrl ?? null),
             CreatedByPersonId = currentPersonId,
-            Participants = dto.ParticipantPersonIds
-                .Append(currentPersonId)
-                .Distinct()
-                .Select(x => new ChatParticipant
-                {
-                    PersonId = x,
-                    IsAdmin = x == currentPersonId
-                }).ToList()
+            Participants = dto.ParticipantPersonIds.Append(currentPersonId).Distinct()
+            .Select(x => new ChatParticipant
+            {
+                PersonId = x,
+                IsAdmin = x == currentPersonId
+            }).ToList()
         };
-
         await _chatRepo.Create(chat);
         return MapToDto(chat);
     }
@@ -74,36 +71,24 @@ public class ChatService : IChatService
         if (chat == null)
             return null;
 
-        var isParticipant = chat.Participants
-            .Any(p => p.PersonId == personId);
-
+        var isParticipant = chat.Participants.Any(p => p.PersonId == personId);
         if (!isParticipant)
             throw new Exception("Access denied");
-
         return MapToDto(chat);
     }
     public async Task AddParticipantsAsync(int chatId, AddParticipantsDto dto, int currentPersonId)
     {
         var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
-
         if (chat == null)
             throw new Exception("Chat not found");
-
         if (!chat.IsGroup)
             throw new Exception("Cannot add participants to direct chat");
-
         var isAdmin = chat.Participants
             .Any(p => p.PersonId == currentPersonId && p.IsAdmin);
-
         if (!isAdmin)
             throw new Exception("Only admins can add participants");
-
-        var existingIds = chat.Participants
-            .Select(p => p.PersonId)
-            .ToHashSet();
-
-        var newParticipants = dto.PersonIds
-            .Where(id => !existingIds.Contains(id))
+        var existingIds = chat.Participants.Select(p => p.PersonId).ToHashSet();
+        var newParticipants = dto.PersonIds.Where(id => !existingIds.Contains(id))
             .Select(id => new ChatParticipant
             {
                 ChatId = chatId,
@@ -111,12 +96,10 @@ public class ChatService : IChatService
                 JoinedAt = DateTime.UtcNow,
                 IsAdmin = false
             });
-
         foreach (var participant in newParticipants)
         {
             chat.Participants.Add(participant);
         }
-
         await _chatRepo.Update(chat);
     }
     public async Task RemoveParticipantAsync(int chatId, int personId, int currentPersonId)
@@ -138,32 +121,22 @@ public class ChatService : IChatService
             var participant = chat.Participants
         .FirstOrDefault(p => p.PersonId == personId);
         var adminCount = chat.Participants.Count(x => x.IsAdmin);
-
         if (participant == null)
             return;
         if (participant.IsAdmin && adminCount == 1)
             throw new Exception("Cannot remove last admin");
-
         chat.Participants.Remove(participant);
-
         await _chatRepo.Update(chat);
-
     }
     public async Task MarkAsReadAsync(int chatId, int personId)
     {
-        var chat = await _chatRepo
-            .GetChatWithParticipantsAsync(chatId);
-
+        var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
         if (chat == null)
             throw new Exception("Chat not found");
-
         var participant = chat.Participants.FirstOrDefault(x => x.PersonId == personId);
-
         if (participant == null)
             throw new Exception("Access denied");
-
         participant.LastReadAt = DateTime.UtcNow;
-
         await _chatRepo.Update(chat);
     }
     public async Task<bool> IsParticipantAsync(int chatId, int personId)
@@ -175,72 +148,46 @@ public class ChatService : IChatService
         return new ChatDto
         {
             Id = chat.Id,
-
             Name = chat.Name,
-
             Description = chat.Description,
-
             IsGroup = chat.IsGroup,
-
             ImageUrl = ConvertImageToBase64(chat.ImageUrl),
-
             CreatedAt = chat.CreatedAt,
-
             Participants = chat.Participants?
                 .Select(p => new ChatParticipantDto
                 {
                     PersonId = p.PersonId,
-
                     IsAdmin = p.IsAdmin,
-
                     IsOnline = false,
-
                     FullName = "",
-
                     ProfileImageUrl = null
                 })
                 .ToList() ?? new List<ChatParticipantDto>(),
-
             LastMessage = chat.Messages?
                 .OrderByDescending(x => x.SentAt)
                 .Select(x => new MessageDto
                 {
                     Id = x.Id,
-
                     ChatId = x.ChatId,
-
                     SenderPersonId = x.SenderPersonId,
-
                     Content = x.Content,
-
                     Type = x.Type,
-
                     IsEdited = x.IsEdited,
-
                     IsDeleted = x.IsDeleted,
-
                     SentAt = x.SentAt,
-
                     SenderName = "",
-
                     SenderProfileImage = null,
-
                     Attachments = x.Attachments?
-                        .Select(a => new GetMessageAttachmentDto
-                        {
-                            FileName = a.FileName,
-
-                            FilePath = a.FilePath,
-
-                            ContentType = a.ContentType,
-
-                            FileSize = a.FileSize,
-
-                            ThumbnailPath = a.ThumbnailPath
-                        })
-                        .ToList() ?? new List<GetMessageAttachmentDto>()
-                })
-                .FirstOrDefault(),
+                    .Select(a => new GetMessageAttachmentDto
+                    {
+                        FileName = a.FileName,
+                        FilePath = a.FilePath,
+                        ContentType = a.ContentType,
+                        FileSize = a.FileSize,
+                        ThumbnailPath = a.ThumbnailPath
+                    })
+                    .ToList() ?? new List<GetMessageAttachmentDto>()
+                }).FirstOrDefault(),
             UnreadCount = 0
         };
     }
@@ -254,25 +201,21 @@ public class ChatService : IChatService
         return Convert.ToBase64String(bytes);
     }
     public async Task<string> GetImageUrl(IFormFile file){
-        var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Chats\\");
-        if (!System.IO.Directory.Exists(folderPath))
-        {
-            Directory.CreateDirectory(folderPath);
-        }
-
+        var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+        var setupPath = Path.Combine(basePath, "storage");
+        var folderPath = Path.Combine(setupPath + "\\Images");
+        if (!System.IO.Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         var imagePath = "";
         if (file != null)
         {
-            var fileName = Path.GetFileNameWithoutExtension(file.FileName);
-            var filePath = Path.Combine(folderPath, file.FileName);
-
+            var filePath = Path.Combine(folderPath, Guid.NewGuid().ToString().Substring(1,15) + file.FileName);
             if (!System.IO.Directory.Exists(filePath))
             {
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
                 }
-                imagePath = fileName;
+                imagePath = filePath;
             }
         }
         return imagePath;

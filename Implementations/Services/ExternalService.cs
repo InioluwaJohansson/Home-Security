@@ -84,7 +84,7 @@ public class ExternalService : IExternalService
             Externals.SectionId = updateExternalDto.SectionId ?? null;
             Externals.RoomId = updateExternalDto.RoomId ?? null;
             Externals.IsTriggered = updateExternalDto.IsTriggered;
-            Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds;
+            Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds ?? new List<int>();
 
             var externalData = await _externalRepo.Update(Externals);
             var hardware = await _hardwareService.GetHardwareName(Externals.Id, FacilityType.Appliance);

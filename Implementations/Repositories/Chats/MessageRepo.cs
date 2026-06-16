@@ -12,7 +12,7 @@ public class MessageRepository : BaseRepository<Message>, IMessageRepo
     }
     public async Task<Message?> GetByIdAsync(int messageId)
     {
-        return await context.Message.AsNoTracking().Include(x => x.Attachments).FirstOrDefaultAsync(x => x.Id == messageId && !x.IsDeleted);
+        return await context.Message.AsNoTracking().Include(x => x.Attachments).Include(x => x.SenderPerson).ThenInclude(x => x.PersonDetails).FirstOrDefaultAsync(x => x.Id == messageId && !x.IsDeleted);
     }
     public async Task<List<Message>> GetChatMessagesAsync(int chatId, int page, int pageSize)
     {
