@@ -19,14 +19,14 @@ public class MessageService : IMessageService
 
         if (!isParticipant)
             throw new Exception("Not allowed in this chat");
-
+        var date = DateTime.UtcNow;
         var message = new Message
         {
             ChatId = dto.ChatId,
             SenderPersonId = senderId,
             Content = dto.Content,
             Type = dto.Type,
-            SentAt = DateTime.UtcNow,
+            SentAt = date,
             Attachments = (await Task.WhenAll(
         dto.Attachments.Select(async a => new MessageAttachment
         {
@@ -39,8 +39,8 @@ public class MessageService : IMessageService
         };
 
         await _messageRepo.Create(message);
-
-        return MapToDto(message);
+        var messageData = await _messageRepo.Get(x => x.SentAt == date);
+        return MapToDto(messageData);
     }
     public async Task<List<MessageDto>> GetChatMessagesAsync(int chatId, int personId, int page, int pageSize)
     {
