@@ -201,23 +201,17 @@ public class ChatService : IChatService
         return Convert.ToBase64String(bytes);
     }
     public async Task<string> GetImageUrl(IFormFile file){
+        if (file == null || file.Length == 0)
+            return string.Empty;
         var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
-        var setupPath = Path.Combine(basePath, "storage");
-        var folderPath = Path.Combine(setupPath + "\\Images");
-        if (!System.IO.Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-        var imagePath = "";
-        if (file != null)
-        {
-            var filePath = Path.Combine(folderPath, Guid.NewGuid().ToString().Substring(1,15) + file.FileName);
-            if (!System.IO.Directory.Exists(filePath))
-            {
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-                imagePath = filePath;
-            }
-        }
-        return imagePath;
+        var storagePath = Path.Combine(basePath, "storage");
+        var folderPath = Path.Combine(storagePath, "Images");
+        Directory.CreateDirectory(folderPath);
+        var extension = Path.GetExtension(file.FileName);
+        var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
+        var absolutePath = Path.Combine(folderPath, uniqueFileName);
+        await using var stream = new FileStream(absolutePath, FileMode.Create);
+        await file.CopyToAsync(stream);
+        return Path.Combine("Images", uniqueFileName);
     }
 }

@@ -31,7 +31,7 @@ public class MessageService : IMessageService
         dto.Attachments.Select(async a => new MessageAttachment
         {
             FileName = a.FileName,
-            FilePath = await GetAttachmentImageUrl(a.FilePath, dto.Type),
+            FilePath = await GetAttachmentUrl(a.FilePath, dto.Type),
             ContentType = a.ContentType,
             FileSize = a.FileSize,
             ThumbnailPath = a.ThumbnailPath
@@ -123,29 +123,27 @@ public class MessageService : IMessageService
         var bytes = File.ReadAllBytes(path);
         return Convert.ToBase64String(bytes);
     }
-    public async Task<string> GetAttachmentImageUrl(IFormFile file, MessageType type){
-        string folderPath;
+    public async Task<string> GetAttachmentUrl(IFormFile file, MessageType type)
+    {
+        if (file == null || file.Length == 0)
+            return string.Empty;
         var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
-        var setupPath = Path.Combine(basePath, "storage");
-        if(type == MessageType.Image) folderPath = Path.Combine(setupPath + "\\Images");
-        if(type == MessageType.Video) folderPath = Path.Combine(setupPath + "\\Videos");
-        if(type == MessageType.Audio) folderPath = Path.Combine(setupPath + "\\Audios");
-        if(type == MessageType.File) folderPath = Path.Combine(setupPath + "\\Files");
-        else  folderPath = Path.Combine(setupPath + "\\Others");
-        if (!System.IO.Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-        var filePath = "";
-        if (file != null)
+        var storagePath = Path.Combine(basePath, "storage");
+        var folderName = type switch
         {
-            var fileRoute = Path.Combine(folderPath, Guid.NewGuid().ToString().Substring(1,15) + file.FileName);
-            if (!System.IO.Directory.Exists(fileRoute))
-            {
-                using (var stream = new FileStream(fileRoute, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-                filePath = fileRoute;
-            }
-        }
-        return filePath;
+            MessageType.Image => "Images",
+            MessageType.Video => "Videos",
+            MessageType.Audio => "Audios",
+            MessageType.File => "Files",
+            _ => "Others"
+        };
+        var folderPath = Path.Combine(storagePath, folderName);
+        Directory.CreateDirectory(folderPath);
+        var extension = Path.GetExtension(file.FileName);
+        var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
+        var absolutePath = Path.Combine(folderPath, uniqueFileName);
+        await using var stream = new FileStream(absolutePath, FileMode.Create);
+        await file.CopyToAsync(stream);
+        return Path.Combine(folderName, uniqueFileName);
     }
 }

@@ -124,24 +124,21 @@ public class PersonService : IPersonService
         var person = await _personRepo.GetById(updatePersonDto.Id);
         if (person != null)
         {
-            var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Persons\\");
-            if (!System.IO.Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-
             var imagePath = "";
             if (updatePersonDto.UpdatePersonDetailsDto.ImageUrl != null)
             {
-                var filePath = Path.Combine(folderPath, Guid.NewGuid().ToString().Substring(1,15) + updatePersonDto.UpdatePersonDetailsDto.ImageUrl.FileName);
-                if (!System.IO.Directory.Exists(filePath))
-                {
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await updatePersonDto.UpdatePersonDetailsDto.ImageUrl.CopyToAsync(stream);
-                    }
-                    imagePath = filePath;
-                }
+                if (updatePersonDto.UpdatePersonDetailsDto.ImageUrl == null || updatePersonDto.UpdatePersonDetailsDto.ImageUrl.Length == 0)
+                    imagePath = string.Empty;
+                var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+                var storagePath = Path.Combine(basePath, "storage");
+                var folderPath = Path.Combine(storagePath, "Images");
+                Directory.CreateDirectory(folderPath);
+                var extension = Path.GetExtension(updatePersonDto.UpdatePersonDetailsDto.ImageUrl.FileName);
+                var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
+                var absolutePath = Path.Combine(folderPath, uniqueFileName);
+                await using var stream = new FileStream(absolutePath, FileMode.Create);
+                await updatePersonDto.UpdatePersonDetailsDto.ImageUrl.CopyToAsync(stream);
+                imagePath = Path.Combine("Images", uniqueFileName);
             }
             person.User.UserName = updatePersonDto.UpdateUserDto.UserName ?? person.User.UserName;
             person.User.UserRole.Role = updatePersonDto.UpdateUserDto.Role;
