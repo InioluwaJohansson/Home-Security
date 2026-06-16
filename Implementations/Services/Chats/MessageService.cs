@@ -39,7 +39,7 @@ public class MessageService : IMessageService
         };
 
         await _messageRepo.Create(message);
-        var messageData = await _messageRepo.Get(x => x.SentAt == date);
+        var messageData = await _messageRepo.GetMessageByExpression(x => x.SentAt == date);
         return MapToDto(messageData);
     }
     public async Task<List<MessageDto>> GetChatMessagesAsync(int chatId, int personId, int page, int pageSize)
