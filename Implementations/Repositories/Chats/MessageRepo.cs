@@ -14,6 +14,10 @@ public class MessageRepository : BaseRepository<Message>, IMessageRepo
     {
         return await context.Message.AsNoTracking().Include(x => x.Attachments).Include(x => x.SenderPerson).ThenInclude(x => x.PersonDetails).FirstOrDefaultAsync(x => x.Id == messageId && !x.IsDeleted);
     }
+    public async Task<Message> GetMessageByExpression()
+    {
+        return await context.Message.AsNoTracking().Include(x => x.Attachments).Include(x => x.SenderPerson).ThenInclude(x => x.PersonDetails).FirstOrDefaultAsync(x => x.Id == messageId && !x.IsDeleted);
+    }
     public async Task<List<Message>> GetChatMessagesAsync(int chatId, int page, int pageSize)
     {
         return await context.Message.Include(x => x.Attachments).Include(x => x.SenderPerson).ThenInclude(p => p.PersonDetails).Where(x => x.ChatId == chatId).OrderByDescending(x => x.SentAt).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
