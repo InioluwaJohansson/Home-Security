@@ -169,7 +169,7 @@ public class ChatService : IChatService
                 {
                     Id = x.Id,
                     ChatId = x.ChatId,
-                    SenderPersonId = x.SenderPersonId,
+                    SenderPersonId = x.PersonId,
                     Content = x.Content,
                     Type = x.Type,
                     IsEdited = x.IsEdited,

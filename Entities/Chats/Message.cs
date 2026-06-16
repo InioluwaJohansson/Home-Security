@@ -6,7 +6,7 @@ public class Message : AuditableEntity
     public int ChatId { get; set; }
     public Chat Chat { get; set; }
 
-    public int SenderPersonId { get; set; }
+    public int PersonId { get; set; }
 
     public string? Content { get; set; }
 
