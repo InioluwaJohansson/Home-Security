@@ -2,15 +2,13 @@ using Home_Security.Interfaces.Repositories.Chats;
 using Home_Security.Interfaces.Services.Chats;
 using Home_Security.Models.ChatDTO;
 using Home_Security.Entities.Chats;
+using Home_Security.Models.DTOs;
 public class ChatService : IChatService
 {
     private readonly IChatRepo _chatRepo;
-    private readonly IHttpContextAccessor _http;
-
     public ChatService(IChatRepo chatRepo, IHttpContextAccessor http)
     {
         _chatRepo = chatRepo;
-        _http = http;
     }
     public async Task<ChatDto> CreateDirectChatAsync(int recipientPersonId, int currentPersonId)
     {
@@ -76,98 +74,214 @@ public class ChatService : IChatService
             throw new Exception("Access denied");
         return MapToDto(chat);
     }
-    public async Task UpdateGroupChatAsync(int chatId, UpdateGroupChatDto dto, int currentPersonId)
+    public async Task<BaseResponse> UpdateGroupChatAsync(int chatId, UpdateGroupChatDto dto, int currentPersonId)
     {
         var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
         if (chat == null)
-            throw new Exception("Chat not found");
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Unable to find chat!"  
+            };
+        }
         if (!chat.IsGroup)
-            throw new Exception("Cannot add participants to direct chat");
-        var isAdmin = chat.Participants
-            .Any(p => p.PersonId == currentPersonId && p.IsAdmin);
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Unable to update chat!"  
+            };
+        }
+        var isAdmin = chat.Participants.Any(p => p.PersonId == currentPersonId && p.IsAdmin);
         if (!isAdmin)
-            throw new Exception("Only admins can add participants");
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Only admins can modify chat details!"  
+            };
+        }
         chat.Name = dto.Name ?? chat.Name;
         chat.Description = dto.Description ?? chat.Description;
         if (dto.ImageUrl != null)
-            chat.ImageUrl = await GetImageUrl(dto.ImageUrl);
+            chat.ImageUrl = chat.ImageUrl ?? await GetImageUrl(dto.ImageUrl);
+        await _chatRepo.Update(chat);
+        {
+            return new BaseResponse()
+            {
+              Status = true,
+              Message = "Group Details Updated!"  
+            };
+        }
     }
-    public async Task DeleteChatAsync(int chatId, int currentPersonId)
+    public async Task<BaseResponse> DeleteChatAsync(int chatId, int currentPersonId)
     {
         var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
         if (chat == null)
-            throw new Exception("Chat not found");
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Unable to find chat!"  
+            };
+        }
         if (!chat.IsGroup)
-            throw new Exception("Cannot add participants to direct chat");
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Cannot add participants to direct chat!"  
+            };
+        }
         var isAdmin = chat.Participants.Any(p => p.PersonId == currentPersonId && p.IsAdmin);
         if (!isAdmin)
-            throw new Exception("Only admins can add participants");
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Only admins can add participants!"  
+            };
+        }
         chat.IsDeleted = true;
         await _chatRepo.Update(chat);
-
+        return new BaseResponse()
+        {
+            Status = true,
+            Message = "Chat Deleted!"  
+        };
     }
-    public async Task AddParticipantsAsync(int chatId, AddParticipantsDto dto, int currentPersonId)
+    public async Task<BaseResponse> AddParticipantsAsync(int chatId, AddParticipantsDto dto, int currentPersonId)
     {
         var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
         if (chat == null)
-            throw new Exception("Chat not found");
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Unable to find chat!"  
+            };
+        }
         if (!chat.IsGroup)
-            throw new Exception("Cannot add participants to direct chat");
-        var isAdmin = chat.Participants
-            .Any(p => p.PersonId == currentPersonId && p.IsAdmin);
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Cannot add participants to direct chat!"  
+            };
+        }
+        var isAdmin = chat.Participants.Any(p => p.PersonId == currentPersonId && p.IsAdmin);
         if (!isAdmin)
-            throw new Exception("Only admins can add participants");
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Only admins can add participants!"  
+            };
+        }
         var existingIds = chat.Participants.Select(p => p.PersonId).ToHashSet();
         var newParticipants = dto.PersonIds.Where(id => !existingIds.Contains(id))
-            .Select(id => new ChatParticipant
-            {
-                ChatId = chatId,
-                PersonId = id,
-                JoinedAt = DateTime.UtcNow,
-                IsAdmin = false
-            });
-        foreach (var participant in newParticipants)
+        .Select(id => new ChatParticipant
         {
-            chat.Participants.Add(participant);
-        }
-        await _chatRepo.Update(chat);
+            ChatId = chatId,
+            PersonId = id,
+            JoinedAt = DateTime.UtcNow,
+            IsAdmin = false
+        });
+        foreach (var participant in newParticipants) chat.Participants.Add(participant);
+        
+        await _chatRepo.Update(chat);    
+        return new BaseResponse()
+        {
+            Status = false,
+            Message = "Unable to find chat!"  
+        };
     }
-    public async Task RemoveParticipantAsync(int chatId, int personId, int currentPersonId)
+    public async Task<BaseResponse> RemoveParticipantAsync(int chatId, int personId, int currentPersonId)
     {
         var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
 
         if (chat == null)
-            throw new Exception("Chat not found");
-
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Unable to find chat!"  
+            };
+        }
         if (!chat.IsGroup)
-            throw new Exception("Cannot remove participants from direct chat");
-            var isSelfRemove = currentPersonId == personId;
-
-        var isAdmin = chat.Participants
-            .Any(p => p.PersonId == currentPersonId && p.IsAdmin);
-
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Unable remove participants in group!"  
+            };
+        }
+        var isSelfRemove = currentPersonId == personId;
+        var isAdmin = chat.Participants.Any(p => p.PersonId == currentPersonId && p.IsAdmin);
         if (!isSelfRemove && !isAdmin)
-            throw new Exception("Not allowed");
-            var participant = chat.Participants
-        .FirstOrDefault(p => p.PersonId == personId);
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Unable to find chat!"  
+            };
+        }
+        var participant = chat.Participants.FirstOrDefault(p => p.PersonId == personId);
         var adminCount = chat.Participants.Count(x => x.IsAdmin);
         if (participant == null)
-            return;
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Unable to find participant!"  
+            };
+        }
         if (participant.IsAdmin && adminCount == 1)
-            throw new Exception("Cannot remove last admin");
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Unable to find chat!"  
+            };
+        }
         chat.Participants.Remove(participant);
         await _chatRepo.Update(chat);
+        {
+            return new BaseResponse()
+            {
+              Status = true,
+              Message = "Participant removed!"  
+            };
+        }
     }
-    public async Task MarkAsReadAsync(int chatId, int personId)
+    public async Task<BaseResponse> MarkAsReadAsync(int chatId, int personId)
     {
         var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
         if (chat == null)
-            throw new Exception("Chat not found");
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Unable to find chat!"  
+            };
+        }
         var participant = chat.Participants.FirstOrDefault(x => x.PersonId == personId);
         if (participant == null)
-            throw new Exception("Access denied");
+        {
+            return new BaseResponse()
+            {
+              Status = false,
+              Message = "Unable to find participant!"  
+            };
+        }
         participant.LastReadAt = DateTime.UtcNow;
         await _chatRepo.Update(chat);
+        return new BaseResponse()
+        {
+            Status = true,
+            Message = "Marked as read!"  
+        };
     }
     public async Task<bool> IsParticipantAsync(int chatId, int personId)
     {
