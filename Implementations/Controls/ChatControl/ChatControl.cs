@@ -4,6 +4,7 @@ using Home_Security.Interfaces.Controls.Chats;
 using Home_Security.Interfaces.Services.Chats;
 using Home_Security.Models.ChatDTO;
 using Home_Security.Models.DTOs;
+using Home_Security.RealTimeServices;
 namespace Home_Security.Implementations.Controls.Chats;
 public class ChatControl : IChatControl
 {
@@ -34,23 +35,26 @@ public class ChatControl : IChatControl
         }
         return null;
     }
-    public async Task UpdateGroupChat(GetAuthControlInfoDto getAuthControlInfoDto, UpdateGroupChatDto updateGroupChatDto)
+    public async Task<BaseResponse> UpdateGroupChat(GetAuthControlInfoDto getAuthControlInfoDto, UpdateGroupChatDto updateGroupChatDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
-            await _chatService.UpdateGroupChatAsync(updateGroupChatDto.ChatId, updateGroupChatDto, auth.Id);
+            return await _chatService.UpdateGroupChatAsync(updateGroupChatDto.ChatId, updateGroupChatDto, auth.Id);
+        return _authControl.AuthFaliure();
     }
-    public async Task DeleteChat(GetAuthControlInfoDto getAuthControlInfoDto, int chatId)
+    public async Task<BaseResponse> DeleteChat(GetAuthControlInfoDto getAuthControlInfoDto, int chatId)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
-            await _chatService.DeleteChatAsync(chatId, auth.Id);
+            return await _chatService.DeleteChatAsync(chatId, auth.Id);
+        return _authControl.AuthFaliure();
     }
-    public async Task AddParticipants(GetAuthControlInfoDto getAuthControlInfoDto, int chatId, AddParticipantsDto addParticipantsDto)
+    public async Task<BaseResponse> AddParticipants(GetAuthControlInfoDto getAuthControlInfoDto, int chatId, AddParticipantsDto addParticipantsDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
-            await _chatService.AddParticipantsAsync(chatId, addParticipantsDto, auth.Id);
+            return await _chatService.AddParticipantsAsync(chatId, addParticipantsDto, auth.Id);
+        return _authControl.AuthFaliure();
     }
     public async Task<ChatDto> GetChatById(GetAuthControlInfoDto getAuthControlInfoDto, int chatId)
     {
@@ -72,10 +76,11 @@ public class ChatControl : IChatControl
         }
         return null;
     }
-    public async Task RemoveParticipant(GetAuthControlInfoDto getAuthControlInfoDto,int chatId, int recipientId)
+    public async Task<BaseResponse> RemoveParticipant(GetAuthControlInfoDto getAuthControlInfoDto,int chatId, int recipientId)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
-            await _chatService.RemoveParticipantAsync(chatId, recipientId, auth.Id);
+           return await _chatService.RemoveParticipantAsync(chatId, recipientId, auth.Id);
+        return _authControl.AuthFaliure();
     }
 }

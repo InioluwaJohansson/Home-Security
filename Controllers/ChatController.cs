@@ -58,8 +58,8 @@ public class ChatController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        await _chatControl.UpdateGroupChat(getAuthControlInfoDto, createGroupChatDto);
-        return Ok();
+        var chat = await _chatControl.UpdateGroupChat(getAuthControlInfoDto, createGroupChatDto);
+        return Ok(chat);
     }
     [Authorize]
     [HttpPut("DeleteChat")]
@@ -72,8 +72,8 @@ public class ChatController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        await _chatControl.DeleteChat(getAuthControlInfoDto, chatId);
-        return Ok();
+        var chat = await _chatControl.DeleteChat(getAuthControlInfoDto, chatId);
+        return Ok(chat);
     }
     [Authorize]
     [HttpGet("GetChatById")]
@@ -100,8 +100,8 @@ public class ChatController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        await _chatControl.AddParticipants(getAuthControlInfoDto, chatId, addParticipantsDto);
-        return Ok();
+        var chat = await _chatControl.AddParticipants(getAuthControlInfoDto, chatId, addParticipantsDto);
+        return Ok(chat);
     }
     [Authorize]
     [HttpGet("GetMyChats")]
@@ -128,7 +128,8 @@ public class ChatController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        await _chatControl.RemoveParticipant(getAuthControlInfoDto, chatId, recipientId);
-        return Ok();
+        var chat = await _chatControl.RemoveParticipant(getAuthControlInfoDto, chatId, recipientId);
+        return Ok(chat);
     }
+    
 }

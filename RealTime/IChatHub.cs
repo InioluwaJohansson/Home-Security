@@ -6,7 +6,7 @@ public interface IChatHub
 {
     Task<BaseResponse> JoinChat(int chatId);
     Task LeaveChat(int chatId);
-    Task SendMessage(SendMessageDto dto);
+    Task<MessageDto> SendMessage(SendMessageDto dto, int personId);
     Task Typing(TypingDto dto);
     Task MarkAsRead(int chatId);
 }

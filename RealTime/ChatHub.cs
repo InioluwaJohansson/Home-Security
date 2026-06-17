@@ -46,10 +46,11 @@ public class ChatHub : Hub, IChatHub
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, chatId.ToString());
     }
-    public async Task SendMessage(SendMessageDto dto)
+    public async Task<MessageDto> SendMessage(SendMessageDto dto, int personId)
     {
-        var message = await _messageService.SendMessageAsync(dto, GetPersonId());
+        var message = await _messageService.SendMessageAsync(dto, personId);
         await Clients.Group(dto.ChatId.ToString()).SendAsync("ReceiveMessage", message);
+        return message;
     }
     public async Task Typing(TypingDto dto)
     {
