@@ -58,7 +58,7 @@ public class MessageService : IMessageService
     public async Task<List<MessageDto>> GetChatMessagesAsync(int chatId, int personId, int page, int pageSize)
     {
         var isParticipant = await _chatRepo.IsParticipantAsync(chatId, personId);
-        if (!isParticipant)
+        if (isParticipant == false)
             throw new Exception("Access denied");
         var messages = await _messageRepo.GetChatMessagesAsync(chatId, page, pageSize);
         return messages.Select(MapToDto).ToList();
@@ -124,7 +124,7 @@ public class MessageService : IMessageService
         return new BaseResponse()
         {
             Status = false,
-            Message = "Unabletofind message"
+            Message = "Unable to find message"
         };
     }
     public async Task<int> GetUnreadCountAsync(int chatId, int personId)

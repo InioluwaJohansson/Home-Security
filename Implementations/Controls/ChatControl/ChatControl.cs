@@ -20,7 +20,7 @@ public class ChatControl : IChatControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
         {
-            var chat = await _chatService.CreateDirectChatAsync(recipientPersonId, auth.Id);
+            var chat = await _chatService.CreateDirectChatAsync(recipientPersonId, auth.Id, _authControl.GetUserPersonName(auth.Id));
             return chat;
         }
         return null;

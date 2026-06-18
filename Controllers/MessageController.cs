@@ -48,7 +48,7 @@ public class MessageController : Controller
     }
     [Authorize]
     [HttpGet("GetChatMessages")]
-    public async Task<IActionResult> GetChatMessages(int messageId, int page, int pageSize)
+    public async Task<IActionResult> GetChatMessages(int chatId, int page, int pageSize)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -57,7 +57,7 @@ public class MessageController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var message = await _messageControl.GetChatMessages(getAuthControlInfoDto, messageId, page, pageSize);
+        var message = await _messageControl.GetChatMessages(getAuthControlInfoDto, chatId, page, pageSize);
         return Ok(message);
     }
     [Authorize]
@@ -76,7 +76,7 @@ public class MessageController : Controller
     }
     [Authorize]
     [HttpGet("GetUnreadCount")]
-    public async Task<IActionResult> GetUnreadCount(int messageId)
+    public async Task<IActionResult> GetUnreadCount(int chatId)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -85,12 +85,12 @@ public class MessageController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var message = await _messageControl.GetUnreadCount(getAuthControlInfoDto, messageId);
+        var message = await _messageControl.GetUnreadCount(getAuthControlInfoDto, chatId);
         return Ok(message);
     }
     [Authorize]
     [HttpPost("Typing")]
-    public async Task<IActionResult> Typing(int messageId)
+    public async Task<IActionResult> Typing(int chatId)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -99,7 +99,7 @@ public class MessageController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        await _messageControl.Typing(getAuthControlInfoDto, messageId);
+        await _messageControl.Typing(getAuthControlInfoDto, chatId);
         return Ok();
     }
 }

@@ -13,7 +13,7 @@ public class ChatService : IChatService
         _chatRepo = chatRepo;
         _chatHub = chatHub;
     }
-    public async Task<ChatDto> CreateDirectChatAsync(int recipientPersonId, int currentPersonId)
+    public async Task<ChatDto> CreateDirectChatAsync(int recipientPersonId, int currentPersonId, string personName)
     {
 
         var existingChat = await _chatRepo.GetDirectChatAsync(currentPersonId, recipientPersonId);
@@ -23,6 +23,7 @@ public class ChatService : IChatService
         {
             IsGroup = false,
             CreatedByPersonId = currentPersonId,
+            Name = personName,
             Participants = new List<ChatParticipant>
             {
                 new ChatParticipant
