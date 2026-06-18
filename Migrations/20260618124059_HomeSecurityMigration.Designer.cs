@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Home_Security.Migrations
 {
     [DbContext(typeof(HomeSecurityContext))]
-    [Migration("20260616212504_HomeSecurityMigration1")]
-    partial class HomeSecurityMigration1
+    [Migration("20260618124059_HomeSecurityMigration")]
+    partial class HomeSecurityMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

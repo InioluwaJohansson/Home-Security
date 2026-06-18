@@ -106,6 +106,7 @@ builder.Services.AddScoped<IJWTAuthentication, JWTAuthentication>();
 
 builder.Services.AddScoped<ICameraStreamingService, CameraStreamingService>();
 builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
+builder.Services.AddScoped<IChatHub, ChatHub>();
 builder.Services.AddSingleton<IMqttService, MqttService>();
 
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();

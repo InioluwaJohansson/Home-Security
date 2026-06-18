@@ -11,11 +11,11 @@ using System.Security.Claims;
 [ApiController]
 public class MessageController : Controller
 {
-    IMessageControl _chatControl;
+    IMessageControl _messageControl;
     IJWTAuthentication _jwtAuthentication;
-    public MessageController(IMessageControl chatControl, IJWTAuthentication jwtAuthentication)
+    public MessageController(IMessageControl messageControl, IJWTAuthentication jwtAuthentication)
     {
-        _chatControl = chatControl;
+        _messageControl = messageControl;
         _jwtAuthentication = jwtAuthentication;
     }
     [Authorize]
@@ -29,8 +29,8 @@ public class MessageController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var chat = await _chatControl.SendMessage(getAuthControlInfoDto, sendMessageDto);
-        return Ok(chat);
+        var message = await _messageControl.SendMessage(getAuthControlInfoDto, sendMessageDto);
+        return Ok(message);
     }
     [Authorize]
     [HttpPost("EditMessage")]
@@ -43,12 +43,12 @@ public class MessageController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var chat = await _chatControl.EditMessage(getAuthControlInfoDto, editMessageDto);
-        return Ok(chat);
+        var message = await _messageControl.EditMessage(getAuthControlInfoDto, editMessageDto);
+        return Ok(message);
     }
     [Authorize]
     [HttpGet("GetChatMessages")]
-    public async Task<IActionResult> GetChatMessages(int chatId, int page, int pageSize)
+    public async Task<IActionResult> GetChatMessages(int messageId, int page, int pageSize)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -57,8 +57,8 @@ public class MessageController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var chat = await _chatControl.GetChatMessages(getAuthControlInfoDto, chatId, page, pageSize);
-        return Ok(chat);
+        var message = await _messageControl.GetChatMessages(getAuthControlInfoDto, messageId, page, pageSize);
+        return Ok(message);
     }
     [Authorize]
     [HttpPost("DeleteMessage")]
@@ -71,12 +71,12 @@ public class MessageController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        await _chatControl.DeleteMessage(getAuthControlInfoDto, messageId);
+        await _messageControl.DeleteMessage(getAuthControlInfoDto, messageId);
         return Ok();
     }
     [Authorize]
     [HttpGet("GetUnreadCount")]
-    public async Task<IActionResult> GetUnreadCount(int chatId)
+    public async Task<IActionResult> GetUnreadCount(int messageId)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -85,12 +85,12 @@ public class MessageController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var chat = await _chatControl.GetUnreadCount(getAuthControlInfoDto, chatId);
-        return Ok(chat);
+        var message = await _messageControl.GetUnreadCount(getAuthControlInfoDto, messageId);
+        return Ok(message);
     }
     [Authorize]
     [HttpPost("Typing")]
-    public async Task<IActionResult> Typing(int chatId)
+    public async Task<IActionResult> Typing(int messageId)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -99,7 +99,7 @@ public class MessageController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        await _chatControl.Typing(getAuthControlInfoDto, chatId);
+        await _messageControl.Typing(getAuthControlInfoDto, messageId);
         return Ok();
     }
 }

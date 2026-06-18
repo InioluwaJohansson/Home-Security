@@ -1,17 +1,16 @@
 using Microsoft.AspNetCore.SignalR;
-using Home_Security.Interfaces.Services.Chats;
-using Home_Security.Models.ChatDTO;
 using Microsoft.AspNetCore.Authorization;
-using Home_Security.Interfaces.Controls;
-using Home_Security.Models.DTOs;
-using Home_Security.RealTimeServices;
+using Home_Security.Hubs;
+namespace Home_Security.RealTimeServices;
 
 [Authorize]
-public class ChatHub : Hub, IChatHub
+public class ChatHub : HomeSecurityHub, IChatHub
 {
+    private readonly IHubContext<HomeSecurityHub> _hub;
     private static readonly Dictionary<int, List<string>> _connections = new();
-    public ChatHub()
+    public ChatHub(IHubContext<HomeSecurityHub> hub)
     {
+        _hub = hub;
     }
     private int GetPersonId()
     {
@@ -21,15 +20,15 @@ public class ChatHub : Hub, IChatHub
     }
     public async Task JoinChat(int chatId)
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());
+        await _hub.Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());
     }
     public async Task LeaveChat(int chatId)
     {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, chatId.ToString());
+        await _hub.Groups.RemoveFromGroupAsync(Context.ConnectionId, chatId.ToString());
     }
     public async Task UpdateChat(string eventName, int chatId, object update)
     {
-        await Clients.Group(chatId.ToString()).SendAsync(eventName, update);
+        await _hub.Clients.Group(chatId.ToString()).SendAsync(eventName, update);
     }
     public override async Task OnConnectedAsync()
     {
