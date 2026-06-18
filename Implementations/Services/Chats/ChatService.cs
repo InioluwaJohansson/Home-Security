@@ -3,22 +3,22 @@ using Home_Security.Interfaces.Services.Chats;
 using Home_Security.Models.ChatDTO;
 using Home_Security.Entities.Chats;
 using Home_Security.Models.DTOs;
+using Home_Security.RealTimeServices;
 public class ChatService : IChatService
 {
     private readonly IChatRepo _chatRepo;
-    public ChatService(IChatRepo chatRepo, IHttpContextAccessor http)
+    private IChatHub _chatHub;
+    public ChatService(IChatRepo chatRepo, IChatHub chatHub)
     {
         _chatRepo = chatRepo;
+        _chatHub = chatHub;
     }
     public async Task<ChatDto> CreateDirectChatAsync(int recipientPersonId, int currentPersonId)
     {
 
-        var existingChat = await _chatRepo
-            .GetDirectChatAsync(currentPersonId, recipientPersonId);
-
+        var existingChat = await _chatRepo.GetDirectChatAsync(currentPersonId, recipientPersonId);
         if (existingChat != null)
             return MapToDto(existingChat);
-
         var chat = new Chat
         {
             IsGroup = false,
@@ -277,11 +277,39 @@ public class ChatService : IChatService
         }
         participant.LastReadAt = DateTime.UtcNow;
         await _chatRepo.Update(chat);
+        await _chatHub.UpdateChat("MessagesRead", chatId, new
+        {
+            ChatId = chatId,
+            PersonId = personId,
+            ReadAt = DateTime.UtcNow
+        });
         return new BaseResponse()
         {
             Status = true,
             Message = "Marked as read!"  
         };
+    }
+    public async Task<BaseResponse> JoinChat(int chatId, int personId)
+    {
+        var isParticipant = await _chatRepo.IsParticipantAsync(chatId, personId);
+        if (!isParticipant)
+        {
+            return new BaseResponse()
+            {
+                Status = false,
+                Message = "You are not a participant of this chat!"
+            };
+        }
+        await _chatHub.JoinChat(chatId);
+        return new BaseResponse()
+        {
+            Status = true,
+            Message = "Joined chat successfully!"
+        };
+    }
+    public async Task LeaveChat(int chatId)
+    {
+        await _chatHub.LeaveChat(chatId);
     }
     public async Task<bool> IsParticipantAsync(int chatId, int personId)
     {

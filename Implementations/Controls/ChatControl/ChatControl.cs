@@ -83,4 +83,17 @@ public class ChatControl : IChatControl
            return await _chatService.RemoveParticipantAsync(chatId, recipientId, auth.Id);
         return _authControl.AuthFaliure();
     }
+    public async Task<BaseResponse> JoinChat(GetAuthControlInfoDto getAuthControlInfoDto, int chatId)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false)
+           return await _chatService.JoinChat(chatId, auth.Id);
+        return _authControl.AuthFaliure();
+    }
+    public async Task LeaveChat(GetAuthControlInfoDto getAuthControlInfoDto, int chatId)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false)
+           await _chatService.LeaveChat(chatId);
+    }
 }

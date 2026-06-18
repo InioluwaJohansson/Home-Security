@@ -131,5 +131,32 @@ public class ChatController : Controller
         var chat = await _chatControl.RemoveParticipant(getAuthControlInfoDto, chatId, recipientId);
         return Ok(chat);
     }
-    
+    [Authorize]
+    [HttpPost("JoinChat")]
+    public async Task<IActionResult> JoinChat(int chatId)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        var chat = await _chatControl.JoinChat(getAuthControlInfoDto, chatId);
+        return Ok(chat);
+    }
+    [Authorize]
+    [HttpPost("LeaveChat")]
+    public async Task<IActionResult> LeaveChat(int chatId)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        await _chatControl.LeaveChat(getAuthControlInfoDto, chatId);
+        return Ok();
+    }
 }

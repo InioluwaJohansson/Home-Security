@@ -2,22 +2,32 @@ using Home_Security.Interfaces.Services.Chats;
 using Home_Security.Interfaces.Repositories.Chats;
 using Home_Security.Models.ChatDTO;
 using Home_Security.Entities.Chats;
+using Home_Security.RealTimeServices;
+using Home_Security.Models.DTOs;
 public class MessageService : IMessageService
 {
     private readonly IMessageRepo _messageRepo;
     private readonly IChatRepo _chatRepo;
+    private IChatHub _chatHub;
 
-    public MessageService(IMessageRepo messageRepo, IChatRepo chatRepo)
+    public MessageService(IMessageRepo messageRepo, IChatRepo chatRepo, IChatHub chatHub)
     {
         _messageRepo = messageRepo;
         _chatRepo = chatRepo;
+        _chatHub = chatHub;
     }
-    public async Task<MessageDto> SendMessageAsync(SendMessageDto dto, int senderId)
+    public async Task<BaseResponse> SendMessageAsync(SendMessageDto dto, int senderId)
     {
         var isParticipant = await _chatRepo.IsParticipantAsync(dto.ChatId, senderId);
 
         if (!isParticipant)
-            throw new Exception("Not allowed in this chat");
+        {
+            return new BaseResponse()
+            {
+                Status = false,
+                Message = "Participant not found"
+            };
+        }
         var date = DateTime.UtcNow;
         var message = new Message
         {
@@ -28,19 +38,22 @@ public class MessageService : IMessageService
             Type = dto.Type,
             SentAt = date,
             Attachments = (await Task.WhenAll(
-        dto.Attachments.Select(async a => new MessageAttachment
-        {
-            FileName = a.FileName,
-            FilePath = await GetAttachmentUrl(a.FilePath, dto.Type),
-            ContentType = a.ContentType,
-            FileSize = a.FileSize,
-            ThumbnailPath = a.ThumbnailPath
-        }))).ToList()
+            dto.Attachments?.Select(async a => new MessageAttachment
+            {
+                FileName = a.FileName,
+                FilePath = await GetAttachmentUrl(a.FilePath, dto.Type),
+                ContentType = a.ContentType,
+                FileSize = a.FileSize,
+                ThumbnailPath = a.ThumbnailPath
+            }))).ToList()
         };
-
         await _messageRepo.Create(message);
         var messageData = await _messageRepo.GetMessageByExpression(x => x.SentAt == date && !x.IsDeleted);
-        return MapToDto(messageData);
+        return new BaseResponse()
+        {
+            Status = true,
+            Message = "Message sent"
+        };
     }
     public async Task<List<MessageDto>> GetChatMessagesAsync(int chatId, int personId, int page, int pageSize)
     {
@@ -50,44 +63,81 @@ public class MessageService : IMessageService
         var messages = await _messageRepo.GetChatMessagesAsync(chatId, page, pageSize);
         return messages.Select(MapToDto).ToList();
     }
-    public async Task<MessageDto> EditMessageAsync(EditMessageDto dto, int personId)
+    public async Task<BaseResponse> EditMessageAsync(EditMessageDto dto, int personId)
     {
-
         var message = await _messageRepo.GetByIdAsync(dto.MessageId);
         if (message == null)
-            throw new Exception("Message not found");
-
+        {
+            return new BaseResponse()
+            {
+                Status = false,
+                Message = "Unable to find message"
+            };
+        }
         if (message.SenderPersonId != personId)
-            throw new Exception("Not allowed");
-
+        {
+            return new BaseResponse()
+            {
+                Status = false,
+                Message = "Can't delete chats"
+            };
+        }
         message.Content = dto.Content;
         message.IsEdited = true;
-
         await _messageRepo.Update(message);
-        return MapToDto(message);
+        await _chatHub.UpdateChat("MessageEdited", message.ChatId, message);
+        return new BaseResponse()
+        {
+            Status = true,
+            Message = "Message edited"
+        };
     }
-    public async Task DeleteMessageAsync(int messageId, int personId)
+    public async Task<BaseResponse> DeleteMessageAsync(int messageId, int personId)
     {
-
         var message = await _messageRepo.GetByIdAsync(messageId);
 
         if (message == null)
-            throw new Exception("Message not found");
+        {
+            return new BaseResponse()
+            {
+                Status = false,
+                Message = "Unable to find message"
+            };
+        }
 
         if (message.SenderPersonId != personId)
-            throw new Exception("Not allowed");
-
+        {
+            return new BaseResponse()
+            {
+                Status = false,
+                Message = "Unable to find message"
+            };
+        }
         message.IsDeleted = true;
-
         await _messageRepo.Update(message);
+        await _chatHub.UpdateChat("MessageDeleted", message.ChatId, new
+        {
+            ChatId = message.ChatId,
+            MessageId = messageId,
+            IsDeleted = true,
+        });
+        return new BaseResponse()
+        {
+            Status = false,
+            Message = "Unabletofind message"
+        };
     }
     public async Task<int> GetUnreadCountAsync(int chatId, int personId)
     {
         var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
-
         var participant = chat.Participants.FirstOrDefault(x => x.PersonId == personId);
-
         return await _messageRepo.GetUnreadCountAsync(chatId, participant?.LastReadAt);
+    }
+    public async Task Typing(TypingDto dto)
+    {
+        var isParticipant = await _chatRepo.IsParticipantAsync(dto.ChatId, dto.PersonId);
+        if (isParticipant)
+            await _chatHub.UpdateChat("UserTyping", dto.ChatId, dto);
     }
     private MessageDto MapToDto(Message message)
     {

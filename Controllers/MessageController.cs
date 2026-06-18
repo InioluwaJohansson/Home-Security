@@ -88,4 +88,18 @@ public class MessageController : Controller
         var chat = await _chatControl.GetUnreadCount(getAuthControlInfoDto, chatId);
         return Ok(chat);
     }
+    [Authorize]
+    [HttpPost("Typing")]
+    public async Task<IActionResult> Typing(int chatId)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        await _chatControl.Typing(getAuthControlInfoDto, chatId);
+        return Ok();
+    }
 }
