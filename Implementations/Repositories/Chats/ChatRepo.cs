@@ -21,7 +21,6 @@ public class ChatRepository : BaseRepository<Chat>, IChatRepo
     }
     public async Task<bool> IsParticipantAsync(int chatId, int personId)
     {
-        Console.WriteLine("MessageRepo: "+ chatId + "PersonId: " + personId);
         return await context.ChatParticipant.AnyAsync(x => x.ChatId == chatId && x.PersonId == personId && x.IsDeleted == false);
     }
      public async Task<Chat?> GetDirectChatAsync(int firstPersonId, int secondPersonId)

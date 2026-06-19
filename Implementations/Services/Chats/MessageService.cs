@@ -19,7 +19,6 @@ public class MessageService : IMessageService
     public async Task<BaseResponse> SendMessageAsync(SendMessageDto dto, int senderId)
     {
         var isParticipant = await _chatRepo.IsParticipantAsync(dto.ChatId, senderId);
-
         if (!isParticipant)
         {
             return new BaseResponse()
@@ -49,6 +48,7 @@ public class MessageService : IMessageService
         };
         await _messageRepo.Create(message);
         var messageData = await _messageRepo.GetMessageByExpression(x => x.SentAt == date && !x.IsDeleted);
+        await _chatHub.UpdateChat("MessageSent", message.ChatId, MapToDto(messageData));
         return new BaseResponse()
         {
             Status = true,
@@ -85,7 +85,7 @@ public class MessageService : IMessageService
         message.Content = dto.Content;
         message.IsEdited = true;
         await _messageRepo.Update(message);
-        await _chatHub.UpdateChat("MessageEdited", message.ChatId, message);
+        await _chatHub.UpdateChat("MessageEdited", message.ChatId, MapToDto(message));
         return new BaseResponse()
         {
             Status = true,
@@ -153,7 +153,7 @@ public class MessageService : IMessageService
             IsDeleted = message.IsDeleted,
             SentAt = message.SentAt,
             SenderName = $"{message.SenderPerson.PersonDetails.FirstName} {message.SenderPerson.PersonDetails.LastName}",
-            SenderProfileImage = ConvertImageToBase64(message.SenderPerson.PersonDetails.ImageUrl) ?? "",
+            SenderProfileImage = message.SenderPerson.PersonDetails.ImageUrl ?? "",
             Attachments = message.Attachments?
                 .Select(a => new GetMessageAttachmentDto
                 {

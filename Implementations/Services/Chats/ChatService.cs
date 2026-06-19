@@ -13,7 +13,7 @@ public class ChatService : IChatService
         _chatRepo = chatRepo;
         _chatHub = chatHub;
     }
-    public async Task<ChatDto> CreateDirectChatAsync(int recipientPersonId, int currentPersonId, string personName)
+    public async Task<ChatDto> CreateDirectChatAsync(int recipientPersonId, int currentPersonId)
     {
 
         var existingChat = await _chatRepo.GetDirectChatAsync(currentPersonId, recipientPersonId);
@@ -23,7 +23,6 @@ public class ChatService : IChatService
         {
             IsGroup = false,
             CreatedByPersonId = currentPersonId,
-            Name = personName,
             Participants = new List<ChatParticipant>
             {
                 new ChatParticipant
@@ -36,7 +35,9 @@ public class ChatService : IChatService
                 }
             }
         };
-        await _chatRepo.Create(chat);
+        var chatData = await _chatRepo.Create(chat);
+        await _chatHub.JoinChat(chatData.Id);
+        await _chatHub.UpdateChat("ChatCreated", chatData.Id, MapToDto(chatData));
         return MapToDto(chat);
     }
     public async Task<ChatDto> CreateGroupChatAsync(CreateGroupChatDto dto, int currentPersonId)
@@ -55,8 +56,10 @@ public class ChatService : IChatService
                 IsAdmin = x == currentPersonId
             }).ToList()
         };
-        await _chatRepo.Create(chat);
-        return MapToDto(chat);
+        var chatData = await _chatRepo.Create(chat);
+        await _chatHub.JoinChat(chatData.Id);
+        await _chatHub.UpdateChat("GroupChatCreated", chatData.Id, MapToDto(chatData));
+        return MapToDto(chatData);
     }
     public async Task<List<ChatDto>> GetMyChatsAsync(int personId)
     {
@@ -72,7 +75,7 @@ public class ChatService : IChatService
 
         var isParticipant = chat.Participants.Any(p => p.PersonId == personId);
         if (!isParticipant)
-            throw new Exception("Access denied");
+            return null;
         return MapToDto(chat);
     }
     public async Task<BaseResponse> UpdateGroupChatAsync(int chatId, UpdateGroupChatDto dto, int currentPersonId)
@@ -108,13 +111,12 @@ public class ChatService : IChatService
         if (dto.ImageUrl != null)
             chat.ImageUrl = chat.ImageUrl ?? await GetImageUrl(dto.ImageUrl);
         await _chatRepo.Update(chat);
+        await _chatHub.UpdateChat("GroupChatUpdated", chat.Id, MapToDto(chat));
+        return new BaseResponse()
         {
-            return new BaseResponse()
-            {
-              Status = true,
-              Message = "Group Details Updated!"  
-            };
-        }
+            Status = true,
+            Message = "Group Details Updated!"  
+        };
     }
     public async Task<BaseResponse> DeleteChatAsync(int chatId, int currentPersonId)
     {
@@ -146,6 +148,12 @@ public class ChatService : IChatService
         }
         chat.IsDeleted = true;
         await _chatRepo.Update(chat);
+        await _chatHub.UpdateChat("ChatDeleted", chatId, new
+        {
+            ChatId = chatId,
+            PersonId = currentPersonId,
+        });
+        await _chatHub.LeaveChat(chatData.Id);
         return new BaseResponse()
         {
             Status = true,
@@ -190,8 +198,14 @@ public class ChatService : IChatService
             IsAdmin = false
         });
         foreach (var participant in newParticipants) chat.Participants.Add(participant);
-        
-        await _chatRepo.Update(chat);    
+        await _chatRepo.Update(chat);
+        await _chatHub.UpdateChat("ParticipantsAdded", chatId, newParticipants.Select(id => new
+        {
+            ChatId = chatId,
+            PersonId = id,
+            JoinedAt = DateTime.UtcNow,
+            IsAdmin = false
+        }));    
         return new BaseResponse()
         {
             Status = false,
@@ -248,13 +262,16 @@ public class ChatService : IChatService
         }
         chat.Participants.Remove(participant);
         await _chatRepo.Update(chat);
+        await _chatHub.UpdateChat("ParticipantRemoved", chatId, new
         {
-            return new BaseResponse()
-            {
-              Status = true,
-              Message = "Participant removed!"  
-            };
-        }
+            ChatId = chatId,
+            PersonId = personId,
+        });        
+        return new BaseResponse()
+        {
+            Status = true,
+            Message = "Participant removed!"  
+        };
     }
     public async Task<BaseResponse> MarkAsReadAsync(int chatId, int personId)
     {

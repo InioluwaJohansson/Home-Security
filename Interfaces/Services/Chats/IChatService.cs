@@ -3,7 +3,7 @@ using Home_Security.Models.DTOs;
 namespace Home_Security.Interfaces.Services.Chats;
 public interface IChatService
 {
-    Task<ChatDto> CreateDirectChatAsync(int recipientPersonId, int currentPersonId, string personName);
+    Task<ChatDto> CreateDirectChatAsync(int recipientPersonId, int currentPersonId);
     Task<ChatDto> CreateGroupChatAsync(CreateGroupChatDto dto, int currentPersonId);
     Task<BaseResponse> UpdateGroupChatAsync(int chatId, UpdateGroupChatDto dto, int currentPersonId);
     Task<BaseResponse> DeleteChatAsync(int chatId, int currentPersonId);
