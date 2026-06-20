@@ -71,4 +71,8 @@ public class HomeSecurityHub : Hub
     {
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, chatId.ToString());
     }
+    public async Task UserOnline(int personId)
+    {
+        await Clients.All.SendAsync("UserOnline", personId);
+    }
 }

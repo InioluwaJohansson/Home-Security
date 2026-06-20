@@ -88,8 +88,12 @@ public class ChatControl : IChatControl
     private ChatDto ChatRefactor(ChatDto x, int personId){
         if(!x.IsGroup){
             if(x.Participants.FirstOrDefault().PersonId == personId) x.Name = _authControl.GetUserPersonName(x.Participants.LastOrDefault().PersonId);
-            else x.Name = _authControl.GetUserPersonName(x.Participants.FirstOrDefault().PersonId);
+            if(x.Participants.LastOrDefault().PersonId == personId) x.Name = _authControl.GetUserPersonName(x.Participants.FirstOrDefault().PersonId);
         }
+        // if(x.IsGroup){
+        //     x.Participants?
+        //         .Select(p => x.FullName = _authControl.);
+        // }
         return x;
     }
 }
