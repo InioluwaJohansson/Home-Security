@@ -1,4 +1,5 @@
 using Home_Security.Entities.Identity;
+using Home_Security.Entities.Chats;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Controls.Chats;
 using Home_Security.Interfaces.Services.Chats;
@@ -62,7 +63,7 @@ public class ChatControl : IChatControl
         if (auth.Status != false)
         {
             var chat = await _chatService.GetChatByIdAsync(chatId, auth.Id);
-            return chat;
+            return ChatRefactor(chat, auth.Id);
         }
         return null;
     }
@@ -72,7 +73,8 @@ public class ChatControl : IChatControl
         if (auth.Status != false)
         {
             var chat = await _chatService.GetMyChatsAsync(auth.Id);
-            return chat;
+            var newChats = chat.Select(x => ChatRefactor(x, auth.Id)).ToList();
+            return newChats;
         }
         return null;
     }
@@ -83,17 +85,11 @@ public class ChatControl : IChatControl
            return await _chatService.RemoveParticipantAsync(chatId, recipientId, auth.Id);
         return _authControl.AuthFaliure();
     }
-    public async Task<BaseResponse> JoinChat(GetAuthControlInfoDto getAuthControlInfoDto, int chatId)
-    {
-        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false)
-           return await _chatService.JoinChat(chatId, auth.Id);
-        return _authControl.AuthFaliure();
-    }
-    public async Task LeaveChat(GetAuthControlInfoDto getAuthControlInfoDto, int chatId)
-    {
-        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false)
-           await _chatService.LeaveChat(chatId);
+    private ChatDto ChatRefactor(ChatDto x, int personId){
+        if(!x.IsGroup){
+            if(x.Participants.FirstOrDefault().PersonId == personId) x.Name = _authControl.GetUserPersonName(x.Participants.LastOrDefault().PersonId);
+            else x.Name = _authControl.GetUserPersonName(x.Participants.FirstOrDefault().PersonId);
+        }
+        return x;
     }
 }

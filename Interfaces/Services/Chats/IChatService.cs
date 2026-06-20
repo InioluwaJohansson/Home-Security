@@ -11,8 +11,5 @@ public interface IChatService
     Task<ChatDto?> GetChatByIdAsync(int chatId, int personId);
     Task<BaseResponse> AddParticipantsAsync(int chatId, AddParticipantsDto dto, int currentPersonId);
     Task<BaseResponse> RemoveParticipantAsync(int chatId, int personId, int currentPersonId);
-    Task<BaseResponse> MarkAsReadAsync(int chatId, int personId);
-    Task<BaseResponse> JoinChat(int chatId, int personId);
-    Task LeaveChat(int chatId);
     Task<bool> IsParticipantAsync(int chatId, int personId);
 }

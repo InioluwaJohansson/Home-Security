@@ -12,6 +12,4 @@ public interface IChatControl
     public Task<ChatDto> GetChatById(GetAuthControlInfoDto getAuthControlInfoDto, int chatId);
     public Task<List<ChatDto>> GetMyChats(GetAuthControlInfoDto getAuthControlInfoDto);
     public Task<BaseResponse> RemoveParticipant(GetAuthControlInfoDto getAuthControlInfoDto,int chatId, int recipientId);
-    Task<BaseResponse> JoinChat(GetAuthControlInfoDto getAuthControlInfoDto, int chatId);
-    Task LeaveChat(GetAuthControlInfoDto getAuthControlInfoDto, int chatId);
 }

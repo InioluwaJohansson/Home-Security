@@ -240,7 +240,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<HomeSecurityHub>("/HomeSecurityHub");
-app.MapHub<ChatHub>("/HomeSecurityChatHub");
+// app.MapHub<ChatHub>("/HomeSecurityChatHub");
 
 app.Use(async (context, next) =>
 {

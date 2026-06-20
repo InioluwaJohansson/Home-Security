@@ -61,6 +61,7 @@ public class MessageService : IMessageService
         if (isParticipant == false)
             throw new Exception("Access denied");
         var messages = await _messageRepo.GetChatMessagesAsync(chatId, page, pageSize);
+        await MarkAsReadAsync(chatId, personId);
         return messages.Select(MapToDto).ToList();
     }
     public async Task<BaseResponse> EditMessageAsync(EditMessageDto dto, int personId)
@@ -138,6 +139,27 @@ public class MessageService : IMessageService
         var isParticipant = await _chatRepo.IsParticipantAsync(dto.ChatId, dto.PersonId);
         if (isParticipant)
             await _chatHub.UpdateChat("UserTyping", dto.ChatId, dto);
+    }
+    public async Task MarkAsReadAsync(int chatId, int personId)
+    {
+        var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
+        if (chat == null){}
+        else
+        {
+            var participant = chat.Participants.FirstOrDefault(x => x.PersonId == personId);
+            if (participant == null){}
+            else
+            {
+                participant.LastReadAt = DateTime.UtcNow;
+                await _chatRepo.Update(chat);
+                await _chatHub.UpdateChat("MessagesRead", chatId, new
+                {
+                    ChatId = chatId,
+                    PersonId = personId,
+                    ReadAt = DateTime.UtcNow
+                });
+            }
+        }
     }
     private MessageDto MapToDto(Message message)
     {

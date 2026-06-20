@@ -36,7 +36,7 @@ public class ChatService : IChatService
             }
         };
         var chatData = await _chatRepo.Create(chat);
-        await _chatHub.JoinChat(chatData.Id);
+        
         await _chatHub.UpdateChat("ChatCreated", chatData.Id, MapToDto(chatData));
         return MapToDto(chat);
     }
@@ -57,7 +57,7 @@ public class ChatService : IChatService
             }).ToList()
         };
         var chatData = await _chatRepo.Create(chat);
-        await _chatHub.JoinChat(chatData.Id);
+        
         await _chatHub.UpdateChat("GroupChatCreated", chatData.Id, MapToDto(chatData));
         return MapToDto(chatData);
     }
@@ -153,7 +153,6 @@ public class ChatService : IChatService
             ChatId = chatId,
             PersonId = currentPersonId,
         });
-        await _chatHub.LeaveChat(chatData.Id);
         return new BaseResponse()
         {
             Status = true,
@@ -272,62 +271,6 @@ public class ChatService : IChatService
             Status = true,
             Message = "Participant removed!"  
         };
-    }
-    public async Task<BaseResponse> MarkAsReadAsync(int chatId, int personId)
-    {
-        var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
-        if (chat == null)
-        {
-            return new BaseResponse()
-            {
-              Status = false,
-              Message = "Unable to find chat!"  
-            };
-        }
-        var participant = chat.Participants.FirstOrDefault(x => x.PersonId == personId);
-        if (participant == null)
-        {
-            return new BaseResponse()
-            {
-              Status = false,
-              Message = "Unable to find participant!"  
-            };
-        }
-        participant.LastReadAt = DateTime.UtcNow;
-        await _chatRepo.Update(chat);
-        await _chatHub.UpdateChat("MessagesRead", chatId, new
-        {
-            ChatId = chatId,
-            PersonId = personId,
-            ReadAt = DateTime.UtcNow
-        });
-        return new BaseResponse()
-        {
-            Status = true,
-            Message = "Marked as read!"  
-        };
-    }
-    public async Task<BaseResponse> JoinChat(int chatId, int personId)
-    {
-        var isParticipant = await _chatRepo.IsParticipantAsync(chatId, personId);
-        if (!isParticipant)
-        {
-            return new BaseResponse()
-            {
-                Status = false,
-                Message = "You are not a participant of this chat!"
-            };
-        }
-        await _chatHub.JoinChat(chatId);
-        return new BaseResponse()
-        {
-            Status = true,
-            Message = "Joined chat successfully!"
-        };
-    }
-    public async Task LeaveChat(int chatId)
-    {
-        await _chatHub.LeaveChat(chatId);
     }
     public async Task<bool> IsParticipantAsync(int chatId, int personId)
     {
