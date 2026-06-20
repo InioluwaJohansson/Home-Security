@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Home_Security.Migrations
 {
     [DbContext(typeof(HomeSecurityContext))]
-    [Migration("20260608232043_HomeSecurityMigration")]
+    [Migration("20260618124059_HomeSecurityMigration")]
     partial class HomeSecurityMigration
     {
         /// <inheritdoc />
@@ -771,11 +771,7 @@ namespace Home_Security.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ActionId")
-                        .HasColumnType("int");
-
                     b.Property<string>("ActionIds")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<int>("CreatedBy")
@@ -826,8 +822,6 @@ namespace Home_Security.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ActionId");
 
                     b.HasIndex("RoomId");
 
@@ -1719,12 +1713,6 @@ namespace Home_Security.Migrations
 
             modelBuilder.Entity("Home_Security.Entities.External", b =>
                 {
-                    b.HasOne("Home_Security.Entities.Action", "Action")
-                        .WithMany()
-                        .HasForeignKey("ActionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Home_Security.Entities.Room", null)
                         .WithMany("External")
                         .HasForeignKey("RoomId");
@@ -1732,8 +1720,6 @@ namespace Home_Security.Migrations
                     b.HasOne("Home_Security.Entities.Section", null)
                         .WithMany("External")
                         .HasForeignKey("SectionId");
-
-                    b.Navigation("Action");
                 });
 
             modelBuilder.Entity("Home_Security.Entities.FingerPrint", b =>

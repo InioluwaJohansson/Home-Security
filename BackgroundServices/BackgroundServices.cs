@@ -1,4 +1,5 @@
-﻿using Home_Security.Context;
+﻿using System.Diagnostics;
+using Home_Security.Context;
 using Home_Security.Encryption;
 using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
@@ -66,11 +67,7 @@ public class StartupInitializer : IHostedService
                     Console.WriteLine($"Name: {personStartUp.CreatePersonDetailsDto.FirstName} {personStartUp.CreatePersonDetailsDto.LastName}");
                 }
             }
-            else
-            {
-            Console.WriteLine("\n✅ Users Exist!");   
-                
-            } 
+            else Console.WriteLine("\n✅ Users Exist!");
         }
         catch (Exception ex)
         {

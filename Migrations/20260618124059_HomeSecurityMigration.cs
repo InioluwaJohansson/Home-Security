@@ -578,7 +578,6 @@ namespace Home_Security.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Type = table.Column<int>(type: "int", nullable: false),
                     IsEdited = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     ReplyToMessageId = table.Column<int>(type: "int", nullable: true),
                     SentAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: false),
@@ -586,7 +585,8 @@ namespace Home_Security.Migrations
                     LastModifiedBy = table.Column<int>(type: "int", nullable: false),
                     LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    DeletedBy = table.Column<int>(type: "int", nullable: false)
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -827,9 +827,8 @@ namespace Home_Security.Migrations
                     ExternalId = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     IsTriggered = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    ActionIds = table.Column<string>(type: "longtext", nullable: false)
+                    ActionIds = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    ActionId = table.Column<int>(type: "int", nullable: false),
                     CreatedBy = table.Column<int>(type: "int", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     LastModifiedBy = table.Column<int>(type: "int", nullable: false),
@@ -846,12 +845,6 @@ namespace Home_Security.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_External", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_External_Action_ActionId",
-                        column: x => x.ActionId,
-                        principalTable: "Action",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_External_Room_RoomId",
                         column: x => x.RoomId,
@@ -1045,11 +1038,6 @@ namespace Home_Security.Migrations
                 column: "SectionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_External_ActionId",
-                table: "External",
-                column: "ActionId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_External_RoomId",
                 table: "External",
                 column: "RoomId");
@@ -1193,10 +1181,10 @@ namespace Home_Security.Migrations
                 name: "Window");
 
             migrationBuilder.DropTable(
-                name: "Contact");
+                name: "Action");
 
             migrationBuilder.DropTable(
-                name: "Action");
+                name: "Contact");
 
             migrationBuilder.DropTable(
                 name: "Message");

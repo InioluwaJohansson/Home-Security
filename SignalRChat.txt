@@ -1,0 +1,122 @@
+await _chatHub.UpdateChat("MessageDeleted", message.ChatId, new
+{
+    ChatId = message.ChatId,
+    MessageId = messageId,
+    IsDeleted = true,
+});
+await _chatHub.UpdateChat("MessageEdited", message.ChatId, MapToDto(message));
+await _chatHub.UpdateChat("MessageSent", message.ChatId, MapToDto(messageData));
+await _chatHub.UpdateChat("UserTyping", dto.ChatId, dto);
+private MessageDto MapToDto(Message message)
+{
+    return new MessageDto
+    {
+        Id = message.Id,
+        ChatId = message.ChatId,
+        SenderPersonId = message.SenderPersonId,
+        ReplyMessageId = message.ReplyToMessageId,
+        Content = message.Content,
+        Type = message.Type,
+        IsEdited = message.IsEdited,
+        IsDeleted = message.IsDeleted,
+        SentAt = message.SentAt,
+        SenderName = $"{message.SenderPerson.PersonDetails.FirstName} {message.SenderPerson.PersonDetails.LastName}",
+        SenderProfileImage = ConvertImageToBase64(message.SenderPerson.PersonDetails.ImageUrl) ?? "",
+        Attachments = message.Attachments?
+            .Select(a => new GetMessageAttachmentDto
+            {
+                FileName = a.FileName,
+                FilePath = a.FilePath,
+                ContentType = a.ContentType,
+                FileSize = a.FileSize,
+                ThumbnailPath = a.ThumbnailPath
+            })
+            .ToList() ?? new List<GetMessageAttachmentDto>()
+    };
+}
+
+await _chatHub.UpdateChat("ChatCreated", chatData.Id, MapToDtoChat(chatData));
+await _chatHub.UpdateChat("GroupChatCreated", chatData.Id, MapToDtoChat(chatData));
+await _chatHub.UpdateChat("GroupChatUpdated", chat.Id, MapToDtoChat(chat));
+await _chatHub.UpdateChat("ChatDeleted", chatId, new
+{
+    ChatId = chatId,
+    PersonId = currentPersonId,
+});
+await _chatHub.UpdateChat("ParticipantsAdded", chatId, newParticipants.Select(id => new
+{
+    ChatId = chatId,
+    PersonId = id,
+    JoinedAt = DateTime.UtcNow,
+    IsAdmin = false
+}));
+await _chatHub.UpdateChat("ParticipantRemoved", chatId, new
+{
+    ChatId = chatId,
+    PersonId = personId,
+});
+await _chatHub.UpdateChat("MessagesRead", chatId, new
+{
+    ChatId = chatId,
+    PersonId = personId,
+    ReadAt = DateTime.UtcNow
+});
+private ChatDto MapToDtoChat(Chat chat)
+{
+    return new ChatDto
+    {
+        Id = chat.Id,
+        Name = chat.Name,
+        Description = chat.Description,
+        IsGroup = chat.IsGroup,
+        ImageUrl = ConvertImageToBase64(chat.ImageUrl),
+        CreatedAt = chat.CreatedAt,
+        Participants = chat.Participants?
+            .Select(p => new ChatParticipantDto
+            {
+                PersonId = p.PersonId,
+                IsAdmin = p.IsAdmin,
+                IsOnline = false,
+                FullName = "",
+                ProfileImageUrl = null
+            })
+            .ToList() ?? new List<ChatParticipantDto>(),
+        LastMessage = chat.Messages?
+            .OrderByDescending(x => x.SentAt)
+            .Select(x => new MessageDto
+            {
+                Id = x.Id,
+                ChatId = x.ChatId,
+                SenderPersonId = x.SenderPersonId,
+                Content = x.Content,
+                Type = x.Type,
+                IsEdited = x.IsEdited,
+                IsDeleted = x.IsDeleted,
+                SentAt = x.SentAt,
+                SenderName = "",
+                SenderProfileImage = null,
+                Attachments = x.Attachments?
+                .Select(a => new GetMessageAttachmentDto
+                {
+                    FileName = a.FileName,
+                    FilePath = a.FilePath,
+                    ContentType = a.ContentType,
+                    FileSize = a.FileSize,
+                    ThumbnailPath = a.ThumbnailPath
+                })
+                .ToList() ?? new List<GetMessageAttachmentDto>()
+            }).FirstOrDefault(),
+        UnreadCount = 0
+    };
+}
+
+await Clients.All.SendAsync("UserOnline", personId);
+await Clients.All.SendAsync("UserOffline", personId);
+
+public async Task UpdateChat(string eventName, int chatId, object update)
+{
+    await _hub.Clients.Group(chatId.ToString()).SendAsync(eventName, update);
+}
+
+in the UpdateChat method, the fitst parameter is what the signalr should listen for and the third parameter is the response from the server
+Understand and make provision where necessary in the app.

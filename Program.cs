@@ -106,6 +106,7 @@ builder.Services.AddScoped<IJWTAuthentication, JWTAuthentication>();
 
 builder.Services.AddScoped<ICameraStreamingService, CameraStreamingService>();
 builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
+builder.Services.AddScoped<IChatHub, ChatHub>();
 builder.Services.AddSingleton<IMqttService, MqttService>();
 
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();
@@ -239,7 +240,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<HomeSecurityHub>("/HomeSecurityHub");
-app.MapHub<ChatHub>("/HomeSecurityChatHub");
 
 app.Use(async (context, next) =>
 {

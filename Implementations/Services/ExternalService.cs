@@ -37,7 +37,7 @@ public class ExternalService : IExternalService
                 LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now,
                 CreatedOn = DateTime.Now,
-                ActionIds = createExternalDto.ActionIds,
+                ActionIds = createExternalDto.ActionIds ?? new List<int>(),
                 IsTriggered = false,
                 IsActive = true,
                 PowerActive = true,
@@ -76,7 +76,14 @@ public class ExternalService : IExternalService
         if (updateExternalDto != null)
         {
             var Externals = await _externalRepo.Get(x => x.Id == updateExternalDto.Id);
-
+            if (Externals == null)
+            {
+                return new BaseResponse()
+                {
+                    Status = false,
+                    Message = "Externals Not Found!"
+                };
+            }
             Externals.ExternalName = updateExternalDto.ExternalName ?? Externals.ExternalName;
             Externals.LastModifiedBy = personId;
             Externals.LastModifiedOn = DateTime.Now;
@@ -84,7 +91,7 @@ public class ExternalService : IExternalService
             Externals.SectionId = updateExternalDto.SectionId ?? null;
             Externals.RoomId = updateExternalDto.RoomId ?? null;
             Externals.IsTriggered = updateExternalDto.IsTriggered;
-            Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds;
+            Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds ?? new List<int>();
 
             var externalData = await _externalRepo.Update(Externals);
             var hardware = await _hardwareService.GetHardwareName(Externals.Id, FacilityType.Appliance);

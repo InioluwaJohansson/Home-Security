@@ -26,6 +26,12 @@ public class HardwareService : IHardwareService
                 HardwareId = $"HARDWARE{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 AuthKey = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 18).ToUpper(),
                 HardwareName = createHardwareDto.HardwareName,
+                LightIds = new List<int>(),
+                ApplianceIds = new List<int>(),
+                CameraIds = new List<int>(),
+                WindowIds = new List<int>(),
+                DoorIds = new List<int>(),
+                ExternalIds = new List<int>(),
                 CreatedOn = DateTime.Now,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
@@ -53,6 +59,7 @@ public class HardwareService : IHardwareService
         {
             var hardware = await _hardwareRepo.Get(x => x.Id == updateHardwareDto.Id);
             hardware.HardwareName = updateHardwareDto.HardwareName ?? hardware.HardwareName;
+            hardware.ApplianceIds = updateHardwareDto.ApplianceIds ?? hardware.ApplianceIds;
             hardware.CameraIds = updateHardwareDto.CameraIds ?? hardware.CameraIds;
             hardware.LightIds = updateHardwareDto.LightIds ?? hardware.LightIds;
             hardware.WindowIds = updateHardwareDto.WindowIds ?? hardware.WindowIds;

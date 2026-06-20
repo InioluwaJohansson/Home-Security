@@ -19,7 +19,7 @@ public class ActionController : Controller
     }
     [Authorize]
     [HttpPost("CreateAction")]
-    public async Task<IActionResult> CreateAction([FromQuery]CreateActionDto createActionDto)
+    public async Task<IActionResult> CreateAction(CreateActionDto createActionDto)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -37,7 +37,7 @@ public class ActionController : Controller
     }
     [Authorize]
     [HttpPut("UpdateAction")]
-    public async Task<IActionResult> UpdateAction([FromQuery] UpdateActionDto updateActionDto)
+    public async Task<IActionResult> UpdateAction(UpdateActionDto updateActionDto)
     {
        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)

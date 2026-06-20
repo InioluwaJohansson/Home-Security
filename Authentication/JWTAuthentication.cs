@@ -29,7 +29,7 @@ public class JWTAuthentication : IJWTAuthentication
         {
             Subject = new ClaimsIdentity(claims),
             IssuedAt = DateTime.Now,
-            Expires = DateTime.UtcNow.AddHours(3),
+            Expires = DateTime.UtcNow.AddDays(1),
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(tokenKey),
                 SecurityAlgorithms.HmacSha256Signature),

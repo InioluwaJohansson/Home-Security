@@ -17,11 +17,12 @@ public class CreateGroupChatDto
 }
 public class UpdateGroupChatDto
 {
-    public string Name { get; set; }
+    public int ChatId { get; set; }
+    public string? Name { get; set; }
 
     public string? Description { get; set; }
 
-    public string? ImageUrl { get; set; }
+    public IFormFile? ImageUrl { get; set; }
 }
 public class AddParticipantsDto
 {
@@ -35,12 +36,11 @@ public class RemoveParticipantDto
 public class SendMessageDto
 {
     public int ChatId { get; set; }
-
     public string? Content { get; set; }
-
     public MessageType Type { get; set; }
+    public int? ReplyToMessageId { get; set; }
 
-    public List<MessageAttachmentDto> Attachments { get; set; }
+    public List<MessageAttachmentDto>? Attachments { get; set; }
         = new();
 }
 public class MessageAttachmentDto
@@ -116,6 +116,7 @@ public class MessageDto
     public int ChatId { get; set; }
 
     public int SenderPersonId { get; set; }
+    public int? ReplyMessageId { get; set; }
 
     public string SenderName { get; set; }
 
