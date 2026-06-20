@@ -284,7 +284,7 @@ public class ChatService : IChatService
             Name = chat.Name,
             Description = chat.Description,
             IsGroup = chat.IsGroup,
-            ImageUrl = ConvertImageToBase64(chat.ImageUrl),
+            ImageUrl = chat.ImageUrl,
             CreatedAt = chat.CreatedAt,
             Participants = chat.Participants?
                 .Select(p => new ChatParticipantDto
