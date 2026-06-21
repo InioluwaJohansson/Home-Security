@@ -197,7 +197,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Home_Security", policy =>
     {
-        policy.WithOrigins("https://ais-dev-ypl2vxtjhgwlthzmvnxusu-717948104271.europe-west2.run.app", "https://ais-dev-62beulbfxtpne7lrxwnd4x-717948104271.europe-west2.run.app").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        policy.WithOrigins("https://ais-dev-ypl2vxtjhgwlthzmvnxusu-717948104271.europe-west2.run.app", "https://ais-dev-62beulbfxtpne7lrxwnd4x-717948104271.europe-west2.run.app", "*").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 

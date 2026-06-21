@@ -4,6 +4,12 @@ namespace Home_Security.Hubs;
 [Authorize]
 public class HomeSecurityHub : Hub
 {
+    IAuthControl _authControl;
+    IJWTAuthentication _jwtAuthentication;
+    public HomeSecurityHub(IAuthControl authControl, IJWTAuthentication jwtAuthentication){
+        _authControl = authControl;
+        _jwtAuthentication = jwtAuthentication;
+    }
     private static readonly Dictionary<int, HashSet<string>> _connections = new();
     private int GetPersonId()
     {
@@ -45,7 +51,6 @@ public class HomeSecurityHub : Hub
             if (_connections.ContainsKey(personId))
             {
                 _connections[personId].Remove(connectionId);
-
                 if (_connections[personId].Count == 0)
                 {
                     _connections.Remove(personId);
@@ -53,15 +58,22 @@ public class HomeSecurityHub : Hub
                 }
             }
         }
-
         if (shouldMarkOffline)
         {
             await Clients.All.SendAsync("UserOffline", personId);
         }
-
         await base.OnDisconnectedAsync(exception);
     }
-
+    public async Task AddPersonRole(string token)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(token);
+        if(user != null){
+            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
+            if(auth.Status != false){
+                await Groups.AddToGroupAsync(Context.ConnectionId, auth.Role.ToString());
+            }
+        }
+    }
     public async Task JoinChat(int chatId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());
