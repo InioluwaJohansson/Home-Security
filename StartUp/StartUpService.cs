@@ -5,9 +5,32 @@ using Home_Security.Models.Enums;
 namespace Home_Security.StartUp;
 public class StartUpService : IStartUpService
 {
+    public (int, object) Menu()
+    {
+        bool op = true;
+        while (op)
+        {
+            Console.WriteLine("Home Security Initialization\n 1.Enter Encrypted User Key \n 2. Enter Person Details");
+            var input = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(input) && input.Length == 1 && input.All(char.IsDigit))
+            {
+                switch (int.Parse(input))
+                {
+                    case 1:
+                        Console.WriteLine();
+                        Console.Write("Enter Encrypted User Key: ");
+                        return (1, Console.ReadLine());
+                    case 2:
+                        return (2, CreatePerson());
+                }
+                op = false;
+            }
+        }
+        return (0, null);
+    }
     public CreatePersonDto CreatePerson()
     {
-        Console.WriteLine("Home Security Initialization\nPlease provide the following details to create a new person:");
+        Console.WriteLine("Please provide the following details to create a new person:");
         return new CreatePersonDto
         {
             CreatePersonDetailsDto = new CreatePersonDetailsDto
@@ -47,7 +70,6 @@ public class StartUpService : IStartUpService
             Console.WriteLine("❌ Value cannot be empty. Try again.");
         }
     }
-
     private DateOnly ReadRequiredDate(string fieldName)
     {
         while (true)

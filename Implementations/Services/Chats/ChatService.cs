@@ -324,27 +324,19 @@ public class ChatService : IChatService
             UnreadCount = 0
         };
     }
-    public static string? ConvertImageToBase64(string? path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-            return null;
-        if (!File.Exists(path))
-            return null;
-        var bytes = File.ReadAllBytes(path);
-        return Convert.ToBase64String(bytes);
-    }
     public async Task<string> GetImageUrl(IFormFile file){
         if (file == null || file.Length == 0)
             return string.Empty;
         var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
         var storagePath = Path.Combine(basePath, "storage");
-        var folderPath = Path.Combine(storagePath, "Images");
-        Directory.CreateDirectory(folderPath);
+        var folderName = Path.Combine("Chat", "Images");
+        var folderPath = Path.Combine(storagePath, folderName);
+        if(Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         var extension = Path.GetExtension(file.FileName);
         var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
         var absolutePath = Path.Combine(folderPath, uniqueFileName);
         await using var stream = new FileStream(absolutePath, FileMode.Create);
         await file.CopyToAsync(stream);
-        return Path.Combine("Images", uniqueFileName);
+        return Path.Combine(folderName, uniqueFileName);
     }
 }

@@ -2,41 +2,24 @@
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.RealTimeServices;
 namespace Home_Security.Implementations.Services;
 public class ContactService : IContactService
 {
     IContactRepo _contactRepo;
     IAddressRepo _addressRepo;
     IContactDetailsRepo _contactDetailsRepo;
-    public ContactService(IContactRepo contactRepo, IAddressRepo addressRepo, IContactDetailsRepo contactDetailsRepo)
+    IRealtimeNotificationService _realTime;
+    public ContactService(IContactRepo contactRepo, IAddressRepo addressRepo, IContactDetailsRepo contactDetailsRepo, IRealtimeNotificationService realTime)
     {
         _contactRepo = contactRepo;
         _addressRepo = addressRepo;
         _contactDetailsRepo = contactDetailsRepo;
+        _realTime = realTime;
     }
     public async Task<BaseResponse> CreateContact(CreateContactDto createContactDto)
     {
         if(createContactDto != null) {
-            var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Contacts\\");
-            if (!System.IO.Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-            var imagePath = "";
-            if (createContactDto.ImageUrl != null)
-            {
-                var fileName = Path.GetFileNameWithoutExtension(createContactDto.ImageUrl.FileName);
-                var filePath = Path.Combine(folderPath, createContactDto.ImageUrl.FileName);
-                var extension = Path.GetExtension(createContactDto.ImageUrl.FileName);
-                if (!System.IO.Directory.Exists(filePath))
-                {
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await createContactDto.ImageUrl.CopyToAsync(stream);
-                    }
-                    imagePath = fileName;
-                }
-            }
             var contact = new Contact()
             {
                 ContactId = $"CONTACT{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
@@ -44,14 +27,14 @@ public class ContactService : IContactService
                 LastName = createContactDto.LastName,
                 ContactCategory = createContactDto.ContactCategory,
                 Gender = createContactDto.Gender,
-                ImageUrl = imagePath,
+                ImageUrl = await GetImageUrl(createContactDto.ImageUrl),
             };
-            var getContact = await _contactRepo.Create(contact);
+            contact = await _contactRepo.Create(contact);
             foreach (var contactDetail in createContactDto.ContactDetails)
             {
                 var contactDetailes = new ContactDetails()
                 {
-                    ContactId = getContact.Id,
+                    ContactId = contact.Id,
                     PhoneNumber = contactDetail.PhoneNumber,
                     Email = contactDetail.Email,
                     IsDeleted = false,
@@ -60,13 +43,14 @@ public class ContactService : IContactService
                     CreatedOn = DateTime.Now,
                     LastModifiedOn = DateTime.Now,
                 };
-                await _contactDetailsRepo.Create(contactDetailes);
+                contactDetailes = await _contactDetailsRepo.Create(contactDetailes);
+                contact.ContactDetails.Add(contactDetailes);
             }
             foreach (var addresses in createContactDto.Address)
             {
                 var address = new Address()
                 {
-                    ContactId = getContact.Id,
+                    ContactId = contact.Id,
                     NumberLine = addresses.NumberLine,
                     Street = addresses.Street,
                     City = addresses.City,
@@ -80,8 +64,10 @@ public class ContactService : IContactService
                     CreatedOn = DateTime.Now,
                     LastModifiedOn = DateTime.Now,
                 };
-                await _addressRepo.Create(address);
+                address = await _addressRepo.Create(address);
+                contact.Address.Add(address);
             }
+            await _realTime.NotifyAll("ContactCreated", GetDetails(contact));
             return new BaseResponse()
             {
                 Message = "Contact Added Successfully!",
@@ -94,103 +80,14 @@ public class ContactService : IContactService
             Status = false
         };
     }
-    public async Task<BaseResponse> AddContactAddress(int contactId, int personId, List<CreateAddressDto> createAddressDto)
-    {
-        var contact = await _contactRepo.GetById(contactId);
-        if(contact != null)
-        {
-            foreach (var addresses in createAddressDto)
-            {
-                var address = new Address()
-                {
-                    ContactId = contact.Id,
-                    NumberLine = addresses.NumberLine,
-                    Street = addresses.Street,
-                    City = addresses.City,
-                    Region = addresses.Region,
-                    State = addresses.State,
-                    Country = addresses.Country,
-                    PostalCode = addresses.PostalCode,
-                    IsDeleted = false,
-                    CreatedBy = personId,
-                    LastModifiedBy = personId,
-                    CreatedOn = DateTime.Now,
-                    LastModifiedOn = DateTime.Now,
-                };
-                await _addressRepo.Create(address);
-            }
-            return new BaseResponse()
-            {
-                Message = "Contact Address Added Successfully!",
-                Status = true
-            };
-        }
-        return new BaseResponse()
-        {
-            Message = "Unable To Add Contact Address!",
-            Status = false
-        };
-    }
-    public async Task<BaseResponse> AddContactDetails(int contactId, int personId, List<CreateContactDetailsDto> createContactDetailsDto)
-    {
-        var contact = await _contactRepo.GetById(contactId);
-        if (contact != null)
-        {
-            foreach (var contactDetail in createContactDetailsDto)
-            {
-                var contactDetailes = new ContactDetails()
-                {
-                    ContactId = contact.Id,
-                    PhoneNumber = contactDetail.PhoneNumber,
-                    Email = contactDetail.Email,
-                    IsDeleted = false,
-                    CreatedBy = personId,
-                    LastModifiedBy = personId,
-                    CreatedOn = DateTime.Now,
-                    LastModifiedOn = DateTime.Now,
-                };
-                await _contactDetailsRepo.Create(contactDetailes);
-            }
-            return new BaseResponse()
-            {
-                Message = "Contact Details Added Successfully!",
-                Status = true
-            };
-        }
-        return new BaseResponse()
-        {
-            Message = "Unable To Add Contact Details!",
-            Status = false
-        };
-    }
     public async Task<BaseResponse> UpdateContact(UpdateContactDto updateContactDto)
     {
         var contact = await _contactRepo.GetById(updateContactDto.Id);
         if (contact != null)
         {
-            var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Contacts\\");
-            if (!System.IO.Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-            var imagePath = "";
-            if (updateContactDto.ImageUrl != null)
-            {
-                var fileName = Path.GetFileNameWithoutExtension(updateContactDto.ImageUrl.FileName);
-                var filePath = Path.Combine(folderPath, updateContactDto.ImageUrl.FileName);
-                var extension = Path.GetExtension(updateContactDto.ImageUrl.FileName);
-                if (!System.IO.Directory.Exists(filePath))
-                {
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await updateContactDto.ImageUrl.CopyToAsync(stream);
-                    }
-                    imagePath = fileName;
-                }
-            }
             contact.FirstName = updateContactDto.FirstName ?? contact.FirstName;
             contact.LastName = updateContactDto.LastName ?? contact.LastName;
-            contact.ImageUrl = imagePath ?? contact.ImageUrl;
+            contact.ImageUrl = await GetImageUrl(updateContactDto.ImageUrl) ?? contact.ImageUrl;
             contact.Gender = updateContactDto.Gender;
             contact.LastModifiedOn = DateTime.Now;
             contact.LastModifiedBy = updateContactDto.personId;
@@ -211,7 +108,8 @@ public class ContactService : IContactService
                         CreatedOn = DateTime.Now,
                         LastModifiedOn = DateTime.Now,
                     };
-                    await _contactDetailsRepo.Create(contactDetailes);
+                    contactDetailes = await _contactDetailsRepo.Create(contactDetailes);
+                    contact.ContactDetails.Add(contactDetailes);
                 }
                 else
                 {
@@ -247,7 +145,8 @@ public class ContactService : IContactService
                         CreatedOn = DateTime.Now,
                         LastModifiedOn = DateTime.Now,
                     };
-                    await _addressRepo.Create(address);
+                    address = await _addressRepo.Create(address);
+                    contact.Address.Add(address);
                 }
                 else
                 {
@@ -263,11 +162,12 @@ public class ContactService : IContactService
                         address.PostalCode = addresses.PostalCode;
                         address.LastModifiedBy = updateContactDto.personId;
                         address.LastModifiedOn = DateTime.Now;
-                        await _addressRepo.Update(address);
+                        address = await _addressRepo.Update(address);
                     }
                 }
             }
             await _contactRepo.Update(contact);
+            await _realTime.NotifyAll("ContactUpdated", GetDetails(contact));
             return new BaseResponse()
             {
                 Status = true,
@@ -383,7 +283,6 @@ public class ContactService : IContactService
             contact.IsDeleted = true;
             foreach (var contactDetail in contact.ContactDetails)
             {
-
                 var contactDetailes = await _contactDetailsRepo.Get(x => x.Id == contactDetail.Id && x.IsDeleted == false);
                 if (contactDetailes != null)
                 {
@@ -406,6 +305,10 @@ public class ContactService : IContactService
                     await _addressRepo.Update(address);
                 };
             }
+            await _realTime.NotifyAll("ContactDeleted", new {
+                Id = contact.Id,
+                IsDeleted = contact.IsDeleted
+            });
             await _contactRepo.Update(contact);
             return new BaseResponse()
             {
@@ -430,6 +333,10 @@ public class ContactService : IContactService
             contactDetail.LastModifiedOn = DateTime.Now;
             contactDetail.IsDeleted = true;
             await _contactDetailsRepo.Update(contactDetail);
+            await _realTime.NotifyAll("ContactAddressDeleted", new {
+                Id = contactDetail.Id,
+                IsDeleted = contactDetail.IsDeleted
+            });
             return new BaseResponse()
             {
                 Message = "Contact Details Deleted Successfully!",
@@ -452,18 +359,36 @@ public class ContactService : IContactService
             address.LastModifiedOn = DateTime.Now;
             address.IsDeleted = true;
             await _addressRepo.Update(address);
+            await _realTime.NotifyAll("ContactAddressDeleted", new {
+                Id = address.Id,
+                IsDeleted = address.IsDeleted
+            });
             return new BaseResponse()
             {
                 Message = "Contact Detail Deleted Successfully!",
                 Status = true
             };
         };
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Delete Contact Detail!"
         };
+    }
+    public async Task<string> GetImageUrl(IFormFile file){
+        if (file == null || file.Length == 0)
+            return string.Empty;
+        var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", ".."));
+        var storagePath = Path.Combine(basePath, "storage");
+        var folderName = Path.Combine("Contact", "Images");
+        var folderPath = Path.Combine(storagePath, folderName);
+        Directory.CreateDirectory(folderPath);
+        var extension = Path.GetExtension(file.FileName);
+        var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
+        var absolutePath = Path.Combine(folderPath, uniqueFileName);
+        await using var stream = new FileStream(absolutePath, FileMode.Create);
+        await file.CopyToAsync(stream);
+        return Path.Combine(folderName, uniqueFileName);
     }
     public GetContactDto GetDetails(Contact contact)
     {
@@ -479,7 +404,7 @@ public class ContactService : IContactService
                 Id = contact.Category.Id,
                 Name = contact.Category.Name,
                 Description = contact.Category.Description,
-            },
+            } ?? new GetContactCategoryDto(),
             ContactDetails = contact.ContactDetails.Select(x => GetContactDetails(x)).ToList(),
             Address = contact.Address.Select(x => GetAddressDetails(x)).ToList(),
         };
@@ -511,439 +436,3 @@ public class ContactService : IContactService
         };
     }
 }
-/*using Home_Security.Entities;
-using Home_Security.Interfaces.Repositories;
-using Home_Security.Interfaces.Services;
-using Home_Security.Models.DTOs;
-using Microsoft.AspNetCore.SignalR;
-
-namespace Home_Security.Implementations.Services;
-
-public class ContactService : IContactService
-{
-    IContactRepo _contactRepo;
-    IAddressRepo _addressRepo;
-    IContactDetailsRepo _contactDetailsRepo;
-    IHubContext<NotificationHub> _hubContext;
-
-    public ContactService(
-        IContactRepo contactRepo,
-        IAddressRepo addressRepo,
-        IContactDetailsRepo contactDetailsRepo,
-        IHubContext<NotificationHub> hubContext)
-    {
-        _contactRepo = contactRepo;
-        _addressRepo = addressRepo;
-        _contactDetailsRepo = contactDetailsRepo;
-        _hubContext = hubContext;
-    }
-
-    public async Task<BaseResponse> CreateContact(CreateContactDto createContactDto)
-    {
-        if(createContactDto != null) {
-            var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Contacts\\");
-            if (!System.IO.Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-            var imagePath = "";
-            if (createContactDto.ImageUrl != null)
-            {
-                var fileName = Path.GetFileNameWithoutExtension(createContactDto.ImageUrl.FileName);
-                var filePath = Path.Combine(folderPath, createContactDto.ImageUrl.FileName);
-                var extension = Path.GetExtension(createContactDto.ImageUrl.FileName);
-                if (!System.IO.Directory.Exists(filePath))
-                {
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await createContactDto.ImageUrl.CopyToAsync(stream);
-                    }
-                    imagePath = fileName;
-                }
-            }
-
-            var contact = new Contact()
-            {
-                ContactId = $"CONTACT{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
-                FirstName = createContactDto.FirstName,
-                LastName = createContactDto.LastName,
-                ContactCategory = createContactDto.ContactCategory,
-                Gender = createContactDto.Gender,
-                ImageUrl = imagePath,
-            };
-
-            var getContact = await _contactRepo.Create(contact);
-
-            foreach (var contactDetail in createContactDto.ContactDetails)
-            {
-                var contactDetailes = new ContactDetails()
-                {
-                    ContactId = getContact.Id,
-                    PhoneNumber = contactDetail.PhoneNumber,
-                    Email = contactDetail.Email,
-                    IsDeleted = false,
-                    CreatedBy = createContactDto.personId,
-                    LastModifiedBy = createContactDto.personId,
-                    CreatedOn = DateTime.Now,
-                    LastModifiedOn = DateTime.Now,
-                };
-                await _contactDetailsRepo.Create(contactDetailes);
-            }
-
-            foreach (var addresses in createContactDto.Address)
-            {
-                var address = new Address()
-                {
-                    ContactId = getContact.Id,
-                    NumberLine = addresses.NumberLine,
-                    Street = addresses.Street,
-                    City = addresses.City,
-                    Region = addresses.Region,
-                    State = addresses.State,
-                    Country = addresses.Country,
-                    PostalCode = addresses.PostalCode,
-                    IsDeleted = false,
-                    CreatedBy = createContactDto.personId,
-                    LastModifiedBy = createContactDto.personId,
-                    CreatedOn = DateTime.Now,
-                    LastModifiedOn = DateTime.Now,
-                };
-                await _addressRepo.Create(address);
-            }
-
-            await _hubContext.Clients.All.SendAsync("ContactCreated", getContact.Id);
-
-            return new BaseResponse()
-            {
-                Message = "Contact Added Successfully!",
-                Status = true
-            };
-        }
-
-        return new BaseResponse()
-        {
-            Message = "Unable To Add Contact!",
-            Status = false
-        };
-    }
-
-    public async Task<BaseResponse> AddContactAddress(int contactId, int personId, List<CreateAddressDto> createAddressDto)
-    {
-        var contact = await _contactRepo.GetById(contactId);
-        if(contact != null)
-        {
-            foreach (var addresses in createAddressDto)
-            {
-                var address = new Address()
-                {
-                    ContactId = contact.Id,
-                    NumberLine = addresses.NumberLine,
-                    Street = addresses.Street,
-                    City = addresses.City,
-                    Region = addresses.Region,
-                    State = addresses.State,
-                    Country = addresses.Country,
-                    PostalCode = addresses.PostalCode,
-                    IsDeleted = false,
-                    CreatedBy = personId,
-                    LastModifiedBy = personId,
-                    CreatedOn = DateTime.Now,
-                    LastModifiedOn = DateTime.Now,
-                };
-                await _addressRepo.Create(address);
-            }
-
-            await _hubContext.Clients.All.SendAsync("ContactAddressAdded", contactId);
-
-            return new BaseResponse()
-            {
-                Message = "Contact Address Added Successfully!",
-                Status = true
-            };
-        }
-
-        return new BaseResponse()
-        {
-            Message = "Unable To Add Contact Address!",
-            Status = false
-        };
-    }
-
-    public async Task<BaseResponse> AddContactDetails(int contactId, int personId, List<CreateContactDetailsDto> createContactDetailsDto)
-    {
-        var contact = await _contactRepo.GetById(contactId);
-        if (contact != null)
-        {
-            foreach (var contactDetail in createContactDetailsDto)
-            {
-                var contactDetailes = new ContactDetails()
-                {
-                    ContactId = contact.Id,
-                    PhoneNumber = contactDetail.PhoneNumber,
-                    Email = contactDetail.Email,
-                    IsDeleted = false,
-                    CreatedBy = personId,
-                    LastModifiedBy = personId,
-                    CreatedOn = DateTime.Now,
-                    LastModifiedOn = DateTime.Now,
-                };
-                await _contactDetailsRepo.Create(contactDetailes);
-            }
-
-            await _hubContext.Clients.All.SendAsync("ContactDetailsAdded", contactId);
-
-            return new BaseResponse()
-            {
-                Message = "Contact Details Added Successfully!",
-                Status = true
-            };
-        }
-
-        return new BaseResponse()
-        {
-            Message = "Unable To Add Contact Details!",
-            Status = false
-        };
-    }
-
-    public async Task<BaseResponse> UpdateContact(UpdateContactDto updateContactDto)
-    {
-        var contact = await _contactRepo.GetById(updateContactDto.Id);
-        if (contact != null)
-        {
-            var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Contacts\\");
-            if (!System.IO.Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-            var imagePath = "";
-            if (updateContactDto.ImageUrl != null)
-            {
-                var fileName = Path.GetFileNameWithoutExtension(updateContactDto.ImageUrl.FileName);
-                var filePath = Path.Combine(folderPath, updateContactDto.ImageUrl.FileName);
-                var extension = Path.GetExtension(updateContactDto.ImageUrl.FileName);
-                if (!System.IO.Directory.Exists(filePath))
-                {
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await updateContactDto.ImageUrl.CopyToAsync(stream);
-                    }
-                    imagePath = fileName;
-                }
-            }
-
-            contact.FirstName = updateContactDto.FirstName ?? contact.FirstName;
-            contact.LastName = updateContactDto.LastName ?? contact.LastName;
-            contact.ImageUrl = imagePath ?? contact.ImageUrl;
-            contact.Gender = updateContactDto.Gender;
-            contact.LastModifiedOn = DateTime.Now;
-            contact.LastModifiedBy = updateContactDto.personId;
-            contact.ContactCategory = updateContactDto.ContactCategory;
-
-            foreach (var contactDetail in updateContactDto.ContactDetails)
-            {
-                var contactDetailes = await _contactDetailsRepo.Get(x => x.Id == contactDetail.Id && x.IsDeleted == false);
-                if(contactDetailes != null)
-                {
-                    contactDetailes.PhoneNumber = contactDetail.PhoneNumber;
-                    contactDetailes.Email = contactDetail.Email;
-                    contactDetailes.LastModifiedBy = updateContactDto.personId;
-                    contactDetailes.LastModifiedOn = DateTime.Now;
-                    await _contactDetailsRepo.Update(contactDetailes);
-                };
-            }
-
-            foreach (var addresses in updateContactDto.Address)
-            {
-                var address = await _addressRepo.Get(x => x.Id == addresses.Id && x.IsDeleted == false);
-                if(address != null)
-                {
-                    address.NumberLine = addresses.NumberLine;
-                    address.Street = addresses.Street;
-                    address.City = addresses.City;
-                    address.Region = addresses.Region;
-                    address.State = addresses.State;
-                    address.Country = addresses.Country;
-                    address.PostalCode = addresses.PostalCode;
-                    address.LastModifiedBy = updateContactDto.personId;
-                    address.LastModifiedOn = DateTime.Now;
-                    await _addressRepo.Update(address);
-                }
-            }
-
-            await _contactRepo.Update(contact);
-
-            await _hubContext.Clients.All.SendAsync("ContactUpdated", contact.Id);
-
-            return new BaseResponse()
-            {
-                Status = true,
-                Message = "Contact Updated Successfully!"
-            };
-        }
-
-        return new BaseResponse()
-        {
-            Status = false,
-            Message = "Unable To Update Contact!"
-        };
-    }
-
-    public async Task<BaseResponse> Delete(int id, int personId)
-    {
-        var contact = await _contactRepo.GetById(id);
-        if (contact != null)
-        {
-            contact.IsDeleted = true;
-
-            foreach (var contactDetail in contact.ContactDetails)
-            {
-                var contactDetailes = await _contactDetailsRepo.Get(x => x.Id == contactDetail.Id && x.IsDeleted == false);
-                if (contactDetailes != null)
-                {
-                    contactDetail.DeletedBy = personId;
-                    contactDetail.DeletedOn = DateTime.Now;
-                    contactDetailes.LastModifiedOn = DateTime.Now;
-                    contactDetail.IsDeleted = true;
-                    await _contactDetailsRepo.Update(contactDetailes);
-                };
-            }
-
-            foreach (var addresses in contact.Address)
-            {
-                var address = await _addressRepo.Get(x => x.Id == addresses.Id && x.IsDeleted == false);
-                if (address != null)
-                {
-                    address.DeletedBy = personId;
-                    address.DeletedOn = DateTime.Now;
-                    address.LastModifiedOn = DateTime.Now;
-                    address.IsDeleted = true;
-                    await _addressRepo.Update(address);
-                };
-            }
-
-            await _contactRepo.Update(contact);
-
-            await _hubContext.Clients.All.SendAsync("ContactDeleted", id);
-
-            return new BaseResponse()
-            {
-                Message = "Contact Deleted Successfully!",
-                Status = true
-            };
-        }
-
-        return new BaseResponse()
-        {
-            Status = false,
-            Message = "Unable To Delete Contact!"
-        };
-    }
-
-    public async Task<BaseResponse> DeleteContactDetails(int id, int personId)
-    {
-        var contactDetail = await _contactDetailsRepo.Get(x => x.Id == id && x.IsDeleted == false);
-        if (contactDetail != null)
-        {
-            contactDetail.IsDeleted = true;
-            contactDetail.DeletedBy = personId;
-            contactDetail.DeletedOn = DateTime.Now;
-            contactDetail.LastModifiedOn = DateTime.Now;
-            contactDetail.IsDeleted = true;
-
-            await _contactDetailsRepo.Update(contactDetail);
-
-            await _hubContext.Clients.All.SendAsync("ContactDetailsDeleted", id);
-
-            return new BaseResponse()
-            {
-                Message = "Contact Details Deleted Successfully!",
-                Status = true
-            };
-        }
-
-        return new BaseResponse()
-        {
-            Status = false,
-            Message = "Unable To Delete Contact Details!"
-        };
-    }
-
-    public async Task<BaseResponse> DeleteContactAddress(int id, int personId)
-    {
-        var address = await _addressRepo.Get(x => x.Id == id && x.IsDeleted == false);
-        if (address != null)
-        {
-            address.DeletedBy = personId;
-            address.DeletedOn = DateTime.Now;
-            address.LastModifiedOn = DateTime.Now;
-            address.IsDeleted = true;
-
-            await _addressRepo.Update(address);
-
-            await _hubContext.Clients.All.SendAsync("ContactAddressDeleted", id);
-
-            return new BaseResponse()
-            {
-                Message = "Contact Detail Deleted Successfully!",
-                Status = true
-            };
-        };
-
-        return new BaseResponse()
-        {
-            Status = false,
-            Message = "Unable To Delete Contact Detail!"
-        };
-    }
-
-    public GetContactDto GetDetails(Contact contact)
-    {
-        return new GetContactDto()
-        {
-            Id = contact.Id,
-            FirstName = contact.FirstName,
-            LastName = contact.LastName,
-            ImageUrl = contact.ImageUrl,
-            Gender = contact.Gender,
-            GetContactCategoryDto = new GetContactCategoryDto()
-            {
-                Id = contact.Category.Id,
-                Name = contact.Category.Name,
-                Description = contact.Category.Description,
-                personId = contact.Category.PersonId,
-            },
-            ContactDetails = contact.ContactDetails.Select(x => GetContactDetails(x)).ToList(),
-            Address = contact.Address.Select(x => GetAddressDetails(x)).ToList(),
-        };
-    }
-
-    public GetAddressDto GetAddressDetails(Address address)
-    {
-        return new GetAddressDto()
-        {
-            Id = address.Id,
-            ContactId = address.ContactId,
-            PersonId = address.PersonDetailsId,
-            NumberLine = address.NumberLine,
-            Street = address.Street,
-            City = address.City,
-            Region = address.Region,
-            State = address.State,
-            Country = address.Country,
-            PostalCode = address.PostalCode
-        };
-    }
-
-    public GetContactDetailsDto GetContactDetails(ContactDetails contactDetails)
-    {
-        return new GetContactDetailsDto()
-        {
-            Id = contactDetails.Id,
-            ContactId = contactDetails.ContactId,
-            PersonDetailsId = contactDetails.PersonDetailsId,
-            PhoneNumber = contactDetails.PhoneNumber,
-            Email = contactDetails.Email,
-        };
-    }
-}*/

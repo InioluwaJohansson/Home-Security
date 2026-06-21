@@ -32,26 +32,6 @@ public class PersonService : IPersonService
         var checkUser = await _userRepo.Get(x => x.UserName == createPersonDto.CreateUserDto.UserName);
         if (checkUser == null)
         {
-            // var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Persons\\");
-            // if (!System.IO.Directory.Exists(folderPath))
-            // {
-            //     Directory.CreateDirectory(folderPath);
-            // }
-
-            // if (createPersonDto.CreatePersonDetailsDto.ImageUrl != null)
-            // {
-            //     var fileName = Path.GetFileNameWithoutExtension(createPersonDto.CreatePersonDetailsDto.ImageUrl.FileName);
-            //     var filePath = Path.Combine(folderPath, createPersonDto.CreatePersonDetailsDto.ImageUrl.FileName);
-
-            //     if (!System.IO.Directory.Exists(filePath))
-            //     {
-            //         using (var stream = new FileStream(filePath, FileMode.Create))
-            //         {
-            //             await createPersonDto.CreatePersonDetailsDto.ImageUrl.CopyToAsync(stream);
-            //         }
-            //         imagePath = fileName;
-            //     }
-            // }
             var NFID = $"NFID{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16).ToUpper()}";
             var user = new User()
             {
@@ -64,9 +44,7 @@ public class PersonService : IPersonService
                 CreatedOn = DateTime.Now,
                 LastModifiedOn = DateTime.Now,
             };
-
             var getUser = await _userRepo.Create(user);
-
             var userRole = new UserRole()
             {
                 UserId = getUser.Id,
@@ -75,10 +53,8 @@ public class PersonService : IPersonService
                 CreatedOn = DateTime.Now,
                 LastModifiedOn = DateTime.Now
             };
-
             getUser.UserRole = userRole;
             await _userRepo.Update(getUser);
-
             var person = new Person()
             {
                 PersonId = $"PERSON{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
@@ -104,14 +80,12 @@ public class PersonService : IPersonService
             await _personRepo.Create(person);
             var personData = await _personRepo.Get(x => x.PersonId == person.PersonId);
             await _realTime.NotifyAll("PersonCreated", GetDetails(await _personRepo.GetById(personData.Id)));
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Person Added Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
@@ -148,7 +122,6 @@ public class PersonService : IPersonService
             person.PersonDetails.ImageUrl = imagePath ?? person.PersonDetails.ImageUrl;
             person.PersonDetails.Age = DateTime.Now.Year - person.PersonDetails.DateOfBirth.Year;
             person.LastModifiedOn = DateTime.Now;
-
             await _personRepo.Update(person);
             await _realTime.NotifyAll("PersonUpdated", GetDetails(person));
             return new BaseResponse()
@@ -157,7 +130,6 @@ public class PersonService : IPersonService
                 Message = "Profile Updated Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
@@ -170,29 +142,24 @@ public class PersonService : IPersonService
         if (person != null)
         {
             person.Disabled = !person.Disabled;
-
             await _personRepo.Update(person);
-
             await _realTime.NotifyAll("PersonStatusChanged", new
             {
                 person.Id,
                 person.Disabled
             });
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Person Profile Disabled!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Disable Person Profile!"
         };
     }
-
     public async Task<BaseResponse> AddPersonAddress(int personId, List<CreateAddressDto> createAddressDtos)
     {
         var person = await _personRepo.GetById(personId);
@@ -451,7 +418,7 @@ public class PersonService : IPersonService
                 Id = person.PersonDetails.Id,
                 FirstName = person.PersonDetails.FirstName,
                 LastName = person.PersonDetails.LastName,
-                ImageUrl = ConvertImageToBase64(person.PersonDetails.ImageUrl) ?? "",
+                ImageUrl = person.PersonDetails.ImageUrl ?? "",
                 Gender = person.PersonDetails.Gender,
                 GetContactDetailsDtos = person.PersonDetails.ContactDetails.Select(x => GetContactDetails(x)).ToList() ?? new List<GetContactDetailsDto>(),
                 GetAddressDtos = person.PersonDetails.Addresses.Select(x => GetAddressDetails(x)).ToList(),
@@ -484,46 +451,19 @@ public class PersonService : IPersonService
             Email = contactDetails.Email,
         };
     }
-    public static string? ConvertImageToBase64(string? path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-            return null;
-
-        if (!File.Exists(path))
-            return null;
-
-        var bytes = File.ReadAllBytes(path);
-
-        return Convert.ToBase64String(bytes);
-    }
-    public async Task<bool> InjectDefaultUser()
-    {
-        var checkUser = await _userRepo.Get(x => x.UserName == "inioluwa_johansson");
-        if (checkUser != null)
-        {
-            Console.WriteLine("Default user already exists.");
-            return true; // User already exists, no need to inject again
-        }
-        var person = new CreatePersonDto()
-        {
-            Relation = "Family",
-            CreatePersonDetailsDto = new CreatePersonDetailsDto()
-            {
-                FirstName = "Inioluwa",
-                LastName = "Johansson",
-                DateOfBirth = new DateOnly(2003, 08, 13),
-                Gender = Gender.Male,
-            },
-            CreateUserDto = new CreateUserDto
-            {
-                UserName = "inioluwa_johansson",
-                Password = "Johansson13", // ⚠️ Consider hashing or securing this
-                AuthorizationCode = "132003",
-                Role = Role.Owner,
-            }
-        };
-        var response = await CreatePerson(person);
-        Console.WriteLine("Default user injected successfully." + response.Status);
-        return response.Status;
+    public async Task<string> GetImageUrl(IFormFile file){
+        if (file == null || file.Length == 0)
+            return string.Empty;
+        var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", ".."));
+        var storagePath = Path.Combine(basePath, "storage");
+        var folderName = Path.Combine("Profile", "Images");
+        var folderPath = Path.Combine(storagePath, folderName);
+        if (Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+        var extension = Path.GetExtension(file.FileName);
+        var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
+        var absolutePath = Path.Combine(folderPath, uniqueFileName);
+        await using var stream = new FileStream(absolutePath, FileMode.Create);
+        await file.CopyToAsync(stream);
+        return Path.Combine(folderName, uniqueFileName);
     }
 }

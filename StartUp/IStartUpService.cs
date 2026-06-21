@@ -4,4 +4,5 @@ namespace Home_Security.StartUp;
 public interface IStartUpService
 {
     public CreatePersonDto CreatePerson();
+    public (int, object? CreatePersonDto) Menu();
 }

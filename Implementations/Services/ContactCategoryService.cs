@@ -38,27 +38,23 @@ public class ContactCategoryService : IContactCategoryService
             await _contactCategoryRepo.Create(contactCategory);
             var contactCategoryData = await _contactCategoryRepo.Get(x => x.CategoryId == contactCategory.CategoryId);
             await _realtime.NotifyAll("ContactCategoryCreated", GetDetails(contactCategoryData));
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Contact Category Successfully Added!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Add Contact Category!"
         };
     }
-
     public async Task<BaseResponse> UpdateContactCategory(UpdateContactCategoryDto updateContactCategoryDto, int personId)
     {
-        if (updateContactCategoryDto != null)
+        var contactCategory = await _contactCategoryRepo.Get(x => x.Id == updateContactCategoryDto.Id);
+        if (contactCategory != null)
         {
-            var contactCategory = await _contactCategoryRepo.Get(x => x.Id == updateContactCategoryDto.Id);
-
             contactCategory.Name = updateContactCategoryDto.Name ?? contactCategory.Name;
             contactCategory.Description = updateContactCategoryDto.Description ?? contactCategory.Description;
             contactCategory.Icon = updateContactCategoryDto.Icon ?? contactCategory.Icon;
@@ -66,16 +62,13 @@ public class ContactCategoryService : IContactCategoryService
             contactCategory.LastModifiedOn = DateTime.Now;
 
             await _contactCategoryRepo.Update(contactCategory);
-
             await _realtime.NotifyAll("ContactCategoryUpdated", GetDetails(contactCategory));
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Contact Category Updated Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
@@ -86,7 +79,6 @@ public class ContactCategoryService : IContactCategoryService
     public async Task<ContactCategoryResponseModel> GetById(int contactCategoryId)
     {
         var contactCategory = await _contactCategoryRepo.Get(x => x.Id == contactCategoryId && x.IsDeleted == false);
-
         if (contactCategory != null)
         {
             return new ContactCategoryResponseModel()
@@ -96,7 +88,6 @@ public class ContactCategoryService : IContactCategoryService
                 Message = "ContactCategory Retrieved Successfully!"
             };
         }
-
         return new ContactCategoryResponseModel()
         {
             Data = null,
@@ -108,7 +99,6 @@ public class ContactCategoryService : IContactCategoryService
     public async Task<ContactCategoriesResponseModel> GetAllContactCategories()
     {
         var contactCategorys = await _contactCategoryRepo.GetByExpression(x => x.IsDeleted == false);
-
         if (contactCategorys != null)
         {
             return new ContactCategoriesResponseModel()
@@ -118,7 +108,6 @@ public class ContactCategoryService : IContactCategoryService
                 Status = true
             };
         }
-
         return new ContactCategoriesResponseModel()
         {
             Data = null,
@@ -130,7 +119,6 @@ public class ContactCategoryService : IContactCategoryService
     public async Task<BaseResponse> Delete(int contactCategoryId, int personId)
     {
         var contactCategory = await _contactCategoryRepo.Get(x => x.Id == contactCategoryId);
-
         if (contactCategory != null)
         {
             contactCategory.LastModifiedBy = personId;
@@ -140,20 +128,17 @@ public class ContactCategoryService : IContactCategoryService
             contactCategory.IsDeleted = true;
 
             await _contactCategoryRepo.Update(contactCategory);
-
             await _realtime.NotifyAll("ContactCategoryDeleted", new
             {
                 contactCategory.Id,
                 contactCategory.CategoryId
             });
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Contact Category Deleted Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,

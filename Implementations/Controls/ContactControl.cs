@@ -52,42 +52,6 @@ public class ContactControl : IContactControl
         }
         return _authControl.AuthFaliure();
     }
-    public async Task<BaseResponse> AddContactAddress(GetAuthControlInfoDto getAuthControlInfoDto, int contactId, List<CreateAddressDto> createAddressDtos)
-    {
-        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
-        {
-            var contact = await _contactService.AddContactAddress(contactId, auth.Id, createAddressDtos);
-            if (contact.Status == true)
-            {
-                var log = _authControl.CreateLog(auth.Id);
-                var getContact = _authControl.GetContactName(contactId);
-                log.ActionType = "Update";
-                log.LogDetails = $"{getContact} Contact Address was recently updated!";
-                await _logService.CreateLog(log);
-            }
-            return contact;
-        }
-        return _authControl.AuthFaliure();
-    }
-    public async Task<BaseResponse> AddContactDetails(GetAuthControlInfoDto getAuthControlInfoDto, int contactId, List<CreateContactDetailsDto> createContactDetailsDtos)
-    {
-        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
-        {
-            var contact = await _contactService.AddContactDetails(contactId, auth.Id, createContactDetailsDtos);
-            if (contact.Status == true)
-            {
-                var log = _authControl.CreateLog(auth.Id);
-                var getContact = _authControl.GetContactName(contactId);
-                log.ActionType = "Update";
-                log.LogDetails = $"{getContact} Contact Details was recently updated!";
-                await _logService.CreateLog(log);
-            }
-            return contact;
-        }
-        return _authControl.AuthFaliure();
-    }
     public async Task<ContactResponseModel> GetContactById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);

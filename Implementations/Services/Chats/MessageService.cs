@@ -188,29 +188,22 @@ public class MessageService : IMessageService
                 .ToList() ?? new List<GetMessageAttachmentDto>()
         };
     }
-    public static string? ConvertImageToBase64(string? path)
-    {
-        if (!File.Exists(path))
-            return null;
-        var bytes = File.ReadAllBytes(path);
-        return Convert.ToBase64String(bytes);
-    }
     public async Task<string> GetAttachmentUrl(IFormFile file, MessageType type)
     {
         if (file == null || file.Length == 0)
             return string.Empty;
         var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
         var storagePath = Path.Combine(basePath, "storage");
-        var folderName = type switch
+        var folderName = Path.Combine("Messages" ,type switch
         {
             MessageType.Image => "Images",
             MessageType.Video => "Videos",
             MessageType.Audio => "Audios",
             MessageType.File => "Files",
             _ => "Others"
-        };
+        });
         var folderPath = Path.Combine(storagePath, folderName);
-        Directory.CreateDirectory(folderPath);
+        if (Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         var extension = Path.GetExtension(file.FileName);
         var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
         var absolutePath = Path.Combine(folderPath, uniqueFileName);

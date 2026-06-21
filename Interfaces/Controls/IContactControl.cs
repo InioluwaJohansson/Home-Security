@@ -7,8 +7,6 @@ public interface IContactControl
 {
     public Task<BaseResponse> CreateContact(GetAuthControlInfoDto getAuthControlInfoDto, CreateContactDto createContactDto);
     public Task<BaseResponse> UpdateContact(GetAuthControlInfoDto getAuthControlInfoDto, UpdateContactDto updateContactDto);
-    public Task<BaseResponse> AddContactAddress(GetAuthControlInfoDto getAuthControlInfoDto, int contactId, List<CreateAddressDto> createAddressDtos);
-    public Task<BaseResponse> AddContactDetails(GetAuthControlInfoDto getAuthControlInfoDto, int contactId, List<CreateContactDetailsDto> createContactDetailsDtos);
     public Task<ContactResponseModel> GetContactById(GetAuthControlInfoDto getAuthControlInfoDto, int id);
     public Task<ContactsResponseModel> GetContactByFirstName(GetAuthControlInfoDto getAuthControlInfoDto, string firstName);
     public Task<ContactsResponseModel> GetContactByLastName(GetAuthControlInfoDto getAuthControlInfoDto, string lastName);

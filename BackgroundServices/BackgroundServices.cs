@@ -43,12 +43,10 @@ public class StartupInitializer : IHostedService
         var context = scope.ServiceProvider.GetRequiredService<HomeSecurityContext>();
         await context.Database.MigrateAsync();
         var personService = scope.ServiceProvider.GetRequiredService<IPersonService>();
-        //await personService.InjectDefaultUser();
         var userRepo = scope.ServiceProvider.GetRequiredService<IUserRepo>();
         var userData = await userRepo.GetAllUsers();
         try
         {
-            foreach(var data in userData) Console.WriteLine(data.UserName ?? "null");
             if (userData?.FirstOrDefault(x => x.UserRole.Role == Role.Owner) == null)
             {
                 var encryption = scope.ServiceProvider.GetRequiredService<IEncryptionService>();
@@ -60,9 +58,9 @@ public class StartupInitializer : IHostedService
                 else
                 {
                     var startUp = scope.ServiceProvider.GetRequiredService<IStartUpService>();
-                    var personStartUp = startUp.CreatePerson();
-                    await encryption.EncryptFileAsync(personStartUp);
-                    await personService.CreatePerson(personStartUp);
+                    var personStartUp = startUp.Menu();
+                    await encryption.EncryptFileAsync(personStartUp.CreatePersonDto);
+                    await personService.CreatePerson(personStartUp.CreatePersonDto);
                     Console.WriteLine("\n✅ Person created successfully!");
                     Console.WriteLine($"Name: {personStartUp.CreatePersonDetailsDto.FirstName} {personStartUp.CreatePersonDetailsDto.LastName}");
                 }
