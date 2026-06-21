@@ -5,7 +5,7 @@ using Home_Security.Models.Enums;
 namespace Home_Security.StartUp;
 public class StartUpService : IStartUpService
 {
-    public (int, object) Menu()
+    public MenuResult Menu()
     {
         bool op = true;
         while (op)
@@ -19,9 +19,15 @@ public class StartUpService : IStartUpService
                     case 1:
                         Console.WriteLine();
                         Console.Write("Enter Encrypted User Key: ");
-                        return (1, Console.ReadLine());
+                        return new MenuResult {
+Option = 1,
+EncryptedKey = Console.ReadLine()
+};
                     case 2:
-                        return (2, CreatePerson());
+                        return new MenuResult {
+Option = 2,
+Person = CreatePerson()
+};
                 }
                 op = false;
             }
