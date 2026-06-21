@@ -10,7 +10,6 @@ using Home_Security.Interfaces.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using static Home_Security.BackgroundServices.HardwareServices;
 using System.Text;
 using Microsoft.Extensions.FileProviders;
 using Home_Security.RealTimeServices;
