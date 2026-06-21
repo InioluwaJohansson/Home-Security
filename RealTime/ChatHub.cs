@@ -13,7 +13,6 @@ public class ChatHub : IChatHub
     }
     public async Task UpdateChat(string eventName, int chatId, object update)
     {
-        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(update));
         await _hub.Clients.Group(chatId.ToString()).SendAsync(eventName, update);
     }
 }

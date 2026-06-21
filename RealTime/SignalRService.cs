@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Home_Security.Hubs;
 using Microsoft.AspNetCore.Authorization;
+using Home_Security.Entities.Identity;
 namespace Home_Security.RealTimeServices;
 
 [Authorize]
@@ -17,7 +18,6 @@ public class RealtimeNotificationService : IRealtimeNotificationService
     }
     public async Task UpdateAppList(string eventName, Role role, object update)
     {
-        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(update));
         await _hub.Clients.Group(role.ToString()).SendAsync(eventName, update);
     }
 }

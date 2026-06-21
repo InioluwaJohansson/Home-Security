@@ -289,7 +289,33 @@ public class AuthControl : IAuthControl
         await GetAllContactCategories();
         _authCache._contactCache.Clear();
         await GetAllContacts();
-        await _realtimeNotificationService.NotifyAll("GetAppNamesDetails", GetAppNamesDetails());
+        foreach (var role in Enum.GetValues(typeof(Role)).Cast<Role>())
+            await _realtimeNotificationService.UpdateAppList("GetAppNamesDetails", role, GetAppNamesIdList(role));
+    }
+    private async Task<AppNamesDetailList> GetAppNamesIdList(Role role)
+    {
+        if (role == Role.Owner || role == Role.Wife)
+        {
+            var dashboard = await GetAppNamesDetails();
+            if (dashboard != null)  return dashboard;
+        }
+        else if (role == Role.Child || role == Role.Relative || role == Role.Visitor)
+        {
+            var dashboard = await GetAppNamesDetails();
+            if (dashboard != null) {
+                dashboard.ApplianceIdNames = dashboard.ApplianceIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.CameraIdNames = dashboard.CameraIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.LightIdNames = dashboard.LightIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.WindowIdNames = dashboard.WindowIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.DoorIdNames = dashboard.DoorIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.ExternalIdNames = dashboard.ExternalIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.SectionIdNames = dashboard.SectionIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.PersonIdNames = dashboard.PersonIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.RoomIdNames = dashboard.RoomIdNames.Where(x => x.IsHidden == false).ToList();
+                return dashboard;
+            }
+        }
+        return new AppNamesDetailList();
     }
     public bool CompareRole(Role based, Role quote)
     {

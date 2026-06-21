@@ -79,12 +79,10 @@ public class StartupInitializer : IHostedService
 public class AuthServices : BackgroundService
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
-
     public AuthServices(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
     }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
@@ -106,12 +104,10 @@ public class AuthServices : BackgroundService
 public class HardwareServices : BackgroundService
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
-
     public HardwareServices(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
     }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
@@ -131,20 +127,18 @@ public class HardwareServices : BackgroundService
             await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
         }
     }
-    public class MqttBackgroundService : BackgroundService
-    {
-        private readonly IServiceScopeFactory _scopeFactory;
-
-        public MqttBackgroundService(IServiceScopeFactory scopeFactory)
-        {
-            _scopeFactory = scopeFactory;
-        }
-
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            using var scope = _scopeFactory.CreateScope();
-            var mqttService = scope.ServiceProvider.GetRequiredService<IMqttService>();
-            await mqttService.ConnectAsync(stoppingToken);
-        }
-    }
 }
+public class MqttBackgroundService : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    public MqttBackgroundService(IServiceScopeFactory scopeFactory)
+    {
+        _scopeFactory = scopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var mqttService = scope.ServiceProvider.GetRequiredService<IMqttService>();
+        await mqttService.ConnectAsync(stoppingToken);
+    }
+    }

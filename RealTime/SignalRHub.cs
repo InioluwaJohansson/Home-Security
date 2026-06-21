@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
+using Home_Security.Authentication;
+using Home_Security.Interfaces.Controls;
 namespace Home_Security.Hubs;
 [Authorize]
 public class HomeSecurityHub : Hub

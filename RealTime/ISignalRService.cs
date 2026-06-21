@@ -1,3 +1,5 @@
+using Home_Security.Entities.Identity;
+
 namespace Home_Security.RealTimeServices;
 public interface IRealtimeNotificationService
 {
