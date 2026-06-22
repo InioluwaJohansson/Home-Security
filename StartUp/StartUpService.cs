@@ -1,10 +1,62 @@
+using Home_Security.Encryption;
 using Home_Security.Entities.Identity;
+using Home_Security.Interfaces.Repositories;
+using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 using Home_Security.Models.Enums;
 
 namespace Home_Security.StartUp;
 public class StartUpService : IStartUpService
 {
+    IPersonService _personService;
+    IUserRepo _userRepo;
+    IEncryptionService _encryptionService;
+    public StartUpService(IUserRepo userRepo, IPersonService personService, IEncryptionService encryptionService)
+    {
+        _userRepo = userRepo;
+        _personService = personService;
+        _encryptionService = encryptionService;
+    }
+    public async Task InitateStartUp()
+    {
+        var userData = await _userRepo.GetAllUsers();
+        try
+        {
+            if (userData?.FirstOrDefault(x => x.UserRole.Role == Role.Owner) == null)
+            {
+                var person = await _encryptionService.DecryptObjectAsync();
+                if(person != null){
+                    await _personService.CreatePerson(person);
+                    _encryptionService.DeleteFile();
+                }
+                else
+                {
+                    var personStartUp = Menu();
+                    if(personStartUp.Option == 1 && personStartUp.EncryptedKey != null)
+                    {
+                        var decryptedKey = _encryptionService.DecryptEncryptionKeyAsync(personStartUp.EncryptedKey);
+                        var response = await _personService.CreatePerson(decryptedKey);
+                        if(response.Status == true)
+                            Console.WriteLine("\n✅ Person created successfully!");
+                        else Console.WriteLine("\n Error unable to create Person!");
+                    }
+                    if(personStartUp.Option == 2 && personStartUp.Person != null)
+                    {
+                        await _encryptionService.EncryptFileAsync(personStartUp.Person);
+                        var response = await _personService.CreatePerson(personStartUp.Person);
+                        if(response.Status == true)
+                            Console.WriteLine("\n✅ Person created successfully!");
+                        else Console.WriteLine("\n Error unable to create Person!");
+                    }
+                }
+            }
+            else Console.WriteLine("\n✅ Users Exist!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"StartupInitializer error: {ex.Message}");
+        }
+    }
     public MenuResult Menu()
     {
         bool op = true;
@@ -20,19 +72,19 @@ public class StartUpService : IStartUpService
                         Console.WriteLine();
                         Console.Write("Enter Encrypted User Key: ");
                         return new MenuResult {
-Option = 1,
-EncryptedKey = Console.ReadLine()
-};
+                            Option = 1,
+                            EncryptedKey = Console.ReadLine()
+                        };
                     case 2:
                         return new MenuResult {
-Option = 2,
-Person = CreatePerson()
-};
+                        Option = 2,
+                        Person = CreatePerson()
+                    };
                 }
                 op = false;
             }
         }
-        return (0, null);
+        return new MenuResult();
     }
     public CreatePersonDto CreatePerson()
     {

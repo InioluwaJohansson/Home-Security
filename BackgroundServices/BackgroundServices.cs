@@ -42,35 +42,8 @@ public class StartupInitializer : IHostedService
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<HomeSecurityContext>();
         await context.Database.MigrateAsync();
-        var personService = scope.ServiceProvider.GetRequiredService<IPersonService>();
-        var userRepo = scope.ServiceProvider.GetRequiredService<IUserRepo>();
-        var userData = await userRepo.GetAllUsers();
-        try
-        {
-            if (userData?.FirstOrDefault(x => x.UserRole.Role == Role.Owner) == null)
-            {
-                var encryption = scope.ServiceProvider.GetRequiredService<IEncryptionService>();
-                var person = await encryption.DecryptObjectAsync();
-                if(person != null){
-                    await personService.CreatePerson(person);
-                    encryption.DeleteFile();
-                }
-                else
-                {
-                    var startUp = scope.ServiceProvider.GetRequiredService<IStartUpService>();
-                    var personStartUp = startUp.Menu();
-                    await encryption.EncryptFileAsync(personStartUp.CreatePersonDto);
-                    await personService.CreatePerson(personStartUp.CreatePersonDto);
-                    Console.WriteLine("\n✅ Person created successfully!");
-                    Console.WriteLine($"Name: {personStartUp.CreatePersonDetailsDto.FirstName} {personStartUp.CreatePersonDetailsDto.LastName}");
-                }
-            }
-            else Console.WriteLine("\n✅ Users Exist!");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"StartupInitializer error: {ex.Message}");
-        }
+        var startUp = scope.ServiceProvider.GetRequiredService<IStartUpService>();
+        await startUp.InitateStartUp();
     }
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }
