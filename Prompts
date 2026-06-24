@@ -1,9 +1,28 @@
 
 i cant see the data from the get request for the section page applied correctly. I cant even see the section name and the details in the view section details modal. for the facility pages that have a toggle button when the toggle is pressed, it should send an update request to their respective endpoints and those that have a toggle do not need to open the authorization modal with key pad
 
+I also noticed that after creating an item be it in the facility pages or anywhere, else in the app the user can add smth, after sending it to the api, the app should listen to the signalR for the itm being created cause an action can be performed immediately on th item created and the id key identifier will the null where as the signalR has provided it. so there fore the signalR data is what is to be listed to and added not the frontend adding it while missing a few necessary identifiers. curl -X 'POST'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Action/CreateAction'
+-H 'accept: /'
+-H 'Content-Type: application/json'
+-d '{
+"actionName": "string",
+"description": "string"
+}' this is the curl to create an action. curl -X 'PUT'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Action/UpdateAction'
+-H 'accept: /'
+-H 'Content-Type: application/json'
+-d '{
+"id": 0,
+"actionName": "string",
+"description": "string"
+}' this is the curl to update an action. In the input fields in the create new action modal, they should not have a rounded borders instead they should have no border radius and their labels should have icons. I noticed while updating a few facility items that involves them having field like sectionId and roomId, its sending null after the user has selected the section and room these items should be located in. Kindly resolve that too
 
 
- To create a person and a group chat, 
+
+
+
+To create a person and a group chat, 
 "public class CreateDirectChatDto
 {
 public int RecipientPersonId { get; set; }
@@ -18,7 +37,8 @@ public IFormFile? ImageUrl { get; set; }
 
 public List<int> ParticipantPersonIds { get; set; }
     = new();
-}" this is the fields required. public class UpdateGroupChatDto
+}" this is the fields required.
+public class UpdateGroupChatDto
 {
 public string Name { get; set; }
 
@@ -83,7 +103,8 @@ public string? ProfileImageUrl { get; set; }
 public bool IsAdmin { get; set; }
 
 public bool IsOnline { get; set; }
-} this is the dto every chat will need before it can be viewed. public class MessageDto
+} this is the dto very important every chat will need before it can be viewed. 
+public class MessageDto
 {
 public int Id { get; set; }
 
@@ -160,6 +181,12 @@ public int Page { get; set; } = 1;
 
 public int PageSize { get; set; } = 30;
 } this is the dto that will be sent inorder to view more messages in the chat.
+
+
+
+
+
+
 
 'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Chat/CreateChat?recipientPersonId=0'
 -H 'accept: /'

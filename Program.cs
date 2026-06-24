@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.FileProviders;
 using Home_Security.RealTimeServices;
 using Home_Security.BackgroundServices;
@@ -27,11 +28,6 @@ using Home_Security.Encryption;
 using Home_Security.StartUp;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddCors(x => x.AddPolicy("Policies", c =>
-{
-    c.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
-}));
 
 builder.Services.AddScoped<IActionRepo, ActionRepo>();
 builder.Services.AddScoped<IAddressRepo, AddressRepo>();
@@ -176,7 +172,7 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo {Title = "Home Security", Version = "v1"});
+    c.SwaggerDoc("v1", new OpenApiInfo {Title = "Home Security", Version = "v1"});
 });
 
 builder.Services.AddRateLimiter(options =>
@@ -189,6 +185,12 @@ builder.Services.AddRateLimiter(options =>
     });
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
+
+builder.Services.AddCors(x => x.AddPolicy("Policies", c =>
+{
+    c.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
+}));
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Home_Security", policy =>
