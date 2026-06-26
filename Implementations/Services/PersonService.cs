@@ -98,28 +98,12 @@ public class PersonService : IPersonService
         var person = await _personRepo.GetById(updatePersonDto.Id);
         if (person != null)
         {
-            var imagePath = "";
-            if (updatePersonDto.UpdatePersonDetailsDto.ImageUrl != null)
-            {
-                if (updatePersonDto.UpdatePersonDetailsDto.ImageUrl == null || updatePersonDto.UpdatePersonDetailsDto.ImageUrl.Length == 0)
-                    imagePath = string.Empty;
-                var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
-                var storagePath = Path.Combine(basePath, "storage");
-                var folderPath = Path.Combine(storagePath, "Images");
-                Directory.CreateDirectory(folderPath);
-                var extension = Path.GetExtension(updatePersonDto.UpdatePersonDetailsDto.ImageUrl.FileName);
-                var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
-                var absolutePath = Path.Combine(folderPath, uniqueFileName);
-                await using var stream = new FileStream(absolutePath, FileMode.Create);
-                await updatePersonDto.UpdatePersonDetailsDto.ImageUrl.CopyToAsync(stream);
-                imagePath = Path.Combine("Images", uniqueFileName);
-            }
             person.User.UserName = updatePersonDto.UpdateUserDto.UserName ?? person.User.UserName;
             person.User.UserRole.Role = updatePersonDto.UpdateUserDto.Role;
             person.CameraIds = updatePersonDto.CameraIds ?? person.CameraIds;
             person.PersonDetails.FirstName = updatePersonDto.UpdatePersonDetailsDto.FirstName ?? person.PersonDetails.FirstName;
             person.PersonDetails.LastName = updatePersonDto.UpdatePersonDetailsDto.LastName ?? person.PersonDetails.LastName;
-            person.PersonDetails.ImageUrl = imagePath ?? person.PersonDetails.ImageUrl;
+            person.PersonDetails.ImageUrl = await GetImageUrl(updatePersonDto.UpdatePersonDetailsDto.ImageUrl) ?? person.PersonDetails.ImageUrl;
             person.PersonDetails.Age = DateTime.Now.Year - person.PersonDetails.DateOfBirth.Year;
             person.LastModifiedOn = DateTime.Now;
             await _personRepo.Update(person);
@@ -451,19 +435,42 @@ public class PersonService : IPersonService
             Email = contactDetails.Email,
         };
     }
-    public async Task<string> GetImageUrl(IFormFile file){
+    public async Task<string> GetImageUrl(string file){
         if (file == null || file.Length == 0)
             return string.Empty;
-        var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", ".."));
+        if (string.IsNullOrWhiteSpace(file))
+            return null;
+
+        string extension = ".bin";
+
+        if (file.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+        {
+            var header = file[..file.IndexOf(',')];
+            var mimeType = header.Replace("data:", "").Replace(";base64", "");
+            extension = mimeType.ToLower() switch
+            {
+                "image/jpeg" => ".jpg",
+                "image/jpg"  => ".jpg",
+                "image/png"  => ".png",
+                "image/gif"  => ".gif",
+                "image/webp" => ".webp",
+                "image/bmp"  => ".bmp",
+                "image/tiff" => ".tiff",
+                "image/svg+xml" => ".svg",
+                _ => ".bin"
+            };
+
+            file = file[(file.IndexOf(',') + 1)..];
+        }
+        byte[] bytes = Convert.FromBase64String(file);
+        var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
         var storagePath = Path.Combine(basePath, "storage");
         var folderName = Path.Combine("Profile", "Images");
         var folderPath = Path.Combine(storagePath, folderName);
-        if (Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-        var extension = Path.GetExtension(file.FileName);
+        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
         var absolutePath = Path.Combine(folderPath, uniqueFileName);
-        await using var stream = new FileStream(absolutePath, FileMode.Create);
-        await file.CopyToAsync(stream);
+        await File.WriteAllBytesAsync(absolutePath, bytes);
         return Path.Combine(folderName, uniqueFileName);
     }
 }

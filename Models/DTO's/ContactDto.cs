@@ -6,7 +6,7 @@ public class CreateContactDto
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
-    public IFormFile ImageUrl { get; set; }
+    public string? ImageUrl { get; set; }
     public Gender Gender  {get; set;}
     public int ContactCategory { get; set; }
     public int personId { get; set; }
@@ -18,7 +18,7 @@ public class UpdateContactDto
     public int Id { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
-    public IFormFile ImageUrl { get; set; }
+    public string? ImageUrl { get; set; }
     public Gender Gender  {get; set;}
     public int ContactCategory { get; set; }
     public int personId { get; set; }
