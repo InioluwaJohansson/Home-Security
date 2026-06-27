@@ -526,10 +526,7 @@ namespace Home_Security.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ContactCategory")
+                    b.Property<int>("ContactCategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("ContactId")
@@ -574,7 +571,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("ContactCategoryId");
 
                     b.ToTable("Contact");
                 });
@@ -1679,7 +1676,7 @@ namespace Home_Security.Migrations
                 {
                     b.HasOne("Home_Security.Entities.ContactCategory", "Category")
                         .WithMany()
-                        .HasForeignKey("CategoryId")
+                        .HasForeignKey("ContactCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

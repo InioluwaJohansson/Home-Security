@@ -324,19 +324,40 @@ public class ChatService : IChatService
             UnreadCount = 0
         };
     }
-    public async Task<string> GetImageUrl(IFormFile file){
+    public async Task<string> GetImageUrl(string file){
         if (file == null || file.Length == 0)
             return string.Empty;
+        if (string.IsNullOrWhiteSpace(file))
+            return null;
+        string extension = ".bin";
+        if (file.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+        {
+            var header = file[..file.IndexOf(',')];
+            var mimeType = header.Replace("data:", "").Replace(";base64", "");
+            extension = mimeType.ToLower() switch
+            {
+                "image/jpeg" => ".jpg",
+                "image/jpg"  => ".jpg",
+                "image/png"  => ".png",
+                "image/gif"  => ".gif",
+                "image/webp" => ".webp",
+                "image/bmp"  => ".bmp",
+                "image/tiff" => ".tiff",
+                "image/svg+xml" => ".svg",
+                _ => ".bin"
+            };
+
+            file = file[(file.IndexOf(',') + 1)..];
+        }
+        byte[] bytes = Convert.FromBase64String(file);
         var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
         var storagePath = Path.Combine(basePath, "storage");
         var folderName = Path.Combine("Chat", "Images");
         var folderPath = Path.Combine(storagePath, folderName);
         if(Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-        var extension = Path.GetExtension(file.FileName);
         var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
         var absolutePath = Path.Combine(folderPath, uniqueFileName);
-        await using var stream = new FileStream(absolutePath, FileMode.Create);
-        await file.CopyToAsync(stream);
+        await File.WriteAllBytesAsync(absolutePath, bytes);
         return Path.Combine(folderName, uniqueFileName);
     }
 }

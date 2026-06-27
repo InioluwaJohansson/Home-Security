@@ -20,12 +20,13 @@ public class ContactService : IContactService
     public async Task<BaseResponse> CreateContact(CreateContactDto createContactDto)
     {
         if(createContactDto != null) {
+            Console.WriteLine("Contact Category: " + createContactDto.ContactCategory);
             var contact = new Contact()
             {
                 ContactId = $"CONTACT{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 FirstName = createContactDto.FirstName,
                 LastName = createContactDto.LastName,
-                ContactCategory = createContactDto.ContactCategory,
+                ContactCategoryId = createContactDto.ContactCategory,
                 Gender = createContactDto.Gender,
                 ImageUrl = await GetImageUrl(createContactDto.ImageUrl),
             };
@@ -67,7 +68,7 @@ public class ContactService : IContactService
                 address = await _addressRepo.Create(address);
                 contact.Address.Add(address);
             }
-            await _realTime.NotifyAll("ContactCreated", GetDetails(contact));
+            await _realTime.NotifyAll("ContactCreated", GetDetails(await _contactRepo.GetById(contact.Id)));
             return new BaseResponse()
             {
                 Message = "Contact Added Successfully!",
@@ -91,7 +92,7 @@ public class ContactService : IContactService
             contact.Gender = updateContactDto.Gender;
             contact.LastModifiedOn = DateTime.Now;
             contact.LastModifiedBy = updateContactDto.personId;
-            contact.ContactCategory = updateContactDto.ContactCategory;
+            contact.ContactCategoryId = updateContactDto.ContactCategory;
             foreach (var contactDetail in updateContactDto.ContactDetails)
             {
                 if(contactDetail.Id == 0)

@@ -23,7 +23,7 @@ public class ContactRepo : BaseRepository<Contact>, IContactRepo
     }
     public async Task<List<Contact>> GetByContactCategory(int contactCategory)
     {
-        return await context.Contact.Include(x => x.ContactDetails).Include(x => x.Address).Where(x => x.ContactCategory == contactCategory).ToListAsync();
+        return await context.Contact.Include(x => x.ContactDetails).Include(x => x.Address).Where(x => x.ContactCategoryId == contactCategory).ToListAsync();
     }
     public async Task<List<Contact>> List()
     {

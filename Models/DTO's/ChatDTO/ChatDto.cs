@@ -10,7 +10,7 @@ public class CreateGroupChatDto
 
     public string? Description { get; set; }
 
-    public IFormFile? ImageUrl { get; set; }
+    public string? ImageUrl { get; set; }
 
     public List<int> ParticipantPersonIds { get; set; }
         = new();
@@ -19,10 +19,8 @@ public class UpdateGroupChatDto
 {
     public int ChatId { get; set; }
     public string? Name { get; set; }
-
     public string? Description { get; set; }
-
-    public IFormFile? ImageUrl { get; set; }
+    public string? ImageUrl { get; set; }
 }
 public class AddParticipantsDto
 {
