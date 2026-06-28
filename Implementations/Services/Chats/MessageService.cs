@@ -41,14 +41,14 @@ public class MessageService : IMessageService
             SenderPersonId = senderId,
             ReplyToMessageId = dto.ReplyToMessageId,
             Content = dto.Content,
-            Type = dto.Type,
+            Type = MessageType.Text,
             SentAt = date,
             Attachments = (await Task.WhenAll(
             dto.Attachments?.Select(async a => new MessageAttachment
             {
                 FileName = a.FileName,
-                FilePath = await GetAttachmentUrl(a.FilePath, dto.Type),
-                ContentType = a.ContentType,
+                FilePath = await GetAttachmentUrl(a.FilePath, a.Type),
+                ContentType = a.Type.ToString(),
                 FileSize = a.FileSize,
                 ThumbnailPath = a.ThumbnailPath
             }))).ToList()
@@ -184,15 +184,15 @@ public class MessageService : IMessageService
             SenderName = $"{message.SenderPerson.PersonDetails.FirstName} {message.SenderPerson.PersonDetails.LastName}",
             SenderProfileImage = message.SenderPerson.PersonDetails.ImageUrl ?? "",
             Attachments = message.Attachments?
-                .Select(a => new GetMessageAttachmentDto
-                {
-                    FileName = a.FileName,
-                    FilePath = a.FilePath,
-                    ContentType = a.ContentType,
-                    FileSize = a.FileSize,
-                    ThumbnailPath = a.ThumbnailPath
-                })
-                .ToList() ?? new List<GetMessageAttachmentDto>()
+            .Select(a => new GetMessageAttachmentDto
+            {
+                FileName = a.FileName,
+                FilePath = a.FilePath,
+                ContentType = a.ContentType,
+                FileSize = a.FileSize,
+                ThumbnailPath = a.ThumbnailPath
+            })
+            .ToList() ?? new List<GetMessageAttachmentDto>()
         };
     }
     public async Task<string> GetAttachmentUrl(IFormFile file, MessageType type)
@@ -210,7 +210,7 @@ public class MessageService : IMessageService
             _ => "Others"
         });
         var folderPath = Path.Combine(storagePath, folderName);
-        if (Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         var extension = Path.GetExtension(file.FileName);
         var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
         var absolutePath = Path.Combine(folderPath, uniqueFileName);

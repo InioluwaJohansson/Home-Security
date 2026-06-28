@@ -27,17 +27,11 @@ public class AddParticipantsDto
     public List<int> PersonIds { get; set; }
         = new();
 }
-public class RemoveParticipantDto
-{
-    public int PersonId { get; set; }
-}
 public class SendMessageDto
 {
     public int ChatId { get; set; }
     public string? Content { get; set; }
-    public MessageType Type { get; set; }
     public int? ReplyToMessageId { get; set; }
-
     public List<MessageAttachmentDto>? Attachments { get; set; }
         = new();
 }
@@ -47,7 +41,7 @@ public class MessageAttachmentDto
 
     public IFormFile FilePath { get; set; }
 
-    public string ContentType { get; set; }
+    public MessageType Type { get; set; }
 
     public long FileSize { get; set; }
 

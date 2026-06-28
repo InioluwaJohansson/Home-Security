@@ -1,7 +1,8 @@
 namespace Home_Security.Entities.Chats;
 public enum MessageType
 {
-    Image = 1,
+    Text = 0,
+    Image,
     Video,
     Audio,
     File,
