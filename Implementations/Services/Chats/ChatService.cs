@@ -47,7 +47,7 @@ public class ChatService : IChatService
             IsGroup = true,
             Name = dto.Name,
             Description = dto.Description,
-            ImageUrl = await GetImageUrl(dto.ImageUrl ?? null),
+            ImageUrl = await GetImageUrl(dto.ImageUrl) ?? null,
             CreatedByPersonId = currentPersonId,
             Participants = dto.ParticipantPersonIds.Append(currentPersonId).Distinct()
             .Select(x => new ChatParticipant
@@ -207,8 +207,8 @@ public class ChatService : IChatService
         }));    
         return new BaseResponse()
         {
-            Status = false,
-            Message = "Unable to find chat!"  
+            Status = true,
+            Message = "Participant(s) Added!"  
         };
     }
     public async Task<BaseResponse> RemoveParticipantAsync(int chatId, int personId, int currentPersonId)
@@ -354,7 +354,7 @@ public class ChatService : IChatService
         var storagePath = Path.Combine(basePath, "storage");
         var folderName = Path.Combine("Chat", "Images");
         var folderPath = Path.Combine(storagePath, folderName);
-        if(Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+        if(!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
         var absolutePath = Path.Combine(folderPath, uniqueFileName);
         await File.WriteAllBytesAsync(absolutePath, bytes);

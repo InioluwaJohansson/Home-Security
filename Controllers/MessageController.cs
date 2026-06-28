@@ -20,7 +20,7 @@ public class MessageController : Controller
     }
     [Authorize]
     [HttpPost("SendMessage")]
-    public async Task<IActionResult> SendMessage(SendMessageDto sendMessageDto)
+    public async Task<IActionResult> SendMessage([FromForm] SendMessageDto sendMessageDto)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -29,6 +29,21 @@ public class MessageController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
+        var message = await _messageControl.SendMessage(getAuthControlInfoDto, sendMessageDto);
+        return Ok(message);
+    }
+    [Authorize]
+    [HttpPost("SendMessageChatId")]
+    public async Task<IActionResult> SendMessage([FromForm] SendMessageDto sendMessageDto, int chatId)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        sendMessageDto.ChatId = chatId;
         var message = await _messageControl.SendMessage(getAuthControlInfoDto, sendMessageDto);
         return Ok(message);
     }

@@ -306,11 +306,11 @@ public class ContactService : IContactService
                     await _addressRepo.Update(address);
                 };
             }
+            await _contactRepo.Update(contact);
             await _realTime.NotifyAll("ContactDeleted", new {
                 Id = contact.Id,
                 IsDeleted = contact.IsDeleted
             });
-            await _contactRepo.Update(contact);
             return new BaseResponse()
             {
                 Message = "Contact Deleted Successfully!",
@@ -403,11 +403,11 @@ public class ContactService : IContactService
             file = file[(file.IndexOf(',') + 1)..];
         }
         byte[] bytes = Convert.FromBase64String(file);
-        var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", ".."));
+        var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
         var storagePath = Path.Combine(basePath, "storage");
         var folderName = Path.Combine("Contact", "Images");
         var folderPath = Path.Combine(storagePath, folderName);
-        Directory.CreateDirectory(folderPath);
+        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
         var absolutePath = Path.Combine(folderPath, uniqueFileName);
         await File.WriteAllBytesAsync(absolutePath, bytes);

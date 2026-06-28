@@ -19,6 +19,13 @@ public class MessageService : IMessageService
     public async Task<BaseResponse> SendMessageAsync(SendMessageDto dto, int senderId)
     {
         var isParticipant = await _chatRepo.IsParticipantAsync(dto.ChatId, senderId);
+        Console.WriteLine($"Chat Id: {dto.ChatId}, Sender Id: {senderId}");
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(
+            dto,
+            new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true
+            }));
         if (!isParticipant)
         {
             return new BaseResponse()
@@ -46,7 +53,7 @@ public class MessageService : IMessageService
                 ThumbnailPath = a.ThumbnailPath
             }))).ToList()
         };
-        await _messageRepo.Create(message);
+        message = await _messageRepo.Create(message);
         var messageData = await _messageRepo.GetMessageByExpression(x => x.SentAt == date && !x.IsDeleted);
         await _chatHub.UpdateChat("MessageSent", message.ChatId, MapToDto(messageData));
         return new BaseResponse()
