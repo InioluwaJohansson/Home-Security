@@ -57,7 +57,7 @@ public class MessageControl : IMessageControl
             return await _messageService.GetUnreadCountAsync(chatId, auth.Id);
         return 0;
     }
-    public async Task Typing(GetAuthControlInfoDto getAuthControlInfoDto, int chatId)
+    public async Task Typing(GetAuthControlInfoDto getAuthControlInfoDto, int chatId, string action)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
@@ -66,6 +66,7 @@ public class MessageControl : IMessageControl
                ChatId = chatId,
                PersonId = auth.Id,
                Name = _authControl.GetUserPersonName(auth.Id),
+               Action = action,
                IsTyping = true
            });
     }

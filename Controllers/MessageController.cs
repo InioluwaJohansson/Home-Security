@@ -105,7 +105,7 @@ public class MessageController : Controller
     }
     [Authorize]
     [HttpPost("Typing")]
-    public async Task<IActionResult> Typing(int chatId)
+    public async Task<IActionResult> Typing(int chatId, string action)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -114,7 +114,7 @@ public class MessageController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        await _messageControl.Typing(getAuthControlInfoDto, chatId);
+        await _messageControl.Typing(getAuthControlInfoDto, chatId, action);
         return Ok();
     }
 }
