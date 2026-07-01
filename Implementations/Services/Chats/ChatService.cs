@@ -293,7 +293,8 @@ public class ChatService : IChatService
                     IsAdmin = p.IsAdmin,
                     IsOnline = false,
                     FullName = "",
-                    ProfileImageUrl = null
+                    ProfileImageUrl = null,
+                    LastReadAt = p.LastReadAt
                 })
                 .ToList() ?? new List<ChatParticipantDto>(),
             LastMessage = chat.Messages?

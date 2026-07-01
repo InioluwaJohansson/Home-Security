@@ -65,6 +65,7 @@ public class ChatParticipantDto
     public string? ProfileImageUrl { get; set; }
     public bool IsAdmin { get; set; }
     public bool IsOnline { get; set; }
+    public DateTime? LastReadAt { get; set; }
 }
 public class MessageDto
 {
