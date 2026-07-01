@@ -52,16 +52,13 @@ public class ActionService : IActionService
                 Description = createActionDto.Description,
                 ActionId = $"ACTION{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}"
             };
-
             var actionData = await _actionRepo.Create(action);
-
             await _realtime.NotifyAll("ActionCreated", new
             {
                 ActionId = actionData.Id,
                 actionData.ActionName,
                 actionData.Description
             });
-
             return new BaseResponse
             {
                 Status = true,

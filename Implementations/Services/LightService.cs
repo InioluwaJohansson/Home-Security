@@ -45,17 +45,6 @@ public class LightService : ILightService
             var lightData = GetDetails(await _lightRepo.Get(x => x.LightId == light.LightId));
             if(lightData.IsHidden){ await _realtime.NotifyAll("LightCreated", new List<Role> { Role.Owner, Role.Wife }, lightData);}
             else await _realtime.NotifyAll("LightCreated", lightData);
-            var hardware = await _hardwareService.GetHardwareName(lightData.Id, FacilityType.Light);
-            await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
-            {
-                FacilityType = FacilityType.Light,
-                Id = lightData.Id,
-                BrightnessLevel = 0,
-                IsActive = true,
-                PowerActive = false,
-                IsLocked = false,
-                IsOpen = false
-            });
             return new BaseResponse()
             {
                 Status = true,

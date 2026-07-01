@@ -74,18 +74,6 @@ public class CameraService : ICameraService
         var cameraData = GetDetails(await _cameraRepo.Update(camera));
         if(cameraData.IsHidden){ await _realtime.NotifyAll("CameraCreated", new List<Role> { Role.Owner, Role.Wife }, cameraData);}
             else await _realtime.NotifyAll("CameraCreated", cameraData);
-        var hardware = await _hardwareService.GetHardwareName(cameraData.Id, FacilityType.Camera);
-        await _mqtt.PublishDeviceUpdate(camera.CameraId, new GenericDeviceUpdateState
-        {
-            FacilityType = FacilityType.Camera,
-            Id = cameraData.Id,
-            IsActive = cameraData.IsActive,
-            PowerActive = cameraData.PowerActive,
-            IsLocked = false,
-            IsOpen = false,
-            BrightnessLevel = 0
-        });
-
         return new BaseResponse
         {
             Status = true,

@@ -51,17 +51,6 @@ public class DoorService : IDoorService
             var doorData = GetDetails(await _doorRepo.Get(x => x.DoorId == door.DoorId));
             if(doorData.IsHidden){ await _realtime.NotifyAll("DoorCreated", new List<Role> { Role.Owner, Role.Wife }, doorData);}
             else await _realtime.NotifyAll("DoorCreated", doorData);
-            var hardware = await _hardwareService.GetHardwareName(doorData.Id, FacilityType.Door);
-            await _mqtt.PublishDeviceUpdate(door.DoorId, new GenericDeviceUpdateState
-            {
-                FacilityType = FacilityType.Door,
-                Id = doorData.Id,
-                IsLocked = door.IsLocked,
-                IsOpen = door.IsOpen,
-                IsActive = door.IsActive,
-                PowerActive = door.PowerActive,
-                BrightnessLevel = 0
-            });
             return new BaseResponse()
             {
                 Status = true,

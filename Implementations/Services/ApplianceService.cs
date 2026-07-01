@@ -46,18 +46,6 @@ public class ApplianceService : IApplianceService
             var applianceData = GetDetails(await _applianceRepo.Get(x => x.ApplianceId == appliance.ApplianceId));
             if(applianceData.IsHidden){ await _realtime.NotifyAll("ApplianceCreated", new List<Role> { Role.Owner, Role.Wife }, applianceData);}
             else await _realtime.NotifyAll("ApplianceCreated", applianceData);
-            var hardware = await _hardwareService.GetHardwareName(applianceData.Id, FacilityType.Appliance);
-            await _mqtt.PublishDeviceUpdate(hardware, new GenericDeviceUpdateState
-            {
-                FacilityType = FacilityType.Appliance,
-                Id = applianceData.Id,
-                IsActive = appliance.IsActive,
-                PowerActive = appliance.PowerActive,
-                IsLocked = false,
-                IsOpen = false,
-                BrightnessLevel = 0
-            });
-
             return new BaseResponse()
             {
                 Status = true,

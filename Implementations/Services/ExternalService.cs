@@ -47,17 +47,6 @@ public class ExternalService : IExternalService
             var externalData = GetDetails(await _externalRepo.Get(x => x.ExternalId == external.ExternalId));
             if(externalData.IsHidden){ await _realtime.NotifyAll("ExternalsCreated", new List<Role> { Role.Owner, Role.Wife }, externalData);}
             else await _realtime.NotifyAll("ExternalsCreated", externalData);
-            var hardware = await _hardwareService.GetHardwareName(externalData.Id, FacilityType.External);
-            await _mqtt.PublishDeviceUpdate(external.ExternalId, new GenericDeviceUpdateState
-            {
-                FacilityType = FacilityType.External,
-                Id = externalData.Id,
-                BrightnessLevel = 0,
-                IsActive = true,
-                PowerActive = false,
-                IsLocked = false,
-                IsOpen = false
-            });
             return new BaseResponse()
             {
                 Status = true,

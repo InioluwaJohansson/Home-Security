@@ -47,20 +47,8 @@ public class WindowService : IWindowService
             };
             await _windowRepo.Create(window);
             var windowData = GetDetails(await _windowRepo.Get(x => x.WindowId == window.WindowId));
-            if(windowData.IsHidden){ await _realtime.NotifyAll("ApplianceCreated", new List<Role> { Role.Owner, Role.Wife }, windowData);}
+            if(windowData.IsHidden){ await _realtime.NotifyAll("WindowCreated", new List<Role> { Role.Owner, Role.Wife }, windowData);}
             else await _realtime.NotifyAll("WindowCreated", windowData);
-            var hardware = await _hardwareService.GetHardwareName(windowData.Id, FacilityType.Window);
-            await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState
-            {
-                FacilityType = FacilityType.Window,
-                Id = window.Id,
-                IsLocked = window.IsLocked,
-                IsOpen = window.IsOpen,
-                IsActive = window.IsActive,
-                PowerActive = window.PowerActive,
-                BrightnessLevel = 0
-            });
-
             return new BaseResponse()
             {
                 Status = true,
