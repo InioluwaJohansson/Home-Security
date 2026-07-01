@@ -5,6 +5,7 @@ using Home_Security.Models.DTOs;
 using Home_Security.Interfaces.Controls;
 using Home_Security.RealTimeServices;
 using Home_Security.Models.Enums;
+using Home_Security.Entities.Identity;
 namespace Home_Security.Implementations.Services;
 public class HardwareService : IHardwareService
 {
@@ -40,7 +41,7 @@ public class HardwareService : IHardwareService
             };
             await _hardwareRepo.Create(hardware);
             var hardwareData = await _hardwareRepo.Get(x => x.HardwareId == hardware.HardwareId);
-            await _realtime.NotifyAll("HardwareCreated", GetDetails(hardwareData));
+            await _realtime.NotifyAll("HardwareCreated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(hardwareData));
             return new BaseResponse()
             {
                 Status = true,
@@ -68,7 +69,7 @@ public class HardwareService : IHardwareService
             hardware.LastModifiedBy = personId;
             hardware.LastModifiedOn = DateTime.Now;
             await _hardwareRepo.Update(hardware);
-            await _realtime.NotifyAll("HardwareUpdated", GetDetails(hardware));
+            await _realtime.NotifyAll("HardwareUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(hardware));
             return new BaseResponse()
             {
                 Status = true,

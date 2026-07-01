@@ -1,4 +1,5 @@
 using Home_Security.Entities;
+using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
@@ -42,11 +43,11 @@ public class ExternalService : IExternalService
                 IsActive = true,
                 PowerActive = true,
             };
-
             await _externalRepo.Create(external);
-            var externalData = await _externalRepo.Get(x => x.ExternalId == external.ExternalId);
-            await _realtime.NotifyAll("ExternalsCreated", GetDetails(externalData));
-            var hardware = await _hardwareService.GetHardwareName(externalData.Id, FacilityType.Appliance);
+            var externalData = GetDetails(await _externalRepo.Get(x => x.ExternalId == external.ExternalId));
+            if(externalData.IsHidden){ await _realtime.NotifyAll("ExternalsCreated", new List<Role> { Role.Owner, Role.Wife }, externalData);}
+            else await _realtime.NotifyAll("ExternalsCreated", externalData);
+            var hardware = await _hardwareService.GetHardwareName(externalData.Id, FacilityType.External);
             await _mqtt.PublishDeviceUpdate(external.ExternalId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.External,
@@ -60,14 +61,14 @@ public class ExternalService : IExternalService
             return new BaseResponse()
             {
                 Status = true,
-                Message = "Externals Successfully Added!"
+                Message = "External Successfully Added!"
             };
         }
 
         return new BaseResponse()
         {
             Status = false,
-            Message = "Unable To Add Externals!"
+            Message = "Unable To Add External!"
         };
     }
 
@@ -94,9 +95,9 @@ public class ExternalService : IExternalService
             Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds ?? new List<int>();
 
             var externalData = await _externalRepo.Update(Externals);
-            var hardware = await _hardwareService.GetHardwareName(Externals.Id, FacilityType.Appliance);
-            await _realtime.NotifyAll("ExternalsUpdated", GetDetails(externalData));
-
+            var hardware = await _hardwareService.GetHardwareName(Externals.Id, FacilityType.External);
+            if(externalData.IsHidden){ await _realtime.NotifyAll("ExternalsUpdated", new List<Role> { Role.Owner, Role.Wife }, externalData);}
+            else await _realtime.NotifyAll("ExternalsUpdated", externalData);
             await _mqtt.PublishDeviceUpdate(Externals.ExternalId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.External,

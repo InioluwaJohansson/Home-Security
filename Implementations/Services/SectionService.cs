@@ -5,6 +5,7 @@ using Home_Security.Models.DTOs;
 using Microsoft.AspNetCore.SignalR;
 using Home_Security.Hubs;
 using Home_Security.RealTimeServices;
+using Home_Security.Entities.Identity;
 
 namespace Home_Security.Implementations.Services;
 public class SectionService : ISectionService
@@ -88,17 +89,15 @@ public class SectionService : ISectionService
                 foreach(var camera in Section.Camera) camera.IsHidden = updateSectionDto.IsHidden;
                 Section.IsHidden = updateSectionDto.IsHidden;
             }
-            await _sectionRepo.Update(Section);
-
-            await _realtime.NotifyAll("SectionUpdated", GetDetails(Section));
-
+            var section = GetDetails(await _sectionRepo.Update(Section));
+            if(section.IsHidden){ await _realtime.NotifyAll("SectionUpdated", new List<Role> { Role.Owner, Role.Wife }, section);}
+            else await _realtime.NotifyAll("SectionUpdated", section);
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Section Updated Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
@@ -116,21 +115,17 @@ public class SectionService : ISectionService
             Section.DeletedBy = personId;
             Section.LastModifiedBy = personId;
             Section.LastModifiedOn = DateTime.Now;
-
             await _sectionRepo.Update(Section);
-
             await _realtime.NotifyAll("SectionDeleted", new
             {
                 Section.Id,
             });
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Section Deleted Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
@@ -150,7 +145,6 @@ public class SectionService : ISectionService
                 Message = "Section Retrieved Successfully!"
             };
         }
-
         return new SectionResponseModel()
         {
             Data = null,
@@ -171,7 +165,6 @@ public class SectionService : ISectionService
                 Message = "Sections Retrieved Successfully!"
             };
         }
-
         return new SectionsResponseModel()
         {
             Data = null,
@@ -192,7 +185,6 @@ public class SectionService : ISectionService
                 Message = "Sections Retrieved Successfully!"
             };
         }
-
         return new SectionsResponseModel()
         {
             Data = null,
@@ -218,7 +210,6 @@ public class SectionService : ISectionService
             Externals = Section.External == null ? new List<GetExternalDto>() : Section.External.Select(x => GetExternalDetails(x)).ToList(),
         };
     }
-
     public GetRoomDto GetRoomDetails(Room room)
     {
         return new GetRoomDto()
@@ -236,7 +227,6 @@ public class SectionService : ISectionService
             Externals = room.External == null ? new List<GetExternalDto>() : room.External.Select(x => GetExternalDetails(x)).ToList(),
         };
     }
-
     public GetApplianceDto GetApplianceDetails(Appliance appliance)
     {
         return new GetApplianceDto()
@@ -263,17 +253,13 @@ public class SectionService : ISectionService
             Id = camera.Id,
             CameraName = camera.CameraName,
             CameraId = camera.CameraId,
-
             IsActive = camera.IsActive,
             PowerActive = camera.PowerActive,
-
             RoomId = camera.RoomId,
             SectionId = camera.SectionId,
-
             LastModifiedBy = camera.LastModifiedBy,
             DeletedBy = camera.DeletedBy,
             CreatedBy = camera.CreatedBy,
-
             LastModifiedOn = camera.LastModifiedOn,
             CreatedOn = camera.CreatedOn,
             IsHidden = camera.IsHidden,

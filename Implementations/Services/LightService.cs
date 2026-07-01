@@ -1,4 +1,5 @@
 ﻿using Home_Security.Entities;
+using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
@@ -41,9 +42,10 @@ public class LightService : ILightService
             };
 
             await _lightRepo.Create(light);
-            var lightData = await _lightRepo.Get(x => x.LightId == light.LightId);
-            await _realtime.NotifyAll("LightCreated", GetDetails(lightData));
-            var hardware = await _hardwareService.GetHardwareName(lightData.Id, FacilityType.Appliance);
+            var lightData = GetDetails(await _lightRepo.Get(x => x.LightId == light.LightId));
+            if(lightData.IsHidden){ await _realtime.NotifyAll("LightCreated", new List<Role> { Role.Owner, Role.Wife }, lightData);}
+            else await _realtime.NotifyAll("LightCreated", lightData);
+            var hardware = await _hardwareService.GetHardwareName(lightData.Id, FacilityType.Light);
             await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Light,
@@ -54,14 +56,12 @@ public class LightService : ILightService
                 IsLocked = false,
                 IsOpen = false
             });
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Light Successfully Added!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
@@ -82,9 +82,9 @@ public class LightService : ILightService
             light.SectionId = updateLightDto.SectionId ?? null;
             light.RoomId = updateLightDto.RoomId ?? null;
             await _lightRepo.Update(light);
-
-            await _realtime.NotifyAll("LightUpdated", GetDetails(light));
-            var hardware = await _hardwareService.GetHardwareName(light.Id, FacilityType.Appliance);
+            if(light.IsHidden){ await _realtime.NotifyAll("LightUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(light));}
+            else await _realtime.NotifyAll("LightUpdated", GetDetails(light));
+            var hardware = await _hardwareService.GetHardwareName(light.Id, FacilityType.Light);
             await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Light,

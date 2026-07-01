@@ -35,11 +35,9 @@ public class TokenService : ITokenService
     {
         if (tokenCode != null)
         {
-            Console.WriteLine($"Received token: {tokenCode}");
             var token = await _tokenRepo.Get(x => x.TokenCode == tokenCode);
             if(token == null)
             {
-                Console.WriteLine("Token not found in database.");
                 return new BaseResponse()
                 {
                     Status = false,

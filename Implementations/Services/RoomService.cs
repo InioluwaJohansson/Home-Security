@@ -1,4 +1,5 @@
 ﻿using Home_Security.Entities;
+using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
@@ -34,8 +35,9 @@ public class RoomService : IRoomService
             };
             await _roomRepo.Create(room);
             var roomData = await _roomRepo.Get(x => x.RoomId == room.RoomId);
-            await _realtime.NotifyAll("RoomCreated", GetDetails(await _roomRepo.GetById(roomData.Id)));
-
+            var roomSend = GetDetails(await _roomRepo.GetById(roomData.Id));
+            if(roomData.IsHidden){ await _realtime.NotifyAll("RoomCreated", new List<Role> { Role.Owner, Role.Wife }, roomSend);}
+            else await _realtime.NotifyAll("RoomCreated", roomSend);
             return new BaseResponse()
             {
                 Status = true,
@@ -68,11 +70,9 @@ public class RoomService : IRoomService
             }
             room.LastModifiedBy = personId;
             room.LastModifiedOn = DateTime.Now;
-
             await _roomRepo.Update(room);
-
-            await _realtime.NotifyAll("RoomUpdated", GetDetails(room));
-
+            if(room.IsHidden){ await _realtime.NotifyAll("RoomUpdated", new List<Role> { Role.Owner, Role.Wife }, room);}
+            else await _realtime.NotifyAll("RoomUpdated", room);
             return new BaseResponse()
             {
                 Status = true,

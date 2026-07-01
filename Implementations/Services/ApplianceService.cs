@@ -1,4 +1,5 @@
 ﻿using Home_Security.Entities;
+using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
@@ -41,11 +42,10 @@ public class ApplianceService : IApplianceService
                 LastModifiedOn = DateTime.Now,
                 CreatedOn = DateTime.Now
             };
-            Console.WriteLine($"RoomId: {appliance.RoomId}");
-            Console.WriteLine($"SectionId: {appliance.SectionId}");
             await _applianceRepo.Create(appliance);
-            var applianceData = await _applianceRepo.Get(x => x.ApplianceId == appliance.ApplianceId);
-            await _realtime.NotifyAll("ApplianceCreated", GetDetails(applianceData));
+            var applianceData = GetDetails(await _applianceRepo.Get(x => x.ApplianceId == appliance.ApplianceId));
+            if(applianceData.IsHidden){ await _realtime.NotifyAll("ApplianceCreated", new List<Role> { Role.Owner, Role.Wife }, applianceData);}
+            else await _realtime.NotifyAll("ApplianceCreated", applianceData);
             var hardware = await _hardwareService.GetHardwareName(applianceData.Id, FacilityType.Appliance);
             await _mqtt.PublishDeviceUpdate(hardware, new GenericDeviceUpdateState
             {
@@ -85,10 +85,10 @@ public class ApplianceService : IApplianceService
             appliance.LastModifiedBy = personId;
             appliance.LastModifiedOn = DateTime.Now;
             appliance.ApplianceType = updateApplianceDto.ApplianceType;
-            var applianceData = await _applianceRepo.Update(appliance);
+            var applianceData = GetDetails(await _applianceRepo.Update(appliance));
             var hardware = await _hardwareService.GetHardwareName(applianceData.Id, FacilityType.Appliance);
-            await _realtime.NotifyAll(hardware, GetDetails(applianceData));
-
+            if(applianceData.IsHidden){ await _realtime.NotifyAll("ApplianceUpdated", new List<Role> { Role.Owner, Role.Wife }, applianceData);}
+            else await _realtime.NotifyAll("ApplianceUpdated", applianceData);
             await _mqtt.PublishDeviceUpdate(appliance.ApplianceId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Appliance,
@@ -214,15 +214,12 @@ public class ApplianceService : IApplianceService
             appliance.LastModifiedOn = DateTime.Now;
             appliance.DeletedOn = DateTime.Now;
             appliance.DeletedBy = personId;
-
             await _applianceRepo.Update(appliance);
-
             await _realtime.NotifyAll("ApplianceDeleted", new
             {
                 appliance.Id,
                 appliance.ApplianceId
             });
-
             await _mqtt.PublishDeviceUpdate(appliance.ApplianceId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Appliance,

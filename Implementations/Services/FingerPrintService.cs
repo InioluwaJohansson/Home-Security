@@ -5,6 +5,7 @@ using Home_Security.Entities;
 using SourceAFIS;
 using Home_Security.RealTimeServices;
 using Home_Security.Entities.Chats;
+using Home_Security.Entities.Identity;
 namespace Home_Security.Implementations.Services;
 
 public class FingerPrintService : IFingerPrintService
@@ -126,7 +127,7 @@ public class FingerPrintService : IFingerPrintService
     }
     public async Task ReceiveFingerPrint(FingerPrintDataDto fingerPrintDataDto)
     {
-        await _realtimeNotificationService.NotifyAll("fingerprint_received", new
+        await _realtimeNotificationService.NotifyAll("fingerprint_received", new List<Role> { Role.Owner }, new
         {
             PersonId = fingerPrintDataDto.PersonId,
             Message = "Fingerprint data received",

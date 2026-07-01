@@ -78,6 +78,7 @@ builder.Services.AddScoped<IContactCategoryControl, ContactCategoryControl>();
 builder.Services.AddScoped<IContactControl, ContactControl>();
 builder.Services.AddScoped<IDoorControl, DoorControl>();
 builder.Services.AddScoped<IExternalControl, ExternalControl>();
+builder.Services.AddScoped<IFingerPrintControl, FingerPrintControl>();
 builder.Services.AddScoped<IHardwareControl, HardwareControl>();
 builder.Services.AddScoped<ILightControl, LightControl>();
 builder.Services.AddScoped<ILogControl, LogControl>();

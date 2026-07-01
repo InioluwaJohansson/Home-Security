@@ -135,11 +135,8 @@ public class UserController : Controller
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
             return Unauthorized();
-        if (user != null && BCrypt.Net.BCrypt.EnhancedVerify(authCode, user.AuthorizationCode)){
-        Console.WriteLine("Hashed: Yes " + user.AuthorizationCode + " verified!");
-            Console.WriteLine("AuthCode: Yes " + authCode + " verified!");
+        if (user != null && BCrypt.Net.BCrypt.EnhancedVerify(authCode, user.AuthorizationCode))
            return Ok(true);
-        }
         return Ok(false);
     }
     [Authorize]
