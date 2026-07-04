@@ -8,5 +8,6 @@ public interface IMessageService
     Task<BaseResponse> EditMessageAsync(EditMessageDto dto, int personId);
     Task<BaseResponse> DeleteMessageAsync(int messageId, int personId);
     Task<int> GetUnreadCountAsync(int chatId, int personId);
+    Task MarkAsReadAsync(int chatId, int personId);
     Task Typing(TypingDto dto);
 }

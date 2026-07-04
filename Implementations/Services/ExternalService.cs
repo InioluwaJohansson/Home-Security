@@ -81,7 +81,7 @@ public class ExternalService : IExternalService
             Externals.SectionId = updateExternalDto.SectionId ?? null;
             Externals.RoomId = updateExternalDto.RoomId ?? null;
             Externals.IsTriggered = updateExternalDto.IsTriggered;
-            Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds ?? new List<int>();
+            Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds;
 
             var externalData = await _externalRepo.Update(Externals);
             var hardware = await _hardwareService.GetHardwareName(Externals.Id, FacilityType.External);
@@ -265,6 +265,7 @@ public class ExternalService : IExternalService
             CreatedOn = External.CreatedOn,
             IsDeleted = External.IsDeleted,
             IsHidden = External.IsHidden,
+            ActionIds = External.ActionIds ?? new List<int>(),
         };
     }
 }

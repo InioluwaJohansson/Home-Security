@@ -90,8 +90,8 @@ public class MessageController : Controller
         return Ok();
     }
     [Authorize]
-    [HttpGet("GetUnreadCount")]
-    public async Task<IActionResult> GetUnreadCount(int chatId)
+    [HttpGet("MarkAsRead")]
+    public async Task<IActionResult> MarkAsRead(int chatId)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -100,8 +100,8 @@ public class MessageController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var message = await _messageControl.GetUnreadCount(getAuthControlInfoDto, chatId);
-        return Ok(message);
+        await _messageControl.MarkAsReadAsync(getAuthControlInfoDto, chatId);
+        return Ok();
     }
     [Authorize]
     [HttpPost("Typing")]

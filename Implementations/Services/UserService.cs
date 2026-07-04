@@ -124,7 +124,7 @@ public class UserService : IUserService
             return new BaseResponse()
             {
                 Message = "User Details Updated Successfully!",
-                Status = false
+                Status = true
             };
         }
         return new BaseResponse()

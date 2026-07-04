@@ -57,6 +57,12 @@ public class MessageControl : IMessageControl
             return await _messageService.GetUnreadCountAsync(chatId, auth.Id);
         return 0;
     }
+    public async Task MarkAsReadAsync(GetAuthControlInfoDto getAuthControlInfoDto, int chatId)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false)
+            await _messageService.MarkAsReadAsync(chatId, auth.Id);
+    }
     public async Task Typing(GetAuthControlInfoDto getAuthControlInfoDto, int chatId, string action)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
