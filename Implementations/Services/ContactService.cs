@@ -377,9 +377,7 @@ public class ContactService : IContactService
         };
     }
     public async Task<string> GetImageUrl(string file){
-        if (file == null || file.Length == 0)
-            return null;
-        if (string.IsNullOrWhiteSpace(file))
+        if (file == null || file.Length == 0 || string.IsNullOrWhiteSpace(file) || file == "")
             return null;
         string extension = ".bin";
 

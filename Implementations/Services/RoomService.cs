@@ -255,7 +255,7 @@ public class RoomService : IRoomService
         {
             Id = door.Id,
             DoorName = door.DoorName,
-            DoorType = door.DoorType,
+            DoorType = door.DoorType.ToString(),
             IsLocked = door.IsLocked,
             IsOpen = door.IsOpen,
             OpenedBy = door.OpenedBy,

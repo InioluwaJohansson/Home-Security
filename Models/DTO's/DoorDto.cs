@@ -26,7 +26,7 @@ public class GetDoorDto : BaseDefaultDto
     public int Id { get; set; }
     public string DoorName { get; set; }
     public string DoorId { get; set; }
-    public DoorType DoorType { get; set; }
+    public string DoorType { get; set; }
     public bool IsLocked { get; set; }
     public bool IsOpen { get; set; }
     public int OpenedBy { get; set; }

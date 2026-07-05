@@ -32,7 +32,6 @@ public class WindowControl : IWindowControl
                 await _logService.CreateLog(log);
                 return window;
             }
-            
         }
         return _authControl.AuthFaliure();
     }
@@ -77,7 +76,7 @@ public class WindowControl : IWindowControl
                     if (window.Status == true)
                     {
                         var log = _authControl.CreateLog(auth.Id);
-                        log.ActionType = "Unlocke";
+                        log.ActionType = "Unlocked";
                         log.LogDetails = $"{updateWindowDto.WindowName}  Window was locked!";
                         await _logService.CreateLog(log);
                     }

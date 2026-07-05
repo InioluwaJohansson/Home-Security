@@ -139,17 +139,17 @@ public class DoorControl : IDoorControl
                 }
                 else if (getDoor != null && getDoor.Data.IsLocked == false)
                 {
-                        updateDoorDto.UnlockedBy = auth.Id;
-                        updateDoorDto.IsLocked = true;
-                        var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
-                        if (door.Status == true)
-                        {
-                            var log = _authControl.CreateLog(auth.Id);
-                            log.ActionType = "Lock";
-                            log.LogDetails = $"{updateDoorDto.DoorName} Door was locked!";
-                            await _logService.CreateLog(log);
-                        }
-                        return door;
+                    updateDoorDto.UnlockedBy = auth.Id;
+                    updateDoorDto.IsLocked = true;
+                    var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
+                    if (door.Status == true)
+                    {
+                        var log = _authControl.CreateLog(auth.Id);
+                        log.ActionType = "Lock";
+                        log.LogDetails = $"{updateDoorDto.DoorName} Door was locked!";
+                        await _logService.CreateLog(log);
+                    }
+                    return door;
                 }
                 fail.Message = "Unauthorized Action!";
                 return fail;
