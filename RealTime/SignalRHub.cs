@@ -76,6 +76,16 @@ public class HomeSecurityHub : Hub
             }
         }
     }
+    public async Task AddPerson(string token)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(token);
+        if(user != null){
+            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
+            if(auth.Status != false){
+                await Groups.AddToGroupAsync(Context.ConnectionId, auth.Id.ToString());
+            }
+        }
+    }
     public async Task JoinChat(int chatId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());

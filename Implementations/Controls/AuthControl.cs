@@ -90,6 +90,12 @@ public class AuthControl : IAuthControl
             Status = false
         };
     }
+    public Person GetPersonById(int personId)
+    {
+        var person = _authCache._cache.FirstOrDefault(x => x.Id == personId);
+        if (person != null) return person;
+        return null;
+    }
     public async Task GetAllPersons()
     {
         var persons = await _personRepo.List();
@@ -321,6 +327,7 @@ public class AuthControl : IAuthControl
     {
         //based is role of last locked user
         //quote is role of user trying to unlock it
+        //if (quote <= based) return true;
         if (quote == Role.Owner || based == Role.Owner) return true;
 
         else if ((based == Role.Child || based == Role.Relative || based == Role.Visitor) && (quote == Role.Owner || quote == Role.Wife)) return true;

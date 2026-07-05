@@ -68,7 +68,7 @@ public class DoorControl : IDoorControl
                 log.ActionType = "Closed";
                 log.LogDetails = $"{updateDoorDto.DoorName} Door is Closed!";
             }
-            else if(getDoor != null && getDoor.Data.IsOpen == false)
+            else if(getDoor != null && getDoor.Data.IsOpen == false && getDoor.Data.IsLocked == false)
             {
                 updateDoorDto.IsOpen = true;
                 log.ActionType = "Open";
@@ -108,54 +108,23 @@ public class DoorControl : IDoorControl
                 fail.Message = "Persmission Required";
                 return fail;
             }
+            else if (getDoor != null && getDoor.Data.IsLocked == false)
+            {
+                updateDoorDto.UnlockedBy = auth.Id;
+                updateDoorDto.IsLocked = true;
+                updateDoorDto.IsOpen = false;
+                var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
+                if (door.Status == true)
+                {
+                    var log = _authControl.CreateLog(auth.Id);
+                    log.ActionType = "Lock";
+                    log.LogDetails = $"{updateDoorDto.DoorName} Door was locked!";
+                    await _logService.CreateLog(log);
+                }
+                return door;
+            }
             fail.Message = "Unauthorized Action";
             return fail;           
-        }
-        else if(getAuthControlInfoDto.PersonId != 0)
-        {
-            var person = await _authControl.GetPersonDetails(getAuthControlInfoDto.PersonId);
-            if (person != null)
-            {
-                var getDoor = await _doorService.GetById(updateDoorDto.Id);
-                if (getDoor != null && getDoor.Data.IsLocked == true)
-                {
-                    var personCheck = await _authControl.GetPersonDetails(getDoor.Data.LockedBy);
-                    if (_authControl.CompareRole(personCheck.Role, auth.Role))
-                    {
-                        updateDoorDto.UnlockedBy = auth.Id;
-                        updateDoorDto.IsLocked = false;
-                        var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
-                        if (door.Status == true)
-                        {
-                            var log = _authControl.CreateLog(auth.Id);
-                            log.ActionType = "Unlock";
-                            log.LogDetails = $"{updateDoorDto.DoorName} Door was unlocked!";
-                            await _logService.CreateLog(log);
-                        }
-                        return door;
-                    }
-                    fail.Message = "Persmission Required!";
-                    return fail;
-                }
-                else if (getDoor != null && getDoor.Data.IsLocked == false)
-                {
-                    updateDoorDto.UnlockedBy = auth.Id;
-                    updateDoorDto.IsLocked = true;
-                    var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
-                    if (door.Status == true)
-                    {
-                        var log = _authControl.CreateLog(auth.Id);
-                        log.ActionType = "Lock";
-                        log.LogDetails = $"{updateDoorDto.DoorName} Door was locked!";
-                        await _logService.CreateLog(log);
-                    }
-                    return door;
-                }
-                fail.Message = "Unauthorized Action!";
-                return fail;
-            }
-            fail.Message = "Failed Action!";
-            return fail;
         }
         return _authControl.AuthFaliure();
     }

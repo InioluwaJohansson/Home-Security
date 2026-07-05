@@ -59,6 +59,7 @@ public class ChatService : IChatService
         var chatData = await _chatRepo.Create(chat);
         
         await _chatHub.UpdateChat("GroupChatCreated", chatData.Id, MapToDto(chatData));
+        await _chatHub.UpdateChat("GroupChatCreated", MapToDto(chatData));
         return MapToDto(chatData);
     }
     public async Task<List<ChatDto>> GetMyChatsAsync(int personId)
