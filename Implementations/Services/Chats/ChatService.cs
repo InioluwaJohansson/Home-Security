@@ -56,9 +56,7 @@ public class ChatService : IChatService
                 IsAdmin = x == currentPersonId
             }).ToList()
         };
-        var chatData = await _chatRepo.Create(chat);
-        
-        await _chatHub.UpdateChat("GroupChatCreated", chatData.Id, MapToDto(chatData));
+        var chatData = await _chatRepo.Create(chat);        
         await _chatHub.UpdateChat("GroupChatCreated", MapToDto(chatData));
         return MapToDto(chatData);
     }
