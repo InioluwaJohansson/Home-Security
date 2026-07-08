@@ -308,8 +308,8 @@ public class ChatService : IChatService
                     IsEdited = x.IsEdited,
                     IsDeleted = x.IsDeleted,
                     SentAt = x.SentAt,
-                    SenderName = $"{x.SenderPerson.PersonDetails.FirstName} {x.SenderPerson.PersonDetails.LastName}",
-                    SenderProfileImage = x.SenderPerson.PersonDetails.ImageUrl,
+                    // SenderName = $"{x.SenderPerson.PersonDetails.FirstName} {x.SenderPerson.PersonDetails.LastName}",
+                    // SenderProfileImage = x.SenderPerson.PersonDetails.ImageUrl,
                     Attachments = x.Attachments?
                     .Select(a => new GetMessageAttachmentDto
                     {

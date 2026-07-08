@@ -289,7 +289,6 @@ public class PersonService : IPersonService
             person.IsDeleted = true;
             foreach (var contactDetail in person.PersonDetails.ContactDetails)
             {
-
                 var contactDetailes = await _contactDetailsRepo.Get(x => x.Id == contactDetail.Id && x.IsDeleted == false);
                 if (contactDetailes != null)
                 {
@@ -317,6 +316,7 @@ public class PersonService : IPersonService
             {
                 user.DeletedBy = personId;
                 user.IsDeleted = true;
+                await _userRepo.Update(user);
             }
             await _personRepo.Update(person);
             await _realTime.NotifyAll("PersonDeleted", new

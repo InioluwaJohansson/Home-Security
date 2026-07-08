@@ -24,7 +24,6 @@ public class UpdateUserDto
 }
 public class UpdateUserPasswordDto
 {
-    public int Id { get; set; }
     public string UserName { get; set; }
     public string Password { get; set; }
     public string NewPassword { get; set; }
@@ -33,7 +32,6 @@ public class UpdateUserPasswordDto
 }
 public class UpdateUserAuthorizationCode
 {
-    public int Id { get; set; }
     public string UserName { get; set; }
     public string Password { get; set; }
     public string TokenCode { get; set; }
@@ -48,4 +46,5 @@ public class UserLoginResponse : BaseResponse
 {
     public GetUserDto Data { get; set; }
     public string Token { get; set; }
+    public string ImageUrl { get; set; }
 }

@@ -44,7 +44,7 @@ public class UserService : IUserService
                 Status = true,
             };
             data.Token = _jWTAuthentication.GenerateToken(data.Data);
-            data.Data.AuthorizationCode = "";
+            data.Data.AuthorizationCode = null;
             return data;
         }
         return new UserLoginResponse()
