@@ -68,6 +68,7 @@ public class LightService : ILightService
             light.LastModifiedBy = personId;
             light.LastModifiedOn = DateTime.Now;
             light.BrightnessLevel = updateLightDto.BrightnessLevel;
+            light.IsActive = updateLightDto.IsActive;
             light.SectionId = updateLightDto.SectionId ?? null;
             light.RoomId = updateLightDto.RoomId ?? null;
             await _lightRepo.Update(light);
