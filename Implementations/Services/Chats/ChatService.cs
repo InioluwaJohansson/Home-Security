@@ -37,7 +37,7 @@ public class ChatService : IChatService
         };
         var chatData = await _chatRepo.Create(chat);
         
-        await _chatHub.UpdateChat("ChatCreated", chatData.Id, MapToDto(chatData));
+        await _chatHub.UpdateChat("ChatCreated", MapToDto(chatData));
         return MapToDto(chat);
     }
     public async Task<ChatDto> CreateGroupChatAsync(CreateGroupChatDto dto, int currentPersonId)
@@ -107,8 +107,7 @@ public class ChatService : IChatService
         }
         chat.Name = dto.Name ?? chat.Name;
         chat.Description = dto.Description ?? chat.Description;
-        if (dto.ImageUrl != null)
-            chat.ImageUrl = chat.ImageUrl ?? await GetImageUrl(dto.ImageUrl);
+        if (dto.ImageUrl != null)   chat.ImageUrl = await GetImageUrl(dto.ImageUrl) ?? chat.ImageUrl;
         await _chatRepo.Update(chat);
         await _chatHub.UpdateChat("GroupChatUpdated", chat.Id, MapToDto(chat));
         return new BaseResponse()
@@ -308,8 +307,6 @@ public class ChatService : IChatService
                     IsEdited = x.IsEdited,
                     IsDeleted = x.IsDeleted,
                     SentAt = x.SentAt,
-                    // SenderName = $"{x.SenderPerson.PersonDetails.FirstName} {x.SenderPerson.PersonDetails.LastName}",
-                    // SenderProfileImage = x.SenderPerson.PersonDetails.ImageUrl,
                     Attachments = x.Attachments?
                     .Select(a => new GetMessageAttachmentDto
                     {
@@ -346,7 +343,6 @@ public class ChatService : IChatService
                 "image/svg+xml" => ".svg",
                 _ => ".bin"
             };
-
             file = file[(file.IndexOf(',') + 1)..];
         }
         byte[] bytes = Convert.FromBase64String(file);

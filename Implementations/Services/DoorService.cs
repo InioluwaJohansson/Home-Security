@@ -77,6 +77,7 @@ public class DoorService : IDoorService
             door.LockedBy = updateDoorDto.LockedBy;
             door.UnlockedBy = updateDoorDto.UnlockedBy;
             door.LastModifiedOn = DateTime.Now;
+            door.DoorType = updateDoorDto.DoorType;
             door.SectionId = updateDoorDto.SectionId ?? null;
             door.RoomId = updateDoorDto.RoomId ?? null;
             await _doorRepo.Update(door);
