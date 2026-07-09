@@ -455,6 +455,10 @@ public class ActionService : IActionService
             ActionDescription = action.Description,
             ActionActive = action.IsActive,
             ActionId = action.ActionId,
+            CreatedBy = action.CreatedBy,
+            CreatedOn = action.CreatedOn,
+            LastModifiedBy = action.LastModifiedBy,
+            LastModifiedOn = action.LastModifiedOn,
             GetActionStepDtos = action.ActionSteps.Select(x => new GetActionStepDto
             {
                 Id = x.Id,

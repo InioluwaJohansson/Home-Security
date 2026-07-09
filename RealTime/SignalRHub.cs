@@ -73,6 +73,7 @@ public class HomeSecurityHub : Hub
             var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
             if(auth.Status != false){
                 await Groups.AddToGroupAsync(Context.ConnectionId, auth.Role.ToString());
+                await Groups.AddToGroupAsync(Context.ConnectionId, auth.Id.ToString());
             }
         }
     }
@@ -82,7 +83,7 @@ public class HomeSecurityHub : Hub
         if(user != null){
             var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
             if(auth.Status != false){
-                await Groups.AddToGroupAsync(Context.ConnectionId, auth.Id.ToString());
+                //await Groups.AddToGroupAsync(Context.ConnectionId, auth.Id.ToString());
             }
         }
     }

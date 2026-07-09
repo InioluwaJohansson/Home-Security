@@ -20,7 +20,7 @@ public class ChatHub : IChatHub
     {
         foreach (var participant in update.Participants)
         {
-            await _hub.Clients.User(participant.PersonId.ToString()).SendAsync(eventName, update);
+            await _hub.Clients.Group(participant.PersonId.ToString()).SendAsync(eventName, update);
         }
     }
 }

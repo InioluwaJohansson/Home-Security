@@ -29,7 +29,7 @@ public class ChatRepository : BaseRepository<Chat>, IChatRepo
     }
     public async Task<List<Chat>> GetPersonChatsAsync(int personId)
     {
-        return await context.Chat.Include(x => x.Participants).Include(x => x.Messages.OrderByDescending(m => m.SentAt).Take(1)).Where(x => x.Participants.Any(p => p.PersonId == personId && !p.IsDeleted)).OrderByDescending(x => x.Messages.Max(m =>(DateTime?)m.SentAt)).ToListAsync();
+        return await context.Chat.Include(x => x.Participants).Include(x => x.Messages.OrderByDescending(m => m.SentAt).Take(1)).Where(x => x.Participants.Any(p => p.PersonId == personId && !p.IsDeleted)).Where(x => !x.IsDeleted).OrderByDescending(x => x.Messages.Max(m =>(DateTime?)m.SentAt)).ToListAsync();
     }
     public async Task<bool> ChatExistsAsync(int chatId)
     {

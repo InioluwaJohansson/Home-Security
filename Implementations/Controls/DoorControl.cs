@@ -65,12 +65,14 @@ public class DoorControl : IDoorControl
             var getDoor = await _doorService.GetById(updateDoorDto.Id);
             if(getDoor != null && getDoor.Data.IsOpen == true){  
                 updateDoorDto.IsOpen = false;
+                updateDoorDto.DoorType = Enum.Parse<DoorType>(getDoor.Data.DoorType);
                 log.ActionType = "Closed";
                 log.LogDetails = $"{updateDoorDto.DoorName} Door is Closed!";
             }
             else if(getDoor != null && getDoor.Data.IsOpen == false && getDoor.Data.IsLocked == false)
             {
                 updateDoorDto.IsOpen = true;
+                updateDoorDto.DoorType = Enum.Parse<DoorType>(getDoor.Data.DoorType);
                 log.ActionType = "Open";
                 log.LogDetails = $"{updateDoorDto.DoorName} Door is Open!";
             }
@@ -95,6 +97,7 @@ public class DoorControl : IDoorControl
                 {
                     updateDoorDto.UnlockedBy = auth.Id;
                     updateDoorDto.IsLocked = false;
+                    updateDoorDto.DoorType = Enum.Parse<DoorType>(getDoor.Data.DoorType);
                     var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
                     if (door.Status == true)
                     {
@@ -113,6 +116,7 @@ public class DoorControl : IDoorControl
                 updateDoorDto.UnlockedBy = auth.Id;
                 updateDoorDto.IsLocked = true;
                 updateDoorDto.IsOpen = false;
+                updateDoorDto.DoorType = Enum.Parse<DoorType>(getDoor.Data.DoorType);
                 var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
                 if (door.Status == true)
                 {

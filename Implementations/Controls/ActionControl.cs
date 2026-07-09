@@ -59,7 +59,7 @@ public class ActionControl : IActionControl
             action.Data = DtoRefactor(action.Data);
             return action;
         }
-        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
+        else if (auth.Status != false && auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
             return new ActionResponseModel()
             {
@@ -106,7 +106,7 @@ public class ActionControl : IActionControl
             action.Data = action.Data.Select(x => DtoRefactor(x)).ToList();
             return action;
         }
-        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
+        else if (auth.Status != false && auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
             return new ActionsResponseModel()
             {
