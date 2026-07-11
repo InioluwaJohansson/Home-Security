@@ -52,15 +52,16 @@ public class ActionService : IActionService
                 ActionName = createActionDto.ActionName,
                 Description = createActionDto.Description,
                 ActionId = $"ACTION{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
-                PersonId = personId
+                PersonId = personId,
+                CreatedBy = personId,
+                LastModifiedBy = personId,
+                CreatedOn = DateTime.UtcNow,
+                LastModifiedOn = DateTime.UtcNow,
+                IsActive = false,
             };
-            var actionData = await _actionRepo.Create(action);
-            await _realtime.NotifyAll("ActionCreated", new
-            {
-                ActionId = actionData.Id,
-                actionData.ActionName,
-                actionData.Description
-            });
+            await _actionRepo.Create(action);
+            var actionData = GetDetails(await _actionRepo.Get(x => x.ActionId == action.ActionId));
+            await _realtime.NotifyAll("ActionCreated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, actionData);
             return new BaseResponse
             {
                 Status = true,
@@ -469,7 +470,7 @@ public class ActionService : IActionService
                 IsLocked = x.IsLocked,
                 IsOpen = x.IsOpen,
                 IsActive = x.IsActive,
-            }).ToList(),
+            }).ToList() ?? new List<GetActionStepDto>(),
         };
     }
 }

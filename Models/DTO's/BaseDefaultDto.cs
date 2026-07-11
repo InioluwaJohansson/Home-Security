@@ -45,9 +45,6 @@ public class UserBaseDefaultDto
     public int LastModifiedBy { get; set; }
     public string LastModifiedByName { get; set; }
     public DateTime? LastModifiedOn { get; set; }
-    public DateTime? DeletedOn { get; set; }
-    public int DeletedBy { get; set; }
-    public bool IsDeleted { get; set; }
     public int? personId { get; set; }
     public string PeronName { get; set; }
 }
