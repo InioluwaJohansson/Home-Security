@@ -63,20 +63,19 @@ public class DoorControl : IDoorControl
         if (auth.Status != false)
         {
             var getDoor = await _doorService.GetById(updateDoorDto.Id);
-            if(getDoor != null && getDoor.Data.IsOpen == true){  
+            if(getDoor != null && getDoor.Data.IsOpen == true && getDoor.Data.IsLocked == false){  
                 updateDoorDto.IsOpen = false;
-                updateDoorDto.DoorType = Enum.Parse<DoorType>(getDoor.Data.DoorType);
                 log.ActionType = "Closed";
                 log.LogDetails = $"{updateDoorDto.DoorName} Door is Closed!";
             }
             else if(getDoor != null && getDoor.Data.IsOpen == false && getDoor.Data.IsLocked == false)
             {
                 updateDoorDto.IsOpen = true;
-                updateDoorDto.DoorType = Enum.Parse<DoorType>(getDoor.Data.DoorType);
                 log.ActionType = "Open";
                 log.LogDetails = $"{updateDoorDto.DoorName} Door is Open!";
             }
-            updateDoorDto.UnlockedBy = auth.Id;
+            updateDoorDto.OpenedBy = auth.Id;
+            updateDoorDto.DoorType = getDoor.Data.DoorTypeId;
             var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
             if (door.Status == true)    await _logService.CreateLog(log);
             return door;
@@ -97,7 +96,7 @@ public class DoorControl : IDoorControl
                 {
                     updateDoorDto.UnlockedBy = auth.Id;
                     updateDoorDto.IsLocked = false;
-                    updateDoorDto.DoorType = Enum.Parse<DoorType>(getDoor.Data.DoorType);
+                    updateDoorDto.DoorType = getDoor.Data.DoorTypeId;
                     var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
                     if (door.Status == true)
                     {
@@ -113,10 +112,10 @@ public class DoorControl : IDoorControl
             }
             else if (getDoor != null && getDoor.Data.IsLocked == false)
             {
-                updateDoorDto.UnlockedBy = auth.Id;
+                updateDoorDto.LockedBy = auth.Id;
                 updateDoorDto.IsLocked = true;
                 updateDoorDto.IsOpen = false;
-                updateDoorDto.DoorType = Enum.Parse<DoorType>(getDoor.Data.DoorType);
+                updateDoorDto.DoorType = getDoor.Data.DoorTypeId;
                 var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
                 if (door.Status == true)
                 {

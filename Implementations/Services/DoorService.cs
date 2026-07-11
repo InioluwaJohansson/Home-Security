@@ -77,8 +77,7 @@ public class DoorService : IDoorService
             door.LockedBy = updateDoorDto.LockedBy;
             door.UnlockedBy = updateDoorDto.UnlockedBy;
             door.LastModifiedOn = DateTime.Now;
-            if(door.DoorType != 0) door.DoorType = updateDoorDto.DoorType;
-            else door.DoorType = door.DoorType;
+            door.DoorType = updateDoorDto.DoorType;
             door.SectionId = updateDoorDto.SectionId ?? null;
             door.RoomId = updateDoorDto.RoomId ?? null;
             await _doorRepo.Update(door);
@@ -250,6 +249,7 @@ public class DoorService : IDoorService
             Id = door.Id,
             DoorName = door.DoorName,
             DoorType = door.DoorType.ToString(),
+            DoorTypeId = door.DoorType,
             IsLocked = door.IsLocked,
             IsOpen = door.IsOpen,
             OpenedBy = door.OpenedBy,
