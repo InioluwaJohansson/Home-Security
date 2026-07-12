@@ -65,7 +65,6 @@ public class ApplianceService : IApplianceService
         if (updateApplianceDto != null)
         {
             var appliance = await _applianceRepo.Get(x => x.Id == updateApplianceDto.Id);
-
             appliance.ApplianceName = updateApplianceDto.ApplianceName ?? appliance.ApplianceName;
             appliance.SectionId = updateApplianceDto.SectionId ?? null;
             appliance.RoomId = updateApplianceDto.RoomId ?? null;
@@ -203,6 +202,7 @@ public class ApplianceService : IApplianceService
             appliance.DeletedOn = DateTime.Now;
             appliance.DeletedBy = personId;
             await _applianceRepo.Update(appliance);
+            await _hardwareService.RemoveFacilityItem(appliance.Id, FacilityType.Appliance);
             await _realtime.NotifyAll("ApplianceDeleted", new
             {
                 appliance.Id,

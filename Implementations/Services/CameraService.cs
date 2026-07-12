@@ -198,6 +198,7 @@ public class CameraService : ICameraService
         camera.DeletedBy = personId;
         await _cameraStreamingService.StopStream(camera);
         await _cameraRepo.Update(camera);
+        await _hardwareService.RemoveFacilityItem(camera.Id, FacilityType.Camera);
         await _realtime.NotifyAll("CameraDeleted", new
         {
             camera.Id,

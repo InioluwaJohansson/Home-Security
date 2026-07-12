@@ -15,6 +15,7 @@ public class ActionService : IActionService
     IExternalRepo _externalRepo;
     IApplianceService _applianceService;
     ILightService _lightService;
+    IExternalService _externalService;
     ICameraService _cameraService;
     IDoorService _doorService;
     IWindowService _windowService;
@@ -26,6 +27,7 @@ public class ActionService : IActionService
         IExternalRepo externalRepo,
         IApplianceService applianceService,
         ILightService lightService,
+        IExternalService externalService,
         ICameraService cameraService,
         IDoorService doorService,
         IWindowService windowService,
@@ -36,6 +38,7 @@ public class ActionService : IActionService
         _externalRepo = externalRepo;
         _applianceService = applianceService;
         _lightService = lightService;
+        _externalService = externalService;
         _cameraService = cameraService;
         _doorService = doorService;
         _windowService = windowService;
@@ -120,7 +123,6 @@ public class ActionService : IActionService
             else if(action.IsActive == false)
             {
                 action.IsActive = true;
-
                 await TriggerActions(actionId);
             }
             await _actionRepo.Update(action);
@@ -193,6 +195,7 @@ public class ActionService : IActionService
                 actionStep.DeletedOn = DateTime.Now;
             }
             await _actionRepo.Update(action);
+            await RemoveActionFromExternal(actionId, personId);
             await _realtime.NotifyAll("ActionDeleted", new
             {
                 ActionId = action.Id,
@@ -221,6 +224,23 @@ public class ActionService : IActionService
                 ExternalId = external.Id,
                 Actions = external.ActionIds
             });
+        }
+    }
+    private async Task RemoveActionFromExternal(int actionId, int personId)
+    {
+        var externals = await _externalRepo.GetByExpression(x => !x.IsDeleted && x.ActionIds.Contains(actionId));
+        if(externals != null)
+        {
+            foreach(var external in externals)
+            {
+                external.ActionIds?.Remove(actionId);
+                var externalData = new UpdateExternalDto
+                {
+                    Id = external.Id,
+                    ActionIds = external.ActionIds ?? new List<int>(),
+                };
+                await _externalService.UpdateExternal(externalData, personId);
+            }
         }
     }
     private async Task TriggerActions(int actionId)

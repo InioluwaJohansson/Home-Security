@@ -215,6 +215,7 @@ public class DoorService : IDoorService
             door.DeletedBy = personId;
             door.IsDeleted = true;
             await _doorRepo.Update(door);
+            await _hardwareService.RemoveFacilityItem(door.Id, FacilityType.Door);
             await _realtime.NotifyAll("DoorDeleted", new
             {
                 door.Id,

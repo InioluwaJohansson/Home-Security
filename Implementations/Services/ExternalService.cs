@@ -213,39 +213,34 @@ public class ExternalService : IExternalService
             Externals.DeletedOn = DateTime.Now;
             Externals.DeletedBy = personId;
             Externals.IsDeleted = true;
-
-            var externalData = await _externalRepo.Update(Externals);
-
+            await _externalRepo.Update(Externals);
+            await _hardwareService.RemoveFacilityItem(Externals.Id, FacilityType.External);
             await _realtime.NotifyAll("ExternalsDeleted", new
             {
-                externalData.Id,
+                Externals.Id,
             });
-
-            await _mqtt.PublishDeviceUpdate(externalData.ExternalId, new GenericDeviceUpdateState
+            await _mqtt.PublishDeviceUpdate(Externals.ExternalId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.External,
-                Id = externalData.Id,
+                Id = Externals.Id,
                 BrightnessLevel = 0,
                 IsActive = false,
                 PowerActive = false,
                 IsLocked = false,
                 IsOpen = false
             });
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Externals Deleted Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Delete Externals!"
         };
     }
-
     public GetExternalDto GetDetails(External External)
     {
         return new GetExternalDto()

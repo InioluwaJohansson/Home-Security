@@ -9,5 +9,6 @@ public interface IHardwareService
     public Task<HardwareResponseModel> GetById(int hardwareId);
     public Task<HardwaresResponseModel> GetAllHardwares();
     public Task<string> GetHardwareName(int id, FacilityType facilityType);
+    public Task RemoveFacilityItem(int id, FacilityType facilityType);
     public Task CheckHardwareStatus();
 }

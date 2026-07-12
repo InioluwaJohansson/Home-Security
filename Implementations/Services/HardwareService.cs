@@ -142,6 +142,36 @@ public class HardwareService : IHardwareService
         if(hardware != null) return hardware.HardwareId;
         return "null";
     }
+    public async Task RemoveFacilityItem(int id, FacilityType facilityType)
+    {
+        var hardware = await _hardwareRepo.GetHardwareByFacilityTypeId(id, facilityType);
+        if(hardware != null)
+        {
+            switch (facilityType)
+            {
+                case FacilityType.Appliance:
+                    hardware.ApplianceIds.Remove(id);
+                    break;
+                case FacilityType.Camera:
+                    hardware.CameraIds.Remove(id);
+                    break;
+                case FacilityType.Light:
+                    hardware.LightIds.Remove(id);
+                    break;
+                case FacilityType.Door:
+                    hardware.DoorIds.Remove(id);
+                    break;
+                case FacilityType.Window:
+                    hardware.WindowIds.Remove(id);
+                    break;
+                case FacilityType.External:
+                    hardware.ExternalIds.Remove(id);
+                    break;
+            }
+            await _hardwareRepo.Update(hardware);
+            await _realtime.NotifyAll("HardwareUpdated", GetDetails(hardware));
+        }
+    }
     public GetHardwareDto GetDetails(Hardware hardware)
     {
         return new GetHardwareDto()
@@ -165,11 +195,11 @@ public class HardwareService : IHardwareService
         switch (facilityType)
         {
             case FacilityType.Appliance:
-                string data = _authControl.GetApplianceName(id);
-                if(data != null){
+                string appliance = _authControl.GetApplianceName(id);
+                if(appliance != null){
                     return new GenericIdNames(){
                         Id = id,
-                        Name = data
+                        Name = appliance
                     };
                 }
                 break;

@@ -192,7 +192,6 @@ public class WindowService : IWindowService
     public async Task<BaseResponse> Delete(int windowId, int personId)
     {
         var window = await _windowRepo.Get(x => x.Id == windowId);
-
         if (window != null)
         {
             window.IsActive = false;
@@ -203,6 +202,7 @@ public class WindowService : IWindowService
             window.DeletedBy = personId;
             window.IsDeleted = true;
             await _windowRepo.Update(window);
+            await _hardwareService.RemoveFacilityItem(window.Id, FacilityType.Window);
             await _realtime.NotifyAll("WindowDeleted", new
             {
                 window.Id,
