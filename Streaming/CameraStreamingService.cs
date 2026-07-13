@@ -14,12 +14,12 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
 
     private const int MaxConcurrentStarts = 5;
     private readonly SemaphoreSlim _streamLock = new(MaxConcurrentStarts);
-    ICameraRepo cameraRepo;
+    ICameraRepo _cameraRepo;
 
-    public CameraStreamingService(IServiceScopeFactory scopeFactory, ICameraRepo _cameraRepo)
+    public CameraStreamingService(IServiceScopeFactory scopeFactory, ICameraRepo cameraRepo)
     {
         _scopeFactory = scopeFactory;
-        cameraRepo = _cameraRepo;
+        _cameraRepo = cameraRepo;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -28,7 +28,7 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
         {
             using var scope = _scopeFactory.CreateScope();
 
-            var cameras = await cameraRepo.GetByExpression(x => x.IsDeleted == false);
+            var cameras = await _cameraRepo.GetByExpression(x => x.IsDeleted == false);
 
             var tasks = cameras.Select(camera => ProcessCamera(camera, stoppingToken));
 
@@ -51,18 +51,16 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
                 await StopStream(camera);
                 camera.IsStreaming = false;
 
-                await cameraRepo.Update(camera);
+                await _cameraRepo.Update(camera);
                 return;
             }
 
             if (!IsProcessAlive(camera.Id))
             {
                 await _streamLock.WaitAsync(token);
-
                 try
                 {
                     await StartStream(camera);
-
                     camera.IsStreaming = true;
                     camera.LastStreamStart = DateTime.UtcNow;
                 }
@@ -71,13 +69,12 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
                     _streamLock.Release();
                 }
             }
-
-            await cameraRepo.Update(camera);
+            await _cameraRepo.Update(camera);
         }
         catch
         {
             camera.IsStreaming = false;
-            await cameraRepo.Update(camera);
+            await _cameraRepo.Update(camera);
         }
     }
     public async Task RestartStream(Camera camera)
@@ -102,7 +99,6 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
                 _streamProcesses.Remove(camera.Id);
             }
         }
-
         await StartStream(camera);
     }
     public async Task<bool> CheckStreamAsync(string streamUrl)
@@ -111,7 +107,6 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
         {
             using var httpClient = new HttpClient();
             httpClient.Timeout = TimeSpan.FromSeconds(5);
-
             var response = await httpClient.GetAsync(streamUrl);
             return response.IsSuccessStatusCode;
         }
@@ -124,7 +119,6 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
     {
         Directory.CreateDirectory($"storage/hls/cam_{camera.CameraId}");
         Directory.CreateDirectory($"storage/recordings/cam_{camera.CameraId}");
-
         string hlsOutput =
             $"storage/hls/cam_{camera.CameraId}/live.m3u8";
         string recordingOutput =

@@ -34,7 +34,9 @@ public class CameraService : ICameraService
 
         var port = dto.Port == 0 ? 554 : dto.Port;
 
-        return $"rtsp://{dto.Username}:{dto.Password}@{dto.IpAddress}:{port}/{streamPath}";
+        if(string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
+            return $"rtsp://{dto.IpAddress}:{port}/{streamPath}";
+        else return $"rtsp://{dto.Username}:{dto.Password}@{dto.IpAddress}:{port}/{streamPath}";
     }
 
     public async Task<BaseResponse> CreateCamera(CreateCameraDto createCameraDto, int personId)
@@ -48,13 +50,18 @@ public class CameraService : ICameraService
             };
         }
         string cameraId = $"CAMERA{Guid.NewGuid().ToString().Replace("-", "")[..5].ToUpper()}";
+        var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+        var storagePath = Path.Combine(basePath, "storage");
+        var folderPath = Path.Combine(storagePath, cameraId);
+        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         var camera = new Camera()
         {
             CameraId = cameraId,
             CameraName = createCameraDto.CameraName,
             IpAddress = createCameraDto.IpAddress,
             InputStreamUrl = BuildRtspUrl(createCameraDto),
-            RecordingPath = $"storage/recordings/{cameraId}",
+            LiveStreamUrl = BuildRtspUrl(createCameraDto),
+            RecordingPath = folderPath,
             IsOnline = false,
             IsStreaming = false,
             IsActive = false,
@@ -99,10 +106,7 @@ public class CameraService : ICameraService
         camera.SectionId = updateCameraDto.SectionId ?? null;
         camera.RoomId = updateCameraDto.RoomId ?? null;
         var cameraData = await _cameraRepo.Update(camera);
-        if (camera.IsStreaming)
-        {
-            await _cameraStreamingService.RestartStream(camera);
-        }
+        if (camera.IsStreaming) await _cameraStreamingService.RestartStream(camera);
         if(cameraData.IsHidden){ await _realtime.NotifyAll("CameraUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(cameraData));}
             else await _realtime.NotifyAll("CameraUpdated", GetDetails(cameraData));
         var hardware = await _hardwareService.GetHardwareName(cameraData.Id, FacilityType.Camera);
