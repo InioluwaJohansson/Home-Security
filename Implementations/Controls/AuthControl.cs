@@ -409,19 +409,20 @@ public class AuthControl : IAuthControl
                 IsHidden = c.IsHidden,
             }).ToList(),
             RoomIdNames = _authCache._roomCache.Where(x => x.IsDeleted == false)
-            .Select(c => new GenericNames
+            .Select(c => new GenericRoomNames
             {
                 Id = c.Id,
                 Name = c.RoomName,
                 IsHidden = c.IsHidden,
+                SectionId = c.SectionId ?? null
             }).ToList(),
             PersonIdNames = _authCache._cache
             .Select(c => new GenericNames
             {
                 Id = c.Id,
-                Name = c.PersonDetails.FirstName + " " + c.PersonDetails.LastName,
+                Name = $"{c.PersonDetails.FirstName} {c.PersonDetails.LastName}",
                 IsHidden = c.Disabled,
-                ImageUrl = ConvertImageToBase64(c.PersonDetails.ImageUrl) ?? "",
+                ImageUrl = c.PersonDetails.ImageUrl,
             }).ToList(),
             ContactCategoryIdNames = _authCache._contactCategoryCache.Where(x => x.IsDeleted == false)
             .Select(c => new GenericIdNames
@@ -447,18 +448,6 @@ public class AuthControl : IAuthControl
             FacilityType = EnumToList<FacilityType>(),
             Role = EnumToList<Role>()
         };
-    }
-    public static string? ConvertImageToBase64(string? path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-            return null;
-
-        if (!File.Exists(path))
-            return null;
-
-        var bytes = File.ReadAllBytes(path);
-
-        return Convert.ToBase64String(bytes);
     }
     public static List<GenericIdNames> EnumToList<T>() where T : Enum
     {

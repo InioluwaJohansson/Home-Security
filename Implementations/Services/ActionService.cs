@@ -23,16 +23,7 @@ public class ActionService : IActionService
     IRealtimeNotificationService _realtime;
 
     public ActionService(
-        IActionRepo actionRepo,
-        IExternalRepo externalRepo,
-        IApplianceService applianceService,
-        ILightService lightService,
-        IExternalService externalService,
-        ICameraService cameraService,
-        IDoorService doorService,
-        IWindowService windowService,
-        ILogService logService,
-        IRealtimeNotificationService realtime)
+        IActionRepo actionRepo, IExternalRepo externalRepo, IApplianceService applianceService, ILightService lightService, IExternalService externalService, ICameraService cameraService, IDoorService doorService, IWindowService windowService, ILogService logService, IRealtimeNotificationService realtime)
     {
         _actionRepo = actionRepo;
         _externalRepo = externalRepo;
@@ -45,7 +36,6 @@ public class ActionService : IActionService
         _logService = logService;
         _realtime = realtime;
     }
-
     public async Task<BaseResponse> CreateAction(CreateActionDto createActionDto, int personId)
     {
         if(createActionDto != null)
@@ -81,29 +71,20 @@ public class ActionService : IActionService
     public async Task<BaseResponse> UpdateAction(UpdateActionDto updateActionDto, int personId)
     {
         var action = await _actionRepo.GetById(updateActionDto.Id);
-
         if(action != null)
         {
             action.ActionName = updateActionDto.ActionName ?? action.ActionName;
             action.Description = updateActionDto.Description ?? action.Description;
             action.LastModifiedBy = personId;
             action.LastModifiedOn = DateTime.UtcNow;
-
             await _actionRepo.Update(action);
-
-            await _realtime.NotifyAll("ActionUpdated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, new
-            {
-                ActionId = action.Id,
-                action.ActionName,
-                action.Description
-            });
+            await _realtime.NotifyAll("ActionUpdated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, GetDetails(action));
             return new BaseResponse
             {
                 Status = true,
                 Message = "Action Updated Successfully!"
             };
         }
-
         return new BaseResponse
         {
             Status = false,
@@ -113,13 +94,9 @@ public class ActionService : IActionService
     public async Task<BaseResponse> ActivateDeactivateAction(int actionId)
     {
         var action = await _actionRepo.Get(x => x.Id == actionId && x.IsDeleted == false);
-
         if (action != null)
         {
-            if(action.IsActive == true)
-            {
-                action.IsActive = false;
-            }
+            if(action.IsActive == true) action.IsActive = false;
             else if(action.IsActive == false)
             {
                 action.IsActive = true;
@@ -180,7 +157,6 @@ public class ActionService : IActionService
             Message = "Unable to Retrieve Action!"
         };
     }
-
     public async Task<BaseResponse> DeleteAction(int actionId, int personId)
     {
         var action = await _actionRepo.GetById(actionId);
@@ -263,7 +239,7 @@ public class ActionService : IActionService
                         appliance.IsActive
                     });
                     log.PersonId = action.PersonId;
-                    log.LogDetails = "Appliance Triggered by Sersor or User";
+                    log.LogDetails = "Appliance Triggered by Sensor or User";
                     log.ActionType = "Appliance Activated";
                     await _logService.CreateLog(log);
                 }
@@ -279,7 +255,7 @@ public class ActionService : IActionService
                         camera.IsActive
                     });
                     log.PersonId = action.PersonId;
-                    log.LogDetails = "Camera Triggered by Sersor or User";
+                    log.LogDetails = "Camera Triggered by Sensor or User";
                     log.ActionType = "Camera Activated";
                     await _logService.CreateLog(log);
                 }
@@ -297,7 +273,7 @@ public class ActionService : IActionService
                         light.BrightnessLevel
                     });
                     log.PersonId = action.PersonId;
-                    log.LogDetails = "Light Triggered by Sersor or User";
+                    log.LogDetails = "Light Triggered by Sensor or User";
                     log.ActionType = "Light Activated";
                     await _logService.CreateLog(log);
                 }
@@ -315,7 +291,7 @@ public class ActionService : IActionService
                         door.IsLocked
                     });
                     log.PersonId = action.PersonId;
-                    log.LogDetails = "Door Triggered by Sersor or User";
+                    log.LogDetails = "Door Triggered by Sensor or User";
                     log.ActionType = "Door Activated";
                     await _logService.CreateLog(log);
                 }
@@ -333,13 +309,13 @@ public class ActionService : IActionService
                         window.IsLocked
                     });
                     log.PersonId = action.PersonId;
-                    log.LogDetails = "Window Triggered by Sersor or User";
+                    log.LogDetails = "Window Triggered by Sensor or User";
                     log.ActionType = "Window Activated";
                     await _logService.CreateLog(log);
                 }
             }
             log.PersonId = action.PersonId;
-            log.LogDetails = "Action Triggered by Sersor or User";
+            log.LogDetails = "Action Triggered by Sensor or User";
             log.ActionType = "Action Activated";
             await _logService.CreateLog(log);
             await _realtime.NotifyAll("ActionTriggered", new
