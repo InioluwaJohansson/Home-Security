@@ -32,12 +32,7 @@ public class DashboardControl : IDashboardControl
         else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
             var dashboard = await _dashboardService.GetDashboardData(auth.Id);
-            if (dashboard != null) {
-                if(dashboard.Rooms != null)
-                {
-                    dashboard.Rooms = dashboard.Rooms.Where(x => x.IsHidden == false).ToList();
-                }
-            }
+            if (dashboard != null) return dashboard;
         }
         return new DashBoardResponseModel()
         {

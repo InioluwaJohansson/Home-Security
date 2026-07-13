@@ -120,3 +120,28 @@ public async Task UpdateChat(string eventName, int chatId, object update)
 
 in the UpdateChat method, the fitst parameter is what the signalr should listen for and the third parameter is the response from the server
 Understand and make provision where necessary in the app.
+
+
+public class AppNamesDetailList{
+    public List<GenericNames> ApplianceIdNames { get; set; }
+    public List<GenericNames> CameraIdNames { get; set; }
+    public List<GenericNames> LightIdNames { get; set; }
+    public List<GenericNames> WindowIdNames { get; set; }
+    public List<GenericNames> DoorIdNames { get; set; }
+    public List<GenericNames> ExternalIdNames { get; set; }
+    public List<GenericNames> PersonIdNames { get; set; }
+    public List<GenericNames> SectionIdNames { get; set; }
+    public List<GenericRoomNames> RoomIdNames { get; set; }
+    public List<GenericIdNames> ContactCategoryIdNames { get; set; }
+    public List<GenericIdNames> ActionIdNames { get; set; }
+    public List<GenericIdNames> HardwareIdNames { get; set; }
+    public List<GenericIdNames> ApplianceType { get; set; }
+    public List<GenericIdNames> Gender { get; set; }
+    public List<GenericIdNames> DoorType { get; set; }
+    public List<GenericIdNames> FacilityType { get; set; }
+    public List<GenericIdNames> Role { get; set; }
+}
+public class GenericRoomNames : GenericIdNames{
+    public bool IsHidden { get; set; }
+    public int? SectionId { get; set; }
+}

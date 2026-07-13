@@ -57,7 +57,7 @@ public class AppNamesDetailList{
     public List<GenericNames> ExternalIdNames { get; set; }
     public List<GenericNames> PersonIdNames { get; set; }
     public List<GenericNames> SectionIdNames { get; set; }
-    public List<GenericNames> RoomIdNames { get; set; }
+    public List<GenericRoomNames> RoomIdNames { get; set; }
     public List<GenericIdNames> ContactCategoryIdNames { get; set; }
     public List<GenericIdNames> ActionIdNames { get; set; }
     public List<GenericIdNames> HardwareIdNames { get; set; }
@@ -71,10 +71,13 @@ public class GenericNames : GenericIdNames{
     public bool IsHidden { get; set; }
     public string ImageUrl { get; set; }
 }
+public class GenericRoomNames : GenericIdNames{
+    public bool IsHidden { get; set; }
+    public int? SectionId { get; set; }
+}
 public class DashBoardResponseModel
 {
     public int TotalContacts { get; set; }
-    public List<GetRoomDto> Rooms { get; set; }
     public List<GetActionDto> Actions { get; set; }
     public List<CameraNameUrl> CameraNamesUrls { get; set; }
     public List<GetLogDto> Logs { get; set; }

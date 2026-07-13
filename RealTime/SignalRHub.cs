@@ -16,18 +16,14 @@ public class HomeSecurityHub : Hub
     private int GetPersonId()
     {
         var value = Context.User?.FindFirst("PersonId")?.Value;
-
         if (string.IsNullOrEmpty(value))
             throw new HubException("PersonId claim is missing.");
-
         return int.Parse(value);
     }
-
     public override async Task OnConnectedAsync()
     {
         var personId = GetPersonId();
         var connectionId = Context.ConnectionId;
-
         lock (_connections)
         {
             if (!_connections.ContainsKey(personId))
@@ -35,19 +31,14 @@ public class HomeSecurityHub : Hub
 
             _connections[personId].Add(connectionId);
         }
-
         await Clients.All.SendAsync("UserOnline", personId);
-
         await base.OnConnectedAsync();
     }
-
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         var personId = GetPersonId();
         var connectionId = Context.ConnectionId;
-
         bool shouldMarkOffline = false;
-
         lock (_connections)
         {
             if (_connections.ContainsKey(personId))
@@ -77,15 +68,26 @@ public class HomeSecurityHub : Hub
             }
         }
     }
-    public async Task AddPerson(string token)
+    public async Task Logout(string token)
     {
         var user = _jwtAuthentication.GetUserFromToken(token);
         if(user != null){
             var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
             if(auth.Status != false){
-                //await Groups.AddToGroupAsync(Context.ConnectionId, auth.Id.ToString());
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, auth.Role.ToString());
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, auth.Id.ToString());
             }
         }
+    }
+    public void AddPerson(string token)
+    {
+        // var user = _jwtAuthentication.GetUserFromToken(token);
+        // if(user != null){
+        //     var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
+        //     if(auth.Status != false){
+        //         await Groups.AddToGroupAsync(Context.ConnectionId, auth.Id.ToString());
+        //     }
+        // }
     }
     public async Task JoinChat(int chatId)
     {

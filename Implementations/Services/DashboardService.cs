@@ -31,7 +31,6 @@ public class DashboardService : IDashboardService
         var logs = (await _logRepo.GetByExpression(x => !x.IsDeleted)).OrderByDescending(x => x.TimeOfAction).Take(3).ToList();
         var person = await _personRepo.Get(x => !x.IsDeleted && x.Id == personId);
         if(person != null){
-            var rooms = await _roomService.GetRoomByPersonId(personId);
             List<CameraNameUrl> CameraNamesUrls = new List<CameraNameUrl>();
             foreach(var cameraId in person.CameraIds)
             {
@@ -65,7 +64,6 @@ public class DashboardService : IDashboardService
                 }).ToList() ?? new List<GetActionDto>(),
                 Logs = sortedLogs,
                 CameraNamesUrls = CameraNamesUrls,
-                Rooms = rooms.Data.ToList() ?? new List<GetRoomDto>(),
                 Status = true,
             };
         }
