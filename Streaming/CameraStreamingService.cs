@@ -117,6 +117,11 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
     }
     public async Task<string> StartStream(Camera camera)
     {
+        var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+        var storagePath = Path.Combine(basePath, "storage");
+        var folderName = Path.Combine("Profile", "Images");
+        var folderPath = Path.Combine(storagePath, folderName);
+        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         Directory.CreateDirectory($"storage/hls/cam_{camera.CameraId}");
         Directory.CreateDirectory($"storage/recordings/cam_{camera.CameraId}");
         string hlsOutput =
