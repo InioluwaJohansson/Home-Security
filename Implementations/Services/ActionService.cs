@@ -257,11 +257,6 @@ public class ActionService : IActionService
                     appliance.Id = actionStep.FacilityTypeId;
                     appliance.IsActive = actionStep.IsActive;
                     await _applianceService.UpdateAppliance(appliance, action.PersonId);
-                    await _realtime.NotifyAll("ApplianceTriggered", new
-                    {
-                        appliance.Id,
-                        appliance.IsActive
-                    });
                     log.PersonId = action.PersonId;
                     log.LogDetails = "Appliance Triggered by Sersor or User";
                     log.ActionType = "Appliance Activated";
@@ -273,11 +268,6 @@ public class ActionService : IActionService
                     camera.Id = actionStep.FacilityTypeId;
                     camera.IsActive = actionStep.IsActive;
                     await _cameraService.UpdateCamera(camera, action.PersonId);
-                    await _realtime.NotifyAll("CameraTriggered", new
-                    {
-                        camera.Id,
-                        camera.IsActive
-                    });
                     log.PersonId = action.PersonId;
                     log.LogDetails = "Camera Triggered by Sersor or User";
                     log.ActionType = "Camera Activated";
@@ -290,15 +280,20 @@ public class ActionService : IActionService
                     light.BrightnessLevel = actionStep.BrightnessLevel;
                     light.IsActive = actionStep.IsActive;
                     await _lightService.UpdateLight(light, action.PersonId);
-                    await _realtime.NotifyAll("LightTriggered", new
-                    {
-                        light.Id,
-                        light.IsActive,
-                        light.BrightnessLevel
-                    });
                     log.PersonId = action.PersonId;
                     log.LogDetails = "Light Triggered by Sersor or User";
                     log.ActionType = "Light Activated";
+                    await _logService.CreateLog(log);
+                }
+                if(actionStep.FacilityType == FacilityType.External)
+                {
+                    var external = new UpdateExternalDto();
+                    external.Id = actionStep.FacilityTypeId;
+                    external.IsActive = actionStep.IsActive;
+                    await _externalService.UpdateExternal(external, action.PersonId);
+                    log.PersonId = action.PersonId;
+                    log.LogDetails = "External Triggered by Sersor or User";
+                    log.ActionType = "External Activated";
                     await _logService.CreateLog(log);
                 }
                 if(actionStep.FacilityType == FacilityType.Door)
@@ -308,12 +303,6 @@ public class ActionService : IActionService
                     door.IsOpen = actionStep.IsOpen;
                     door.IsLocked = actionStep.IsLocked;
                     await _doorService.UpdateDoor(door, action.PersonId);
-                    await _realtime.NotifyAll("DoorTriggered", new
-                    {
-                        door.Id,
-                        door.IsOpen,
-                        door.IsLocked
-                    });
                     log.PersonId = action.PersonId;
                     log.LogDetails = "Door Triggered by Sersor or User";
                     log.ActionType = "Door Activated";
@@ -326,12 +315,6 @@ public class ActionService : IActionService
                     window.IsOpen = actionStep.IsOpen;
                     window.IsLocked = actionStep.IsLocked;
                     await _windowService.UpdateWindow(window, action.PersonId);
-                    await _realtime.NotifyAll("WindowTriggered", new
-                    {
-                        window.Id,
-                        window.IsOpen,
-                        window.IsLocked
-                    });
                     log.PersonId = action.PersonId;
                     log.LogDetails = "Window Triggered by Sersor or User";
                     log.ActionType = "Window Activated";

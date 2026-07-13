@@ -82,11 +82,10 @@ public class ExternalService : IExternalService
             Externals.RoomId = updateExternalDto.RoomId ?? null;
             Externals.IsTriggered = updateExternalDto.IsTriggered;
             Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds;
-
             var externalData = await _externalRepo.Update(Externals);
             var hardware = await _hardwareService.GetHardwareName(Externals.Id, FacilityType.External);
-            if(externalData.IsHidden){ await _realtime.NotifyAll("ExternalsUpdated", new List<Role> { Role.Owner, Role.Wife }, externalData);}
-            else await _realtime.NotifyAll("ExternalsUpdated", externalData);
+            if(externalData.IsHidden){ await _realtime.NotifyAll("ExternalsUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(externalData));}
+            else await _realtime.NotifyAll("ExternalsUpdated", GetDetails(externalData));
             await _mqtt.PublishDeviceUpdate(Externals.ExternalId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.External,
