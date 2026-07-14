@@ -28,15 +28,11 @@ public class CameraService : ICameraService
 
     private string BuildRtspUrl(CreateCameraDto dto)
     {
-        var streamPath = string.IsNullOrWhiteSpace(dto.StreamPath)
-            ? "stream1"
-            : dto.StreamPath;
-
-        var port = dto.Port == 0 ? 554 : dto.Port;
-
-        if(string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
-            return $"rtsp://{dto.IpAddress}:{port}/{streamPath}";
-        else return $"rtsp://{dto.Username}:{dto.Password}@{dto.IpAddress}:{port}/{streamPath}";
+        Console.WriteLine($"Building RTSP URL for camera: {dto.CameraName}, IP: {dto.IpAddress}, Port: {dto.Port}, StreamPath: {dto.StreamPath}");
+        return $"rtsp://{dto.IpAddress}:{dto.Port}/{dto.StreamPath}";
+        if(dto.Username == null || dto.Password == null)
+            return $"rtsp://{dto.IpAddress}:{dto.Port}/{dto.StreamPath}";
+        else return $"rtsp://{dto.Username}:{dto.Password}@{dto.IpAddress}:{dto.Port}/{dto.StreamPath}";
     }
 
     public async Task<BaseResponse> CreateCamera(CreateCameraDto createCameraDto, int personId)
@@ -51,9 +47,9 @@ public class CameraService : ICameraService
         }
         string cameraId = $"CAMERA{Guid.NewGuid().ToString().Replace("-", "")[..5].ToUpper()}";
         var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
-        var storagePath = Path.Combine(basePath, "storage");
-        var folderPath = Path.Combine(storagePath, cameraId);
-        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+        var folderPath = Path.Combine(basePath, "storage");
+        var recordingsFolderPath = Path.Combine("Cameras", "Recordings", $"CAM_{cameraId}");
+        Directory.CreateDirectory(Path.Combine(basePath, recordingsFolderPath));
         var camera = new Camera()
         {
             CameraId = cameraId,
@@ -61,7 +57,7 @@ public class CameraService : ICameraService
             IpAddress = createCameraDto.IpAddress,
             InputStreamUrl = BuildRtspUrl(createCameraDto),
             LiveStreamUrl = BuildRtspUrl(createCameraDto),
-            RecordingPath = folderPath,
+            RecordingPath = recordingsFolderPath,
             IsOnline = false,
             IsStreaming = false,
             IsActive = false,
@@ -200,6 +196,7 @@ public class CameraService : ICameraService
         camera.LastModifiedOn = DateTime.Now;
         camera.DeletedOn = DateTime.Now;
         camera.DeletedBy = personId;
+        camera.IsDeleted = true;
         await _cameraStreamingService.StopStream(camera);
         await _cameraRepo.Update(camera);
         await _hardwareService.RemoveFacilityItem(camera.Id, FacilityType.Camera);

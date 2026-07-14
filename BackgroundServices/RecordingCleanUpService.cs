@@ -39,7 +39,6 @@ public class RecordingCleanupService : BackgroundService
                 }
                 catch
                 {
-                    // ignore individual file errors
                 }
             }
         }

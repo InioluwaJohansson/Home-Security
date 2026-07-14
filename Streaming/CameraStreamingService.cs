@@ -28,7 +28,6 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
             await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
         }
     }
-
     public async Task ProcessCamera(Camera camera, CancellationToken token)
     {
         try
@@ -107,7 +106,7 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
         var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
         var cameraStoragePath = Path.Combine("storage", "Cameras");
         var hlsFolderPath = Path.Combine(cameraStoragePath, "hls", $"CAM_{camera.CameraId}");
-        var recordingsFolderPath = Path.Combine(cameraStoragePath, "recordings", $"CAM_{camera.CameraId}");
+        var recordingsFolderPath = Path.Combine(cameraStoragePath, "Recordings", $"CAM_{camera.CameraId}");
         Directory.CreateDirectory(Path.Combine(basePath, hlsFolderPath));
         Directory.CreateDirectory(Path.Combine(basePath, recordingsFolderPath));
         string hlsOutput = $"{hlsFolderPath}/live.m3u8";
@@ -133,6 +132,8 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
             }
         };
         process.Start();
+        string error = await process.StandardError.ReadToEndAsync();
+        Console.WriteLine(error);
         _streamProcesses[camera.Id] = process;
         camera.LiveStreamUrl = $"{hlsFolderPath}/live.m3u8";
         return camera.LiveStreamUrl;
