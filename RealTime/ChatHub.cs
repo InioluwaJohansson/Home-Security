@@ -7,7 +7,6 @@ namespace Home_Security.RealTimeServices;
 public class ChatHub : IChatHub
 {
     private readonly IHubContext<HomeSecurityHub> _hub;
-    
     public ChatHub(IHubContext<HomeSecurityHub> hub)
     {
         _hub = hub;

@@ -154,8 +154,6 @@ public class StartUpService : IStartUpService
 public class MenuResult
 {
     public int Option { get; set; }
-
     public string? EncryptedKey { get; set; }
-
     public CreatePersonDto? Person { get; set; }
 }
