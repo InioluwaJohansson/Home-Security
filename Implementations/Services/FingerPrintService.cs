@@ -6,8 +6,8 @@ using SourceAFIS;
 using Home_Security.RealTimeServices;
 using Home_Security.Entities.Chats;
 using Home_Security.Entities.Identity;
-namespace Home_Security.Implementations.Services;
 
+namespace Home_Security.Implementations.Services;
 public class FingerPrintService : IFingerPrintService
 {
     IFingerPrintRepo _fingerPrintRepo;
@@ -144,7 +144,7 @@ public class FingerPrintService : IFingerPrintService
             return new BaseResponse
             {
                 Status = true,
-                Message = "NFID code sent to hardware! Kindly place the finger on the scanner within 30 seconds to complete verification."
+                Message = "NFID code sent to hardware! Kindly place the NFID Card on the scanner within 30 seconds to complete verification."
             };
         }
         return new BaseResponse

@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.SignalR;
 using System.Data;
 
 namespace Home_Security.Implementations.Services;
-
 public class PersonService : IPersonService
 {
     IPersonRepo _personRepo;
@@ -17,7 +16,6 @@ public class PersonService : IPersonService
     IAddressRepo _addressRepo;
     IContactDetailsRepo _contactDetailsRepo;
     IRealtimeNotificationService _realTime;
-
     public PersonService(IPersonRepo personRepo,IUserRepo userRepo,IAddressRepo addressRepo,IContactDetailsRepo contactDetailsRepo, IRealtimeNotificationService realTime)
     {
         _personRepo = personRepo;
@@ -26,7 +24,6 @@ public class PersonService : IPersonService
         _contactDetailsRepo = contactDetailsRepo;
         _realTime = realTime;
     }
-
     public async Task<BaseResponse> CreatePerson(CreatePersonDto createPersonDto)
     {
         var checkUser = await _userRepo.Get(x => x.UserName == createPersonDto.CreateUserDto.UserName);
@@ -91,7 +88,6 @@ public class PersonService : IPersonService
             Message = "Unable To Add Person. Conflicting Username!"
         };
     }
-
     public async Task<BaseResponse> UpdatePerson(UpdatePersonDto updatePersonDto)
     {
         var person = await _personRepo.GetById(updatePersonDto.Id);
@@ -374,7 +370,6 @@ public class PersonService : IPersonService
                 Status = true
             };
         };
-
         return new BaseResponse()
         {
             Status = false,
@@ -456,7 +451,6 @@ public class PersonService : IPersonService
                 "image/svg+xml" => ".svg",
                 _ => ".bin"
             };
-
             file = file[(file.IndexOf(',') + 1)..];
         }
         byte[] bytes = Convert.FromBase64String(file);

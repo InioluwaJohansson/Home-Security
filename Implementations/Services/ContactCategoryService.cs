@@ -6,18 +6,15 @@ using Home_Security.Models.DTOs;
 using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
-
 public class ContactCategoryService : IContactCategoryService
 {
     IContactCategoryRepo _contactCategoryRepo;
     IRealtimeNotificationService _realtime;
-
     public ContactCategoryService(IContactCategoryRepo contactCategoryRepo, IRealtimeNotificationService realtime)
     {
         _contactCategoryRepo = contactCategoryRepo;
         _realtime = realtime;
     }
-
     public async Task<BaseResponse> CreateContactCategory(CreateContactCategoryDto createContactCategoryDto, int personId)
     {
         if (createContactCategoryDto != null)
@@ -60,7 +57,6 @@ public class ContactCategoryService : IContactCategoryService
             contactCategory.Icon = updateContactCategoryDto.Icon ?? contactCategory.Icon;
             contactCategory.LastModifiedBy = personId;
             contactCategory.LastModifiedOn = DateTime.Now;
-
             await _contactCategoryRepo.Update(contactCategory);
             await _realtime.NotifyAll("ContactCategoryUpdated", GetDetails(contactCategory));
             return new BaseResponse()
@@ -75,7 +71,6 @@ public class ContactCategoryService : IContactCategoryService
             Message = "Unable To Update Contact Category!"
         };
     }
-
     public async Task<ContactCategoryResponseModel> GetById(int contactCategoryId)
     {
         var contactCategory = await _contactCategoryRepo.Get(x => x.Id == contactCategoryId && x.IsDeleted == false);
@@ -95,7 +90,6 @@ public class ContactCategoryService : IContactCategoryService
             Message = "Unable To Retrieve ContactCategory!"
         };
     }
-
     public async Task<ContactCategoriesResponseModel> GetAllContactCategories()
     {
         var contactCategorys = await _contactCategoryRepo.GetByExpression(x => x.IsDeleted == false);
@@ -115,7 +109,6 @@ public class ContactCategoryService : IContactCategoryService
             Status = false
         };
     }
-
     public async Task<BaseResponse> Delete(int contactCategoryId, int personId)
     {
         var contactCategory = await _contactCategoryRepo.Get(x => x.Id == contactCategoryId);
@@ -126,7 +119,6 @@ public class ContactCategoryService : IContactCategoryService
             contactCategory.DeletedOn = DateTime.Now;
             contactCategory.DeletedBy = personId;
             contactCategory.IsDeleted = true;
-
             await _contactCategoryRepo.Update(contactCategory);
             await _realtime.NotifyAll("ContactCategoryDeleted", new
             {
@@ -145,7 +137,6 @@ public class ContactCategoryService : IContactCategoryService
             Message = "Unable To Delete Contact Category!"
         };
     }
-
     public GetContactCategoryDto GetDetails(ContactCategory contactCategory)
     {
         return new GetContactCategoryDto()

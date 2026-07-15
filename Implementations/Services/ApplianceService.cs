@@ -7,14 +7,12 @@ using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
-
 public class ApplianceService : IApplianceService
 {
     IApplianceRepo _applianceRepo;
     IHardwareService _hardwareService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
-
     public ApplianceService(IApplianceRepo applianceRepo, IHardwareService hardwareService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _applianceRepo = applianceRepo;
@@ -22,7 +20,6 @@ public class ApplianceService : IApplianceService
         _realtime = realtime;
         _mqtt = mqtt;
     }
-
     public async Task<BaseResponse> CreateAppliance(CreateApplianceDto createApplianceDto, int personId)
     {
         if (createApplianceDto != null)
@@ -59,7 +56,6 @@ public class ApplianceService : IApplianceService
             Message = "Unable To Add Appliance!"
         };
     }
-
     public async Task<BaseResponse> UpdateAppliance(UpdateApplianceDto updateApplianceDto, int personId)
     {
         if (updateApplianceDto != null)
@@ -86,25 +82,21 @@ public class ApplianceService : IApplianceService
                 IsOpen = false,
                 BrightnessLevel = 0
             });
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Appliance Updated Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Update Appliance!"
         };
     }
-
     public async Task<ApplianceResponseModel> GetById(int applianceId)
     {
         var appliance = await _applianceRepo.Get(x => x.Id == applianceId && x.IsDeleted == false);
-
         if (appliance != null)
         {
             return new ApplianceResponseModel()
@@ -114,7 +106,6 @@ public class ApplianceService : IApplianceService
                 Message = "Appliance Retrieved Successfully!"
             };
         }
-
         return new ApplianceResponseModel()
         {
             Data = null,
@@ -122,11 +113,9 @@ public class ApplianceService : IApplianceService
             Message = "Unable To Retrieve Appliance!"
         };
     }
-
     public async Task<AppliancesResponseModel> GetAllAppliances()
     {
         var appliances = await _applianceRepo.GetByExpression(x => x.IsDeleted == false);
-
         if (appliances != null)
         {
             return new AppliancesResponseModel()
@@ -136,7 +125,6 @@ public class ApplianceService : IApplianceService
                 Status = true
             };
         }
-
         return new AppliancesResponseModel()
         {
             Data = null,
@@ -144,11 +132,9 @@ public class ApplianceService : IApplianceService
             Status = true
         };
     }
-
     public async Task<AppliancesResponseModel> GetAllAppliancesByRoomId(int roomId)
     {
         var appliances = await _applianceRepo.GetByExpression(x => x.RoomId == roomId && x.IsDeleted == false);
-
         if (appliances != null)
         {
             return new AppliancesResponseModel()
@@ -158,7 +144,6 @@ public class ApplianceService : IApplianceService
                 Status = true
             };
         }
-
         return new AppliancesResponseModel()
         {
             Data = null,
@@ -166,11 +151,9 @@ public class ApplianceService : IApplianceService
             Status = true
         };
     }
-
     public async Task<AppliancesResponseModel> GetAllAppliancesBySectionId(int sectionId)
     {
         var appliances = await _applianceRepo.GetByExpression(x => x.SectionId == sectionId && x.IsDeleted == false);
-
         if (appliances != null)
         {
             return new AppliancesResponseModel()
@@ -180,7 +163,6 @@ public class ApplianceService : IApplianceService
                 Status = true
             };
         }
-
         return new AppliancesResponseModel()
         {
             Data = null,
@@ -188,11 +170,9 @@ public class ApplianceService : IApplianceService
             Status = true
         };
     }
-
     public async Task<BaseResponse> Delete(int applianceId, int personId)
     {
         var appliance = await _applianceRepo.Get(x => x.Id == applianceId);
-
         if (appliance != null)
         {
             appliance.IsActive = false;
@@ -218,21 +198,18 @@ public class ApplianceService : IApplianceService
                 IsOpen = false,
                 BrightnessLevel = 0
             });
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Appliance Deleted Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Delete Appliance!"
         };
     }
-
     public GetApplianceDto GetDetails(Appliance appliance)
     {
         return new GetApplianceDto()

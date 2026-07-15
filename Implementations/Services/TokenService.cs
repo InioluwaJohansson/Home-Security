@@ -2,6 +2,7 @@
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+
 namespace Home_Security.Implementations.Services;
 public class TokenService : ITokenService
 {
@@ -58,7 +59,6 @@ public class TokenService : ITokenService
             Message = "Invalid Token!"
         };
     }
-    
     public async Task<BaseResponse> DeleteAllTokens()
     {
         var tokens = await _tokenRepo.GetByExpression(x => x.IsDeleted == true || x.ExpiryTime <= DateTime.Now);

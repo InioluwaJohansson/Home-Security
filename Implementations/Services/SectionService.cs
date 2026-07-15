@@ -11,28 +11,11 @@ namespace Home_Security.Implementations.Services;
 public class SectionService : ISectionService
 {
     ISectionRepo _sectionRepo;
-    IRoomRepo _roomRepo;
-    ILightRepo _lightRepo;
-    IDoorRepo _doorRepo;
-    IWindowRepo _windowRepo;
-    IApplianceRepo _applianceRepo;
     IRealtimeNotificationService _realtime;
 
-    public SectionService(
-        ISectionRepo sectionRepo,
-        IRoomRepo roomRepo,
-        ILightRepo lightRepo,
-        IDoorRepo doorRepo,
-        IWindowRepo windowRepo,
-        IApplianceRepo applianceRepo,
-        IRealtimeNotificationService realtime)
+    public SectionService(ISectionRepo sectionRepo,IRealtimeNotificationService realtime)
     {
         _sectionRepo = sectionRepo;
-        _roomRepo = roomRepo;
-        _lightRepo = lightRepo;
-        _doorRepo = doorRepo;
-        _windowRepo = windowRepo;
-        _applianceRepo = applianceRepo;
         _realtime = realtime;
     }
 
@@ -51,32 +34,27 @@ public class SectionService : ISectionService
                 IsHidden = false,
                 IsDeleted = false,
             };
-
             await _sectionRepo.Create(Section);
             var sectionData = await _sectionRepo.Get(x => x.SectionId == Section.SectionId);
             await _realtime.NotifyAll("SectionCreated", GetDetails(await _sectionRepo.GetById(sectionData.Id)));
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Section Added Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Add Section!"
         };
     }
-
     public async Task<BaseResponse> UpdateSection(int personId, UpdateSectionDto updateSectionDto)
     {
         var Section = await _sectionRepo.GetById(updateSectionDto.Id);
         if (Section != null)
         {
             Section.SectionName = updateSectionDto.SectionName ?? Section.SectionName;
-            
             Section.LastModifiedBy = personId;
             Section.LastModifiedOn = DateTime.Now;
             if(Section.IsHidden != updateSectionDto.IsHidden){
@@ -104,7 +82,6 @@ public class SectionService : ISectionService
             Message = "Unable To Update Section!"
         };
     }
-
     public async Task<BaseResponse> Delete(int id, int personId)
     {
         var Section = await _sectionRepo.Get(x => x.Id == id && x.IsDeleted == false);
@@ -132,7 +109,6 @@ public class SectionService : ISectionService
             Message = "Unable To Delete Section!"
         };
     }
-
     public async Task<SectionResponseModel> GetSectionById(int id)
     {
         var Section = await _sectionRepo.GetById(id);
@@ -152,7 +128,6 @@ public class SectionService : ISectionService
             Message = "Unable To Retrieve Section!"
         };
     }
-
     public async Task<SectionsResponseModel> GetSectionBySectionName(string SectionName)
     {
         var Sections = await _sectionRepo.GetBySectionName(SectionName);
@@ -172,7 +147,6 @@ public class SectionService : ISectionService
             Message = "Unable To Retrieve Sections!"
         };
     }
-
     public async Task<SectionsResponseModel> GetAllSections()
     {
         var Sections = await _sectionRepo.List();
@@ -192,7 +166,6 @@ public class SectionService : ISectionService
             Message = "Unable To Retrieve Sections!"
         };
     }
-
     public GetSectionDto GetDetails(Section Section)
     {
         return new GetSectionDto()
@@ -322,7 +295,6 @@ public class SectionService : ISectionService
             IsHidden = door.IsHidden,
         };
     }
-
     public GetLightDto GetLightDetails(Light light)
     {
         return new GetLightDto()
@@ -343,7 +315,6 @@ public class SectionService : ISectionService
             IsHidden = light.IsHidden,
         };
     }
-
     public GetWindowDto GetWindowDetails(Window window)
     {
         return new GetWindowDto()

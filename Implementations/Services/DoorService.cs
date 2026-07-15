@@ -7,14 +7,12 @@ using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
-
 public class DoorService : IDoorService
 {
     IDoorRepo _doorRepo;
     IHardwareService _hardwareService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
-
     public DoorService(IDoorRepo doorRepo,IHardwareService hardwareService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _doorRepo = doorRepo;
@@ -22,7 +20,6 @@ public class DoorService : IDoorService
         _realtime = realtime;
         _mqtt = mqtt;
     }
-
     public async Task<BaseResponse> CreateDoor(CreateDoorDto createDoorDto, int personId)
     {
         if (createDoorDto != null)
@@ -46,7 +43,6 @@ public class DoorService : IDoorService
                 LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now
             };
-
             await _doorRepo.Create(door);
             var doorData = GetDetails(await _doorRepo.Get(x => x.DoorId == door.DoorId));
             if(doorData.IsHidden){ await _realtime.NotifyAll("DoorCreated", new List<Role> { Role.Owner, Role.Wife }, doorData);}
@@ -201,7 +197,6 @@ public class DoorService : IDoorService
             Status = false
         };
     }
-
     public async Task<BaseResponse> Delete(int doorId, int personId)
     {
         var door = await _doorRepo.Get(x => x.Id == doorId);

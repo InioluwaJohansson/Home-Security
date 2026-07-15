@@ -18,7 +18,7 @@ public class RecordingCleanupService : BackgroundService
     private void CleanupOldRecordings()
     {
         var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
-        var recordingsFolderPath = Path.Combine(basePath, "storage", "Cameras", "recordings");
+        var recordingsFolderPath = Path.Combine(basePath, "storage", "Cameras", "Recordings");
         if (!Directory.Exists(recordingsFolderPath))
             return;
         var cameraFolders = Directory.GetDirectories(recordingsFolderPath);

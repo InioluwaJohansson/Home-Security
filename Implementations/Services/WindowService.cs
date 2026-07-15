@@ -7,14 +7,12 @@ using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
-
 public class WindowService : IWindowService
 {
     IWindowRepo _windowRepo;
     IHardwareService _hardwareService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
-
     public WindowService(IWindowRepo windowRepo, IHardwareService hardwareService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _windowRepo = windowRepo;
@@ -22,7 +20,6 @@ public class WindowService : IWindowService
         _realtime = realtime;
         _mqtt = mqtt;
     }
-
     public async Task<BaseResponse> CreateWindow(CreateWindowDto createWindowDto, int personId)
     {
         if (createWindowDto != null)
@@ -55,14 +52,12 @@ public class WindowService : IWindowService
                 Message = "Window Successfully Added!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Add Window!"
         };
     }
-
     public async Task<BaseResponse> UpdateWindow(UpdateWindowDto updateWindowDto, int personId)
     {
         if (updateWindowDto != null)
@@ -108,7 +103,6 @@ public class WindowService : IWindowService
             Message = "Unable To Update Window!"
         };
     }
-
     public async Task<WindowResponseModel> GetById(int windowId)
     {
         var window = await _windowRepo.Get(x => x.Id == windowId && x.IsDeleted == false);
@@ -147,7 +141,6 @@ public class WindowService : IWindowService
             Status = false
         };
     }
-
     public async Task<WindowsResponseModel> GetAllWindowsByRoomId(int roomId)
     {
         var windows = await _windowRepo.GetByExpression(x => x.RoomId == roomId && x.IsDeleted == false);
@@ -188,7 +181,6 @@ public class WindowService : IWindowService
             Status = false
         };
     }
-
     public async Task<BaseResponse> Delete(int windowId, int personId)
     {
         var window = await _windowRepo.Get(x => x.Id == windowId);
@@ -218,21 +210,18 @@ public class WindowService : IWindowService
                 PowerActive = false,
                 BrightnessLevel = 0
             });
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Window Deleted Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Delete Window!"
         };
     }
-
     public GetWindowDto GetDetails(Window window)
     {
         return new GetWindowDto()

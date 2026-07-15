@@ -7,14 +7,12 @@ using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
-
 public class ExternalService : IExternalService
 {
     IExternalRepo _externalRepo;
     IHardwareService _hardwareService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
-
     public ExternalService(IExternalRepo externalRepo, IHardwareService hardwareService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _externalRepo = externalRepo;
@@ -22,7 +20,6 @@ public class ExternalService : IExternalService
         _realtime = realtime;
         _mqtt = mqtt;
     }
-
     public async Task<BaseResponse> CreateExternal(CreateExternalDto createExternalDto, int personId)
     {
         if (createExternalDto != null)
@@ -53,7 +50,6 @@ public class ExternalService : IExternalService
                 Message = "External Successfully Added!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
@@ -66,65 +62,60 @@ public class ExternalService : IExternalService
         if (updateExternalDto != null)
         {
             var Externals = await _externalRepo.Get(x => x.Id == updateExternalDto.Id);
-            if (Externals == null)
+            if (Externals != null)
             {
+                Externals.ExternalName = updateExternalDto.ExternalName ?? Externals.ExternalName;
+                Externals.LastModifiedBy = personId;
+                Externals.LastModifiedOn = DateTime.Now;
+                Externals.IsActive = updateExternalDto.IsActive;
+                Externals.SectionId = updateExternalDto.SectionId ?? null;
+                Externals.RoomId = updateExternalDto.RoomId ?? null;
+                Externals.IsTriggered = updateExternalDto.IsTriggered;
+                Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds;
+                var externalData = await _externalRepo.Update(Externals);
+                var hardware = await _hardwareService.GetHardwareName(Externals.Id, FacilityType.External);
+                if(externalData.IsHidden){ await _realtime.NotifyAll("ExternalsUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(externalData));}
+                else await _realtime.NotifyAll("ExternalsUpdated", GetDetails(externalData));
+                await _mqtt.PublishDeviceUpdate(Externals.ExternalId, new GenericDeviceUpdateState
+                {
+                    FacilityType = FacilityType.External,
+                    Id = externalData.Id,
+                    BrightnessLevel = 0,
+                    IsActive = externalData.IsActive,
+                    PowerActive = externalData.PowerActive,
+                    IsLocked = false,
+                    IsOpen = false
+                });
                 return new BaseResponse()
                 {
-                    Status = false,
-                    Message = "Externals Not Found!"
+                    Status = true,
+                    Message = "Externals Updated Successfully!"
                 };
             }
-            Externals.ExternalName = updateExternalDto.ExternalName ?? Externals.ExternalName;
-            Externals.LastModifiedBy = personId;
-            Externals.LastModifiedOn = DateTime.Now;
-            Externals.IsActive = updateExternalDto.IsActive;
-            Externals.SectionId = updateExternalDto.SectionId ?? null;
-            Externals.RoomId = updateExternalDto.RoomId ?? null;
-            Externals.IsTriggered = updateExternalDto.IsTriggered;
-            Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds;
-            var externalData = await _externalRepo.Update(Externals);
-            var hardware = await _hardwareService.GetHardwareName(Externals.Id, FacilityType.External);
-            if(externalData.IsHidden){ await _realtime.NotifyAll("ExternalsUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(externalData));}
-            else await _realtime.NotifyAll("ExternalsUpdated", GetDetails(externalData));
-            await _mqtt.PublishDeviceUpdate(Externals.ExternalId, new GenericDeviceUpdateState
-            {
-                FacilityType = FacilityType.External,
-                Id = externalData.Id,
-                BrightnessLevel = 0,
-                IsActive = externalData.IsActive,
-                PowerActive = externalData.PowerActive,
-                IsLocked = false,
-                IsOpen = false
-            });
-
             return new BaseResponse()
             {
-                Status = true,
-                Message = "Externals Updated Successfully!"
+                Status = false,
+                Message = "Externals Not Found!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Update Externals!"
         };
     }
-
     public async Task<ExternalResponseModel> GetById(int ExternalsId)
     {
-        var Externals = await _externalRepo.Get(x => x.Id == ExternalsId && x.IsDeleted == false);
-
-        if (Externals != null)
+        var external = await _externalRepo.Get(x => x.Id == ExternalsId && x.IsDeleted == false);
+        if (external != null)
         {
             return new ExternalResponseModel()
             {
-                Data = GetDetails(Externals),
+                Data = GetDetails(external),
                 Status = true,
-                Message = "Externals Retrieved Successfully!"
+                Message = "External Retrieved Successfully!"
             };
         }
-
         return new ExternalResponseModel()
         {
             Data = null,
@@ -135,18 +126,16 @@ public class ExternalService : IExternalService
 
     public async Task<ExternalsResponseModel> GetAllExternals()
     {
-        var Externals = await _externalRepo.GetByExpression(x => x.IsDeleted == false);
-
-        if (Externals != null)
+        var externals = await _externalRepo.GetByExpression(x => x.IsDeleted == false);
+        if (externals != null)
         {
             return new ExternalsResponseModel()
             {
-                Data = Externals.Select(x => GetDetails(x)).ToList(),
+                Data = externals.Select(x => GetDetails(x)).ToList(),
                 Message = "Externals Retrieved Successfully!",
                 Status = true
             };
         }
-
         return new ExternalsResponseModel()
         {
             Data = null,
@@ -157,18 +146,17 @@ public class ExternalService : IExternalService
 
     public async Task<ExternalsResponseModel> GetAllExternalsByRoomId(int roomId)
     {
-        var Externals = await _externalRepo.GetByExpression(x => x.RoomId == roomId && x.IsDeleted == false);
+        var externals = await _externalRepo.GetByExpression(x => x.RoomId == roomId && x.IsDeleted == false);
 
-        if (Externals != null)
+        if (externals != null)
         {
             return new ExternalsResponseModel()
             {
-                Data = Externals.Select(x => GetDetails(x)).ToList(),
+                Data = externals.Select(x => GetDetails(x)).ToList(),
                 Message = "Externals Retrieved Successfully!",
                 Status = true
             };
         }
-
         return new ExternalsResponseModel()
         {
             Data = null,
@@ -176,21 +164,18 @@ public class ExternalService : IExternalService
             Status = false
         };
     }
-
     public async Task<ExternalsResponseModel> GetAllExternalsBySectionId(int sectionId)
     {
-        var Externals = await _externalRepo.GetByExpression(x => x.SectionId == sectionId && x.IsDeleted == false);
-
-        if (Externals != null)
+        var externals = await _externalRepo.GetByExpression(x => x.SectionId == sectionId && x.IsDeleted == false);
+        if (externals != null)
         {
             return new ExternalsResponseModel()
             {
-                Data = Externals.Select(x => GetDetails(x)).ToList(),
+                Data = externals.Select(x => GetDetails(x)).ToList(),
                 Message = "Externals Retrieved Successfully!",
                 Status = true
             };
         }
-
         return new ExternalsResponseModel()
         {
             Data = null,
@@ -198,30 +183,29 @@ public class ExternalService : IExternalService
             Status = false
         };
     }
-
     public async Task<BaseResponse> Delete(int ExternalsId, int personId)
     {
-        var Externals = await _externalRepo.Get(x => x.Id == ExternalsId);
+        var external = await _externalRepo.Get(x => x.Id == ExternalsId);
 
-        if (Externals != null)
+        if (external != null)
         {
-            Externals.IsActive = false;
-            Externals.PowerActive = false;
-            Externals.LastModifiedBy = personId;
-            Externals.LastModifiedOn = DateTime.Now;
-            Externals.DeletedOn = DateTime.Now;
-            Externals.DeletedBy = personId;
-            Externals.IsDeleted = true;
-            await _externalRepo.Update(Externals);
-            await _hardwareService.RemoveFacilityItem(Externals.Id, FacilityType.External);
+            external.IsActive = false;
+            external.PowerActive = false;
+            external.LastModifiedBy = personId;
+            external.LastModifiedOn = DateTime.Now;
+            external.DeletedOn = DateTime.Now;
+            external.DeletedBy = personId;
+            external.IsDeleted = true;
+            await _externalRepo.Update(external);
+            await _hardwareService.RemoveFacilityItem(external.Id, FacilityType.External);
             await _realtime.NotifyAll("ExternalsDeleted", new
             {
-                Externals.Id,
+                external.Id,
             });
-            await _mqtt.PublishDeviceUpdate(Externals.ExternalId, new GenericDeviceUpdateState
+            await _mqtt.PublishDeviceUpdate(external.ExternalId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.External,
-                Id = Externals.Id,
+                Id = external.Id,
                 BrightnessLevel = 0,
                 IsActive = false,
                 PowerActive = false,
@@ -231,13 +215,13 @@ public class ExternalService : IExternalService
             return new BaseResponse()
             {
                 Status = true,
-                Message = "Externals Deleted Successfully!"
+                Message = "External Deleted Successfully!"
             };
         }
         return new BaseResponse()
         {
             Status = false,
-            Message = "Unable To Delete Externals!"
+            Message = "Unable To Delete External!"
         };
     }
     public GetExternalDto GetDetails(External External)

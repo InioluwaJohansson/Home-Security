@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Home_Security.Streaming;
-public class CameraStreamingService : BackgroundService, ICameraStreamingService
+public class CameraStreamingService : ICameraStreamingService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly Dictionary<int, Process> _streamProcesses = new();
@@ -17,14 +17,16 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
         _scopeFactory = scopeFactory;
         _cameraRepo = cameraRepo;
     }
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    public async Task StartProcessingCameras(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            using var scope = _scopeFactory.CreateScope();
             var cameras = await _cameraRepo.GetByExpression(x => x.IsDeleted == false);
-            var tasks = cameras.Select(camera => ProcessCamera(camera, stoppingToken));
-            await Task.WhenAll(tasks);
+            if(cameras != null)
+            {
+                var tasks = cameras.Select(camera => ProcessCamera(camera, stoppingToken));
+                await Task.WhenAll(tasks);
+            }
             await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
         }
     }
@@ -103,39 +105,69 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
     }
     public async Task<string> StartStream(Camera camera)
     {
+        if (_streamProcesses.TryGetValue(camera.Id, out var existingProcess))
+        {
+            if (!existingProcess.HasExited) return camera.LiveStreamUrl;
+            _streamProcesses.Remove(camera.Id);
+        }
         var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
-        var cameraStoragePath = Path.Combine("storage", "Cameras");
-        var hlsFolderPath = Path.Combine(cameraStoragePath, "hls", $"CAM_{camera.CameraId}");
-        var recordingsFolderPath = Path.Combine(cameraStoragePath, "Recordings", $"CAM_{camera.CameraId}");
-        Directory.CreateDirectory(Path.Combine(basePath, hlsFolderPath));
-        Directory.CreateDirectory(Path.Combine(basePath, recordingsFolderPath));
-        string hlsOutput = $"{hlsFolderPath}/live.m3u8";
-        string recordingOutput = $"{recordingsFolderPath}/cam_%Y-%m-%d_%H-%M-%S.mp4";
-        string ffmpegArgs =
-            $"-rtsp_transport tcp " +
-            $"-i \"{camera.InputStreamUrl}\" " +
-            $"-c:v libx264 -preset veryfast -tune zerolatency " +
-            $"-f hls -hls_time 2 -hls_list_size 30 -hls_flags delete_segments " +
+        var hlsFolder = Path.Combine(basePath, "storage", "Cameras", "hls", $"CAM_{camera.CameraId}");
+        var recordingsFolder = Path.Combine(basePath, "storage", "Cameras", "Recordings", $"CAM_{camera.CameraId}");
+        Directory.CreateDirectory(hlsFolder);
+        Directory.CreateDirectory(recordingsFolder);
+        var hlsOutput = Path.Combine(hlsFolder, "live.m3u8");
+        var recordingOutput = Path.Combine(recordingsFolder, "cam_%Y-%m-%d_%H-%M-%S.mp4");
+        var ffmpegArgs =
+            $"-rtsp_transport tcp " + $"-i \"{camera.InputStreamUrl}\" " +
+            $"-map 0:v " +
+            $"-c:v libx264 " +
+            $"-preset veryfast " +
+            $"-tune zerolatency " +
+            $"-f hls " +
+            $"-hls_time 2 " +
+            $"-hls_list_size 30 " +
+            $"-hls_flags delete_segments+append_list " +
             $"\"{hlsOutput}\" " +
-            $"-c:v copy -f segment -segment_time 300 -reset_timestamps 1 -strftime 1 " +
-            $"\"{recordingOutput}\"";
+            $"-map 0:v " + $"-c:v copy " + $"-f segment " +
+            $"-segment_time 300 " + $"-reset_timestamps 1 " + $"-strftime 1 " + $"\"{recordingOutput}\"";
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = "ffmpeg",
+                FileName = @"C:\ffmpeg-8.1.2-essentials_build\bin\ffmpeg.exe", // Or read from appsettings.json
                 Arguments = ffmpegArgs,
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
-                CreateNoWindow = true
-            }
+                CreateNoWindow = true,
+                WorkingDirectory = basePath
+            },
+            EnableRaisingEvents = true
+        };
+        process.OutputDataReceived += (_, e) =>
+        {
+            if (!string.IsNullOrWhiteSpace(e.Data)) Console.WriteLine($"[FFmpeg][{camera.CameraId}] {e.Data}");
+        };
+        process.ErrorDataReceived += (_, e) =>
+        {
+            if (!string.IsNullOrWhiteSpace(e.Data)) Console.WriteLine($"[FFmpeg][{camera.CameraId}] {e.Data}");
+        };
+        process.Exited += (_, _) =>
+        {
+            Console.WriteLine($"FFmpeg exited for camera {camera.CameraId}");
+            lock (_streamProcesses) _streamProcesses.Remove(camera.Id);
         };
         process.Start();
-        string error = await process.StandardError.ReadToEndAsync();
-        Console.WriteLine(error);
-        _streamProcesses[camera.Id] = process;
-        camera.LiveStreamUrl = $"{hlsFolderPath}/live.m3u8";
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+        lock (_streamProcesses)  _streamProcesses[camera.Id] = process;
+
+        camera.LiveStreamUrl = $"/storage/Cameras/hls/CAM_{camera.CameraId}/live.m3u8";
+        camera.IsStreaming = true;
+        camera.LastStreamStart = DateTime.UtcNow;
+
+        await Task.Delay(1500);
+        if (process.HasExited) throw new Exception($"Unable to start stream for camera {camera.CameraId}. Check the FFmpeg logs above.");
         return camera.LiveStreamUrl;
     }
     public async Task StopStream(Camera camera)

@@ -3,6 +3,7 @@ using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 using Home_Security.RealTimeServices;
+
 namespace Home_Security.Implementations.Services;
 public class ContactService : IContactService
 {
@@ -28,7 +29,7 @@ public class ContactService : IContactService
                 LastName = createContactDto.LastName,
                 ContactCategoryId = createContactDto.ContactCategory,
                 Gender = createContactDto.Gender,
-                ImageUrl = await GetImageUrl(createContactDto.ImageUrl),
+                ImageUrl = await GetImageUrl(createContactDto.ImageUrl) ?? null,
             };
             contact = await _contactRepo.Create(contact);
             foreach (var contactDetail in createContactDto.ContactDetails)

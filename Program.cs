@@ -101,6 +101,7 @@ builder.Services.AddSingleton<IAuthCache, AuthCache>();
 builder.Services.AddScoped<IJWTAuthentication, JWTAuthentication>();
 
 builder.Services.AddScoped<ICameraStreamingService, CameraStreamingService>();
+
 builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
 builder.Services.AddScoped<IChatHub, ChatHub>();
 builder.Services.AddSingleton<IMqttService, MqttService>();
@@ -110,9 +111,10 @@ builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 builder.Services.AddScoped<IStartUpService, StartUpService>();
 
 builder.Services.AddHostedService<StartupInitializer>();
-builder.Services.AddHostedService<MqttBackgroundService>();
-builder.Services.AddHostedService<BackgroundServices>();
 builder.Services.AddHostedService<AuthServices>();
+builder.Services.AddHostedService<BackgroundServices>();
+builder.Services.AddHostedService<CameraStreamingBackgroundService>();
+builder.Services.AddHostedService<MqttBackgroundService>();
 builder.Services.AddHostedService<HardwareServices>();
 builder.Services.AddHostedService<RecordingCleanupService>();
 

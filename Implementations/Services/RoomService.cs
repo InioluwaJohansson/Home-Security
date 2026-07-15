@@ -190,11 +190,8 @@ public class RoomService : IRoomService
             room.DeletedBy = personId;
             room.LastModifiedBy = personId;
             room.LastModifiedOn = DateTime.Now;
-
             await _roomRepo.Update(room);
-
             await _realtime.NotifyAll("RoomDeleted", id);
-
             return new BaseResponse()
             {
                 Status = true,

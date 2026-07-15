@@ -9,6 +9,7 @@ using Home_Security.Models.DTOs;
 using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 using Home_Security.StartUp;
+using Home_Security.Streaming;
 using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -23,10 +24,7 @@ public class BackgroundServices : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using var scope = _serviceScopeFactory.CreateAsyncScope();
-        
-        
-        // var hardwareService = scope.ServiceProvider.GetRequiredService<IHardwareService>();
-        // await hardwareService.CheckHardwareStatus();
+        // Any Other Thing
         await Task.CompletedTask;
     }
 }
@@ -112,4 +110,18 @@ public class MqttBackgroundService : BackgroundService
         var mqttService = scope.ServiceProvider.GetRequiredService<IMqttService>();
         await mqttService.ConnectAsync(stoppingToken);
     }
+}
+public class CameraStreamingBackgroundService : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    public CameraStreamingBackgroundService(IServiceScopeFactory scopeFactory)
+    {
+        _scopeFactory = scopeFactory;
     }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var cameraStreamingService = scope.ServiceProvider.GetRequiredService<ICameraStreamingService>();
+        await cameraStreamingService.StartProcessingCameras(stoppingToken);
+    }
+}
