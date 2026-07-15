@@ -28,7 +28,6 @@ public class CameraStreamingService : BackgroundService, ICameraStreamingService
             await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
         }
     }
-
     public async Task ProcessCamera(Camera camera, CancellationToken token)
     {
         try

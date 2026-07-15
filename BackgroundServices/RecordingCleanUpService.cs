@@ -9,21 +9,19 @@ public class RecordingCleanupService : BackgroundService
             try
             {
                 CleanupOldRecordings();
+                CleanUpOldHls();
             }
-            catch
-            {
-                // TODO: add logging here
-            }
+            catch{}
             await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
         }
     }
-
     private void CleanupOldRecordings()
     {
-        string recordingsRoot = "storage/recordings";
-        if (!Directory.Exists(recordingsRoot))
+        var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+        var recordingsFolderPath = Path.Combine(basePath, "storage", "Cameras", "recordings");
+        if (!Directory.Exists(recordingsFolderPath))
             return;
-        var cameraFolders = Directory.GetDirectories(recordingsRoot);
+        var cameraFolders = Directory.GetDirectories(recordingsFolderPath);
         foreach (var folder in cameraFolders)
         {
             var files = Directory.GetFiles(folder, "*.mp4");
@@ -32,15 +30,30 @@ public class RecordingCleanupService : BackgroundService
                 try
                 {
                     var creationTime = File.GetCreationTimeUtc(file);
-                    if (creationTime < DateTime.UtcNow.AddDays(-7))
-                    {
-                        File.Delete(file);
-                    }
+                    if (creationTime < DateTime.UtcNow.AddDays(-7)) File.Delete(file);
                 }
-                catch
+                catch{}
+            }
+        }
+    }
+    private void CleanUpOldHls()
+    {
+        var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+        var hlsFolderPath = Path.Combine(basePath, "storage", "Cameras", "hls");
+        if (!Directory.Exists(hlsFolderPath))
+            return;
+        var cameraFolders = Directory.GetDirectories(hlsFolderPath);
+        foreach (var folder in cameraFolders)
+        {
+            var files = Directory.GetFiles(folder, "*.ts");
+            foreach (var file in files)
+            {
+                try
                 {
-                    // ignore individual file errors
+                    var creationTime = File.GetCreationTimeUtc(file);
+                    if (creationTime < DateTime.UtcNow.AddDays(-7)) File.Delete(file);
                 }
+                catch{}
             }
         }
     }
