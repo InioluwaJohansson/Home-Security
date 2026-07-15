@@ -7,15 +7,15 @@ using Microsoft.Extensions.Hosting;
 namespace Home_Security.Streaming;
 public class CameraStreamingService : ICameraStreamingService
 {
-    private readonly IServiceScopeFactory _scopeFactory;
     private readonly Dictionary<int, Process> _streamProcesses = new();
     private const int MaxConcurrentStarts = 5;
     private readonly SemaphoreSlim _streamLock = new(MaxConcurrentStarts);
+    IConfiguration _FFmpeg;
     ICameraRepo _cameraRepo;
-    public CameraStreamingService(IServiceScopeFactory scopeFactory, ICameraRepo cameraRepo)
+    public CameraStreamingService(ICameraRepo cameraRepo, IConfiguration config)
     {
-        _scopeFactory = scopeFactory;
         _cameraRepo = cameraRepo;
+        _FFmpeg = config.GetSection("FFMpeg");
     }
     public async Task StartProcessingCameras(CancellationToken stoppingToken)
     {
@@ -134,7 +134,7 @@ public class CameraStreamingService : ICameraStreamingService
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = @"C:\ffmpeg-8.1.2-essentials_build\bin\ffmpeg.exe", // Or read from appsettings.json
+                FileName = $"@{_FFmpeg["Path"]}",
                 Arguments = ffmpegArgs,
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
