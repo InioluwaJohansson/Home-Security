@@ -24,8 +24,7 @@ public class CameraStreamingService : ICameraStreamingService
             var cameras = await _cameraRepo.GetByExpression(x => x.IsDeleted == false);
             if(cameras != null)
             {
-                var tasks = cameras.Select(camera => ProcessCamera(camera, stoppingToken));
-                await Task.WhenAll(tasks);
+                foreach (var camera in cameras) await ProcessCamera(camera, stoppingToken);
             }
             await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
         }

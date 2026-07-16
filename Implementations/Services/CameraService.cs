@@ -15,7 +15,6 @@ public class CameraService : ICameraService
     IHardwareService _hardwareService;
     IMqttService _mqtt;
     ICameraStreamingService _cameraStreamingService;
-
     public CameraService(ICameraRepo cameraRepo, IRealtimeNotificationService realtime, IHardwareService hardwareService, IMqttService mqtt, ICameraStreamingService cameraStreamingService)
     {
         _cameraRepo = cameraRepo;
@@ -24,16 +23,13 @@ public class CameraService : ICameraService
         _mqtt = mqtt;
         _cameraStreamingService = cameraStreamingService;
     }
-
     private string BuildRtspUrl(CreateCameraDto dto)
     {
         Console.WriteLine($"Building RTSP URL for camera: {dto.CameraName}, IP: {dto.IpAddress}, Port: {dto.Port}, StreamPath: {dto.StreamPath}");
-        return $"rtsp://{dto.IpAddress}:{dto.Port}/{dto.StreamPath}";
         if(dto.Username == null || dto.Password == null)
             return $"rtsp://{dto.IpAddress}:{dto.Port}/{dto.StreamPath}";
         else return $"rtsp://{dto.Username}:{dto.Password}@{dto.IpAddress}:{dto.Port}/{dto.StreamPath}";
     }
-
     public async Task<BaseResponse> CreateCamera(CreateCameraDto createCameraDto, int personId)
     {
         if (createCameraDto != null)
@@ -50,6 +46,7 @@ public class CameraService : ICameraService
                 IpAddress = createCameraDto.IpAddress,
                 InputStreamUrl = BuildRtspUrl(createCameraDto),
                 LiveStreamUrl = BuildRtspUrl(createCameraDto),
+                StreamPath = createCameraDto.StreamPath,
                 RecordingPath = recordingsFolderPath,
                 IsOnline = false,
                 IsStreaming = false,
@@ -220,6 +217,11 @@ public class CameraService : ICameraService
             CameraId = camera.CameraId,
             IsActive = camera.IsActive,
             PowerActive = camera.PowerActive,
+            Port = camera.Port,
+            IpAddress = camera.IpAddress,
+            Username = camera.Username,
+            Password = camera.Password,
+            StreamPath = camera.StreamPath,
             RoomId = camera.RoomId ?? null,
             SectionId = camera.SectionId ?? null,
             LastModifiedBy = camera.LastModifiedBy,

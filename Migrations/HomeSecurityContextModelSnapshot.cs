@@ -385,6 +385,12 @@ namespace Home_Security.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Password")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Port")
+                        .HasColumnType("int");
+
                     b.Property<bool>("PowerActive")
                         .HasColumnType("tinyint(1)");
 
@@ -397,6 +403,13 @@ namespace Home_Security.Migrations
 
                     b.Property<int?>("SectionId")
                         .HasColumnType("int");
+
+                    b.Property<string>("StreamPath")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 

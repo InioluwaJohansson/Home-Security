@@ -12,13 +12,11 @@ public class SectionService : ISectionService
 {
     ISectionRepo _sectionRepo;
     IRealtimeNotificationService _realtime;
-
     public SectionService(ISectionRepo sectionRepo,IRealtimeNotificationService realtime)
     {
         _sectionRepo = sectionRepo;
         _realtime = realtime;
     }
-
     public async Task<BaseResponse> CreateSection(int personId, CreateSectionDto createSectionDto)
     {
         if (createSectionDto != null)
@@ -234,6 +232,11 @@ public class SectionService : ISectionService
             PowerActive = camera.PowerActive,
             RoomId = camera.RoomId,
             SectionId = camera.SectionId,
+            Port = camera.Port,
+            IpAddress = camera.IpAddress,
+            Username = camera.Username,
+            Password = camera.Password,
+            StreamPath = camera.StreamPath,
             LastModifiedBy = camera.LastModifiedBy,
             DeletedBy = camera.DeletedBy,
             CreatedBy = camera.CreatedBy,

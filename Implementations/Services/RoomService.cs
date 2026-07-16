@@ -278,20 +278,20 @@ public class RoomService : IRoomService
             Id = camera.Id,
             CameraName = camera.CameraName,
             CameraId = camera.CameraId,
-
             IsActive = camera.IsActive,
             PowerActive = camera.PowerActive,
-
             RoomId = camera.RoomId,
             SectionId = camera.SectionId,
-
             LastModifiedBy = camera.LastModifiedBy,
             DeletedBy = camera.DeletedBy,
             CreatedBy = camera.CreatedBy,
-
             LastModifiedOn = camera.LastModifiedOn,
             CreatedOn = camera.CreatedOn,
-
+            Port = camera.Port,
+            IpAddress = camera.IpAddress,
+            Username = camera.Username,
+            Password = camera.Password,
+            StreamPath = camera.StreamPath,
             LiveStreamUrl = camera.LiveStreamUrl,
             Recordings = camera.Recordings.Select(x => new GetRecordingDto
             {
