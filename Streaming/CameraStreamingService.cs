@@ -64,7 +64,7 @@ public class CameraStreamingService : ICameraStreamingService
             await _cameraRepo.Update(camera);
         }
     }
-    public async Task RestartStream(Camera camera)
+    public async Task<Camera> RestartStream(Camera camera)
     {
         if (_streamProcesses.TryGetValue(camera.Id, out var process))
         {
@@ -86,7 +86,7 @@ public class CameraStreamingService : ICameraStreamingService
                 _streamProcesses.Remove(camera.Id);
             }
         }
-        await StartStream(camera);
+        return await StartStream(camera);
     }
     public async Task<bool> CheckStreamAsync(string streamUrl)
     {
@@ -102,11 +102,11 @@ public class CameraStreamingService : ICameraStreamingService
             return false;
         }
     }
-    public async Task<string> StartStream(Camera camera)
+    public async Task<Camera> StartStream(Camera camera)
     {
         if (_streamProcesses.TryGetValue(camera.Id, out var existingProcess))
         {
-            if (!existingProcess.HasExited) return camera.LiveStreamUrl;
+            if (!existingProcess.HasExited) return camera;
             _streamProcesses.Remove(camera.Id);
         }
         var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
@@ -160,14 +160,12 @@ public class CameraStreamingService : ICameraStreamingService
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
         lock (_streamProcesses)  _streamProcesses[camera.Id] = process;
-
         camera.LiveStreamUrl = $"Cameras/hlsCAM_{camera.CameraId}/live.m3u8";
         camera.IsStreaming = true;
         camera.LastStreamStart = DateTime.UtcNow;
-
         await Task.Delay(1500);
         if (process.HasExited) throw new Exception($"Unable to start stream for camera {camera.CameraId}. Check the FFmpeg logs above.");
-        return camera.LiveStreamUrl;
+        return camera;
     }
     public async Task StopStream(Camera camera)
     {

@@ -60,8 +60,8 @@ public class CameraService : ICameraService
                 LastModifiedOn = DateTime.Now
             };
             await _cameraRepo.Create(camera);
-            var liveUrl = await _cameraStreamingService.StartStream(camera);
-            camera.LiveStreamUrl = liveUrl;
+            var liveCamera = await _cameraStreamingService.StartStream(camera);
+            camera.LiveStreamUrl = liveCamera.LiveStreamUrl;
             camera.IsStreaming = true;
             camera.LastStreamStart = DateTime.UtcNow;
             var cameraData = GetDetails(await _cameraRepo.Update(camera));
@@ -91,10 +91,10 @@ public class CameraService : ICameraService
                 camera.LastModifiedOn = DateTime.Now;
                 camera.SectionId = updateCameraDto.SectionId ?? null;
                 camera.RoomId = updateCameraDto.RoomId ?? null;
+                if (!camera.IsStreaming) camera = await _cameraStreamingService.RestartStream(camera);
                 var cameraData = await _cameraRepo.Update(camera);
-                if (camera.IsStreaming) await _cameraStreamingService.RestartStream(camera);
                 if(cameraData.IsHidden){ await _realtime.NotifyAll("CameraUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(cameraData));}
-                    else await _realtime.NotifyAll("CameraUpdated", GetDetails(cameraData));
+                else await _realtime.NotifyAll("CameraUpdated", GetDetails(cameraData));
                 var hardware = await _hardwareService.GetHardwareName(cameraData.Id, FacilityType.Camera);
                 await _mqtt.PublishDeviceUpdate(camera.CameraId, new GenericDeviceUpdateState
                 {
@@ -119,6 +119,26 @@ public class CameraService : ICameraService
             Message = "Unable To Update Camera!"
         };
     }
+    public async Task<BaseResponse> RestartCamera(int Id, int personId)
+    {
+        var camera = await _cameraRepo.Get(x => x.Id == Id);
+        if(camera != null){
+            if (camera.IsStreaming) camera = await _cameraStreamingService.RestartStream(camera);
+            await _cameraRepo.Update(camera);
+            if(camera.IsHidden){ await _realtime.NotifyAll("CameraUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(camera));}
+            else await _realtime.NotifyAll("CameraUpdated", GetDetails(camera));
+            return new BaseResponse
+            {
+                Status = true,
+                Message = "Camera Restarted Successfully!"
+            };                
+        }
+        return new BaseResponse
+        {
+            Status = false,
+            Message = "Unable To Restart Camera!"
+        };
+    }
     public async Task<CameraResponseModel> GetById(int cameraId)
     {
         var camera = await _cameraRepo.GetCameraById(cameraId);
@@ -140,7 +160,7 @@ public class CameraService : ICameraService
     public async Task<CamerasResponseModel> GetAllCameras()
     {
         var cameras = await _cameraRepo.GetByExpression(x => x.IsDeleted == false);
-        if (cameras == null)
+        if (cameras != null)
         {
             return new CamerasResponseModel
             {

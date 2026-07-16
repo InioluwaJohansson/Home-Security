@@ -50,6 +50,16 @@ public class CameraControl : ICameraControl
         }
         return _authControl.AuthFaliure();
     }
+    public async Task<BaseResponse> RestartCamera(GetAuthControlInfoDto getAuthControlInfoDto, int id)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false)
+        {
+            var camera = await _cameraService.RestartCamera(id, auth.Id);
+            return camera;
+        }
+        return _authControl.AuthFaliure();
+    }
     public async Task<CameraResponseModel> GetCameraById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
