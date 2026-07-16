@@ -220,7 +220,6 @@ public class CameraService : ICameraService
             Port = camera.Port,
             IpAddress = camera.IpAddress,
             Username = camera.Username,
-            Password = camera.Password,
             StreamPath = camera.StreamPath,
             RoomId = camera.RoomId ?? null,
             SectionId = camera.SectionId ?? null,

@@ -22,7 +22,6 @@ public class GetCameraDto : BaseDefaultDto
     public string LiveStreamUrl { get; set; }
     public string IpAddress { get; set; }
     public string? Username { get; set; }
-    public string? Password { get; set; }
     public string StreamPath { get; set; }  
     public int Port { get; set; } 
     public List<GetRecordingDto> Recordings { get; set; }

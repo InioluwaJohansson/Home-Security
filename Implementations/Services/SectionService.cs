@@ -235,7 +235,6 @@ public class SectionService : ISectionService
             Port = camera.Port,
             IpAddress = camera.IpAddress,
             Username = camera.Username,
-            Password = camera.Password,
             StreamPath = camera.StreamPath,
             LastModifiedBy = camera.LastModifiedBy,
             DeletedBy = camera.DeletedBy,

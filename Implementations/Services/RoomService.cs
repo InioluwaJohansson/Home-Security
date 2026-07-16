@@ -290,7 +290,6 @@ public class RoomService : IRoomService
             Port = camera.Port,
             IpAddress = camera.IpAddress,
             Username = camera.Username,
-            Password = camera.Password,
             StreamPath = camera.StreamPath,
             LiveStreamUrl = camera.LiveStreamUrl,
             Recordings = camera.Recordings.Select(x => new GetRecordingDto

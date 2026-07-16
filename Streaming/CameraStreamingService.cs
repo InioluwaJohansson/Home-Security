@@ -133,7 +133,7 @@ public class CameraStreamingService : ICameraStreamingService
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = $"@{_FFmpeg["Path"]}",
+                FileName = _FFmpeg["Path"],
                 Arguments = ffmpegArgs,
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
@@ -161,7 +161,7 @@ public class CameraStreamingService : ICameraStreamingService
         process.BeginErrorReadLine();
         lock (_streamProcesses)  _streamProcesses[camera.Id] = process;
 
-        camera.LiveStreamUrl = $"/storage/Cameras/hls/CAM_{camera.CameraId}/live.m3u8";
+        camera.LiveStreamUrl = $"Cameras/hlsCAM_{camera.CameraId}/live.m3u8";
         camera.IsStreaming = true;
         camera.LastStreamStart = DateTime.UtcNow;
 
