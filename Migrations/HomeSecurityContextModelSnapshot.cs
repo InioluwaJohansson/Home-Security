@@ -1294,7 +1294,7 @@ namespace Home_Security.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CameraId")
+                    b.Property<int>("CameraId")
                         .HasColumnType("int");
 
                     b.Property<int>("CreatedBy")
@@ -1311,6 +1311,10 @@ namespace Home_Security.Migrations
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("FilePath")
                         .IsRequired()
@@ -1800,7 +1804,9 @@ namespace Home_Security.Migrations
                 {
                     b.HasOne("Home_Security.Entities.Camera", null)
                         .WithMany("Recordings")
-                        .HasForeignKey("CameraId");
+                        .HasForeignKey("CameraId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Room", b =>

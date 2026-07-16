@@ -1,4 +1,5 @@
 using Home_Security.Entities;
+using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Models.DTOs;
 using Home_Security.RealTimeServices;
@@ -99,10 +100,10 @@ public class RecordingCleanUpService : IRecordingCleanUpService
             foreach (var file in files)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var existing = await _recordingRepo.Get(x => x.FilePath == file);
+                var info = new FileInfo(file);
+                var existing = await _recordingRepo.Get(x => x.FilePath.Contains(info.Name) && x.CameraId == camera.Id);
                 if (existing != null)
                     continue;
-                var info = new FileInfo(file);
                 DateTime startTime;
                 try
                 {
@@ -118,7 +119,7 @@ public class RecordingCleanUpService : IRecordingCleanUpService
                 {
                     CameraId = camera.Id,
                     FileName = info.Name,
-                    FilePath = file,
+                    FilePath = Path.Combine(camera.RecordingPath, info.Name),
                     StartTime = startTime,
                     EndTime = startTime.AddMinutes(5), // Because segment_time = 300
                     CreatedOn = DateTime.UtcNow,
@@ -126,7 +127,8 @@ public class RecordingCleanUpService : IRecordingCleanUpService
                     IsDeleted = false
                 };
                 recording = await _recordingRepo.Create(recording);
-                await _realtimeNotificationService.NotifyAll("NewRecording", GetDetails(recording));
+                if(camera.IsHidden){ await _realtimeNotificationService.NotifyAll("NewRecording", new List<Role> { Role.Owner, Role.Wife }, GetDetails(recording));}
+                else await _realtimeNotificationService.NotifyAll("NewRecording", GetDetails(recording));
             }
         }
     }
