@@ -33,21 +33,21 @@ public class CameraStreamingService : ICameraStreamingService
     {
         try
         {
-            bool online = await CheckStreamAsync(camera.InputStreamUrl);
-            camera.IsOnline = online;
-            if (!online)
-            {
-                await StopStream(camera);
-                camera.IsStreaming = false;
-                await _cameraRepo.Update(camera);
-                return;
-            }
+            // bool online = await CheckStreamAsync(camera.InputStreamUrl);
+            // camera.IsOnline = online;
+            // if (!online)
+            // {
+            //     await StopStream(camera);
+            //     camera.IsStreaming = false;
+            //     await _cameraRepo.Update(camera);
+            //     return;
+            // }
             if (!IsProcessAlive(camera.Id))
             {
                 await _streamLock.WaitAsync(token);
                 try
                 {
-                    await StartStream(camera);
+                    camera = await StartStream(camera);
                     camera.IsStreaming = true;
                     camera.LastStreamStart = DateTime.UtcNow;
                 }
@@ -160,7 +160,7 @@ public class CameraStreamingService : ICameraStreamingService
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
         lock (_streamProcesses)  _streamProcesses[camera.Id] = process;
-        camera.LiveStreamUrl = $"Cameras/hlsCAM_{camera.CameraId}/live.m3u8";
+        camera.LiveStreamUrl = $"Cameras/hls/CAM_{camera.CameraId}/live.m3u8";
         camera.IsStreaming = true;
         camera.LastStreamStart = DateTime.UtcNow;
         await Task.Delay(1500);

@@ -5,6 +5,7 @@ public interface ICameraControl
     public Task<BaseResponse> CreateCamera(GetAuthControlInfoDto getAuthControlInfoDto, CreateCameraDto createCameraDto);
     public Task<BaseResponse> UpdateCamera(GetAuthControlInfoDto getAuthControlInfoDto, UpdateCameraDto updateCameraDto);
     public Task<BaseResponse> RestartCamera(GetAuthControlInfoDto getAuthControlInfoDto, int id);
+    public Task<BaseResponse> ToggleCamera(GetAuthControlInfoDto getAuthControlInfoDto, int id);
     public Task<CameraResponseModel> GetCameraById(GetAuthControlInfoDto getAuthControlInfoDto, int id);
     public Task<CamerasResponseModel> GetAllCamerasBySectionId(GetAuthControlInfoDto getAuthControlInfoDto, int sectionId);
     public Task<CamerasResponseModel> GetAllCamerasByRoomId(GetAuthControlInfoDto getAuthControlInfoDto, int roomId);

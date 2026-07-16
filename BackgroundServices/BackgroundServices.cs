@@ -125,3 +125,31 @@ public class CameraStreamingBackgroundService : BackgroundService
         await cameraStreamingService.StartProcessingCameras(stoppingToken);
     }
 }
+public class RecordingCleanUpBackgroundService : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    public RecordingCleanUpBackgroundService(IServiceScopeFactory scopeFactory)
+    {
+        _scopeFactory = scopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var recordingCleanUpService = scope.ServiceProvider.GetRequiredService<IRecordingCleanUpService>();
+        await recordingCleanUpService.SyncAllRecordings(stoppingToken);
+    }
+}
+public class RecordingCleanUpBackgroundServiceDelete : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    public RecordingCleanUpBackgroundServiceDelete(IServiceScopeFactory scopeFactory)
+    {
+        _scopeFactory = scopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var recordingCleanUpService = scope.ServiceProvider.GetRequiredService<IRecordingCleanUpService>();
+        await recordingCleanUpService.ExecuteCleanUp(stoppingToken);
+    }
+}

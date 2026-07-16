@@ -245,6 +245,8 @@ public class SectionService : ISectionService
             LiveStreamUrl = camera.LiveStreamUrl,
             Recordings = camera.Recordings.Select(x => new GetRecordingDto
             {
+                CameraId = x.CameraId,
+                FileName = x.FileName,
                 FilePath = x.FilePath,
                 StartTime = x.StartTime,
                 EndTime = x.EndTime

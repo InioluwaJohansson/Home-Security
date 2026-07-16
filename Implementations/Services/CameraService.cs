@@ -48,6 +48,9 @@ public class CameraService : ICameraService
                 LiveStreamUrl = BuildRtspUrl(createCameraDto),
                 StreamPath = createCameraDto.StreamPath,
                 RecordingPath = recordingsFolderPath,
+                Password = createCameraDto.Password,
+                Port = createCameraDto.Port,
+                Username = createCameraDto.Username,
                 IsOnline = false,
                 IsStreaming = false,
                 IsActive = false,
@@ -159,7 +162,7 @@ public class CameraService : ICameraService
     }
     public async Task<CamerasResponseModel> GetAllCameras()
     {
-        var cameras = await _cameraRepo.GetByExpression(x => x.IsDeleted == false);
+        var cameras = await _cameraRepo.GetAllCameras(x => x.IsDeleted == false);
         if (cameras != null)
         {
             return new CamerasResponseModel
@@ -254,6 +257,8 @@ public class CameraService : ICameraService
                 ? new List<GetRecordingDto>()
                 : camera.Recordings.Select(x => new GetRecordingDto
                 {
+                    CameraId = x.CameraId,
+                    FileName = x.FileName,
                     FilePath = x.FilePath,
                     StartTime = x.StartTime,
                     EndTime = x.EndTime
