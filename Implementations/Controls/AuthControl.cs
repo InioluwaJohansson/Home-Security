@@ -54,9 +54,6 @@ public class AuthControl : IAuthControl
         {
             throw new Exception("_cache is null");
         }
-
-        Console.WriteLine($"Cache Count: {_authCache._cache.Count}");
-
         var person = _authCache._cache.FirstOrDefault(x => x != null && x.Id == personId);
         if (person != null && authorizationCode.Equals(person.User.AuthorizationCode) && person.Disabled == false)
         {
