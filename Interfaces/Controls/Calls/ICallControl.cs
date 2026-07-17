@@ -7,6 +7,7 @@ public interface ICallControl
     Task<CallDto> StartCall(GetAuthControlInfoDto getAuthControlInfoDto, StartCallDto dto);
     Task<BaseResponse> AcceptCall(GetAuthControlInfoDto getAuthControlInfoDto, int callId);
     Task<BaseResponse> RejectCall(GetAuthControlInfoDto getAuthControlInfoDto, int callId);
+    Task<List<CallLogDto>> GetCallLogsAsync(GetAuthControlInfoDto getAuthControlInfoDto, int page, int pageSize);
     Task<CallDto> GetCall(GetAuthControlInfoDto getAuthControlInfoDto, int callId);
     Task<BaseResponse> EndCall(GetAuthControlInfoDto getAuthControlInfoDto, int callId);
 }

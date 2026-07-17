@@ -10,5 +10,5 @@ public class CallParticipant : AuditableEntity
     public bool IsMuted { get; set; }
     public bool IsCameraEnabled { get; set; }
     public bool IsScreenSharing { get; set; }
-    public bool IsConnected { get; set; }
+    public CallParticipantStatus Status { get; set; }
 }

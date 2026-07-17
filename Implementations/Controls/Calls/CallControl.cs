@@ -64,4 +64,14 @@ public class CallControl : ICallControl
         }
         return null;
     }
+    public async Task<List<CallLogDto>> GetCallLogsAsync(GetAuthControlInfoDto getAuthControlInfoDto, int page, int pageSize)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false)
+        {
+            var call = await _callService.GetCallLogsAsync(auth.Id, page, pageSize);
+            return call;
+        }
+        return null;
+    }
 }

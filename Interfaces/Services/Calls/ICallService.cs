@@ -9,6 +9,7 @@ public interface ICallService
     Task<BaseResponse> AcceptCallAsync(int callId, int personId);
     Task<BaseResponse> RejectCallAsync(int callId, int personId);
     Task<BaseResponse> EndCallAsync(int callId, int personId);
+    Task<List<CallLogDto>> GetCallLogsAsync(int personId, int page, int pageSize);
     Task<CallDto?> GetCallAsync(int callId, int personId);
     Task<bool> IsParticipantAsync(int callId, int personId);
 }

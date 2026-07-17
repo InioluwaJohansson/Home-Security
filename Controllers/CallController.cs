@@ -47,4 +47,18 @@ public class CallController : Controller
         var call = await _callControl.EndCall(getAuthControlInfoDto, callId);
         return Ok(call);
     }
+    [Authorize]
+    [HttpGet("GetCallLogs")]
+    public async Task<IActionResult> GetCallLogs(int page, int pageSize)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        var call = await _callControl.GetCallLogsAsync(getAuthControlInfoDto, page, pageSize);
+        return Ok(call);
+    }
 }

@@ -15,10 +15,7 @@ public class CallRepo : BaseRepository<Call>, ICallRepo
     }
     public async Task<Call?> GetActiveCallByChatIdAsync(int chatId)
     {
-        return await context.Calls.Include(c => c.Participants).FirstOrDefaultAsync(c =>
-                c.ChatId == chatId &&
-                (c.Status == CallStatus.Ringing ||
-                c.Status == CallStatus.Connected));
+        return await context.Calls.Include(c => c.Participants).FirstOrDefaultAsync(c => c.ChatId == chatId && (c.Status == CallStatus.Ringing || c.Status == CallStatus.Connected));
     }
     public async Task<bool> CallExistsAsync(int callId)
     {
@@ -27,5 +24,13 @@ public class CallRepo : BaseRepository<Call>, ICallRepo
     public async Task<bool> IsParticipantAsync(int callId, int personId)
     {
         return await context.CallParticipants.AnyAsync(p => p.CallId == callId && p.PersonId == personId);
+    }
+    public async Task<List<Call>> GetPersonCallsAsync(int personId)
+    {
+        return await context.Calls.Include(c => c.Participants).Where(c => c.Participants.Any(p => p.PersonId == personId)).OrderByDescending(c => c.StartedAt).ToListAsync();
+    }
+    public async Task<List<Call>> GetCallLogsAsync(int personId, int page, int pageSize)
+    {
+        return await context.Calls.Include(c => c.Chat).Include(c => c.Participants).ThenInclude(p => p.Person).Where(c => c.Participants.Any(p => p.PersonId == personId)).OrderByDescending(c => c.StartedAt).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
     }
 }
