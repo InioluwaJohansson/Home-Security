@@ -5,9 +5,9 @@ using Home_Security.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-public class MessageRepository : BaseRepository<Message>, IMessageRepo
+public class MessageRepo : BaseRepository<Message>, IMessageRepo
 {
-    public MessageRepository(HomeSecurityContext _context)
+    public MessageRepo(HomeSecurityContext _context)
     {
         context = _context;
     }

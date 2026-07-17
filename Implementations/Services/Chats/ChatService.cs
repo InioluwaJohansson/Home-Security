@@ -4,6 +4,8 @@ using Home_Security.Models.ChatDTO;
 using Home_Security.Entities.Chats;
 using Home_Security.Models.DTOs;
 using Home_Security.RealTimeServices;
+
+namespace Home_Security.Implementations.Services.Chats;
 public class ChatService : IChatService
 {
     private readonly IChatRepo _chatRepo;

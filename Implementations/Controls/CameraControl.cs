@@ -71,13 +71,12 @@ public class CameraControl : ICameraControl
         var camera = await _cameraService.GetById(id);
         if(camera.Data.IsActive == false) updateCamera.IsActive = true;
         else if(camera.Data.IsActive == true) updateCamera.IsActive = false;
-        if (auth.Status != false && camera.Data.IsHidden == true && auth.Role == Role.Owner || auth.Role == Role.Wife)
+        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
             var response = await _cameraService.UpdateCamera(updateCamera, auth.Id);
-            Console.WriteLine($"Camera Toggle Response: {response.Status} - {response.Message}");
             return response;
         }
-        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
+        else if (auth.Status != false && camera.Data.IsHidden == false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
             var response = await _cameraService.UpdateCamera(updateCamera, auth.Id);
             return response;

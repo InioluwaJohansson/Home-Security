@@ -1,5 +1,6 @@
-using Home_Security.Entities.Chats;
 using Home_Security.Contracts;
+
+namespace Home_Security.Entities.Chats;
 public class ChatParticipant : AuditableEntity
 {
     public int ChatId { get; set; }

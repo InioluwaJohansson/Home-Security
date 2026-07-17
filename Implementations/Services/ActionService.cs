@@ -8,7 +8,6 @@ using Home_Security.RealTimeServices;
 using Action = Home_Security.Entities.Action;
 
 namespace Home_Security.Implementations.Services;
-
 public class ActionService : IActionService
 {
     IActionRepo _actionRepo;

@@ -26,6 +26,13 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Home_Security.Encryption;
 using Home_Security.StartUp;
+using Home_Security.Implementations.Services.Chats;
+using Home_Security.Interfaces.Controls.Calls;
+using Home_Security.Implementations.Controls.Calls;
+using Home_Security.Implementations.Services.Calls;
+using Home_Security.Interfaces.Services.Calls;
+using Home_Security.Interfaces.Repositories.Calls;
+using Home_Security.Implementations.Repositories.Calls;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,8 +100,11 @@ builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IChatRepo, ChatRepository>();
 builder.Services.AddScoped<IChatControl, ChatControl>();
 builder.Services.AddScoped<IMessageService, MessageService>();
-builder.Services.AddScoped<IMessageRepo, MessageRepository>();
+builder.Services.AddScoped<IMessageRepo, MessageRepo>();
 builder.Services.AddScoped<IMessageControl, MessageControl>();
+builder.Services.AddScoped<ICallControl, CallControl>();
+builder.Services.AddScoped<ICallService, CallService>();
+builder.Services.AddScoped<ICallRepo, CallRepo>();
 
 builder.Services.AddSingleton<IAuthCache, AuthCache>();
 
@@ -254,3 +264,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.UseSwagger();
 app.Run();
+
+internal class CallRepository
+{
+}

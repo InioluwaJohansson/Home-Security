@@ -99,7 +99,7 @@ public class CameraService : ICameraService
                 if(cameraData.IsHidden){ await _realtime.NotifyAll("CameraUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(cameraData));}
                 else await _realtime.NotifyAll("CameraUpdated", GetDetails(cameraData));
                 var hardware = await _hardwareService.GetHardwareName(cameraData.Id, FacilityType.Camera);
-                await _mqtt.PublishDeviceUpdate(camera.CameraId, new GenericDeviceUpdateState
+                await _mqtt.PublishDeviceUpdate(hardware, new GenericDeviceUpdateState
                 {
                     FacilityType = FacilityType.Camera,
                     Id = camera.Id,

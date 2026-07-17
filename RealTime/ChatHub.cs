@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using Home_Security.Hubs;
 using Home_Security.Models.ChatDTO;
-namespace Home_Security.RealTimeServices;
 
+namespace Home_Security.RealTimeServices;
 public class ChatHub : IChatHub
 {
     private readonly IHubContext<HomeSecurityHub> _hub;

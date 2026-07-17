@@ -4,6 +4,8 @@ using Home_Security.Models.ChatDTO;
 using Home_Security.Entities.Chats;
 using Home_Security.RealTimeServices;
 using Home_Security.Models.DTOs;
+
+namespace Home_Security.Implementations.Services.Chats;
 public class MessageService : IMessageService
 {
     private readonly IMessageRepo _messageRepo;
