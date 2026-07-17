@@ -1,10 +1,9 @@
 using Home_Security.Entities.Chats;
-using Home_Security.Implementations.Repositories;
 using Home_Security.Interfaces.Repositories.Chats;
 using Home_Security.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-
+namespace Home_Security.Implementations.Repositories.Chats;
 public class MessageRepo : BaseRepository<Message>, IMessageRepo
 {
     public MessageRepo(HomeSecurityContext _context)

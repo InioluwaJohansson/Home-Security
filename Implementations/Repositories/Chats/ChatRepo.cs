@@ -1,11 +1,11 @@
 using Home_Security.Interfaces.Repositories.Chats;
 using Home_Security.Context;
-using Home_Security.Implementations.Repositories;
 using Home_Security.Entities.Chats;
 using Microsoft.EntityFrameworkCore;
-public class ChatRepository : BaseRepository<Chat>, IChatRepo
+namespace Home_Security.Implementations.Repositories.Chats;
+public class ChatRepo : BaseRepository<Chat>, IChatRepo
 {
-    public ChatRepository(HomeSecurityContext _context)
+    public ChatRepo(HomeSecurityContext _context)
     {
         context = _context;
     }

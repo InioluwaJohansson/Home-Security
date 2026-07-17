@@ -21,6 +21,7 @@ using Home_Security.Interfaces.Services.Chats;
 using Home_Security.Interfaces.Repositories.Chats;
 using Home_Security.Interfaces.Controls.Chats;
 using Home_Security.Implementations.Controls.Chats;
+using Home_Security.Implementations.Repositories.Chats;
 using Home_Security.Implementations.Controls.Messages;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
@@ -97,7 +98,7 @@ builder.Services.AddScoped<IWindowControl, WindowControl>();
 builder.Services.AddScoped<IDashboardControl, DashboardControl>();
 
 builder.Services.AddScoped<IChatService, ChatService>();
-builder.Services.AddScoped<IChatRepo, ChatRepository>();
+builder.Services.AddScoped<IChatRepo, ChatRepo>();
 builder.Services.AddScoped<IChatControl, ChatControl>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IMessageRepo, MessageRepo>();
