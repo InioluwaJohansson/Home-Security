@@ -28,8 +28,8 @@ public class CallHub : ICallHub
                 AuthorizationCode = user.AuthorizationCode,
             };
             var call = await _callControl.StartCall(getAuthControlInfoDto, dto);
-            await Groups.AddToGroupAsync(Context.ConnectionId, dto.ChatId.ToString());
-            await Clients.Group(dto.ChatId.ToString()).SendAsync("IncomingCall", call);
+            await _hub.Groups.AddToGroupAsync(Context.ConnectionId, dto.ChatId.ToString());
+            await _hub.Clients.Group(dto.ChatId.ToString()).SendAsync("IncomingCall", call);
         }
     }
     public async Task AcceptCall(int callId,string token)
@@ -43,7 +43,7 @@ public class CallHub : ICallHub
             };
             await _callControl.AcceptCall(getAuthControlInfoDto, callId);
             var call = await _callControl.GetCall(getAuthControlInfoDto, callId);
-            await Clients.Group(call.ChatId.ToString()).SendAsync("CallAccepted", call);
+            await _hub.Clients.Group(call.ChatId.ToString()).SendAsync("CallAccepted", call);
         }
     }
     public async Task Offer(OfferDto dto, string token)
@@ -57,7 +57,7 @@ public class CallHub : ICallHub
             };
         var call = await _callControl.GetCall(getAuthControlInfoDto, dto.CallId);
 
-        await Clients.Group(call.ChatId.ToString())
+        await _hub.Clients.Group(call.ChatId.ToString())
             .SendAsync("Offer", dto);
         }
     }
@@ -72,7 +72,7 @@ public class CallHub : ICallHub
             };
         var call = await _callControl.GetCall(getAuthControlInfoDto, dto.CallId);
 
-        await Clients.Group(call.ChatId.ToString())
+        await _hub.Clients.Group(call.ChatId.ToString())
             .SendAsync("Answer", dto);
         }
     }
@@ -87,7 +87,7 @@ public class CallHub : ICallHub
             };
             var call = await _callControl.GetCall(getAuthControlInfoDto, dto.CallId);
 
-            await Clients.Group(call.ChatId.ToString())
+            await _hub.Clients.Group(call.ChatId.ToString())
                 .SendAsync("IceCandidate", dto);
         }
     }
