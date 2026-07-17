@@ -15,9 +15,7 @@ public class ChatRepository : BaseRepository<Chat>, IChatRepo
     }
     public async Task<Chat?> GetChatWithParticipantsAsync(int chatId)
     {
-        return await context.Chat
-            .Include(x => x.Participants)
-            .FirstOrDefaultAsync(x => x.Id == chatId && !x.IsDeleted);
+        return await context.Chat.Include(x => x.Participants).FirstOrDefaultAsync(x => x.Id == chatId && !x.IsDeleted);
     }
     public async Task<bool> IsParticipantAsync(int chatId, int personId)
     {
