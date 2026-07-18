@@ -11,6 +11,10 @@ public class CallRepo : BaseRepository<Call>, ICallRepo
     }
     public async Task<Call?> GetByIdAsync(int callId)
     {
+        return await context.Calls.AsNoTracking().Include(x => x.Chat).Include(c => c.Participants).ThenInclude(p => p.Person).FirstOrDefaultAsync(c => c.Id == callId);
+    }
+    public async Task<Call?> GetCallDetails(int callId)
+    {
         return await context.Calls.AsNoTracking().Include(x => x.Chat).ThenInclude(x => x.Participants).ThenInclude(x => x.Person).ThenInclude(x => x.PersonDetails).Include(c => c.Participants).ThenInclude(p => p.Person).ThenInclude(x => x.PersonDetails).FirstOrDefaultAsync(c => c.Id == callId);
     }
     public async Task<Call?> GetActiveCallByChatIdAsync(int chatId)
