@@ -13,6 +13,10 @@ public class CallRepo : BaseRepository<Call>, ICallRepo
     {
         return await context.Calls.AsNoTracking().Include(x => x.Chat).ThenInclude(x => x.Participants).ThenInclude(x => x.Person).ThenInclude(x => x.PersonDetails).Include(c => c.Participants).ThenInclude(p => p.Person).ThenInclude(x => x.PersonDetails).FirstOrDefaultAsync(c => c.Id == callId);
     }
+    public async Task<Call?> GetCallDetails(int callId)
+    {
+        return await context.Calls.AsNoTracking().Include(x => x.Chat).ThenInclude(x => x.Participants).ThenInclude(x => x.Person).ThenInclude(x => x.PersonDetails).Include(c => c.Participants).ThenInclude(p => p.Person).ThenInclude(x => x.PersonDetails).FirstOrDefaultAsync(c => c.Id == callId);
+    }
     public async Task<Call?> GetActiveCallByChatIdAsync(int chatId)
     {
         return await context.Calls.Include(x => x.Chat).ThenInclude(x => x.Participants).ThenInclude(x => x.Person).ThenInclude(x => x.PersonDetails).Include(c => c.Participants).FirstOrDefaultAsync(c => c.ChatId == chatId && (c.Status == CallStatus.Ringing || c.Status == CallStatus.Connected));
