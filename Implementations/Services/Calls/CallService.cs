@@ -50,7 +50,6 @@ public class CallService : ICallService
             });
         }
         call = await _callRepo.Create(call);
-
         call = await _callRepo.Get(x => x.StartedAt == date);
         var callDto = MapToDto(await _callRepo.GetByIdAsync(call.Id));
         await _realtimeNotificationService.UpdateChat("IncomingCall", call.ChatId, callDto);
@@ -133,7 +132,7 @@ public class CallService : ICallService
                 call.EndedAt = DateTime.UtcNow;
             }
         }
-        await _callRepo.Update(call);
+        await _callRepo.UpdateCall(call);
         await _realtimeNotificationService.UpdateChat("CallRejected", call.ChatId, new
         {
             CallId = call.Id,
@@ -216,7 +215,7 @@ public class CallService : ICallService
                 call.EndedAt = DateTime.UtcNow;
             }
         }
-        await _callRepo.Update(call);
+        await _callRepo.UpdateCall(call);
         await _realtimeNotificationService.UpdateChat("CallEnded", call.ChatId, new
         {
             CallId = call.Id,
