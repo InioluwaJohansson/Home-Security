@@ -271,3 +271,5 @@ public async Task RejectCall(RejectDto dto, string token) invoking this via sign
 and once a call is accepted, invoke the two below.
 public async Task Offer(OfferDto dto, string token) 
 public async Task IceCandidate(IceCandidateDto dto, string token)
+
+public async Task AcceptCall(int callId, string token) invoke this to accept a call

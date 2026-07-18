@@ -11,11 +11,11 @@ public class CallRepo : BaseRepository<Call>, ICallRepo
     }
     public async Task<Call?> GetByIdAsync(int callId)
     {
-        return await context.Calls.AsNoTracking().Include(x => x.Chat).ThenInclude(x => x.Participants).Include(c => c.Participants).ThenInclude(p => p.Person).ThenInclude(x => x.PersonDetails).FirstOrDefaultAsync(c => c.Id == callId);
+        return await context.Calls.AsNoTracking().Include(x => x.Chat).ThenInclude(x => x.Participants).ThenInclude(x => x.Person).ThenInclude(x => x.PersonDetails).Include(c => c.Participants).ThenInclude(p => p.Person).ThenInclude(x => x.PersonDetails).FirstOrDefaultAsync(c => c.Id == callId);
     }
     public async Task<Call?> GetActiveCallByChatIdAsync(int chatId)
     {
-        return await context.Calls.Include(x => x.Chat).ThenInclude(x => x.Participants).Include(c => c.Participants).FirstOrDefaultAsync(c => c.ChatId == chatId && (c.Status == CallStatus.Ringing || c.Status == CallStatus.Connected));
+        return await context.Calls.Include(x => x.Chat).ThenInclude(x => x.Participants).ThenInclude(x => x.Person).ThenInclude(x => x.PersonDetails).Include(c => c.Participants).FirstOrDefaultAsync(c => c.ChatId == chatId && (c.Status == CallStatus.Ringing || c.Status == CallStatus.Connected));
     }
     public async Task<bool> CallExistsAsync(int callId)
     {
@@ -27,10 +27,10 @@ public class CallRepo : BaseRepository<Call>, ICallRepo
     }
     public async Task<List<Call>> GetPersonCallsAsync(int personId)
     {
-        return await context.Calls.Include(x => x.Chat).ThenInclude(x => x.Participants).Include(c => c.Participants).Where(c => c.Participants.Any(p => p.PersonId == personId)).OrderByDescending(c => c.StartedAt).ToListAsync();
+        return await context.Calls.Include(x => x.Chat).ThenInclude(x => x.Participants).ThenInclude(x => x.Person).ThenInclude(x => x.PersonDetails).Include(c => c.Participants).Where(c => c.Participants.Any(p => p.PersonId == personId)).OrderByDescending(c => c.StartedAt).ToListAsync();
     }
     public async Task<List<Call>> GetCallLogsAsync(int personId, int page, int pageSize)
     {
-        return await context.Calls.Include(x => x.Chat).ThenInclude(x => x.Participants).Include(c => c.Chat).Include(c => c.Participants).ThenInclude(p => p.Person).Where(c => c.Participants.Any(p => p.PersonId == personId)).OrderByDescending(c => c.StartedAt).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        return await context.Calls.Include(x => x.Chat).ThenInclude(x => x.Participants).ThenInclude(x => x.Person).ThenInclude(x => x.PersonDetails).Include(c => c.Chat).Include(c => c.Participants).ThenInclude(p => p.Person).Where(c => c.Participants.Any(p => p.PersonId == personId)).OrderByDescending(c => c.StartedAt).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
     }
 }

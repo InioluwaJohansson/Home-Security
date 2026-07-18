@@ -160,11 +160,16 @@ public class CallService : ICallService
         {
             var duration = call.EndedAt.HasValue? call.EndedAt.Value - call.StartedAt : TimeSpan.Zero;
             var myParticipant = call.Participants.First(p => p.PersonId == personId);
+            var chatName = call.Chat.Name;
+            if(!call.Chat.IsGroup){
+                var chat = call.Chat.Participants.FirstOrDefault(x => x.PersonId != personId);
+                chatName = $"{chat.Person.PersonDetails.FirstName} {chat.Person.PersonDetails.LastName}";
+            }
             return new CallLogDto
             {
                 CallId = call.Id,
                 ChatId = call.ChatId,
-                ChatName = call.Chat.Name,
+                ChatName = chatName,
                 Type = call.Type,
                 Status = call.Status,
                 StartedAt = call.StartedAt,
