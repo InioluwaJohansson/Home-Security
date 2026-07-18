@@ -70,10 +70,10 @@ public class CameraControl : ICameraControl
         };
         var camera = await _cameraService.GetById(id);
         if(camera.Data.IsActive == false) updateCamera.IsActive = true;
-        else if(camera.Data.IsActive == true) updateCamera.IsActive = false;
+        else updateCamera.IsActive = false;
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
         {
-            var response = await _cameraService.UpdateCamera(updateCamera, auth.Id);
+            var response = await _cameraService.ToggleCamera(updateCamera, auth.Id);
             return response;
         }
         else if (auth.Status != false && camera.Data.IsHidden == false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)

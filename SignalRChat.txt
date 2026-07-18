@@ -145,3 +145,129 @@ public class GenericRoomNames : GenericIdNames{
     public bool IsHidden { get; set; }
     public int? SectionId { get; set; }
 }
+
+
+
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/EndCall?callId=1' \
+  -H 'accept: */*' \
+  -d '' this is the curl to end a call.
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/StartCall' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "chatId": 0,
+  "type": 1
+}' this is the curl to end a call.
+curl -X 'GET' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/GetCallLogs?page=1&pageSize=1' \
+  -H 'accept: */*' this is the curl to get all call logs which returns a list of call logs
+
+public enum CallType
+{
+    Audio = 1,
+    Video = 2
+} for the type field in start call
+public class CallDto
+{
+    public int Id { get; set; }
+    public int ChatId { get; set; }
+    public int CallerPersonId { get; set; }
+    public CallType Type { get; set; }
+    public CallStatus Status { get; set; }
+    public DateTime StartedAt { get; set; }
+    public DateTime? AnsweredAt { get; set; }
+    public DateTime? EndedAt { get; set; }
+    public List<CallParticipantDto> Participants { get; set; } = new();
+}
+public class CallParticipantDto
+{
+    public int PersonId { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string ProfileImage { get; set; } = string.Empty;
+    public bool IsMuted { get; set; }
+    public bool IsCameraEnabled { get; set; }
+    public bool IsScreenSharing { get; set; }
+    public CallParticipantStatus Status { get; set; }
+}
+public class CallLogDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public string ChatName { get; set; } = "";
+    public CallType Type { get; set; }
+    public CallStatus Status { get; set; }
+    public DateTime StartedAt { get; set; }
+    public DateTime? EndedAt { get; set; }
+    public TimeSpan Duration { get; set; }
+    public bool IsIncoming { get; set; }
+    public int CallerPersonId { get; set; }
+    public bool IsMissed { get; set; }
+}
+public class StartCallDto
+{
+    public int ChatId { get; set; }
+    public CallType Type { get; set; }
+}
+public class OfferDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public string Sdp { get; set; } = string.Empty;
+}
+public class AnswerDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public string Sdp { get; set; } = string.Empty;
+}
+public class RejectDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+}
+public class IceCandidateDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public string Candidate { get; set; } = string.Empty;
+    public string? SdpMid { get; set; }
+    public int? SdpMLineIndex { get; set; }
+}
+public class ToggleMicrophoneDto
+{
+    public int CallId { get; set; }
+    public bool IsMuted { get; set; }
+}
+public class ToggleCameraDto
+{
+    public int CallId { get; set; }
+    public bool IsCameraEnabled { get; set; }
+}
+public class ScreenShareDto
+{
+    public int CallId { get; set; }
+    public bool IsSharing { get; set; }
+} you will need these dtos
+create necessary icons to do this in each chat 
+await _realtimeNotificationService.UpdateChat("IncomingCall", call.ChatId, callDto);
+await _realtimeNotificationService.UpdateChat("CallAccepted", call.ChatId, MapToDto(call));
+await _realtimeNotificationService.UpdateChat("CallRejected", call.ChatId, new
+{
+    CallId = call.Id,
+    PersonId = personId,
+    Status = participant.Status,
+    CallStatus = call.Status
+});
+await _realtimeNotificationService.UpdateChat("CallEnded", call.ChatId, new
+{
+    CallId = call.Id,
+    PersonId = personId,
+    Status = participant.Status,
+    CallStatus = call.Status
+}); you will need to listen for this too. I want the call to be like a whatapp call kinda thing with the cards for multiple users and the animated audio for voice calls and the controls for mute switch camera and the end call. Only the user that initiated the call can end the call but the user can leave the call by 
+public async Task RejectCall(RejectDto dto, string token) invoking this via signalR 
+and once a call is accepted, invoke the two below.
+public async Task Offer(OfferDto dto, string token) 
+public async Task IceCandidate(IceCandidateDto dto, string token)

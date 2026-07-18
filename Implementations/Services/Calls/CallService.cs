@@ -1,4 +1,5 @@
 using Home_Security.Entities.Calls;
+using Home_Security.Entities.Chats;
 using Home_Security.Interfaces.Repositories.Calls;
 using Home_Security.Interfaces.Repositories.Chats;
 using Home_Security.Interfaces.Services.Calls;
@@ -28,13 +29,14 @@ public class CallService : ICallService
             throw new Exception("Chat not found.");
         if (!chat.Participants.Any(x => x.PersonId == personId))
             throw new Exception("You are not a participant of this chat.");
+        var date = DateTime.UtcNow;
         var call = new Call
         {
             ChatId = dto.ChatId,
             CallerPersonId = personId,
             Type = dto.Type,
             Status = CallStatus.Ringing,
-            StartedAt = DateTime.UtcNow
+            StartedAt = date
         };
         foreach (var chatParticipant in chat.Participants)
         {
@@ -48,7 +50,9 @@ public class CallService : ICallService
             });
         }
         call = await _callRepo.Create(call);
-        var callDto = MapToDto(call);
+
+        call = await _callRepo.Get(x => x.StartedAt == date);
+        var callDto = MapToDto(await _callRepo.GetByIdAsync(call.Id));
         await _realtimeNotificationService.UpdateChat("IncomingCall", call.ChatId, callDto);
         return callDto;
     }

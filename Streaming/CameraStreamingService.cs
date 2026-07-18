@@ -50,13 +50,13 @@ public class CameraStreamingService : ICameraStreamingService
                     camera = await StartStream(camera);
                     camera.IsStreaming = true;
                     camera.LastStreamStart = DateTime.UtcNow;
+                    await _cameraRepo.Update(camera);
                 }
                 finally
                 {
                     _streamLock.Release();
                 }
             }
-            await _cameraRepo.Update(camera);
         }
         catch
         {

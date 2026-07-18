@@ -53,7 +53,7 @@ public class CameraService : ICameraService
                 Username = createCameraDto.Username,
                 IsOnline = false,
                 IsStreaming = false,
-                IsActive = false,
+                IsActive = true,
                 PowerActive = false,
                 SectionId = createCameraDto.SectionId ?? null,
                 RoomId = createCameraDto.RoomId ?? null,
@@ -82,11 +82,36 @@ public class CameraService : ICameraService
             Message = "Unable To Add Camera!"
         };
     }
-    public async Task<BaseResponse> UpdateCamera(UpdateCameraDto updateCameraDto, int personId)
+    public async Task<BaseResponse> ToggleCamera(UpdateCameraDto updateCameraDto, int personId)
     {
         if (updateCameraDto != null)
         {
             var camera = await _cameraRepo.Get(x => x.Id == updateCameraDto.Id);
+            if(camera != null){
+                camera.IsActive = updateCameraDto.IsActive;
+                camera.LastModifiedBy = personId;
+                camera.LastModifiedOn = DateTime.Now;
+                await _cameraRepo.Update(camera);
+                if(camera.IsHidden){ await _realtime.NotifyAll("CameraUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(camera));}
+                else await _realtime.NotifyAll("CameraUpdated", GetDetails(camera));
+                return new BaseResponse
+                {
+                    Status = true,
+                    Message = "Camera Updated Successfully!"
+                };                
+            }
+        }
+        return new BaseResponse
+        {
+            Status = false,
+            Message = "Unable To Update Camera!"
+        };
+    }
+    public async Task<BaseResponse> UpdateCamera(UpdateCameraDto updateCameraDto, int personId)
+    {
+        if (updateCameraDto != null)
+        {
+            var camera = await _cameraRepo.GetCameraById(updateCameraDto.Id);
             if(camera != null){
                 camera.CameraName = updateCameraDto.CameraName ?? camera.CameraName;
                 camera.IsActive = updateCameraDto.IsActive;
@@ -95,10 +120,10 @@ public class CameraService : ICameraService
                 camera.SectionId = updateCameraDto.SectionId ?? null;
                 camera.RoomId = updateCameraDto.RoomId ?? null;
                 if (!camera.IsStreaming) camera = await _cameraStreamingService.RestartStream(camera);
-                var cameraData = await _cameraRepo.Update(camera);
-                if(cameraData.IsHidden){ await _realtime.NotifyAll("CameraUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(cameraData));}
-                else await _realtime.NotifyAll("CameraUpdated", GetDetails(cameraData));
-                var hardware = await _hardwareService.GetHardwareName(cameraData.Id, FacilityType.Camera);
+                await _cameraRepo.Update(camera);
+                if(camera.IsHidden){ await _realtime.NotifyAll("CameraUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(camera));}
+                else await _realtime.NotifyAll("CameraUpdated", GetDetails(camera));
+                var hardware = await _hardwareService.GetHardwareName(camera.Id, FacilityType.Camera);
                 await _mqtt.PublishDeviceUpdate(hardware, new GenericDeviceUpdateState
                 {
                     FacilityType = FacilityType.Camera,

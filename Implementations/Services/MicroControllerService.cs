@@ -132,12 +132,12 @@ public class MicroControllerService : IMicroControllerService
                 var camera = await _cameraRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (camera != null)
                 {
-                    camera.IsActive = genericDeviceUpdateState.IsActive;
+                    camera.PowerActive = genericDeviceUpdateState.PowerActive;
                     await _cameraRepo.Update(camera);
                     await _realtime.NotifyAll("CameraUpdated", new
                     {
                         camera.Id,
-                        camera.IsActive
+                        camera.PowerActive
                     });
                     return new BaseResponse()
                     {
