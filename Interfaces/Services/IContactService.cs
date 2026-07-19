@@ -4,8 +4,6 @@ public interface IContactService
 {
     public Task<BaseResponse> CreateContact(CreateContactDto createContactDto);
     public Task<BaseResponse> UpdateContact(UpdateContactDto updateContactDto);
-    public Task<BaseResponse> AddContactAddress(int contactId, int personId, List<CreateAddressDto> createAddressDto);
-    public Task<BaseResponse> AddContactDetails(int contactId, int personId, List<CreateContactDetailsDto> createContactDetailsDto);
     public Task<ContactResponseModel> GetContactById(int id);
     public Task<ContactsResponseModel> GetContactByFirstName(string firstName);
     public Task<ContactsResponseModel> GetContactByLastName(string lastName);

@@ -31,4 +31,38 @@ public class FingerPrintControl : IFingerPrintControl
         }
         return _authControl.AuthFaliure();
     }
+    public async Task<BaseResponse> RequestFingerPrint(GetAuthControlInfoDto getAuthControlInfoDto, int hardwareId, int personId)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false && auth.Role == Role.Owner)
+        {
+            var fingerPrint = await _fingerPrintService.RequestFingerPrint(hardwareId, personId);
+            if (fingerPrint.Status == true)
+            {
+                var log = _authControl.CreateLog(auth.Id);
+                log.ActionType = "Create";
+                log.LogDetails = "An FingerPrint was newly added. Awaiting Physical Interfacing!";
+                await _logService.CreateLog(log);
+            }
+            return fingerPrint;
+        }
+        return _authControl.AuthFaliure();
+    }
+    public async Task<BaseResponse> SendNFIDCode(GetAuthControlInfoDto getAuthControlInfoDto, int hardwareId, int personId)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false && auth.Role == Role.Owner)
+        {
+            var fingerPrint = await _fingerPrintService.SendNFIDCode(personId, hardwareId);
+            if (fingerPrint.Status == true)
+            {
+                var log = _authControl.CreateLog(auth.Id);
+                log.ActionType = "Create";
+                log.LogDetails = "A FingerPrint was newly added!";
+                await _logService.CreateLog(log);
+            }
+            return fingerPrint;
+        }
+        return _authControl.AuthFaliure();
+    }
 }

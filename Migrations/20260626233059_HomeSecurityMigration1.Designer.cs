@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Home_Security.Migrations
 {
     [DbContext(typeof(HomeSecurityContext))]
-    [Migration("20260608232043_HomeSecurityMigration")]
-    partial class HomeSecurityMigration
+    [Migration("20260626233059_HomeSecurityMigration1")]
+    partial class HomeSecurityMigration1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -529,10 +529,7 @@ namespace Home_Security.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ContactCategory")
+                    b.Property<int>("ContactCategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("ContactId")
@@ -577,7 +574,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("ContactCategoryId");
 
                     b.ToTable("Contact");
                 });
@@ -771,11 +768,7 @@ namespace Home_Security.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ActionId")
-                        .HasColumnType("int");
-
                     b.Property<string>("ActionIds")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<int>("CreatedBy")
@@ -826,8 +819,6 @@ namespace Home_Security.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ActionId");
 
                     b.HasIndex("RoomId");
 
@@ -1688,7 +1679,7 @@ namespace Home_Security.Migrations
                 {
                     b.HasOne("Home_Security.Entities.ContactCategory", "Category")
                         .WithMany()
-                        .HasForeignKey("CategoryId")
+                        .HasForeignKey("ContactCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1719,12 +1710,6 @@ namespace Home_Security.Migrations
 
             modelBuilder.Entity("Home_Security.Entities.External", b =>
                 {
-                    b.HasOne("Home_Security.Entities.Action", "Action")
-                        .WithMany()
-                        .HasForeignKey("ActionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Home_Security.Entities.Room", null)
                         .WithMany("External")
                         .HasForeignKey("RoomId");
@@ -1732,8 +1717,6 @@ namespace Home_Security.Migrations
                     b.HasOne("Home_Security.Entities.Section", null)
                         .WithMany("External")
                         .HasForeignKey("SectionId");
-
-                    b.Navigation("Action");
                 });
 
             modelBuilder.Entity("Home_Security.Entities.FingerPrint", b =>

@@ -1,103 +1,25 @@
 using Microsoft.AspNetCore.SignalR;
-using Home_Security.Interfaces.Services.Chats;
-using Home_Security.Models.ChatDTO;
 using Microsoft.AspNetCore.Authorization;
-using Home_Security.Interfaces.Controls;
+using Home_Security.Hubs;
+using Home_Security.Models.ChatDTO;
 
-[Authorize]
-public class ChatHub : Hub
+namespace Home_Security.RealTimeServices;
+public class ChatHub : IChatHub
 {
-    private readonly IMessageService _messageService;
-    private readonly IChatService _chatService;
-    private readonly IAuthControl _authControl;
-    private static readonly Dictionary<int, List<string>> _connections = new();
-    public ChatHub(IMessageService messageService,IChatService chatService, IAuthControl authControl)
+    private readonly IHubContext<HomeSecurityHub> _hub;
+    public ChatHub(IHubContext<HomeSecurityHub> hub)
     {
-        _messageService = messageService;
-        _chatService = chatService;
-        _authControl = authControl;
+        _hub = hub;
     }
-    private int GetPersonId()
+    public async Task UpdateChat(string eventName, int chatId, object update)
     {
-        return int.Parse(Context.User?.FindFirst("PersonId")?.Value);
+        await _hub.Clients.Group(chatId.ToString()).SendAsync(eventName, update);
     }
-    public async Task JoinChat(int chatId)
+    public async Task UpdateChat(string eventName, ChatDto update)
     {
-        var personId = GetPersonId();
-
-        var isParticipant = await _chatService
-            .IsParticipantAsync(chatId, personId);
-
-        if (!isParticipant)
-            throw new HubException("Not allowed in this chat");
-
-        await Groups.AddToGroupAsync(
-            Context.ConnectionId,
-            chatId.ToString()
-        );
-    }
-    public async Task LeaveChat(int chatId)
-    {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, chatId.ToString());
-    }
-    public async Task SendMessage(SendMessageDto dto)
-    {
-        var message = await _messageService.SendMessageAsync(dto, GetPersonId());
-        await Clients.Group(dto.ChatId.ToString()).SendAsync("ReceiveMessage", message);
-    }
-    public async Task Typing(TypingDto dto)
-    {
-        var personId = GetPersonId();
-
-        await Clients.Group(dto.ChatId.ToString()).SendAsync("UserTyping", new
+        foreach (var participant in update.Participants)
         {
-            dto.ChatId,
-            PersonName = _authControl.GetUserPersonName(personId),
-            dto.IsTyping
-        });
-    }
-    public async Task MarkAsRead(int chatId)
-    {
-        var personId = GetPersonId();
-
-        await _chatService.MarkAsReadAsync(chatId, personId);
-
-        await Clients.Group(chatId.ToString()).SendAsync("MessagesRead", new
-        {
-            ChatId = chatId,
-            PersonId = personId,
-            ReadAt = DateTime.UtcNow
-        });
-    }
-    public override async Task OnConnectedAsync()
-    {
-        var personId = GetPersonId();
-
-        if (!_connections.ContainsKey(personId))
-            _connections[personId] = new List<string>();
-
-        _connections[personId].Add(Context.ConnectionId);
-
-        await Clients.All.SendAsync("UserOnline", personId);
-
-        await base.OnConnectedAsync();
-    }
-    public override async Task OnDisconnectedAsync(Exception exception)
-    {
-        var personId = GetPersonId();
-
-        if (_connections.ContainsKey(personId))
-        {
-            _connections[personId].Remove(Context.ConnectionId);
-
-            if (_connections[personId].Count == 0)
-            {
-                _connections.Remove(personId);
-
-                await Clients.All.SendAsync("UserOffline", personId);
-            }
+            await _hub.Clients.Group(participant.PersonId.ToString()).SendAsync(eventName, update);
         }
-
-        await base.OnDisconnectedAsync(exception);
     }
 }

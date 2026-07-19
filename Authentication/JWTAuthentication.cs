@@ -25,11 +25,12 @@ public class JWTAuthentication : IJWTAuthentication
         claims.Add(new Claim("UserName", getUserDto.UserName.ToString()));
         claims.Add(new Claim("RoleName", getUserDto.RoleName));
         claims.Add(new Claim("AuthorizationCode", getUserDto.AuthorizationCode));
+        claims.Add(new Claim("TimeStamp", DateTime.Now.ToString()));
         var tokenDescriptor = new SecurityTokenDescriptor()
         {
             Subject = new ClaimsIdentity(claims),
             IssuedAt = DateTime.Now,
-            Expires = DateTime.UtcNow.AddHours(3),
+            Expires = DateTime.UtcNow.AddDays(1),
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(tokenKey),
                 SecurityAlgorithms.HmacSha256Signature),
@@ -63,7 +64,8 @@ public class JWTAuthentication : IJWTAuthentication
             var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
 
             var claims = principal.Claims;
-
+            var timeStamp = DateTime.Parse(claims.First(x => x.Type == "TimeStamp").Value);
+            if(timeStamp.AddDays(1) < DateTime.Now) return null;
             return new GetUserDto
             {
                 Id = int.Parse(claims.First(x => x.Type == "UserId").Value),

@@ -1,0 +1,293 @@
+await _chatHub.UpdateChat("MessageDeleted", message.ChatId, new
+{
+    ChatId = message.ChatId,
+    MessageId = messageId,
+    IsDeleted = true,
+});
+await _chatHub.UpdateChat("MessageEdited", message.ChatId, MapToDto(message));
+await _chatHub.UpdateChat("MessageSent", message.ChatId, MapToDto(messageData));
+await _chatHub.UpdateChat("UserTyping", dto.ChatId, dto);
+private MessageDto MapToDto(Message message)
+{
+    return new MessageDto
+    {
+        Id = message.Id,
+        ChatId = message.ChatId,
+        SenderPersonId = message.SenderPersonId,
+        ReplyMessageId = message.ReplyToMessageId,
+        Content = message.Content,
+        Type = message.Type,
+        IsEdited = message.IsEdited,
+        IsDeleted = message.IsDeleted,
+        SentAt = message.SentAt,
+        SenderName = $"{message.SenderPerson.PersonDetails.FirstName} {message.SenderPerson.PersonDetails.LastName}",
+        SenderProfileImage = ConvertImageToBase64(message.SenderPerson.PersonDetails.ImageUrl) ?? "",
+        Attachments = message.Attachments?
+            .Select(a => new GetMessageAttachmentDto
+            {
+                FileName = a.FileName,
+                FilePath = a.FilePath,
+                ContentType = a.ContentType,
+                FileSize = a.FileSize,
+                ThumbnailPath = a.ThumbnailPath
+            })
+            .ToList() ?? new List<GetMessageAttachmentDto>()
+    };
+}
+
+await _chatHub.UpdateChat("ChatCreated", chatData.Id, MapToDtoChat(chatData));
+await _chatHub.UpdateChat("GroupChatCreated", chatData.Id, MapToDtoChat(chatData));
+await _chatHub.UpdateChat("GroupChatUpdated", chat.Id, MapToDtoChat(chat));
+await _chatHub.UpdateChat("ChatDeleted", chatId, new
+{
+    ChatId = chatId,
+    PersonId = currentPersonId,
+});
+await _chatHub.UpdateChat("ParticipantsAdded", chatId, newParticipants.Select(id => new
+{
+    ChatId = chatId,
+    PersonId = id,
+    JoinedAt = DateTime.UtcNow,
+    IsAdmin = false
+}));
+await _chatHub.UpdateChat("ParticipantRemoved", chatId, new
+{
+    ChatId = chatId,
+    PersonId = personId,
+});
+await _chatHub.UpdateChat("MessagesRead", chatId, new
+{
+    ChatId = chatId,
+    PersonId = personId,
+    ReadAt = DateTime.UtcNow
+});
+private ChatDto MapToDtoChat(Chat chat)
+{
+    return new ChatDto
+    {
+        Id = chat.Id,
+        Name = chat.Name,
+        Description = chat.Description,
+        IsGroup = chat.IsGroup,
+        ImageUrl = ConvertImageToBase64(chat.ImageUrl),
+        CreatedAt = chat.CreatedAt,
+        Participants = chat.Participants?
+            .Select(p => new ChatParticipantDto
+            {
+                PersonId = p.PersonId,
+                IsAdmin = p.IsAdmin,
+                IsOnline = false,
+                FullName = "",
+                ProfileImageUrl = null
+            })
+            .ToList() ?? new List<ChatParticipantDto>(),
+        LastMessage = chat.Messages?
+            .OrderByDescending(x => x.SentAt)
+            .Select(x => new MessageDto
+            {
+                Id = x.Id,
+                ChatId = x.ChatId,
+                SenderPersonId = x.SenderPersonId,
+                Content = x.Content,
+                Type = x.Type,
+                IsEdited = x.IsEdited,
+                IsDeleted = x.IsDeleted,
+                SentAt = x.SentAt,
+                SenderName = "",
+                SenderProfileImage = null,
+                Attachments = x.Attachments?
+                .Select(a => new GetMessageAttachmentDto
+                {
+                    FileName = a.FileName,
+                    FilePath = a.FilePath,
+                    ContentType = a.ContentType,
+                    FileSize = a.FileSize,
+                    ThumbnailPath = a.ThumbnailPath
+                })
+                .ToList() ?? new List<GetMessageAttachmentDto>()
+            }).FirstOrDefault(),
+        UnreadCount = 0
+    };
+}
+
+await Clients.All.SendAsync("UserOnline", personId);
+await Clients.All.SendAsync("UserOffline", personId);
+
+public async Task UpdateChat(string eventName, int chatId, object update)
+{
+    await _hub.Clients.Group(chatId.ToString()).SendAsync(eventName, update);
+}
+
+in the UpdateChat method, the fitst parameter is what the signalr should listen for and the third parameter is the response from the server
+Understand and make provision where necessary in the app.
+
+
+public class AppNamesDetailList{
+    public List<GenericNames> ApplianceIdNames { get; set; }
+    public List<GenericNames> CameraIdNames { get; set; }
+    public List<GenericNames> LightIdNames { get; set; }
+    public List<GenericNames> WindowIdNames { get; set; }
+    public List<GenericNames> DoorIdNames { get; set; }
+    public List<GenericNames> ExternalIdNames { get; set; }
+    public List<GenericNames> PersonIdNames { get; set; }
+    public List<GenericNames> SectionIdNames { get; set; }
+    public List<GenericRoomNames> RoomIdNames { get; set; }
+    public List<GenericIdNames> ContactCategoryIdNames { get; set; }
+    public List<GenericIdNames> ActionIdNames { get; set; }
+    public List<GenericIdNames> HardwareIdNames { get; set; }
+    public List<GenericIdNames> ApplianceType { get; set; }
+    public List<GenericIdNames> Gender { get; set; }
+    public List<GenericIdNames> DoorType { get; set; }
+    public List<GenericIdNames> FacilityType { get; set; }
+    public List<GenericIdNames> Role { get; set; }
+}
+public class GenericRoomNames : GenericIdNames{
+    public bool IsHidden { get; set; }
+    public int? SectionId { get; set; }
+}
+
+
+
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/EndCall?callId=1' \
+  -H 'accept: */*' \
+  -d '' this is the curl to end a call.
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/StartCall' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "chatId": 0,
+  "type": 1
+}' this is the curl to end a call.
+curl -X 'GET' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/GetCallLogs?page=1&pageSize=1' \
+  -H 'accept: */*' this is the curl to get all call logs which returns a list of call logs
+
+public enum CallType
+{
+    Audio = 1,
+    Video = 2
+} for the type field in start call
+public class CallDto
+{
+    public int Id { get; set; }
+    public int ChatId { get; set; }
+    public int CallerPersonId { get; set; }
+    public CallType Type { get; set; }
+    public CallStatus Status { get; set; }
+    public DateTime StartedAt { get; set; }
+    public DateTime? AnsweredAt { get; set; }
+    public DateTime? EndedAt { get; set; }
+    public List<CallParticipantDto> Participants { get; set; } = new();
+}
+public class CallParticipantDto
+{
+    public int PersonId { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string ProfileImage { get; set; } = string.Empty;
+    public bool IsMuted { get; set; }
+    public bool IsCameraEnabled { get; set; }
+    public bool IsScreenSharing { get; set; }
+    public CallParticipantStatus Status { get; set; }
+}
+public class CallLogDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public string ChatName { get; set; } = "";
+    public CallType Type { get; set; }
+    public CallStatus Status { get; set; }
+    public DateTime StartedAt { get; set; }
+    public DateTime? EndedAt { get; set; }
+    public TimeSpan Duration { get; set; }
+    public bool IsIncoming { get; set; }
+    public int CallerPersonId { get; set; }
+    public bool IsMissed { get; set; }
+}
+public class StartCallDto
+{
+    public int ChatId { get; set; }
+    public CallType Type { get; set; }
+}
+public class OfferDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public string Sdp { get; set; } = string.Empty;
+}
+public class AnswerDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public string Sdp { get; set; } = string.Empty;
+}
+public class RejectDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+}
+public class IceCandidateDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public string Candidate { get; set; } = string.Empty;
+    public string? SdpMid { get; set; }
+    public int? SdpMLineIndex { get; set; }
+}
+public class ToggleMicrophoneDto
+{
+    public int CallId { get; set; }
+    public bool IsMuted { get; set; }
+}
+public class ToggleCameraDto
+{
+    public int CallId { get; set; }
+    public bool IsCameraEnabled { get; set; }
+}
+public class ScreenShareDto
+{
+    public int CallId { get; set; }
+    public bool IsSharing { get; set; }
+} you will need these dtos
+create necessary icons to do this in each chat 
+await _realtimeNotificationService.UpdateChat("IncomingCall", call.ChatId, CallDto);
+await _realtimeNotificationService.UpdateChat("CallAccepted", call.ChatId, MapToDto(call));
+await _realtimeNotificationService.UpdateChat("CallRejected", call.ChatId, new
+{
+    CallId = call.Id,
+    PersonId = personId,
+    Status = participant.Status,
+    CallStatus = call.Status
+});
+await _realtimeNotificationService.UpdateChat("CallEnded", call.ChatId, new
+{
+    CallId = call.Id,
+    PersonId = personId,
+    Status = participant.Status,
+    CallStatus = call.Status
+}); you will need to listen for this too. I want the call to be like a whatapp call kinda thing with the cards for multiple users and the animated audio for voice calls and the controls for mute switch camera and the end call. Only the user that initiated the call can end the call but the user can leave the call by 
+public async Task RejectCall(RejectDto dto, string token) invoking this via signalR 
+and once a call is accepted, invoke the two below.
+public async Task Offer(OfferDto dto, string token) 
+public async Task IceCandidate(IceCandidateDto dto, string token)
+
+public async Task AcceptCall(int callId, string token) invoke this via signalR to accept a call when the answer button is clicked
+await _realtimeNotificationService.UpdateChat("IncomingCall", call.ChatId, callDto); 
+The end call end point is used by the user if the call originates from the user else, the RejectCall signalR invoke is used to end the call and the public async Task AcceptCall(int callId, string token) signalR invoke is used to accept a call
+
+
+If an incoming call is not originating from the user, the answer call and reject call button when clicked on invokes two methods public async Task AcceptCall(int callId, string token) invoke this via signalR to accept a call when the answer button is clicked and public async Task RejectCall(int callId, string token) to reject a call when the reject call button is clicked.
+
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/AcceptCall?callId=1' \
+  -H 'accept: */*' \
+  -d '' to answer a call that is not originating from the user / for the answer button
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/RejectCall?callId=1' \
+  -H 'accept: */*' \
+  -d '' to reject a call that is not originating from the user / for the reject button ure to get rid of the and the response for both is the base response so that means getting rid of the signalR invoke for both the answer call and reject call
+
+  await _realtimeNotificationService.UpdateChat("CallRejected", call.ChatId, callDto);
+  await _realtimeNotificationService.UpdateChat("CallEnded", call.ChatId, callDto);
+  these two now return the callDto which is now used to update the call in the call history

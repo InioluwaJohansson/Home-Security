@@ -2,165 +2,222 @@ using Home_Security.Interfaces.Services.Chats;
 using Home_Security.Interfaces.Repositories.Chats;
 using Home_Security.Models.ChatDTO;
 using Home_Security.Entities.Chats;
+using Home_Security.RealTimeServices;
+using Home_Security.Models.DTOs;
+
+namespace Home_Security.Implementations.Services.Chats;
 public class MessageService : IMessageService
 {
     private readonly IMessageRepo _messageRepo;
     private readonly IChatRepo _chatRepo;
+    private IChatHub _chatHub;
 
-    public MessageService(IMessageRepo messageRepo, IChatRepo chatRepo)
+    public MessageService(IMessageRepo messageRepo, IChatRepo chatRepo, IChatHub chatHub)
     {
         _messageRepo = messageRepo;
         _chatRepo = chatRepo;
+        _chatHub = chatHub;
     }
-    public async Task<MessageDto> SendMessageAsync(SendMessageDto dto, int senderId)
+    public async Task<BaseResponse> SendMessageAsync(SendMessageDto dto, int senderId)
     {
-        var isParticipant = await _chatRepo
-            .IsParticipantAsync(dto.ChatId, senderId);
-
+        var isParticipant = await _chatRepo.IsParticipantAsync(dto.ChatId, senderId);
+        Console.WriteLine($"Chat Id: {dto.ChatId}, Sender Id: {senderId}");
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(
+            dto,
+            new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true
+            }));
         if (!isParticipant)
-            throw new Exception("Not allowed in this chat");
-
+        {
+            return new BaseResponse()
+            {
+                Status = false,
+                Message = "Participant not found"
+            };
+        }
+        var date = DateTime.UtcNow;
         var message = new Message
         {
             ChatId = dto.ChatId,
             SenderPersonId = senderId,
+            ReplyToMessageId = dto.ReplyToMessageId,
             Content = dto.Content,
-            Type = dto.Type,
-            SentAt = DateTime.UtcNow,
+            Type = MessageType.Text,
+            SentAt = date,
             Attachments = (await Task.WhenAll(
-        dto.Attachments.Select(async a => new MessageAttachment
-        {
-            FileName = a.FileName,
-            FilePath = await GetAttachmentImageUrl(a.FilePath),
-            ContentType = a.ContentType,
-            FileSize = a.FileSize,
-            ThumbnailPath = a.ThumbnailPath
-        }))).ToList()
+            dto.Attachments?.Select(async a => new MessageAttachment
+            {
+                FileName = a.FileName,
+                FilePath = await GetAttachmentUrl(a.FilePath, a.Type),
+                ContentType = a.Type.ToString(),
+                FileSize = a.FileSize,
+                ThumbnailPath = a.ThumbnailPath
+            }))).ToList()
         };
-
-        await _messageRepo.Create(message);
-
-        return MapToDto(message);
+        message = await _messageRepo.Create(message);
+        var messageData = await _messageRepo.GetMessageByExpression(x => x.SentAt == date && !x.IsDeleted);
+        await _chatHub.UpdateChat("MessageSent", message.ChatId, MapToDto(messageData));
+        return new BaseResponse()
+        {
+            Status = true,
+            Message = "Message sent"
+        };
     }
     public async Task<List<MessageDto>> GetChatMessagesAsync(int chatId, int personId, int page, int pageSize)
     {
         var isParticipant = await _chatRepo.IsParticipantAsync(chatId, personId);
-        if (!isParticipant)
+        if (isParticipant == false)
             throw new Exception("Access denied");
         var messages = await _messageRepo.GetChatMessagesAsync(chatId, page, pageSize);
+        await MarkAsReadAsync(chatId, personId);
         return messages.Select(MapToDto).ToList();
     }
-    public async Task<MessageDto> EditMessageAsync(EditMessageDto dto, int personId)
+    public async Task<BaseResponse> EditMessageAsync(EditMessageDto dto, int personId)
     {
-
         var message = await _messageRepo.GetByIdAsync(dto.MessageId);
-
         if (message == null)
-            throw new Exception("Message not found");
-
+        {
+            return new BaseResponse()
+            {
+                Status = false,
+                Message = "Unable to find message"
+            };
+        }
         if (message.SenderPersonId != personId)
-            throw new Exception("Not allowed");
-
+        {
+            return new BaseResponse()
+            {
+                Status = false,
+                Message = "Can't delete chats"
+            };
+        }
         message.Content = dto.Content;
         message.IsEdited = true;
-
         await _messageRepo.Update(message);
-        return MapToDto(message);
+        await _chatHub.UpdateChat("MessageEdited", message.ChatId, MapToDto(message));
+        return new BaseResponse()
+        {
+            Status = true,
+            Message = "Message edited"
+        };
     }
-    public async Task DeleteMessageAsync(int messageId, int personId)
+    public async Task<BaseResponse> DeleteMessageAsync(int messageId, int personId)
     {
-
         var message = await _messageRepo.GetByIdAsync(messageId);
 
         if (message == null)
-            throw new Exception("Message not found");
+        {
+            return new BaseResponse()
+            {
+                Status = false,
+                Message = "Unable to find message"
+            };
+        }
 
         if (message.SenderPersonId != personId)
-            throw new Exception("Not allowed");
-
+        {
+            return new BaseResponse()
+            {
+                Status = false,
+                Message = "Unable to find message"
+            };
+        }
         message.IsDeleted = true;
-
         await _messageRepo.Update(message);
+        await _chatHub.UpdateChat("MessageDeleted", message.ChatId, new
+        {
+            ChatId = message.ChatId,
+            MessageId = messageId,
+            IsDeleted = true,
+        });
+        return new BaseResponse()
+        {
+            Status = false,
+            Message = "Unable to find message"
+        };
     }
     public async Task<int> GetUnreadCountAsync(int chatId, int personId)
     {
         var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
-
         var participant = chat.Participants.FirstOrDefault(x => x.PersonId == personId);
-
         return await _messageRepo.GetUnreadCountAsync(chatId, participant?.LastReadAt);
+    }
+    public async Task Typing(TypingDto dto)
+    {
+        var isParticipant = await _chatRepo.IsParticipantAsync(dto.ChatId, dto.PersonId);
+        if (isParticipant)
+            await _chatHub.UpdateChat("UserTyping", dto.ChatId, dto);
+    }
+    public async Task MarkAsReadAsync(int chatId, int personId)
+    {
+        var chat = await _chatRepo.GetChatWithParticipantsAsync(chatId);
+        if (chat == null){}
+        else
+        {
+            var participant = chat.Participants.FirstOrDefault(x => x.PersonId == personId);
+            if (participant == null){}
+            else
+            {
+                participant.LastReadAt = DateTime.UtcNow;
+                await _chatRepo.Update(chat);
+                await _chatHub.UpdateChat("MessagesRead", chatId, new
+                {
+                    ChatId = chatId,
+                    PersonId = personId,
+                    ReadAt = DateTime.UtcNow
+                });
+            }
+        }
     }
     private MessageDto MapToDto(Message message)
     {
         return new MessageDto
         {
             Id = message.Id,
-
             ChatId = message.ChatId,
-
             SenderPersonId = message.SenderPersonId,
-
+            ReplyMessageId = message.ReplyToMessageId,
             Content = message.Content,
-
             Type = message.Type,
-
             IsEdited = message.IsEdited,
-
             IsDeleted = message.IsDeleted,
-
             SentAt = message.SentAt,
-
             SenderName = $"{message.SenderPerson.PersonDetails.FirstName} {message.SenderPerson.PersonDetails.LastName}",
-
-            SenderProfileImage = ConvertImageToBase64(message.SenderPerson.PersonDetails.ImageUrl) ?? "",
-
+            SenderProfileImage = message.SenderPerson.PersonDetails.ImageUrl ?? "",
             Attachments = message.Attachments?
-                .Select(a => new GetMessageAttachmentDto
-                {
-                    FileName = a.FileName,
-
-                    FilePath = a.FilePath,
-
-                    ContentType = a.ContentType,
-
-                    FileSize = a.FileSize,
-
-                    ThumbnailPath = a.ThumbnailPath
-                })
-                .ToList() ?? new List<GetMessageAttachmentDto>()
+            .Select(a => new GetMessageAttachmentDto
+            {
+                FileName = a.FileName,
+                FilePath = a.FilePath,
+                ContentType = a.ContentType,
+                FileSize = a.FileSize,
+                ThumbnailPath = a.ThumbnailPath
+            })
+            .ToList() ?? new List<GetMessageAttachmentDto>()
         };
     }
-    public static string? ConvertImageToBase64(string? path)
+    public async Task<string> GetAttachmentUrl(IFormFile file, MessageType type)
     {
-        if (string.IsNullOrWhiteSpace(path))
-            return null;
-
-        if (!File.Exists(path))
-            return null;
-
-        var bytes = File.ReadAllBytes(path);
-
-        return Convert.ToBase64String(bytes);
-    }
-    public async Task<string> GetAttachmentImageUrl(IFormFile file){
-        var folderPath = Path.Combine(Directory.GetCurrentDirectory() + "..\\Images\\Attachment\\");
-        if (!System.IO.Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
-
-        var imagePath = "";
-        if (file != null)
+        if (file == null || file.Length == 0)
+            return string.Empty;
+        var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
+        var storagePath = Path.Combine(basePath, "storage");
+        var folderName = Path.Combine("Messages" ,type switch
         {
-            var fileName = Path.GetFileNameWithoutExtension(file.FileName);
-            var filePath = Path.Combine(folderPath, Guid.NewGuid().ToString().Substring(1,15));
-
-            if (!System.IO.Directory.Exists(filePath))
-            {
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-                imagePath = fileName;
-            }
-        }
-        return imagePath;
+            MessageType.Image => "Images",
+            MessageType.Video => "Videos",
+            MessageType.Audio => "Audios",
+            MessageType.File => "Files",
+            _ => "Others"
+        });
+        var folderPath = Path.Combine(storagePath, folderName);
+        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+        var extension = Path.GetExtension(file.FileName);
+        var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
+        var absolutePath = Path.Combine(folderPath, uniqueFileName);
+        await using var stream = new FileStream(absolutePath, FileMode.Create);
+        await file.CopyToAsync(stream);
+        return Path.Combine(folderName, uniqueFileName);
     }
 }

@@ -1,5 +1,6 @@
 using Home_Security.Entities.Chats;
 using Home_Security.Contracts;
+
 namespace Home_Security.Entities.Chats;
 public class Message : AuditableEntity
 {
@@ -14,7 +15,6 @@ public class Message : AuditableEntity
 
     public bool IsEdited { get; set; }
 
-    public bool IsDeleted { get; set; }
     public int? ReplyToMessageId { get; set; }
 
     public DateTime SentAt { get; set; } = DateTime.UtcNow;

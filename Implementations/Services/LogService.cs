@@ -6,20 +6,17 @@ using Home_Security.RealTimeServices;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Home_Security.Implementations.Services;
-
 public class LogService : ILogService
 {
     ILogRepo _logRepo;
     IPersonRepo _personRepo;
     IRealtimeNotificationService _realtime;
-
     public LogService(ILogRepo logRepo, IPersonRepo personRepo, IRealtimeNotificationService realtime)
     {
         _logRepo = logRepo;
         _personRepo = personRepo;
         _realtime = realtime;
     }
-
     public async Task<BaseResponse> CreateLog(CreateLogDto createLogDto)
     {
         if (createLogDto != null)
@@ -39,21 +36,18 @@ public class LogService : ILogService
             await _logRepo.Create(log);
             var logData = await _logRepo.Get(x => x.CreatedOn == log.CreatedOn);
             await _realtime.NotifyAll("LogCreated", await GetDetails(logData));
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Action Logged Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Log Action!"
         };
     }
-
     public async Task<LogsResponseModel> GetLogsByPersonId(int personId, int page = 1, int pageSize = 50)
     {
         var logs = await _logRepo.GetByExpression(x => x.PersonId == personId && !x.IsDeleted);
@@ -73,20 +67,17 @@ public class LogService : ILogService
                 Message = "Logs Retrieved Successfully!"
             };
         }
-
         return new LogsResponseModel()
         {
             Status = false,
             Message = "Unable To Retrieve Logs!"
         };
     }
-
     public async Task<LogsResponseModel> GetLogsByDate(DateOnly startDate, DateOnly endDate, int page = 1, int pageSize = 50)
     {
         var start = startDate.ToDateTime(TimeOnly.MinValue);
         var end = endDate.ToDateTime(TimeOnly.MaxValue);
         var logs = await _logRepo.GetByExpression(x => x.TimeOfAction >= start && x.TimeOfAction <= end && !x.IsDeleted);
-
         if (logs != null)
         {
             var pagedLogs = logs.OrderByDescending(x => x.TimeOfAction).Skip((page - 1) * pageSize).Take(pageSize).ToList();
@@ -135,7 +126,6 @@ public class LogService : ILogService
             Message = "Unable To Retrieve Logs!"
         };
     }
-
     public async Task<GetLogDto> GetDetails(Logs log)
     {
         var person = await _personRepo.GetById(log.PersonId);
@@ -164,7 +154,6 @@ public class LogService : ILogService
                 }
             };
         }
-
         return new GetLogDto()
         {
             Id = log.Id,

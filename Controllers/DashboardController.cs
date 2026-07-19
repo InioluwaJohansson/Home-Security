@@ -46,6 +46,5 @@ public class DashboardController : Controller
         };
         var dashboard = await _dashboardControl.GetAppNamesIdList(getAuthControlInfoDto);
             return Ok(dashboard);
-        return Unauthorized();
     }
 }

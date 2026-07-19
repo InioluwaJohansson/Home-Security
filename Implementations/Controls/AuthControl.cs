@@ -54,9 +54,6 @@ public class AuthControl : IAuthControl
         {
             throw new Exception("_cache is null");
         }
-
-        Console.WriteLine($"Cache Count: {_authCache._cache.Count}");
-
         var person = _authCache._cache.FirstOrDefault(x => x != null && x.Id == personId);
         if (person != null && authorizationCode.Equals(person.User.AuthorizationCode) && person.Disabled == false)
         {
@@ -89,6 +86,12 @@ public class AuthControl : IAuthControl
         {
             Status = false
         };
+    }
+    public Person GetPersonById(int personId)
+    {
+        var person = _authCache._cache.FirstOrDefault(x => x.Id == personId);
+        if (person != null) return person;
+        return null;
     }
     public async Task GetAllPersons()
     {
@@ -289,12 +292,39 @@ public class AuthControl : IAuthControl
         await GetAllContactCategories();
         _authCache._contactCache.Clear();
         await GetAllContacts();
-        await _realtimeNotificationService.NotifyAll("GetAppNamesDetails", GetAppNamesDetails());
+        foreach (var role in Enum.GetValues(typeof(Role)).Cast<Role>())
+            await _realtimeNotificationService.UpdateAppList("GetAppNamesDetails", role, GetAppNamesIdList(role));
+    }
+    private async Task<AppNamesDetailList> GetAppNamesIdList(Role role)
+    {
+        if (role == Role.Owner || role == Role.Wife)
+        {
+            var dashboard = await GetAppNamesDetails();
+            if (dashboard != null)  return dashboard;
+        }
+        else if (role == Role.Child || role == Role.Relative || role == Role.Visitor)
+        {
+            var dashboard = await GetAppNamesDetails();
+            if (dashboard != null) {
+                dashboard.ApplianceIdNames = dashboard.ApplianceIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.CameraIdNames = dashboard.CameraIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.LightIdNames = dashboard.LightIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.WindowIdNames = dashboard.WindowIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.DoorIdNames = dashboard.DoorIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.ExternalIdNames = dashboard.ExternalIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.SectionIdNames = dashboard.SectionIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.PersonIdNames = dashboard.PersonIdNames.Where(x => x.IsHidden == false).ToList();
+                dashboard.RoomIdNames = dashboard.RoomIdNames.Where(x => x.IsHidden == false).ToList();
+                return dashboard;
+            }
+        }
+        return new AppNamesDetailList();
     }
     public bool CompareRole(Role based, Role quote)
     {
         //based is role of last locked user
         //quote is role of user trying to unlock it
+        //if (quote <= based) return true;
         if (quote == Role.Owner || based == Role.Owner) return true;
 
         else if ((based == Role.Child || based == Role.Relative || based == Role.Visitor) && (quote == Role.Owner || quote == Role.Wife)) return true;
@@ -376,19 +406,20 @@ public class AuthControl : IAuthControl
                 IsHidden = c.IsHidden,
             }).ToList(),
             RoomIdNames = _authCache._roomCache.Where(x => x.IsDeleted == false)
-            .Select(c => new GenericNames
+            .Select(c => new GenericRoomNames
             {
                 Id = c.Id,
                 Name = c.RoomName,
                 IsHidden = c.IsHidden,
+                SectionId = c.SectionId ?? null
             }).ToList(),
             PersonIdNames = _authCache._cache
             .Select(c => new GenericNames
             {
                 Id = c.Id,
-                Name = c.PersonDetails.FirstName + " " + c.PersonDetails.LastName,
+                Name = $"{c.PersonDetails.FirstName} {c.PersonDetails.LastName}",
                 IsHidden = c.Disabled,
-                ImageUrl = ConvertImageToBase64(c.PersonDetails.ImageUrl) ?? "",
+                ImageUrl = c.PersonDetails.ImageUrl,
             }).ToList(),
             ContactCategoryIdNames = _authCache._contactCategoryCache.Where(x => x.IsDeleted == false)
             .Select(c => new GenericIdNames
@@ -414,18 +445,6 @@ public class AuthControl : IAuthControl
             FacilityType = EnumToList<FacilityType>(),
             Role = EnumToList<Role>()
         };
-    }
-    public static string? ConvertImageToBase64(string? path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-            return null;
-
-        if (!File.Exists(path))
-            return null;
-
-        var bytes = File.ReadAllBytes(path);
-
-        return Convert.ToBase64String(bytes);
     }
     public static List<GenericIdNames> EnumToList<T>() where T : Enum
     {

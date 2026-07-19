@@ -29,8 +29,10 @@ public class UserController : Controller
     public async Task<IActionResult> Login(string userName, string password)
     {
         var user = await _userService.Login(userName, password);
-        if (user.Status == true)
+        if (user.Status == true){
+            user.ImageUrl = _authControl.GetPersonById(user.Data.PersonId).PersonDetails.ImageUrl ?? null;
             return Ok(user);
+        }
         return Ok(user);
     }
     [Authorize]
@@ -131,15 +133,11 @@ public class UserController : Controller
     [HttpPost("VerifyAuthCode")]
     public async Task<IActionResult> VerifyAuthCode(string authCode)
     {
-        Console.WriteLine("AuthCode: " + authCode);
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
             return Unauthorized();
-        if (user != null && BCrypt.Net.BCrypt.EnhancedVerify(authCode, user.AuthorizationCode)){
-        Console.WriteLine("Hashed: Yes " + user.AuthorizationCode + " verified!");
-            Console.WriteLine("AuthCode: Yes " + authCode + " verified!");
+        if (user != null && BCrypt.Net.BCrypt.EnhancedVerify(authCode, user.AuthorizationCode))
            return Ok(true);
-        }
         return Ok(false);
     }
     [Authorize]
@@ -152,19 +150,13 @@ public class UserController : Controller
         if (user != null){
             var data = new UserLoginResponse()
             {
-                Data = new GetUserDto()
-                {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    RoleName = user.Role.ToString(),
-                    Role = user.Role,
-                    AuthorizationCode = user.AuthorizationCode,
-                },
+                Data = user,
                 Message = "Login Successful",
                 Status = true,
             };
+            data.ImageUrl = _authControl.GetPersonById(data.Data.PersonId).PersonDetails.ImageUrl ?? null;
             data.Token = _jwtAuthentication.GenerateToken(data.Data);
-            data.Data.AuthorizationCode = "";
+            data.Data.AuthorizationCode = null;
             return Ok(user);
         }
         return Unauthorized();

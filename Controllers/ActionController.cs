@@ -19,7 +19,7 @@ public class ActionController : Controller
     }
     [Authorize]
     [HttpPost("CreateAction")]
-    public async Task<IActionResult> CreateAction([FromQuery]CreateActionDto createActionDto)
+    public async Task<IActionResult> CreateAction(CreateActionDto createActionDto)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -37,7 +37,7 @@ public class ActionController : Controller
     }
     [Authorize]
     [HttpPut("UpdateAction")]
-    public async Task<IActionResult> UpdateAction([FromQuery] UpdateActionDto updateActionDto)
+    public async Task<IActionResult> UpdateAction(UpdateActionDto updateActionDto)
     {
        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -47,6 +47,24 @@ public class ActionController : Controller
             AuthorizationCode = user.AuthorizationCode,
         };
         var action = await _actionControl.UpdateAction(getAuthControlInfoDto, updateActionDto);
+        if (action.Status == true)
+        {
+            return Ok(action);
+        }
+        return Ok(action);
+    }
+    [Authorize]
+    [HttpPost("ActivateDeactivateAction")]
+    public async Task<IActionResult> ActivateDeactivateAction(int id)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        var action = await _actionControl.ActivateDeactivateAction(getAuthControlInfoDto, id);
         if (action.Status == true)
         {
             return Ok(action);

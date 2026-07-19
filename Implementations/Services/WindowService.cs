@@ -1,4 +1,5 @@
 ﻿using Home_Security.Entities;
+using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
@@ -6,14 +7,12 @@ using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
-
 public class WindowService : IWindowService
 {
     IWindowRepo _windowRepo;
     IHardwareService _hardwareService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
-
     public WindowService(IWindowRepo windowRepo, IHardwareService hardwareService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _windowRepo = windowRepo;
@@ -21,7 +20,6 @@ public class WindowService : IWindowService
         _realtime = realtime;
         _mqtt = mqtt;
     }
-
     public async Task<BaseResponse> CreateWindow(CreateWindowDto createWindowDto, int personId)
     {
         if (createWindowDto != null)
@@ -44,86 +42,70 @@ public class WindowService : IWindowService
                 LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now
             };
-
             await _windowRepo.Create(window);
-            var windowData = await _windowRepo.Get(x => x.WindowId == window.WindowId);
-            await _realtime.NotifyAll("WindowCreated", GetDetails(windowData));
-            var hardware = await _hardwareService.GetHardwareName(windowData.Id, FacilityType.Appliance);
-            await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState
-            {
-                FacilityType = FacilityType.Window,
-                Id = window.Id,
-                IsLocked = window.IsLocked,
-                IsOpen = window.IsOpen,
-                IsActive = window.IsActive,
-                PowerActive = window.PowerActive,
-                BrightnessLevel = 0
-            });
-
+            var windowData = GetDetails(await _windowRepo.Get(x => x.WindowId == window.WindowId));
+            if(windowData.IsHidden){ await _realtime.NotifyAll("WindowCreated", new List<Role> { Role.Owner, Role.Wife }, windowData);}
+            else await _realtime.NotifyAll("WindowCreated", windowData);
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Window Successfully Added!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Add Window!"
         };
     }
-
     public async Task<BaseResponse> UpdateWindow(UpdateWindowDto updateWindowDto, int personId)
     {
         if (updateWindowDto != null)
         {
             var window = await _windowRepo.Get(x => x.Id == updateWindowDto.Id && x.IsDeleted == false);
-
-            window.WindowName = updateWindowDto.WindowName ?? window.WindowName;
-            window.SectionId = updateWindowDto.SectionId ?? null;
-            window.RoomId = updateWindowDto.RoomId ?? null;
-            window.LastModifiedBy = personId;
-            window.IsLocked = updateWindowDto.IsLocked;
-            window.IsOpen = updateWindowDto.IsOpen;
-            window.OpenedBy = updateWindowDto.OpenedBy;
-            window.LockedBy = updateWindowDto.LockedBy;
-            window.UnlockedBy = updateWindowDto.UnlockedBy;
-            window.LastModifiedOn = DateTime.Now;
-
-            await _windowRepo.Update(window);
-
-            await _realtime.NotifyAll("WindowUpdated", GetDetails(window));
-            var hardware = await _hardwareService.GetHardwareName(window.Id, FacilityType.Appliance);
-            await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState
+            if(window != null)
             {
-                FacilityType = FacilityType.Window,
-                Id = window.Id,
-                IsLocked = window.IsLocked,
-                IsOpen = window.IsOpen,
-                IsActive = window.IsActive,
-                PowerActive = window.PowerActive,
-                BrightnessLevel = 0
-            });
-
-            return new BaseResponse()
-            {
-                Status = true,
-                Message = "Window Updated Successfully!"
-            };
+                window.WindowName = updateWindowDto.WindowName ?? window.WindowName;
+                window.SectionId = updateWindowDto.SectionId ?? null;
+                window.RoomId = updateWindowDto.RoomId ?? null;
+                window.LastModifiedBy = personId;
+                window.IsLocked = updateWindowDto.IsLocked;
+                window.IsOpen = updateWindowDto.IsOpen;
+                window.OpenedBy = updateWindowDto.OpenedBy;
+                window.LockedBy = updateWindowDto.LockedBy;
+                window.UnlockedBy = updateWindowDto.UnlockedBy;
+                window.LastModifiedOn = DateTime.Now;
+                await _windowRepo.Update(window);
+                await _realtime.NotifyAll("WindowUpdated", GetDetails(window));
+                if(window.IsHidden){ await _realtime.NotifyAll("WindowUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(window));}
+                else await _realtime.NotifyAll("WindowUpdated", GetDetails(window));
+                var hardware = await _hardwareService.GetHardwareName(window.Id, FacilityType.Window);
+                await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState
+                {
+                    FacilityType = FacilityType.Window,
+                    Id = window.Id,
+                    IsLocked = window.IsLocked,
+                    IsOpen = window.IsOpen,
+                    IsActive = window.IsActive,
+                    PowerActive = window.PowerActive,
+                    BrightnessLevel = 0
+                });
+                return new BaseResponse()
+                {
+                    Status = true,
+                    Message = "Window Updated Successfully!"
+                };
+            }
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Update Window!"
         };
     }
-
     public async Task<WindowResponseModel> GetById(int windowId)
     {
         var window = await _windowRepo.Get(x => x.Id == windowId && x.IsDeleted == false);
-
         if (window != null)
         {
             return new WindowResponseModel()
@@ -133,7 +115,6 @@ public class WindowService : IWindowService
                 Message = "Window Retrieved Successfully!"
             };
         }
-
         return new WindowResponseModel()
         {
             Data = null,
@@ -141,11 +122,9 @@ public class WindowService : IWindowService
             Message = "Unable To Retrieve Window!"
         };
     }
-
     public async Task<WindowsResponseModel> GetAllWindows()
     {
         var windows = await _windowRepo.GetByExpression(x => x.IsDeleted == false);
-
         if (windows != null)
         {
             return new WindowsResponseModel()
@@ -155,7 +134,6 @@ public class WindowService : IWindowService
                 Status = true
             };
         }
-
         return new WindowsResponseModel()
         {
             Data = null,
@@ -163,11 +141,9 @@ public class WindowService : IWindowService
             Status = false
         };
     }
-
     public async Task<WindowsResponseModel> GetAllWindowsByRoomId(int roomId)
     {
         var windows = await _windowRepo.GetByExpression(x => x.RoomId == roomId && x.IsDeleted == false);
-
         if (windows != null)
         {
             return new WindowsResponseModel()
@@ -177,7 +153,6 @@ public class WindowService : IWindowService
                 Status = true
             };
         }
-
         return new WindowsResponseModel()
         {
             Data = null,
@@ -185,7 +160,6 @@ public class WindowService : IWindowService
             Status = false
         };
     }
-
     public async Task<WindowsResponseModel> GetAllWindowsBySectionId(int sectionId)
     {
         var windows = await _windowRepo.GetByExpression(x => x.SectionId == sectionId && x.IsDeleted == false);
@@ -207,11 +181,9 @@ public class WindowService : IWindowService
             Status = false
         };
     }
-
     public async Task<BaseResponse> Delete(int windowId, int personId)
     {
         var window = await _windowRepo.Get(x => x.Id == windowId);
-
         if (window != null)
         {
             window.IsActive = false;
@@ -221,15 +193,13 @@ public class WindowService : IWindowService
             window.DeletedOn = DateTime.Now;
             window.DeletedBy = personId;
             window.IsDeleted = true;
-
             await _windowRepo.Update(window);
-
+            await _hardwareService.RemoveFacilityItem(window.Id, FacilityType.Window);
             await _realtime.NotifyAll("WindowDeleted", new
             {
                 window.Id,
                 window.WindowId
             });
-
             await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Window,
@@ -240,21 +210,18 @@ public class WindowService : IWindowService
                 PowerActive = false,
                 BrightnessLevel = 0
             });
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Window Deleted Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Delete Window!"
         };
     }
-
     public GetWindowDto GetDetails(Window window)
     {
         return new GetWindowDto()

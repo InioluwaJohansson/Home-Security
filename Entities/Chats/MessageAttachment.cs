@@ -1,5 +1,7 @@
 using Home_Security.Contracts;
 using Home_Security.Entities.Chats;
+
+namespace Home_Security.Entities.Chats;
 public class MessageAttachment : AuditableEntity
 {
     public int MessageId { get; set; }

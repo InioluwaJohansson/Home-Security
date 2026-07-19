@@ -9,7 +9,7 @@ public class Contact : AuditableEntity
     public Gender Gender {get; set; }
     public string ImageUrl { get; set; }
     public ContactCategory Category { get; set; }
-    public int ContactCategory { get; set; }
+    public int ContactCategoryId { get; set; }
     public List<ContactDetails> ContactDetails { get; set; }
     public List<Address> Address { get; set; }
 }

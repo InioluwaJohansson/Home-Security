@@ -1,2 +1,629 @@
 
 i cant see the data from the get request for the section page applied correctly. I cant even see the section name and the details in the view section details modal. for the facility pages that have a toggle button when the toggle is pressed, it should send an update request to their respective endpoints and those that have a toggle do not need to open the authorization modal with key pad
+
+I also noticed that after creating an item be it in the facility pages or anywhere, else in the app the user can add smth, after sending it to the api, the app should listen to the signalR for the itm being created cause an action can be performed immediately on th item created and the id key identifier will the null where as the signalR has provided it. so there fore the signalR data is what is to be listed to and added not the frontend adding it while missing a few necessary identifiers. curl -X 'POST'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Action/CreateAction'
+-H 'accept: /'
+-H 'Content-Type: application/json'
+-d '{
+"actionName": "string",
+"description": "string"
+}' this is the curl to create an action. curl -X 'PUT'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Action/UpdateAction'
+-H 'accept: /'
+-H 'Content-Type: application/json'
+-d '{
+"id": 0,
+"actionName": "string",
+"description": "string"
+}' this is the curl to update an action. In the input fields in the create new action modal, they should not have a rounded borders instead they should have no border radius and their labels should have icons. I noticed while updating a few facility items that involves them having field like sectionId and roomId, its sending null after the user has selected the section and room these items should be located in. Kindly resolve that too
+
+
+To create a person and a group chat, 
+"public class CreateDirectChatDto
+{
+public int RecipientPersonId { get; set; }
+}
+public class CreateGroupChatDto
+{
+public string Name { get; set; }
+
+public string? Description { get; set; }
+
+public IFormFile? ImageUrl { get; set; }
+
+public List<int> ParticipantPersonIds { get; set; }
+    = new();
+}" this is the fields required.
+public class UpdateGroupChatDto
+{
+public string Name { get; set; }
+
+public string? Description { get; set; }
+
+public string? ImageUrl { get; set; }
+} to update groupchat details
+public class AddParticipantsDto
+{
+public List<int> PersonIds { get; set; }
+= new();
+} to add participants to group
+public class RemoveParticipantDto
+{
+public int PersonId { get; set; }
+} to remove participants. public class SendMessageDto
+{
+public int ChatId { get; set; }
+public string? Content { get; set; }
+
+public MessageType Type { get; set; }
+
+public List<MessageAttachmentDto> Attachments { get; set; }
+    = new();
+}
+public class MessageAttachmentDto
+{
+public string FileName { get; set; }
+public IFormFile FilePath { get; set; }
+
+public string ContentType { get; set; }
+
+public long FileSize { get; set; }
+
+public string? ThumbnailPath { get; set; }
+} to send a message and add attachments e.g files and then automatically fill out the fields based on the selected file type. public class ChatDto
+{
+public int Id { get; set; }
+public string? Name { get; set; }
+
+public string? Description { get; set; }
+
+public bool IsGroup { get; set; }
+
+public string? ImageUrl { get; set; }
+
+public DateTime CreatedAt { get; set; }
+
+public List<ChatParticipantDto> Participants { get; set; } = new();
+
+public MessageDto? LastMessage { get; set; }
+
+public int UnreadCount { get; set; }
+}
+public class ChatParticipantDto
+{
+public int PersonId { get; set; }
+public string FullName { get; set; }
+
+public string? ProfileImageUrl { get; set; }
+
+public bool IsAdmin { get; set; }
+
+public bool IsOnline { get; set; }
+} this is the dto very important every chat will need before it can be viewed. 
+public class MessageDto
+{
+public int Id { get; set; }
+
+public int ChatId { get; set; }
+
+public int SenderPersonId { get; set; }
+
+public string SenderName { get; set; }
+
+public string? SenderProfileImage { get; set; }
+
+public string? Content { get; set; }
+
+public MessageType Type { get; set; }
+
+public bool IsEdited { get; set; }
+
+public bool IsDeleted { get; set; }
+
+public DateTime SentAt { get; set; }
+
+public List<GetMessageAttachmentDto> Attachments { get; set; }
+    = new();
+}
+public class RealtimeMessageDto
+{
+public int MessageId { get; set; }
+code
+Code
+public int ChatId { get; set; }
+
+public int SenderPersonId { get; set; }
+
+public string SenderName { get; set; }
+
+public string? Content { get; set; }
+
+public MessageType Type { get; set; }
+
+public DateTime SentAt { get; set; }
+
+public List<MessageAttachmentDto> Attachments { get; set; }
+    = new();
+} this is the dto for each message that of real tie will be received via signalR. 
+public class TypingDto
+{
+public int ChatId { get; set; }
+
+public int PersonId { get; set; }
+
+public string Name { get; set; }
+
+public bool IsTyping { get; set; }
+}
+public class ReadReceiptDto
+{
+public int ChatId { get; set; }
+
+public int PersonId { get; set; }
+
+public DateTime ReadAt { get; set; }
+}
+public class PresenceDto
+{
+public int PersonId { get; set; }
+
+public bool IsOnline { get; set; }
+}
+these dto are to be received via signalR to show read receipt, online presence and to show the other user is typing. public class MessageQueryDto
+{
+public int ChatId { get; set; }
+
+public int Page { get; set; } = 1;
+
+public int PageSize { get; set; } = 30;
+} this is the dto that will be sent inorder to view more messages in the chat.
+
+
+
+
+
+
+
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Chat/CreateChat?recipientPersonId=0'
+-H 'accept: /'
+-d '' this is the curl to create a chat with a person. curl -X 'POST'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Chat/CreateGroupChat?Name=ddeqd&Description=cwecwcwc&ParticipantPersonIds=1&ParticipantPersonIds=4&ParticipantPersonIds=5'
+-H 'accept: /'
+-H 'Content-Type: multipart/form-data'
+-F 'ImageUrl=@Gojo Satoru Domain Expansion _ Unlimited Void Close-Up Wallpaper _ Jujutsu Kaisen Anime Art.jpg;type=image/jpeg' this is the curl to create a group chat. curl -X 'GET'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Chat/GetChatById?id=0'
+-H 'accept: /' this is the curl to get chats
+When the chat dashboard is navigated to, load all my chats this is the curl "curl -X 'GET'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Chat/GetMyChats'
+-H 'accept: /'". curl -X 'GET'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Chat/GetMyChats'
+-H 'accept: /' this is the curl to add a participant to a chat if it is a group. curl -X 'PUT'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Chat/RemoveParticipant?chatId=0&recipientId=1'
+-H 'accept: /' this is the curl to remove a participant if it is a group. curl -X 'POST'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Message/SendMessage'
+-H 'accept: /'
+-H 'Content-Type: application/json'
+-d '{
+"chatId": 0,
+"content": "string",
+"type": 1,
+"attachments": [
+{
+"fileName": "string",
+"filePath": "string",
+"contentType": "string",
+"fileSize": 0,
+"thumbnailPath": "string"
+}
+]
+}' this is the curl to send a message. curl -X 'POST'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Message/EditMessage'
+-H 'accept: /'
+-H 'Content-Type: application/json'
+-d '{
+"messageId": 0,
+"content": "string"
+}' this is the curl to edit a message. curl -X 'GET'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Message/GetChatMessages?chatId=0&page=1&pageSize=100'
+-H 'accept: /' this is the curl to get chat messages once it is opened. curl -X 'POST'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Message/DeleteMessage?messageId=0'
+-H 'accept: /'
+-d '' this is the curl to delete a message. curl -X 'GET'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Message/GetUnreadCount?chatId=0'
+-H 'accept: /' this is the curl to get the unread count for each chat.
+
+In the AppNamesDetailList, The person Id names is used to select the participant id or chat with a new person without the need of exposing the id just the name and the image. After choosing a file, allow the user to be able to crop the image before sending it to create a group chat. Also add necessary icons to the create group chat modal increase and the group chat image, let it be circular above the group name field and clicking on it chooses the file
+While getting chats, if it has been requested before, do not request again until the user pulls the chat list, a little down like when snapchat refreshes to get chats without the ghost icon. While selecting participants to add to chat, style it, and the modal showing the group chat details not personal, the fields should be editable so that 
+public class UpdateGroupChatDto
+{
+public int ChatId { get; set; }
+public string? Name { get; set; }
+
+public string? Description { get; set; }
+
+public IFormFile? ImageUrl { get; set; }
+} this dto can be used to edit the group chat and the curl to update is curl -X 'PUT'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Chat/UpdateGroupChat?ChatId=0&Name=vdger&Description=vegr'
+-H 'accept: /'
+-H 'Content-Type: multipart/form-data'
+-F 'ImageUrl=@Gojo Satoru Domain Expansion _ Unlimited Void Close-Up Wallpaper _ Jujutsu Kaisen Anime Art.jpg;type=image/jpeg' and the curl to delte a chat for the delte icon which should open a modal for confirmation is curl -X 'PUT'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Chat/DeleteChat?chatId=1'
+-H 'accept: /'
+
+In the form showing the details of the file and the file, make those fields hidden except the file be it an image or a file. And make the background of the form flimsy transparent. In the chat, when a message is selected for more than 1 second, make the message most evident along with the div holding it and make the background flimsy transparent this makes the other messages be covered with a flimsy transparent background too and below the selected text, add a div with the functions to Reply, Forward, Copy and delete all with icons at their far right in their divs with the delete text and icon having a delete color. And when the flimsy background is cicked again, return back to chats just like how WhatsApp on iPhones work so yeah. Here's an image below to help you understand what I want to do.
+
+for the chats, the most recent message should be at the bottom and as the user swipes down, more messages loads up. Also the image for each chat is not being displayed. In the chat, move the edit function to the long press on message feature and remove the delete on the message that does not show on the long press. and its delete function assign it to the delete in the long press. That means the edit and delete icons wont show when a message is shown in chat until the long press. I still cant see the back icon in the view chat details.
+
+In order to message a person, why dont you just use cards instead of using an option tag. In the new group, the id of the user should not be shown. In the participants that are available but can be added, put a card for each participant and then implement the add participant url for them. the view chat details should be a modal. In the chats if the user image is null replace it with the first letter of their name in capital. The secure handshake bubble name in the message long press should be replaced with the sender person name. And if the chat is not a group, move the online status directly beneath the name of the chat and do not show the description while showing the delete button to delete the chat.
+
+Whenever a message is referencing another message and the message referenced by the newer message is clicked on, go to the message that is being referenced and highlight the message for 3s. When the message sent by the sender is swiped to the left or the message sent by another user is swiped to the right, initiate the reply message function. Also when the user is typing, initiate the typing URL sending the chatId every 10s this will be received via a signalR event by the chat hubthe URL and the event contents will be provided. If a user joins a chat, send a the chatId via a URL will be provided. For the chat that is not a group, move the delete button into the view chat modal. and do not show the participants the name of the chat should be read from the name property. The back button should also be to the right of the chat information text. To access all images in the app, the URL is the base URL/storage/
+
+After the chat has been loaded, for each chat a URL will be pasted to get the no of unread messages for each chat. And once a chat is open, a URLs will be sent to signify the user has read the chats. While adding chat participants to a group, the URL is expecting a list of participants therefore a add button cannot be added to a single participant when adding participants to a group. Take this correction especially in the view modal of a group. And while deleting a group, the title should be next to the bin icon. Also, the message when it is long pressed, endure it still maintains the same position as it is when the message is long pressed and then the div that shows the option let it be below or above depending on where pace is more and align it to the right or left edge of the message making it aligned which depends on the sender of the message. If the sender is trying to delete a message that was not sent by the user, notify the sender that he can't delete the message. Transitioning from one menu to another is from right to left and that's if the menu navigated to is towards the right of the current menuand from left to right if the menu is to the left of the current menu and if the current menu is clicked, don't navigate. In the app header, if the Image is null use the first letter of the users name. Regarding the messages being arranged, the recent one will be at the bottom of the chat and at the bottom of the div holding the chat and scrolling down loads more messages. When getting the chat, it also returns a few recent messages. Show the last recent message below the name of the chat in the chat list instead of the description. This is the dto for each chat for reference so therefore, expect a list of this dto
+return new ChatDto
+{
+Id = chat.Id,
+Name = chat.Name,
+Description = chat.Description,
+IsGroup = chat.IsGroup,
+ImageUrl = ConvertImageToBase64(chat.ImageUrl),
+CreatedAt = chat.CreatedAt,
+Participants = chat.Participants?
+.Select(p => new ChatParticipantDto
+{
+PersonId = p.PersonId,
+IsAdmin = p.IsAdmin,
+IsOnline = false,
+FullName = "",
+ProfileImageUrl = null
+})
+.ToList() ?? new List<ChatParticipantDto>(),
+LastMessage = chat.Messages?
+.OrderByDescending(x => x.SentAt)
+.Select(x => new MessageDto
+{
+Id = x.Id,
+ChatId = x.ChatId,
+SenderPersonId = x.SenderPersonId,
+Content = x.Content,
+Type = x.Type,
+IsEdited = x.IsEdited,
+IsDeleted = x.IsDeleted,
+SentAt = x.SentAt,
+SenderName = "",
+SenderProfileImage = null,
+Attachments = x.Attachments?
+.Select(a => new GetMessageAttachmentDto
+{
+FileName = a.FileName,
+FilePath = a.FilePath,
+ContentType = a.ContentType,
+FileSize = a.FileSize,
+ThumbnailPath = a.ThumbnailPath
+})
+.ToList() ?? new List<GetMessageAttachmentDto>()
+}).FirstOrDefault(),
+UnreadCount = 0
+};
+
+When forwarding a message, the user can't forward to the same chat. And while switching themes all light background should be dark for dark theme and all dark texts should be light for dark theme. The image at the chat background too should be dark and the sender text background should be a darker shade of green. Same with the div holding the inputs for the message and file and audio. Add icons to the save and cancel buttons in the edit chat modal. The search activity field in the chat page should be search chats and should search the name of the chats. The handle refresh for each page, should show a three dot button when pulled down and then replace it with a horizontal bar that goes from left to right with two distinct colours black and ask 50:50(50% of the div width) just below the app header just like in Snapchat until a response is received. And the filter activity button in the log page, ensure it follows the theme too light button when on light theme and dark button when in dark theme. The connection secure text replace it with a lock icon and a text showing today's date and as long a sthe messages being scrolled through is showing today's date make it disappear until the user scrolls through a message that is on another day, then show it again. While swiping a message to the left or right based on the sender, ensure the animation that the message is being swiped to the left or right is shown
+
+ curl -X 'POST'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Message/Typing?chatId=1'
+-H 'accept: /'
+-d '' this is the curl to send when the user is typing. curl -X 'GET'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Message/GetUnreadCount?chatId=1'
+-H 'accept: /' this is the curl to get the unread count for each chat. In the chat, the most recent message should be at the bottom and should be closer to the bottom of the div holding the message just like in most messaging apps. When a message is long pressed, the timestamp must always be on a straight line. In the chat information, the admin must come before other participants and the id must not be visible. curl -X 'POST'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Chat/JoinChat?chatId=1'
+-H 'accept: /'
+-d '' this is the curl to join a chat when a chat is opened that is run silently. 
+await _chatHub.UpdateChat("MessageDeleted", message.ChatId, new
+{
+ChatId = message.ChatId,
+MessageId = messageId,
+IsDeleted = true,
+});
+await _chatHub.UpdateChat("MessageEdited", message.ChatId, MapToDto(message));
+await _chatHub.UpdateChat("MessageSent", message.ChatId, MapToDto(messageData));
+await _chatHub.UpdateChat("UserTyping", dto.ChatId, dto);
+private MessageDto MapToDto(Message message)
+{
+return new MessageDto
+{
+Id = message.Id,
+ChatId = message.ChatId,
+SenderPersonId = message.SenderPersonId,
+ReplyMessageId = message.ReplyToMessageId,
+Content = message.Content,
+Type = message.Type,
+IsEdited = message.IsEdited,
+IsDeleted = message.IsDeleted,
+SentAt = message.SentAt,
+SenderName = $"{message.SenderPerson.PersonDetails.FirstName} {message.SenderPerson.PersonDetails.LastName}",
+SenderProfileImage = ConvertImageToBase64(message.SenderPerson.PersonDetails.ImageUrl) ?? "",
+Attachments = message.Attachments?
+.Select(a => new GetMessageAttachmentDto
+{
+FileName = a.FileName,
+FilePath = a.FilePath,
+ContentType = a.ContentType,
+FileSize = a.FileSize,
+ThumbnailPath = a.ThumbnailPath
+})
+.ToList() ?? new List<GetMessageAttachmentDto>()
+};
+}
+await _chatHub.UpdateChat("ChatCreated", chatData.Id, MapToDtoChat(chatData));
+await _chatHub.UpdateChat("GroupChatCreated", chatData.Id, MapToDtoChat(chatData));
+await _chatHub.UpdateChat("GroupChatUpdated", chat.Id, MapToDtoChat(chat));
+await _chatHub.UpdateChat("ChatDeleted", chatId, new
+{
+ChatId = chatId,
+PersonId = currentPersonId,
+});
+await _chatHub.UpdateChat("ParticipantsAdded", chatId, newParticipants.Select(id => new
+{
+ChatId = chatId,
+PersonId = id,
+JoinedAt = DateTime.UtcNow,
+IsAdmin = false
+}));
+await _chatHub.UpdateChat("ParticipantRemoved", chatId, new
+{
+ChatId = chatId,
+PersonId = personId,
+});
+await _chatHub.UpdateChat("MessagesRead", chatId, new
+{
+ChatId = chatId,
+PersonId = personId,
+ReadAt = DateTime.UtcNow
+});
+private ChatDto MapToDtoChat(Chat chat)
+{
+return new ChatDto
+{
+Id = chat.Id,
+Name = chat.Name,
+Description = chat.Description,
+IsGroup = chat.IsGroup,
+ImageUrl = ConvertImageToBase64(chat.ImageUrl),
+CreatedAt = chat.CreatedAt,
+Participants = chat.Participants?
+.Select(p => new ChatParticipantDto
+{
+PersonId = p.PersonId,
+IsAdmin = p.IsAdmin,
+IsOnline = false,
+FullName = "",
+ProfileImageUrl = null
+})
+.ToList() ?? new List<ChatParticipantDto>(),
+LastMessage = chat.Messages?
+.OrderByDescending(x => x.SentAt)
+.Select(x => new MessageDto
+{
+Id = x.Id,
+ChatId = x.ChatId,
+SenderPersonId = x.SenderPersonId,
+Content = x.Content,
+Type = x.Type,
+IsEdited = x.IsEdited,
+IsDeleted = x.IsDeleted,
+SentAt = x.SentAt,
+SenderName = "",
+SenderProfileImage = null,
+Attachments = x.Attachments?
+.Select(a => new GetMessageAttachmentDto
+{
+FileName = a.FileName,
+FilePath = a.FilePath,
+ContentType = a.ContentType,
+FileSize = a.FileSize,
+ThumbnailPath = a.ThumbnailPath
+})
+.ToList() ?? new List<GetMessageAttachmentDto>()
+}).FirstOrDefault(),
+UnreadCount = 0
+};
+}
+await Clients.All.SendAsync("UserOnline", personId);
+await Clients.All.SendAsync("UserOffline", personId);
+public async Task UpdateChat(string eventName, int chatId, object update)
+{
+await _hub.Clients.Group(chatId.ToString()).SendAsync(eventName, update);
+}
+in the UpdateChat method, the fitst parameter is what the signalr should listen for and the third parameter is the response from the server
+Understand and make provision where necessary in the app.
+
+all signalR request must be listened to via "/HomeSecurityHub" and when a user openes a chat, you will need to invoke "await connection.invoke("JoinChat", chatId);" and when the user logs out, you will need to invoke "await connection.invoke("LeaveChat", chatId);" Dont invoke the leave chat yet just comment it out. You will need to set up the app for notifications no need for notification icon or menu. And when a chat is received, show a floating notification at the bottom right with the profile picture of the sender, name of the sender, and the message beneath the name and should add the ... incase the message is too long. the notification should be an overlay and have a ask border and should hold for 5 seconds. When the app is minimized or running in the background, allow notifications to be parsed to let the app also display the notification in the notification bar.
+
+
+Now let me describe the notification how it's meant to transition in: the notification overlay is located at the bottom right of the app a little gap from the right and the bottom of the screen and has a max width of about 30% of the screen. after assigning it a max width of 30% of screen width the middle of that width both horizontally and vertically, the notification opens from the vertical centre which is along the vertical centre of the div and opens towards the left and right in equal proportion depending on the length of the text. The border radius should be curved so that both sides are curved the person name/Group name being bold the user image/group image should be circular and the message text/(person name: then text if it is a group) normal. And the notification closes the opposite way it opened after 5 seconds this notification applies to messages received via signalR that is not sent by the user. Apply the notification after every 1 minute for testing. The toggle in the notification management card should be the same size as in the dark theme card.
+when the notification overlay closes, it should take about 0.9s to close and then when opening and closing the contents look as if it is stretched when the border should collapse outward and inward the contents will look like it collapse outward and inward during the opening and closing of the notification overlay respectively i.e the content should push the border outwards along with its contents and when closing the border should push the contents inward and the opacity of the notification overlay should be 0.3.
+
+When creating a new group, the user must be automatically selected and can't be changed while messaging other users, the user cannot message himself so in the message user modal, don't show the user. Set the notification overlay container opacity to 0.45. The long press function on a message is not working and showing what was implemented before, and the long press should be for 1s. The messages in a chat are not arranged by the most recent. The url to join a chat after the chat is open is void. It has been replaced by invoking a connection and passing the chatId in to the connection e.g await connection.invoke("JoinChat", chatId); this is an example just use the connection name for homeSecurityHub and then pass the chatId.
+
+await connection.invoke("JoinChat", 2);this is another example the chatId should be a number or 2 here is the chatId or Id of the chat selected
+you know what all the things you should listen from the chathub, listwn for them from the homesecurityhub and get rid of the chat hub. and show the responses for each event name in the console. Set the notification overlay container opacity to 0.9 with a translucent background.
+
+if a message fails to send, replace the double tick with a red circular exclamation and when the message is long pressed, add an option to resend the message along with a suitable icon.
+
+Set the notification overlay container opacity to 1 and the background opacity to 0.8 just make sure it is visible as it looking close to invisible. Please sort the chat messages according to date and then senderId making the most recent message to be at the bottom also reinstate the left and right swipe of messages depending on the sender and recipient. Now implement notifications using responses from the SignalR. If a new meaasge is sent or received, add it to the bottom of the messages. Also in the light theme, the chat background color in the view all chats and the messages is dark instead of light including the recipient message background color. In the unread, if the logged in user sent the last message, the unread should not show but if not, the no of unread should show.
+
+Now use live notifications from the signalR instead and trigger when the user receives a new message that is not sent by the user. Also, the background color in the chats page id dark when it is on the light theme instead of it to be light that same issue with the background color of the div holding the chat messages and the background color of the div holding the recipient messages. The url to use anything like images is https://kv5zhpcr-7190.uks1.devtunnels.ms/storage/{image_url} this is an example https://kv5zhpcr-7190.uks1.devtunnels.ms/storage/Images/7229512a825140edb108311abbeecd73.jpg In the notification, if the user image does not exist, replace it with the first letter of the user's name. For the notification overlay, the person name and image url might not be supplied so you will need to acess the applist to get the name and imageurl using the personId and senderId. 
+
+in the app, if the image is null, use the first letter in the user's name
+ curl -X 'POST'
+'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/User/RefreshLoginToken'
+-H 'accept: /'
+-d '' this is the curl to refresh the login token as the token expires every 1 day.
+in the chats page once messages fall on a new day, partition the messages by date and but the date label in between the partition and when scrolling once the partition for another day is reached, replace the date with the date of the partition reached depending on the direction of scrolling just like in WhatsApp. To the partition and messages that fall in today's partition, put the today label and then the messages that were sent today below the label just like in WhatsApp. I also noticed that todays date is fixed at the top of the chat replace it with "Messages are end-end encrypted" Once all the chats are loaded, automatically join chat for all the chats so If the user or other users is typing on a particular chat, on the chat page, show {person name} typing... in green in the chats page for the chat the typing is acted on. Also when the typing is received within a chat, push the last message in the chat upward making it seem like the istyping is the most recent message until the actual message is received. I also noticed that a message in a chat should take at most 90% of the screen width and can be longer than the option div during the long press depending on the length of the message. The back button in the chat information modal the text and icon should be white in the dark theme. Once a chat is deleted, return back to the chat page and refresh it. If the chat is a group in the chat, where the online encryption active text is, replace it with the first name of the members. In the chat information modal, Participants are now Members and the available to add should be below the members. The chat information modal reduce the height by 50px and add an invisible vertical scrollbar. In the app anywhere the member & user image is empty replace it with the first letter in their name. In the chat, the logged in user has an online tag by default. 
+Once the signalR hub is connected and the user is logged in you will need to invoke this public async Task UserOnline(int personId)
+{
+await Clients.All.SendAsync("UserOnline", personId);
+} to allow other users to know the user is online, you will need to prepare the app to receive this too to set the online status for other users.
+
+there's no need to refresh token this should happen every 24 hours.
+Also I noticed after selecting a chat to message, after getting chat by id, the get chat messages not the get chat by id method should set the chat messages so that it won't look like the chat messages were rendered twice. In the messages are end-end encrypted text the background should be muted black for dark theme like in the date and the date partition and should conform with the light and dark theme, the date partition should have a shortened date e.g WED, AUG 19, 2025 along with the calendar icon and should be bold. The date that changes at the top of chat should conform with the light and dark theme and then reduce the gap between it and the date partition beneath it. In the message user modal, clicking on a user automatically starts a chat for the user and if the response from the server is a chatdto, redirect to the chat so that users can communicate.
+ If the chat that the typing is received is not a group, just put "Typing..." in cursive font and the time of the last message as the time for each chat in the chat page. In the conversation page, if a message is sent over 20 mins ago, in the long press message option, remove the edit option.
+For the members when displaying the name and image url you will need to refer to the applist to map it out using the personId in the app list and the personId in the chat participants. In the conversation where the name of the chat is along with the chat image, below the chat name, the names of the chat participants is not showing and also in the chat page if the chat is a group, in front of the last message, put the name of the sender of the last message you will need the app list for this.
+
+When the user initailly get all chats, save it and incase the get all chats is called again, display the saved data and run the get all chats again silently then use it to update the current get all chats without re rendering and also apply it to the get messages by chatId save it and just update it after silently running get all chats by chatId. "[HOME_SIGNALR_EVENT: GetAppNamesDetails]" {
+"result": {
+"applianceIdNames": [],
+"cameraIdNames": [],
+"lightIdNames": [],
+"windowIdNames": [],
+"doorIdNames": [],
+"externalIdNames": [],
+"personIdNames": [
+{
+"isHidden": false,
+"imageUrl": "",
+"id": 1,
+"name": "Inioluwa Johansson"
+},
+{
+"isHidden": false,
+"imageUrl": "",
+"id": 2,
+"name": "Olamide Makinde"
+}
+],
+"sectionIdNames": [],
+"roomIdNames": [],
+"contactCategoryIdNames": [],
+"actionIdNames": [],
+"hardwareIdNames": [],
+"applianceType": [
+{
+"id": 1,
+"name": "HVAC"
+},
+{
+"id": 2,
+"name": "Others"
+}
+],
+"gender": [
+{
+"id": 1,
+"name": "Male"
+},
+{
+"id": 2,
+"name": "Female"
+},
+{
+"id": 3,
+"name": "RatherNotSay"
+}
+],
+"doorType": [
+{
+"id": 1,
+"name": "Interior"
+},
+{
+"id": 2,
+"name": "Exterior"
+},
+{
+"id": 3,
+"name": "Gate"
+}
+],
+"facilityType": [
+{
+"id": 1,
+"name": "Appliance"
+},
+{
+"id": 2,
+"name": "Camera"
+},
+{
+"id": 3,
+"name": "Door"
+},
+{
+"id": 4,
+"name": "External"
+},
+{
+"id": 5,
+"name": "Light"
+},
+{
+"id": 6,
+"name": "Window"
+}
+],
+"role": [
+{
+"id": 1,
+"name": "Owner"
+},
+{
+"id": 2,
+"name": "Wife"
+},
+{
+"id": 3,
+"name": "Child"
+},
+{
+"id": 4,
+"name": "Relative"
+},
+{
+"id": 5,
+"name": "Visitor"
+}
+]
+},
+"id": 11,
+"exception": null,
+"status": 5,
+"isCanceled": false,
+"isCompleted": true,
+"isCompletedSuccessfully": true,
+"creationOptions": 0,
+"asyncState": null,
+"isFaulted": false
+} this is an example of the response from a signalR GetAppNamesDetails event which is meant to silently update names within the app including the names and imageUrl of other users in groups and conversations.
+
+after the authorization code screen is passed you will need to invoke public async Task AddPersonRole(string token)
+{
+var user = _jwtAuthentication.GetUserFromToken(token);
+if(user != null){
+var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
+if(auth.Status != false){
+await Groups.AddToGroupAsync(Context.ConnectionId, auth.Role.ToString());
+}
+}
+} after the user logs in via the signalR and passed the login token as the parameter
+
+
+ I also noticed in the chat page once the last message has exceeded the viewable width of the screen, it doesn't add the ... to it there by showing the text on the same line and the time in the viewable width of the screen. And also, the notification modal is not triggering when a message is received, and the user is on another page in the app except for the chat page and the message is not sent by the user.And also, the notification modal is not triggering when a message is received, and the user is on another page in the app except for the chat page and the message is not sent by the user. And the notification over lay that shows every 1 minute, stop it and only show the notification overlay when a message is received via signalR.
+
+ The app is not publishing the live messages sent and received within a chat via signalR. Kindly fix this.
+the notification overlay for new messages is not showing when the user receives a message. Kindly look into this
+
+
+
+
+Implement IndexedDB storage to cache application data so that chat messages, camera status, and logs are available even when the network connection is lost. Add a notification management section in the settings view to allow users to toggle alerts for specific events like 'Door Opened' or 'Camera Triggered'. When a message is long pressed, some time s the time is falling out due to the message moving the last character to the next line look into this and add a fix. And fix the error in the app
+
+
+
+
+[{"Field":"sendMessageDto","Errors":["The sendMessageDto field is required."]},{"Field":"$.attachments[0].filePath","Errors":["The JSON value could not be converted to Microsoft.AspNetCore.Http.IFormFile. Path: $.attachments[0].filePath | LineNumber: 0 | BytePositionInLine: 180228."]}] this is the error reported by the backend after trying to include an attachment while trying to send a message. Also add a back button to go back to the chat in the view chat details modal. The audio too for voice recording, its not working during playback with the right time. Kindly fix it. I noticed the app always refresh itself and starts from the first screen whenever i leave the tab. Kindly fix this
+
+while trying to get all messages in a chat, its not passing the id of the chat into the url to get chat messages which has already been provided as a field in the get all chats. Also add a back arrow to the modal to view chat details. and long pressing on a message is not showing the feature i told it to show also remove the star button in the feature.
+
+
+
+Failed to send message: Converting circular structure to JSON --> starting at object with constructor 'HTMLButtonElement' | property '__reactFiber$3ne4jkbpwvp' -> object with constructor 'FiberNode' --- property 'stateNode' closes the circle. 
+The typing received via signalR should only apply every 5s

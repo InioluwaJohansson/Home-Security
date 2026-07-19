@@ -4,8 +4,8 @@ using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
-namespace Home_Security.Implementations.Services;
 
+namespace Home_Security.Implementations.Services;
 public class MicroControllerService : IMicroControllerService
 {
     IHardwareRepo _hardwareRepo;
@@ -18,7 +18,6 @@ public class MicroControllerService : IMicroControllerService
     IActionService _actionService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqttService;
-
     public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceRepo applianceRepo, ILightRepo lightRepo, ICameraRepo cameraRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IExternalRepo externalRepo, IActionService actionService, IRealtimeNotificationService realtime, IMqttService mqttService)
     {
         _hardwareRepo = hardwareRepo;
@@ -32,16 +31,13 @@ public class MicroControllerService : IMicroControllerService
         _realtime = realtime;
         _mqttService = mqttService;
     }
-
     public async Task<GenericDeviceState> GetByAuth(string hardWareId, string AuthKey)
     {
         var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardWareId && x.AuthKey == AuthKey && x.IsDeleted == false);
-
         if (hardware != null && hardware.IsActive == false)
         {
             hardware.IsActive = true;
             await _hardwareRepo.Update(hardware);
-
             var state = new GenericDeviceState()
             {
                 ApplianceDeviceStates = await GetApplianceDeviceStates(hardware.ApplianceIds) ?? new List<ApplianceDeviceState>(),
@@ -66,7 +62,6 @@ public class MicroControllerService : IMicroControllerService
         };
         return emptyState;
     }
-
     public async Task SendUpdatedHardwareData()
     {
         var hardwares = await _hardwareRepo.GetByExpression(x => x.IsActive);
@@ -87,12 +82,10 @@ public class MicroControllerService : IMicroControllerService
                         Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                     };
                     await _mqttService.PublishFullStateSync(hardware.HardwareId, state);
-
                 }
             }
         }
     }
-
     public async Task<BaseResponse> UpdateDeviceStates(GenericDeviceUpdateState genericDeviceUpdateState)
     {
         switch (genericDeviceUpdateState.FacilityType)
@@ -115,7 +108,6 @@ public class MicroControllerService : IMicroControllerService
                     };
                 }
                 break;
-
             case FacilityType.Light:
                 var light = await _lightRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (light != null)
@@ -136,17 +128,16 @@ public class MicroControllerService : IMicroControllerService
                     };
                 }
                 break;
-
             case FacilityType.Camera:
                 var camera = await _cameraRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (camera != null)
                 {
-                    camera.IsActive = genericDeviceUpdateState.IsActive;
+                    camera.PowerActive = genericDeviceUpdateState.PowerActive;
                     await _cameraRepo.Update(camera);
                     await _realtime.NotifyAll("CameraUpdated", new
                     {
                         camera.Id,
-                        camera.IsActive
+                        camera.PowerActive
                     });
                     return new BaseResponse()
                     {
@@ -155,7 +146,6 @@ public class MicroControllerService : IMicroControllerService
                     };
                 }
                 break;
-
             case FacilityType.Window:
                 var window = await _windowRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (window != null)
@@ -176,7 +166,6 @@ public class MicroControllerService : IMicroControllerService
                     };
                 }
                 break;
-
             case FacilityType.Door:
                 var door = await _doorRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (door != null)

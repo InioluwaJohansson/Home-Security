@@ -88,6 +88,7 @@ public class DoorController : Controller
         var door = await _doorControl.LockDoor(getAuthControlInfoDto, updateDoorDto);
         if (door.Status == true)
         {
+            Console.WriteLine("Door Message: " + door.Message);
             return Ok(door);
         }
         return Ok(door);

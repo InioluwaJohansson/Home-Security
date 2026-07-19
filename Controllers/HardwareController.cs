@@ -33,7 +33,7 @@ public class HardwareController : Controller
         return Ok(hardware);
     }
     [Authorize]
-    [HttpGet("UpdateHardware")]
+    [HttpPut("UpdateHardware")]
     public async Task<IActionResult> UpdateHardware(UpdateHardwareDto updateHardwareDto)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));

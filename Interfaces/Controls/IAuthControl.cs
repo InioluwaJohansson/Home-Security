@@ -1,4 +1,5 @@
-﻿using Home_Security.Entities.Identity;
+﻿using Home_Security.Entities;
+using Home_Security.Entities.Identity;
 using Home_Security.Implementations.Controls;
 using Home_Security.Models.DTOs;
 namespace Home_Security.Interfaces.Controls;
@@ -6,6 +7,7 @@ public interface IAuthControl
 {
     public Task<GetAuthControlDto> GetAuthDetails(int personId, string authorizationCode);
     public Task<GetAuthControlDto> GetPersonDetails(int personId);
+    public Person GetPersonById(int personId);
     public string GetUserPersonName(int id);
     public string GetRoomName(int id);
     public string GetSectionName(int id);

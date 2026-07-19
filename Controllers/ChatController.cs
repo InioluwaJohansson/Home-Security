@@ -4,6 +4,7 @@ using Home_Security.Models.ChatDTO;
 using Home_Security.Models.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Collections.Generic;
 using System.Security.Claims;
 
@@ -47,6 +48,34 @@ public class ChatController : Controller
         return Ok(chat);
     }
     [Authorize]
+    [HttpPut("UpdateGroupChat")]
+    public async Task<IActionResult> UpdateGroupChat(UpdateGroupChatDto createGroupChatDto)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        var chat = await _chatControl.UpdateGroupChat(getAuthControlInfoDto, createGroupChatDto);
+        return Ok(chat);
+    }
+    [Authorize]
+    [HttpPut("DeleteChat")]
+    public async Task<IActionResult> DeleteChat(int chatId)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        var chat = await _chatControl.DeleteChat(getAuthControlInfoDto, chatId);
+        return Ok(chat);
+    }
+    [Authorize]
     [HttpGet("GetChatById")]
     public async Task<IActionResult> GetChatById(int id)
     {
@@ -71,8 +100,8 @@ public class ChatController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        await _chatControl.AddParticipants(getAuthControlInfoDto, chatId, addParticipantsDto);
-        return Ok();
+        var chat = await _chatControl.AddParticipants(getAuthControlInfoDto, chatId, addParticipantsDto);
+        return Ok(chat);
     }
     [Authorize]
     [HttpGet("GetMyChats")]
@@ -99,7 +128,7 @@ public class ChatController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        await _chatControl.RemoveParticipant(getAuthControlInfoDto, chatId, recipientId);
-        return Ok();
+        var chat = await _chatControl.RemoveParticipant(getAuthControlInfoDto, chatId, recipientId);
+        return Ok(chat);
     }
 }

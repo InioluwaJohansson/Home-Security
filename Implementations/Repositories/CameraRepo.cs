@@ -12,7 +12,7 @@ public class CameraRepo : BaseRepository<Camera>, ICameraRepo
     }
     public async Task<Camera> GetCameraById(int id)
     {
-        return await context.Camera.Include(x => x.Recordings).Where(x => x.Id == id).FirstOrDefaultAsync();
+        return await context.Camera.Include(x => x.Recordings).FirstOrDefaultAsync(x => x.Id == id && x.IsDeleted == false);
     }
     public async Task<IList<Camera>> GetAllCameras(Expression<Func<Camera, bool>> expression)
     {

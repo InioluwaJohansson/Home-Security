@@ -50,6 +50,43 @@ public class CameraControl : ICameraControl
         }
         return _authControl.AuthFaliure();
     }
+    public async Task<BaseResponse> RestartCamera(GetAuthControlInfoDto getAuthControlInfoDto, int id)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false)
+        {
+            var camera = await _cameraService.RestartCamera(id, auth.Id);
+            return camera;
+        }
+        return _authControl.AuthFaliure();
+    }
+    public async Task<BaseResponse> ToggleCamera(GetAuthControlInfoDto getAuthControlInfoDto, int id)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        var updateCamera = new UpdateCameraDto()
+        {
+            Id = id,
+            IsActive = true
+        };
+        var camera = await _cameraService.GetById(id);
+        if(camera.Data.IsActive == false) updateCamera.IsActive = true;
+        else updateCamera.IsActive = false;
+        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife)
+        {
+            var response = await _cameraService.ToggleCamera(updateCamera, auth.Id);
+            return response;
+        }
+        else if (auth.Status != false && camera.Data.IsHidden == false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
+        {
+            var response = await _cameraService.UpdateCamera(updateCamera, auth.Id);
+            return response;
+        }
+        return new BaseResponse()
+        {
+            Status = _authControl.AuthFaliure().Status,
+            Message = _authControl.AuthFaliure().Message
+        };
+    }
     public async Task<CameraResponseModel> GetCameraById(GetAuthControlInfoDto getAuthControlInfoDto, int id)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);

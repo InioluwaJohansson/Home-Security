@@ -34,6 +34,11 @@ public class EncryptionService : IEncryptionService
         string json = Decrypt(encrypted);
         return JsonSerializer.Deserialize<CreatePersonDto>(json);
     }
+    public CreatePersonDto? DecryptEncryptionKeyAsync(string encryptionKey)
+    {
+        string json = Decrypt(encryptionKey);
+        return JsonSerializer.Deserialize<CreatePersonDto>(json);
+    }
     public void DeleteFile()
     {
         var encryptedPath = Path.Combine(Directory.GetCurrentDirectory(), _encryptionKey["Path"]);
