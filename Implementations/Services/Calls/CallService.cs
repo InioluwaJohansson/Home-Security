@@ -13,11 +13,13 @@ public class CallService : ICallService
     private readonly ICallRepo _callRepo;
     private readonly IChatRepo _chatRepo;
     private readonly IChatHub _realtimeNotificationService;
-    public CallService(ICallRepo callRepo, IChatRepo chatRepo, IChatHub realtimeNotificationService)
+    IConfiguration _callTimeOut;
+    public CallService(ICallRepo callRepo, IChatRepo chatRepo, IChatHub realtimeNotificationService I configuration config)
     {
         _callRepo = callRepo;
         _chatRepo = chatRepo;
         _realtimeNotificationService = realtimeNotificationService;
+                _callTimeOut = config.GetSection("CallSettings");
     }
     public async Task ExecuteAllAsync(CancellationToken stoppingToken)
     {
@@ -31,7 +33,7 @@ public class CallService : ICallService
             {
                 Console.WriteLine(ex);
             }
-            await Task.Delay(TimeSpan.FromSeconds(5),stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(_callTimeOut["RingTimeoutSeconds"]),stoppingToken);
         }
     }
     public async Task CheckTimedOutCallsAsync()
