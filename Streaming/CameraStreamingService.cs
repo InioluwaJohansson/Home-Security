@@ -34,10 +34,10 @@ public class CameraStreamingService : ICameraStreamingService
         try
         {
             bool online = await CheckStreamAsync(camera.InputStreamUrl);
+            camera = await _cameraRepo.Get(x => x.Id == camera.Id);
             camera.IsOnline = online;
             if (!online)
             {
-                camera = await _cameraRepo.Get(x => x.Id == camera.Id);
                 await StopStream(camera);
                 camera.IsStreaming = false;
                 await _cameraRepo.Update(camera);
