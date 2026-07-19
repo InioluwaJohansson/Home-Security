@@ -102,7 +102,7 @@ public class RecordingCleanUpService : IRecordingCleanUpService
                 cancellationToken.ThrowIfCancellationRequested();
                 var info = new FileInfo(file);
                 if (DateTime.UtcNow - info.LastWriteTimeUtc < TimeSpan.FromSeconds(10)) continue;
-                var existing = await _recordingRepo.Get(x => x.FilePath == info.Name && x.CameraId == camera.Id);
+                var existing = await _recordingRepo.Get(x => x.FileName == info.Name && x.CameraId == camera.Id);
                 if (existing != null) continue;
                 DateTime startTime;
                 try
