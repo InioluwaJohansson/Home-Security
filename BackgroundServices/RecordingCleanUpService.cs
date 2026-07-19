@@ -80,7 +80,7 @@ public class RecordingCleanUpService : IRecordingCleanUpService
                 try
                 {
                     var creationTime = File.GetCreationTimeUtc(file);
-                    if (creationTime < DateTime.UtcNow.AddDays(-7)) File.Delete(file);
+                    if (creationTime < DateTime.UtcNow.AddDays(-1)) File.Delete(file);
                 }
                 catch{}
             }
