@@ -45,39 +45,31 @@ public class OfferDto
 {
     public int CallId { get; set; }
     public int ChatId { get; set; }
+    public int PersonId { get; set; }
     public string Sdp { get; set; } = string.Empty;
 }
 public class AnswerDto
 {
     public int CallId { get; set; }
     public int ChatId { get; set; }
+    public int PersonId { get; set; }
     public string Sdp { get; set; } = string.Empty;
-}
-public class RejectDto
-{
-    public int CallId { get; set; }
-    public int ChatId { get; set; }
 }
 public class IceCandidateDto
 {
     public int CallId { get; set; }
     public int ChatId { get; set; }
+    public int PersonId { get; set; }
     public string Candidate { get; set; } = string.Empty;
     public string? SdpMid { get; set; }
     public int? SdpMLineIndex { get; set; }
 }
-public class ToggleMicrophoneDto
+public class ToggleCallItemsDto
 {
     public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public int PersonId { get; set; }
     public bool IsMuted { get; set; }
-}
-public class ToggleCameraDto
-{
-    public int CallId { get; set; }
     public bool IsCameraEnabled { get; set; }
-}
-public class ScreenShareDto
-{
-    public int CallId { get; set; }
     public bool IsSharing { get; set; }
 }

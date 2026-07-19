@@ -7,33 +7,32 @@ using Home_Security.Implementations.Services;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.FileProviders;
+using Home_Security.Implementations.Controls.Chats;
+using Home_Security.Implementations.Repositories.Chats;
+using Home_Security.Implementations.Services.Chats;
+using Home_Security.Interfaces.Controls.Chats;
+using Home_Security.Interfaces.Repositories.Chats;
+using Home_Security.Interfaces.Services.Chats;
+using Home_Security.Implementations.Controls.Calls;
+using Home_Security.Implementations.Repositories.Calls;
+using Home_Security.Implementations.Services.Calls;
+using Home_Security.Interfaces.Controls.Calls;
+using Home_Security.Interfaces.Repositories.Calls;
+using Home_Security.Interfaces.Services.Calls;
 using Home_Security.RealTimeServices;
 using Home_Security.BackgroundServices;
 using Home_Security.Streaming;
-using Microsoft.AspNetCore.Mvc;
-using Home_Security.Interfaces.Services.Chats;
-using Home_Security.Interfaces.Repositories.Chats;
-using Home_Security.Interfaces.Controls.Chats;
-using Home_Security.Implementations.Controls.Chats;
-using Home_Security.Implementations.Repositories.Chats;
-using Home_Security.Implementations.Controls.Messages;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.RateLimiting;
 using Home_Security.Encryption;
 using Home_Security.StartUp;
-using Home_Security.Implementations.Services.Chats;
-using Home_Security.Interfaces.Controls.Calls;
-using Home_Security.Implementations.Controls.Calls;
-using Home_Security.Implementations.Services.Calls;
-using Home_Security.Interfaces.Services.Calls;
-using Home_Security.Interfaces.Repositories.Calls;
-using Home_Security.Implementations.Repositories.Calls;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,8 +103,8 @@ builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IMessageRepo, MessageRepo>();
 builder.Services.AddScoped<IMessageControl, MessageControl>();
 builder.Services.AddScoped<ICallControl, CallControl>();
-builder.Services.AddScoped<ICallService, CallService>();
 builder.Services.AddScoped<ICallRepo, CallRepo>();
+builder.Services.AddScoped<ICallService, CallService>();
 
 builder.Services.AddSingleton<IAuthCache, AuthCache>();
 
@@ -117,6 +116,8 @@ builder.Services.AddScoped<IRecordingCleanUpService, RecordingCleanUpService>();
 
 builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
 builder.Services.AddScoped<IChatHub, ChatHub>();
+builder.Services.AddScoped<ICallHub, CallHub>();
+
 builder.Services.AddSingleton<IMqttService, MqttService>();
 
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();
@@ -129,9 +130,9 @@ builder.Services.AddHostedService<BackgroundServices>();
 builder.Services.AddHostedService<CameraStreamingBackgroundService>();
 builder.Services.AddHostedService<MqttBackgroundService>();
 builder.Services.AddHostedService<HardwareServices>();
+builder.Services.AddHostedService<CallTimeoutBackgroundService>();
 builder.Services.AddHostedService<RecordingCleanUpBackgroundServiceDelete>();
 builder.Services.AddHostedService<RecordingCleanUpBackgroundService>();
-builder.Services.AddHostedService<CallTimeoutBackgroundService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();

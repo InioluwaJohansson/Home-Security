@@ -14,7 +14,7 @@ public class CallService : ICallService
     private readonly IChatRepo _chatRepo;
     private readonly IChatHub _realtimeNotificationService;
     IConfiguration _callTimeOut;
-    public CallService(ICallRepo callRepo, IChatRepo chatRepo, IChatHub realtimeNotificationService I configuration config)
+    public CallService(ICallRepo callRepo, IChatRepo chatRepo, IChatHub realtimeNotificationService, IConfiguration config)
     {
         _callRepo = callRepo;
         _chatRepo = chatRepo;
@@ -33,7 +33,7 @@ public class CallService : ICallService
             {
                 Console.WriteLine(ex);
             }
-            await Task.Delay(TimeSpan.FromSeconds(_callTimeOut["RingTimeoutSeconds"]),stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(Double.Parse(_callTimeOut["RingTimeoutSeconds"])),stoppingToken);
         }
     }
     public async Task CheckTimedOutCallsAsync()
@@ -148,6 +148,14 @@ public class CallService : ICallService
                 Message = "Call not found."
             };
         }
+        if (call.Status != CallStatus.Ringing)
+        {
+            return new BaseResponse
+            {
+                Status = false,
+                Message = "The call can no longer be rejected."
+            };
+        }
         var participant = call.Participants.FirstOrDefault(x => x.PersonId == personId);
         if (participant == null)
         {
@@ -224,6 +232,14 @@ public class CallService : ICallService
             {
                 Status = false,
                 Message = "Call not found."
+            };
+        }
+        if (call.Status != CallStatus.Connected)
+        {
+            return new BaseResponse
+            {
+                Status = false,
+                Message = "The call is not active."
             };
         }
         var participant = call.Participants.FirstOrDefault(x => x.PersonId == personId);

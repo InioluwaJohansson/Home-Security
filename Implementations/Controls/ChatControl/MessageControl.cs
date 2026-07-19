@@ -6,7 +6,7 @@ using Home_Security.Interfaces.Services.Chats;
 using Home_Security.Models.ChatDTO;
 using Home_Security.Models.DTOs;
 using Home_Security.RealTimeServices;
-namespace Home_Security.Implementations.Controls.Messages;
+namespace Home_Security.Implementations.Controls;
 public class MessageControl : IMessageControl
 {
     IAuthControl _authControl;
