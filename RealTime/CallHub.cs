@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Home_Security.Hubs;
-using Home_Security.Interfaces.Controls.Calls;
 using Home_Security.Models.CallDTO;
 using Home_Security.Authentication;
-using Home_Security.Models.DTOs;
 using Home_Security.Interfaces.Controls;
 
 namespace Home_Security.RealTimeServices;

@@ -33,15 +33,16 @@ public class CameraStreamingService : ICameraStreamingService
     {
         try
         {
-            // bool online = await CheckStreamAsync(camera.InputStreamUrl);
-            // camera.IsOnline = online;
-            // if (!online)
-            // {
-            //     await StopStream(camera);
-            //     camera.IsStreaming = false;
-            //     await _cameraRepo.Update(camera);
-            //     return;
-            // }
+            bool online = await CheckStreamAsync(camera.InputStreamUrl);
+            camera.IsOnline = online;
+            if (!online)
+            {
+                camera = await _cameraRepo.Get(x => x.Id == camera.Id);
+                await StopStream(camera);
+                camera.IsStreaming = false;
+                await _cameraRepo.Update(camera);
+                return;
+            }
             if (!IsProcessAlive(camera.Id))
             {
                 await _streamLock.WaitAsync(token);
