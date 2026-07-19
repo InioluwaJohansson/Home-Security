@@ -37,9 +37,9 @@ public class CallRepo : BaseRepository<Call>, ICallRepo
     {
         return await context.Calls.Include(x => x.Chat).ThenInclude(x => x.Participants).ThenInclude(x => x.Person).ThenInclude(x => x.PersonDetails).Include(c => c.Chat).Include(c => c.Participants).ThenInclude(p => p.Person).Where(c => c.Participants.Any(p => p.PersonId == personId)).OrderByDescending(c => c.StartedAt).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
     }
-    public async Task<Call> UpdateCall(Call call)
+    public async Task<List<Call>> GetTimedOutRingingCallsAsync(TimeSpan timeout)
     {
-        await context.SaveChangesAsync();
-        return call;
+        var cutoff = DateTime.UtcNow.Subtract(timeout);
+        return await context.Calls.Include(c => c.Chat).Include(c => c.Participants).ThenInclude(p => p.Person).Where(c => c.Status == CallStatus.Ringing && c.StartedAt <= cutoff).ToListAsync();
     }
 }

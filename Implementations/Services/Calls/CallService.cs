@@ -19,6 +19,44 @@ public class CallService : ICallService
         _chatRepo = chatRepo;
         _realtimeNotificationService = realtimeNotificationService;
     }
+    public async Task ExecuteAllAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await CheckTimedOutCallsAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            await Task.Delay(TimeSpan.FromSeconds(5),stoppingToken);
+        }
+    }
+    public async Task CheckTimedOutCallsAsync()
+    {
+        var calls = await _callRepo.GetTimedOutRingingCallsAsync(TimeSpan.FromSeconds(30));
+        foreach (var call in calls)
+        {
+            foreach (var participant in call.Participants)
+            {
+                if (participant.Status == CallParticipantStatus.Ringing)
+                {
+                    participant.Status = CallParticipantStatus.Missed;
+                }
+            }
+            bool hasConnectedParticipants = call.Participants.Any(p => p.Status == CallParticipantStatus.Connected);
+            if (!hasConnectedParticipants)
+            {
+                call.Status = CallStatus.Missed;
+                call.EndedAt = DateTime.UtcNow;
+            }
+            await _callRepo.Update(call);
+            var callDto = MapToDto(await _callRepo.GetCallDetails(call.Id));
+            await _realtimeNotificationService.UpdateChat("CallTimedOut", call.ChatId, callDto);
+        }
+    }
     public async Task<CallDto> StartCallAsync(StartCallDto dto, int personId)
     {
         var activeCall = await _callRepo.GetActiveCallByChatIdAsync(dto.ChatId);
@@ -90,7 +128,7 @@ public class CallService : ICallService
             if (!call.AnsweredAt.HasValue) call.AnsweredAt = DateTime.UtcNow;
         }
         await _callRepo.Update(call);
-        await _realtimeNotificationService.UpdateChat("CallAccepted", call.ChatId, MapToDto(call));
+        await _realtimeNotificationService.UpdateChat("CallAccepted", call.ChatId, MapToDto(await _callRepo.GetCallDetails(call.Id)));
         return new BaseResponse
         {
             Status = true,
@@ -132,9 +170,9 @@ public class CallService : ICallService
                 call.EndedAt = DateTime.UtcNow;
             }
         }
-        await _callRepo.UpdateCall(call);
+        await _callRepo.Update(call);
         var callDto = MapToDto(await _callRepo.GetCallDetails(call.Id));
-        await _realtimeNotificationService.UpdateChat("CallRejected", call.ChatId, call);
+        await _realtimeNotificationService.UpdateChat("CallRejected", call.ChatId, callDto);
         return new BaseResponse
         {
             Status = true,

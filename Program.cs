@@ -131,6 +131,7 @@ builder.Services.AddHostedService<MqttBackgroundService>();
 builder.Services.AddHostedService<HardwareServices>();
 builder.Services.AddHostedService<RecordingCleanUpBackgroundServiceDelete>();
 builder.Services.AddHostedService<RecordingCleanUpBackgroundService>();
+builder.Services.AddHostedService<CallTimeoutBackgroundService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();

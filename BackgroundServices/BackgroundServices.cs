@@ -5,6 +5,7 @@ using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
+using Home_Security.Interfaces.Services.Calls;
 using Home_Security.Models.DTOs;
 using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
@@ -151,5 +152,19 @@ public class RecordingCleanUpBackgroundServiceDelete : BackgroundService
         using var scope = _scopeFactory.CreateScope();
         var recordingCleanUpService = scope.ServiceProvider.GetRequiredService<IRecordingCleanUpService>();
         await recordingCleanUpService.ExecuteCleanUp(stoppingToken);
+    }
+}
+public class CallTimeoutBackgroundService  : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    public CallTimeoutBackgroundService (IServiceScopeFactory scopeFactory)
+    {
+        _scopeFactory = scopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var callService = scope.ServiceProvider.GetRequiredService<ICallService>();
+        await callService.ExecuteAllAsync(stoppingToken);
     }
 }

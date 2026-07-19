@@ -9,5 +9,5 @@ public interface ICallRepo : IRepo<Call>
     Task<List<Call>> GetCallLogsAsync(int personId, int page, int pageSize);
     Task<bool> CallExistsAsync(int callId);
     Task<bool> IsParticipantAsync(int callId, int personId);
-    Task<Call> UpdateCall(Call call);
+    Task<List<Call>> GetTimedOutRingingCallsAsync(TimeSpan timeout);
 }

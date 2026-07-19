@@ -5,6 +5,7 @@ using Home_Security.Models.DTOs;
 namespace Home_Security.Interfaces.Services.Calls;
 public interface ICallService
 {
+    Task ExecuteAllAsync(CancellationToken stoppingToken);
     Task<CallDto> StartCallAsync(StartCallDto dto, int personId);
     Task<BaseResponse> AcceptCallAsync(int callId, int personId);
     Task<BaseResponse> RejectCallAsync(int callId, int personId);
