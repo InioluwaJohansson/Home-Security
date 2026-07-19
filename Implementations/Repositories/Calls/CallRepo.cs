@@ -19,7 +19,7 @@ public class CallRepo : BaseRepository<Call>, ICallRepo
     }
     public async Task<Call?> GetActiveCallByChatIdAsync(int chatId)
     {
-        return await context.Calls.Include(x => x.Chat).ThenInclude(x => x.Participants).ThenInclude(x => x.Person).ThenInclude(x => x.PersonDetails).Include(c => c.Participants).FirstOrDefaultAsync(c => c.ChatId == chatId && (c.Status == CallStatus.Ringing || c.Status == CallStatus.Connected));
+        return await context.Calls.Include(x => x.Chat).ThenInclude(x => x.Participants).ThenInclude(x => x.Person).Include(c => c.Participants).FirstOrDefaultAsync(c => c.ChatId == chatId && (c.Status == CallStatus.Ringing || c.Status == CallStatus.Connected));
     }
     public async Task<bool> CallExistsAsync(int callId)
     {

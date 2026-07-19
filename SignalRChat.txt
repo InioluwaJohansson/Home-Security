@@ -251,7 +251,7 @@ public class ScreenShareDto
     public bool IsSharing { get; set; }
 } you will need these dtos
 create necessary icons to do this in each chat 
-await _realtimeNotificationService.UpdateChat("IncomingCall", call.ChatId, callDto);
+await _realtimeNotificationService.UpdateChat("IncomingCall", call.ChatId, CallDto);
 await _realtimeNotificationService.UpdateChat("CallAccepted", call.ChatId, MapToDto(call));
 await _realtimeNotificationService.UpdateChat("CallRejected", call.ChatId, new
 {
@@ -272,4 +272,22 @@ and once a call is accepted, invoke the two below.
 public async Task Offer(OfferDto dto, string token) 
 public async Task IceCandidate(IceCandidateDto dto, string token)
 
-public async Task AcceptCall(int callId, string token) invoke this to accept a call
+public async Task AcceptCall(int callId, string token) invoke this via signalR to accept a call when the answer button is clicked
+await _realtimeNotificationService.UpdateChat("IncomingCall", call.ChatId, callDto); 
+The end call end point is used by the user if the call originates from the user else, the RejectCall signalR invoke is used to end the call and the public async Task AcceptCall(int callId, string token) signalR invoke is used to accept a call
+
+
+If an incoming call is not originating from the user, the answer call and reject call button when clicked on invokes two methods public async Task AcceptCall(int callId, string token) invoke this via signalR to accept a call when the answer button is clicked and public async Task RejectCall(int callId, string token) to reject a call when the reject call button is clicked.
+
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/AcceptCall?callId=1' \
+  -H 'accept: */*' \
+  -d '' to answer a call that is not originating from the user / for the answer button
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/RejectCall?callId=1' \
+  -H 'accept: */*' \
+  -d '' to reject a call that is not originating from the user / for the reject button ure to get rid of the and the response for both is the base response so that means getting rid of the signalR invoke for both the answer call and reject call
+
+  await _realtimeNotificationService.UpdateChat("CallRejected", call.ChatId, callDto);
+  await _realtimeNotificationService.UpdateChat("CallEnded", call.ChatId, callDto);
+  these two now return the callDto which is now used to update the call in the call history

@@ -29,6 +29,7 @@ public class CallHub : ICallHub
                 PersonId = user.PersonId,
                 AuthorizationCode = user.AuthorizationCode,
             };
+            Console.WriteLine($"Call Acepted !!!!!!!!!!!!!!!!!!!!!!!!!!    PersonId: {getAuthControlInfoDto.PersonId}");
             await _callControl.AcceptCall(getAuthControlInfoDto, callId);
         }
     }
@@ -37,6 +38,7 @@ public class CallHub : ICallHub
         var user = _jwtAuthentication.GetUserFromToken(token);
         if (user != null)
         {
+            Console.WriteLine($"Offer Sent !!!!!!!!!!!!!!!!!!!!!!!!!!    PersonId: {user.PersonId}");
             var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
             if(auth.Status) await _hub.Clients.Group(dto.ChatId.ToString()).SendAsync("Offer", dto);
         }
@@ -46,11 +48,12 @@ public class CallHub : ICallHub
         var user = _jwtAuthentication.GetUserFromToken(token);
         if (user != null)
         {
+            Console.WriteLine($"Call Answered !!!!!!!!!!!!!!!!!!!!!!!!!!    PersonId: {user.PersonId}");
             var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
             if(auth.Status) await _hub.Clients.Group(dto.ChatId.ToString()).SendAsync("Answer", dto);
         }
     }
-    public async Task RejectCall(RejectDto dto, string token)
+    public async Task RejectCall(int callId, string token)
     {
         var user = _jwtAuthentication.GetUserFromToken(token);
         if (user != null)
@@ -59,7 +62,8 @@ public class CallHub : ICallHub
                 PersonId = user.PersonId,
                 AuthorizationCode = user.AuthorizationCode,
             };
-            await _callControl.RejectCall(getAuthControlInfoDto, dto.CallId);
+            Console.WriteLine($"Call Rejected !!!!!!!!!!!!!!!!!!!!!!!!!!    PersonId: {getAuthControlInfoDto.PersonId}");
+            await _callControl.RejectCall(getAuthControlInfoDto, callId);
         }
     }
     public async Task IceCandidate(IceCandidateDto dto, string token)
@@ -67,6 +71,7 @@ public class CallHub : ICallHub
         var user = _jwtAuthentication.GetUserFromToken(token);
         if (user != null)
         {
+            Console.WriteLine($"Ice Candidate !!!!!!!!!!!!!!!!!!!!!!!!!!    PersonId: {user.PersonId}");
             var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
             if(auth.Status) await _hub.Clients.Group(dto.ChatId.ToString()).SendAsync("IceCandidate", dto);
         }

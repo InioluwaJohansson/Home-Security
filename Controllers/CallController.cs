@@ -21,7 +21,7 @@ public class CallController : Controller
     }
     [Authorize]
     [HttpPost("StartCall")]
-    public async Task<IActionResult> CreateChat(StartCallDto startCallDto)
+    public async Task<IActionResult> StartCall(StartCallDto startCallDto)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -30,8 +30,8 @@ public class CallController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var chat = await _callControl.StartCall(getAuthControlInfoDto, startCallDto);
-        return Ok(chat);
+        var call = await _callControl.StartCall(getAuthControlInfoDto, startCallDto);
+        return Ok(call);
     }
     [Authorize]
     [HttpPost("EndCall")]
@@ -45,6 +45,34 @@ public class CallController : Controller
             AuthorizationCode = user.AuthorizationCode,
         };
         var call = await _callControl.EndCall(getAuthControlInfoDto, callId);
+        return Ok(call);
+    }
+    [Authorize]
+    [HttpPost("AcceptCall")]
+    public async Task<IActionResult> AcceptCall(int callId)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        var call = await _callControl.AcceptCall(getAuthControlInfoDto, callId);
+        return Ok(call);
+    }
+    [Authorize]
+    [HttpPost("RejectCall")]
+    public async Task<IActionResult> RejectCall(int callId)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        var call = await _callControl.RejectCall(getAuthControlInfoDto, callId);
         return Ok(call);
     }
     [Authorize]

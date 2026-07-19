@@ -51,7 +51,7 @@ public class CallService : ICallService
         }
         call = await _callRepo.Create(call);
         call = await _callRepo.Get(x => x.StartedAt == date);
-        var callDto = MapToDto(await _callRepo.GetByIdAsync(call.Id));
+        var callDto = MapToDto(await _callRepo.GetCallDetails(call.Id));
         await _realtimeNotificationService.UpdateChat("IncomingCall", call.ChatId, callDto);
         return callDto;
     }
@@ -133,13 +133,8 @@ public class CallService : ICallService
             }
         }
         await _callRepo.UpdateCall(call);
-        await _realtimeNotificationService.UpdateChat("CallRejected", call.ChatId, new
-        {
-            CallId = call.Id,
-            PersonId = personId,
-            Status = participant.Status,
-            CallStatus = call.Status
-        });
+        var callDto = MapToDto(await _callRepo.GetCallDetails(call.Id));
+        await _realtimeNotificationService.UpdateChat("CallRejected", call.ChatId, call);
         return new BaseResponse
         {
             Status = true,
@@ -215,14 +210,9 @@ public class CallService : ICallService
                 call.EndedAt = DateTime.UtcNow;
             }
         }
-        await _callRepo.UpdateCall(call);
-        await _realtimeNotificationService.UpdateChat("CallEnded", call.ChatId, new
-        {
-            CallId = call.Id,
-            PersonId = personId,
-            Status = participant.Status,
-            CallStatus = call.Status
-        });
+        await _callRepo.Update(call);
+        var callDto = MapToDto(await _callRepo.GetCallDetails(call.Id));
+        await _realtimeNotificationService.UpdateChat("CallEnded", call.ChatId, callDto);
         return new BaseResponse
         {
             Status = true,
