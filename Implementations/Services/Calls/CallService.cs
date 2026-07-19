@@ -19,7 +19,7 @@ public class CallService : ICallService
         _callRepo = callRepo;
         _chatRepo = chatRepo;
         _realtimeNotificationService = realtimeNotificationService;
-                _callTimeOut = config.GetSection("CallSettings");
+        _callTimeOut = config.GetSection("CallSettings");
     }
     public async Task ExecuteAllAsync(CancellationToken stoppingToken)
     {
