@@ -224,101 +224,63 @@ public class CallService : ICallService
         }).ToList();
     }
     public async Task<BaseResponse> EndCallAsync(int callId, int personId)
-{
-    var call = await _callRepo.GetByIdAsync(callId);
-    if (call == null)
     {
-        return new BaseResponse
+        var call = await _callRepo.GetByIdAsync(callId);
+        if (call == null)
         {
-            Status = false,
-            Message = "Call not found."
-        };
-    }
-
-    if (call.Status != CallStatus.Connected)
-    {
-        return new BaseResponse
-        {
-            Status = false,
-            Message = "The call is not active."
-        };
-    }
-
-    var participant = call.Participants.FirstOrDefault(x => x.PersonId == personId);
-    if (participant == null)
-    {
-        return new BaseResponse
-        {
-            Status = false,
-            Message = "User is not a participant of this call."
-        };
-    }
-
-    // Participant leaves the call
-    participant.Status = CallParticipantStatus.Left;
-    participant.IsConnected = false;
-
-    bool callEnded = false;
-
-    if (!call.Chat.IsGroup)
-    {
-        // One-to-one calls always end when either participant hangs up.
-        call.Status = CallStatus.Ended;
-        call.EndedAt = DateTime.UtcNow;
-        callEnded = true;
-    }
-    else
-    {
-        // Is anyone still connected?
-        bool hasConnectedParticipants = call.Participants.Any(p =>
-            p.IsConnected &&
-            p.Status == CallParticipantStatus.Connected);
-
-        if (!hasConnectedParticipants)
-        {
-            // Anyone who never answered is marked as missed.
-            foreach (var p in call.Participants.Where(p => p.Status == CallParticipantStatus.Ringing))
+            return new BaseResponse
             {
-                p.Status = CallParticipantStatus.Missed;
-                p.IsConnected = false;
-            }
-
+                Status = false,
+                Message = "Call not found."
+            };
+        }
+        if (call.Status != CallStatus.Connected)
+        {
+            return new BaseResponse
+            {
+                Status = false,
+                Message = "The call is not active."
+            };
+        }
+        var participant = call.Participants.FirstOrDefault(x => x.PersonId == personId);
+        if (participant == null)
+        {
+            return new BaseResponse
+            {
+                Status = false,
+                Message = "User is not a participant of this call."
+            };
+        }
+        participant.Status = CallParticipantStatus.Left;
+        bool callEnded = false;
+        if (!call.Chat.IsGroup)
+        {
             call.Status = CallStatus.Ended;
             call.EndedAt = DateTime.UtcNow;
             callEnded = true;
         }
+        else
+        {
+            bool hasConnectedParticipants = call.Participants.Any(p => p.Status == CallParticipantStatus.Connected);
+            if (!hasConnectedParticipants)
+            {
+                foreach (var p in call.Participants.Where(p => p.Status == CallParticipantStatus.Ringing)) p.Status = CallParticipantStatus.Missed;
+                call.Status = CallStatus.Ended;
+                call.EndedAt = DateTime.UtcNow;
+                callEnded = true;
+            }
+        }
+        await _callRepo.Update(call);
+        var updatedCall = await _callRepo.GetCallDetails(call.Id);
+        var callDto = MapToDto(updatedCall);
+        if (callEnded) await _realtimeNotificationService.UpdateChat("CallEnded", call.ChatId, callDto);
+        else await _realtimeNotificationService.UpdateChat("ParticipantLeft", call.ChatId, callDto);
+        return new BaseResponse
+        {
+            Status = true,
+            Message = callEnded ? "Call ended successfully." : "You left the call successfully."
+        };
     }
-
-    await _callRepo.Update(call);
-
-    var updatedCall = await _callRepo.GetCallDetails(call.Id);
-    var callDto = MapToDto(updatedCall);
-
-    if (callEnded)
-    {
-        // The entire call has ended.
-        await _realtimeNotificationService.UpdateChat(
-            "CallEnded",
-            call.ChatId,
-            callDto);
-    }
-    else
-    {
-        // Only one participant left. Others are still talking.
-        await _realtimeNotificationService.UpdateChat(
-            "ParticipantLeft",
-            call.ChatId,
-            callDto);
-    }
-
-    return new BaseResponse
-    {
-        Status = true,
-        Message = callEnded
-            ? "Call ended successfully."
-            : "You left the call successfully."
-    };
-}
     public async Task<CallDto?> GetCallAsync(int callId, int personId)
     {
         var call = await _callRepo.GetByIdAsync(callId);
