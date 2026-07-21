@@ -157,7 +157,7 @@ public class MqttService : BackgroundService, IMqttService
                         return;
                     }
                 }
-                if (topic.EndsWith("/NFID/verify"))
+                if (topic.EndsWith("/nfid/verify"))
                 {
                     var update = JsonSerializer.Deserialize<NFIDLoginDto>(payload,
                     new JsonSerializerOptions
@@ -181,7 +181,7 @@ public class MqttService : BackgroundService, IMqttService
                         return;
                     }
                 }
-                if (topic.EndsWith("/Hardware/Auth"))
+                if (topic.EndsWith("/hardware/auth"))
                 {
                     var update = JsonSerializer.Deserialize<MicroControllerLoginDto>(payload,
                     new JsonSerializerOptions
