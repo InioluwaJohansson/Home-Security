@@ -110,7 +110,7 @@ public class MqttService : BackgroundService, IMqttService
                     if (update != null)
                     {
                         using var scope = _scopeFactory.CreateScope();
-                        if (!ValidateHardwareToken(update.Token) == true)
+                        if (ValidateHardwareToken(update.Token) == true)
                         {
                             var _fingerPrintService = scope.ServiceProvider.GetRequiredService<IFingerPrintService>();
                             var data = await _fingerPrintService.VerifyFingerPrint(update.Data);
@@ -140,7 +140,7 @@ public class MqttService : BackgroundService, IMqttService
                     if (update != null)
                     {
                         using var scope = _scopeFactory.CreateScope();
-                        if (!ValidateHardwareToken(update.Token) == true)
+                        if (ValidateHardwareToken(update.Token) == true)
                         {
                             var _hardwareRepo = scope.ServiceProvider.GetRequiredService<IHardwareRepo>();
                             var hardware = await _hardwareRepo.Get(h => h.HardwareId == update.HardwareId);
@@ -167,7 +167,7 @@ public class MqttService : BackgroundService, IMqttService
                     if (update != null)
                     {
                         using var scope = _scopeFactory.CreateScope();
-                        if (!ValidateHardwareToken(update.Token) == true)
+                        if (ValidateHardwareToken(update.Token) == true)
                         {
                             var _userService = scope.ServiceProvider.GetRequiredService<IUserService>();
                             var response = await _userService.NFIDLogin(update.Token,update.NFIDCode);
