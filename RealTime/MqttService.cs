@@ -116,12 +116,12 @@ public class MqttService : BackgroundService, IMqttService
                             var data = await _fingerPrintService.VerifyFingerPrint(update.Data);
                             if(data.Status == true)
                             {
-                                await PublishFingerPrintVerify(update.HardwareId, data.Status);
+                                await PublishFingerPrintVerify(update.HardwareId, data);
                                 _logger.LogInformation("FINGERPRINT VERIFY RESPONSE SENT | Status: {Status}", data.Status);
                             }
                             else
                             {
-                                await PublishFingerPrintVerify(update.HardwareId, false);
+                                await PublishFingerPrintVerify(update.HardwareId, data);
                                 _logger.LogInformation("FINGERPRINT VERIFY RESPONSE SENT | Status: False");
                             }
                             _logger.LogInformation("FINGERPRINT DATA SENT");
@@ -319,7 +319,7 @@ public class MqttService : BackgroundService, IMqttService
         await PublishAsync(topic, state, true);
         _logger.LogInformation("FULL STATE SYNC SENT");
     }
-    private async Task PublishFingerPrintVerify(string hardwareId, bool response)
+    private async Task PublishFingerPrintVerify(string hardwareId, object response)
     {
         var topic = $"home/{hardwareId}/fingerprint/verify/response";
         await PublishAsync(topic, response, true);
