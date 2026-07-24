@@ -257,7 +257,9 @@ public class CallService : ICallService
         {
             call.Status = CallStatus.Ended;
             call.EndedAt = DateTime.UtcNow;
+            foreach (var p in call.Participants.Where(p => p.Status == CallParticipantStatus.Connected)) p.Status = CallParticipantStatus.Left;
             callEnded = true;
+
         }
         else
         {

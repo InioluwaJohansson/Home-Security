@@ -207,7 +207,6 @@ public class MicroControllerService : IMicroControllerService
             Message = "Unable To Update Generic State!"
         };
     }
-    
     private async Task <List<ApplianceDeviceState>> GetApplianceDeviceStates(List<int> ApplianceIds)
     {
         var applianceDeviceStates = new List<ApplianceDeviceState>();
@@ -224,6 +223,7 @@ public class MicroControllerService : IMicroControllerService
                 });
             }
         }
+        applianceDeviceStates.OrderBy(x => x.ApplianceId);
         return applianceDeviceStates;
     }
     private async Task <List<LightDeviceState>> GetLightDeviceStates(List<int> LightIds)
@@ -242,6 +242,7 @@ public class MicroControllerService : IMicroControllerService
                 });
             }
         }
+        lightDeviceStates.OrderBy(x => x.LightId);
         return lightDeviceStates;
     }
     private async Task <List<CameraDeviceState>> GetCameraDeviceStates(List<int> CameraIds)
@@ -259,6 +260,7 @@ public class MicroControllerService : IMicroControllerService
                 });
             }
         }
+        cameraDeviceStates.OrderBy(x => x.CameraId);
         return cameraDeviceStates;
     }
     private async Task <List<WindowDeviceState>> GetWindowDeviceStates(List<int> WindowIds)
@@ -277,6 +279,7 @@ public class MicroControllerService : IMicroControllerService
                 });
             }
         }
+        windowDeviceStates.OrderBy(x => x.WindowId);
         return windowDeviceStates;
     }
     private async Task <List<DoorDeviceState>> GetDoorDeviceStates(List<int> DoorIds)
@@ -295,6 +298,7 @@ public class MicroControllerService : IMicroControllerService
                 });
             }
         }
+        doorDeviceStates.OrderBy(x => x.DoorId);
         return doorDeviceStates;
     }
     private async Task <List<ExternalDeviceState>> GetExternalDeviceStates(List<int> ExternalIds)
@@ -313,6 +317,7 @@ public class MicroControllerService : IMicroControllerService
                 });
             }
         }
+        externalDeviceStates.OrderBy(x => x.ExternalId);
         return externalDeviceStates;
     }
 }
