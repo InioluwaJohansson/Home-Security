@@ -353,9 +353,9 @@ public class MqttService : BackgroundService, IMqttService
     }
     public async Task PublishMicroControllerAuth(string hardwareId, object objectToPublish)
     {
-        var topic = $"home/{hardwareId}/fingerprint";
+        var topic = $"home/{hardwareId}/response";
         await PublishAsync(topic, objectToPublish, true);
-        _logger.LogInformation("FINGERPRINT DATA SENT");
+        _logger.LogInformation("RESPONSE DATA SENT");
     }
     public async Task PublishNFIDCode(string hardwareId, string nfidCode)
     {

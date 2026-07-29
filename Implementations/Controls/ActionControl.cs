@@ -102,7 +102,7 @@ public class ActionControl : IActionControl
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
         {
-            var action = await _actionService.GetAllActions();
+            var action = await _actionService.GetAllActions(auth.Id);
             action.Data = action.Data.Select(x => DtoRefactor(x)).ToList();
             return action;
         }

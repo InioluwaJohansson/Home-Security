@@ -168,3 +168,17 @@ public class CallTimeoutBackgroundService  : BackgroundService
         await callService.ExecuteAllAsync(stoppingToken);
     }
 }
+public class ReccuringActionsBackgroundService  : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    public ReccuringActionsBackgroundService (IServiceScopeFactory scopeFactory)
+    {
+        _scopeFactory = scopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var callService = scope.ServiceProvider.GetRequiredService<IActionService>();
+        await callService.RunAllReccuringActions(stoppingToken);
+    }
+}

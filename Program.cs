@@ -130,6 +130,7 @@ builder.Services.AddHostedService<BackgroundServices>();
 builder.Services.AddHostedService<CameraStreamingBackgroundService>();
 builder.Services.AddHostedService<MqttBackgroundService>();
 builder.Services.AddHostedService<HardwareServices>();
+builder.Services.AddHostedService<ReccuringActionsBackgroundService>();
 builder.Services.AddHostedService<CallTimeoutBackgroundService>();
 builder.Services.AddHostedService<RecordingCleanUpBackgroundServiceDelete>();
 builder.Services.AddHostedService<RecordingCleanUpBackgroundService>();

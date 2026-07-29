@@ -291,3 +291,50 @@ curl -X 'POST' \
   await _realtimeNotificationService.UpdateChat("CallRejected", call.ChatId, callDto);
   await _realtimeNotificationService.UpdateChat("CallEnded", call.ChatId, callDto);
   these two now return the callDto which is now used to update the call in the call history
+
+
+
+
+
+Eusure auto complete is diaabled for all text input fields in the app and ensure for the dark theme the modal headers background color is uniform with the modal body background color including the option fields and no part of a modal, must be dark blue just dark even the screen saver and the divs in the dashboard page. The add new category modal not all parts of the modal is adhereing to the dark them most especially the footer. Including the crete new group and start a chart modal, not all parts of the modals adhere to the dark theme
+
+
+
+When ever a call is received or accepted or a participant joins a call, invoke these methods via signalR connection
+public async Task Offer(OfferDto dto, string token) 
+public async Task IceCandidate(IceCandidateDto dto, string token)
+public async Task ToggleCallItems(ToggleCallItemsDto dto, string token)
+
+the token is the jwt token and the dto for each method are
+public class OfferDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public int PersonId { get; set; }
+    public string Sdp { get; set; } = string.Empty;
+} 
+public class IceCandidateDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public int PersonId { get; set; }
+    public string Candidate { get; set; } = string.Empty;
+    public string? SdpMid { get; set; }
+    public int? SdpMLineIndex { get; set; }
+}
+public class ToggleCallItemsDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public int PersonId { get; set; }
+    public bool IsMuted { get; set; }
+    public bool IsCameraEnabled { get; set; }
+    public bool IsSharing { get; set; }
+}
+Where the callId and chatId is the id of the ongoing call and the chatId of the ongoing call and the personId is the personId of the logged in user.
+
+For the microphone div, the animation should start from the middle bars of the animation then spread to the other bars at both sides uniformly. Replace the microphone icon with Hey, Friday with a big font size. Remove the Microphone active text and icon and replace it with the live transcription of the microphone input in english. Remove the click to stop button.
+Increase the no of bars in the voice animation and increase the height of the bars slightly and the bars should use 70% of the width and the grainly background shoule be more transparent. Hey Friday voice command should trigger the microphone overlay and the word dispose should end the microphone activities. Hey friday should mute a call if it is ongoing and trigger the microphone modal and dispose should unmute the call if the user did not mute the call before saying hey friday
+
+External device name should not have a rounded input and the section name and room name are not aligned somthing is wrong with that of section name. 
+In the all users page, serch bar input field should have a transparent background. The add new category submit button

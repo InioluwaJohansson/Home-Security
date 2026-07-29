@@ -35,6 +35,24 @@ public class ActionService : IActionService
         _logService = logService;
         _realtime = realtime;
     }
+    public async Task RunAllReccuringActions(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            var actions = await _actionRepo.GetByExpression(x => x.IsRecurring);
+            if(actions != null)
+            {
+                foreach(var action in actions)
+                {
+                    var date = DateTime.UtcNow;
+                    if(date.TimeOfDay >= action.Time && action.LastRunDate.Date != date.Date){
+                        action.LastRunDate = DateTime.Now;
+                        await TriggerActions(action.Id);
+                    }
+                }
+            }
+        }
+    }
     public async Task<BaseResponse> CreateAction(CreateActionDto createActionDto, int personId)
     {
         if(createActionDto != null)
@@ -43,6 +61,9 @@ public class ActionService : IActionService
             {
                 ActionName = createActionDto.ActionName,
                 Description = createActionDto.Description,
+                IsRecurring = createActionDto.IsRecurring,
+                IsPrivate = createActionDto.IsPrivate,
+                Time = createActionDto.Time,
                 ActionId = $"ACTION{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 PersonId = personId,
                 CreatedBy = personId,
@@ -74,6 +95,9 @@ public class ActionService : IActionService
         {
             action.ActionName = updateActionDto.ActionName ?? action.ActionName;
             action.Description = updateActionDto.Description ?? action.Description;
+            action.IsPrivate = updateActionDto.IsPrivate;
+            action.IsRecurring = updateActionDto.IsRecurring;
+            action.Time = updateActionDto.Time;
             action.LastModifiedBy = personId;
             action.LastModifiedOn = DateTime.UtcNow;
             await _actionRepo.Update(action);
@@ -138,9 +162,10 @@ public class ActionService : IActionService
             Message = "Unable to Retrieve Action!"
         };
     }
-    public async Task<ActionsResponseModel> GetAllActions()
+    public async Task<ActionsResponseModel> GetAllActions(int personId)
     {
         var actions = await _actionRepo.GetAllActions();
+        actions.Where(x => !x.IsPrivate || x.PersonId == personId);
         if (actions != null)
         {
             return new ActionsResponseModel
@@ -434,6 +459,9 @@ public class ActionService : IActionService
             ActionDescription = action.Description,
             ActionActive = action.IsActive,
             ActionId = action.ActionId,
+            IsPrivate = action.IsPrivate,
+            IsRecurring = action.IsRecurring,
+            Time = action.Time,
             CreatedBy = action.CreatedBy,
             CreatedOn = action.CreatedOn,
             LastModifiedBy = action.LastModifiedBy,
