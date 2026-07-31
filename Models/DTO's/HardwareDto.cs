@@ -50,7 +50,7 @@ public class HardwareHeartBeatDto
 {
     public string Token { get; set; }
     public string HardwareId { get; set; }
-    public bool PowerActive { get; set; }
+    public bool PowerActive { get; set; } = true;
 }
 public class NFIDCodeDto
 {

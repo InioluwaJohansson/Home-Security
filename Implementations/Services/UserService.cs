@@ -65,12 +65,6 @@ public class UserService : IUserService
         {
             return new UserLoginResponse()
             {
-                Data = new GetUserDto()
-                {
-                    Id = user.Id,
-                    RoleName = user.UserRole.Role.ToString(),
-                    PersonId = (await _personRepo.Get(x => x.UserId == user.Id))?.Id ?? 0,
-                },
                 Message = "Login Successful",
                 Status = true,
             };
