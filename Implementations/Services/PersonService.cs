@@ -376,6 +376,20 @@ public class PersonService : IPersonService
             Message = "Unable To Delete Person Profile Address!"
         };
     }
+    public async Task<bool> RemoveCameraIds(int cameraId)
+    {
+        var persons = await _personRepo.GetByExpression(x => !x.IsDeleted);
+        if(persons != null)
+        {
+            foreach (var person in persons)
+            {
+                person.CameraIds.Remove(cameraId);
+                await _personRepo.Update(person);
+                return true;
+            }
+        }
+        return false;
+    }
     public GetPersonDto GetDetails(Person person)
     {
         return new GetPersonDto()

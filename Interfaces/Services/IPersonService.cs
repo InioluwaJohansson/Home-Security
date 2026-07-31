@@ -11,6 +11,7 @@ public interface IPersonService
     public Task<PersonsResponseModel> GetAllPersons();
     public Task<BaseResponse> DisablePerson(int id);
     public Task<BaseResponse> Delete(int id, int personId);
+    public Task<bool> RemoveCameraIds(int cameraId);
     public Task<BaseResponse> DeleteContactDetails(int id, int personId);
     public Task<BaseResponse> DeleteContactAddress(int id, int personId);
 }

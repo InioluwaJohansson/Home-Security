@@ -13,13 +13,15 @@ public class CameraService : ICameraService
     ICameraRepo _cameraRepo;
     IRealtimeNotificationService _realtime;
     IHardwareService _hardwareService;
+    IPersonService _personService;
     IMqttService _mqtt;
     ICameraStreamingService _cameraStreamingService;
-    public CameraService(ICameraRepo cameraRepo, IRealtimeNotificationService realtime, IHardwareService hardwareService, IMqttService mqtt, ICameraStreamingService cameraStreamingService)
+    public CameraService(ICameraRepo cameraRepo, IRealtimeNotificationService realtime, IHardwareService hardwareService, IPersonService personService, IMqttService mqtt, ICameraStreamingService cameraStreamingService)
     {
         _cameraRepo = cameraRepo;
         _realtime = realtime;
         _hardwareService = hardwareService;
+        _personService = personService;
         _mqtt = mqtt;
         _cameraStreamingService = cameraStreamingService;
     }
@@ -238,6 +240,7 @@ public class CameraService : ICameraService
             camera.IsDeleted = true;
             await _cameraStreamingService.StopStream(camera);
             await _cameraRepo.Update(camera);
+            await _personService.RemoveCameraIds(camera.Id);
             await _hardwareService.RemoveFacilityItem(camera.Id, FacilityType.Camera);
             await _realtime.NotifyAll("CameraDeleted", new
             {
