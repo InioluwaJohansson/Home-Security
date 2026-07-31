@@ -45,7 +45,7 @@ public class ActionService : IActionService
                 foreach(var action in actions)
                 {
                     var date = DateTime.UtcNow;
-                    if(date.TimeOfDay >= action.Time && action.LastRunDate.Date != date.Date){
+                    if(((date.TimeOfDay - action.Time) <= (date.TimeOfDay + TimeSpan.FromMinutes(2))) && action.LastRunDate.Date != date.Date){
                         action.LastRunDate = DateTime.Now;
                         await TriggerActions(action.Id);
                     }
@@ -467,7 +467,7 @@ public class ActionService : IActionService
             CreatedOn = action.CreatedOn,
             LastModifiedBy = action.LastModifiedBy,
             LastModifiedOn = action.LastModifiedOn,
-            GetActionStepDtos = action.ActionSteps.Select(x => new GetActionStepDto
+            GetActionStepDtos = action.ActionSteps?.Select(x => new GetActionStepDto
             {
                 Id = x.Id,
                 ActionId = x.ActionId,
@@ -477,7 +477,7 @@ public class ActionService : IActionService
                 IsLocked = x.IsLocked,
                 IsOpen = x.IsOpen,
                 IsActive = x.IsActive,
-            }).ToList() ?? new List<GetActionStepDto>() ?? null,
+            }).ToList() ?? new List<GetActionStepDto>(),
         };
     }
 }
