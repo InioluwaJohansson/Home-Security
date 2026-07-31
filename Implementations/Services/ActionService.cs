@@ -51,6 +51,7 @@ public class ActionService : IActionService
                     }
                 }
             }
+            await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
         }
     }
     public async Task<BaseResponse> CreateAction(CreateActionDto createActionDto, int personId)
@@ -165,7 +166,7 @@ public class ActionService : IActionService
     public async Task<ActionsResponseModel> GetAllActions(int personId)
     {
         var actions = await _actionRepo.GetAllActions();
-        actions.Where(x => !x.IsPrivate || x.PersonId == personId);
+        actions.Where(x => !x.IsPrivate || x.CreatedBy == personId);
         if (actions != null)
         {
             return new ActionsResponseModel
@@ -461,7 +462,7 @@ public class ActionService : IActionService
             ActionId = action.ActionId,
             IsPrivate = action.IsPrivate,
             IsRecurring = action.IsRecurring,
-            Time = action.Time,
+            Time = action.Time ?? null,
             CreatedBy = action.CreatedBy,
             CreatedOn = action.CreatedOn,
             LastModifiedBy = action.LastModifiedBy,
@@ -476,7 +477,7 @@ public class ActionService : IActionService
                 IsLocked = x.IsLocked,
                 IsOpen = x.IsOpen,
                 IsActive = x.IsActive,
-            }).ToList() ?? new List<GetActionStepDto>(),
+            }).ToList() ?? new List<GetActionStepDto>() ?? null,
         };
     }
 }

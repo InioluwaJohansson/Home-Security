@@ -7,7 +7,7 @@ public class Action : AuditableEntity
     public string Description { get; set; }
     public bool IsPrivate { get; set; } = false;
     public bool IsRecurring { get; set; } = false;
-    public TimeSpan? Time { get; set; } 
+    public TimeSpan? Time { get; set; } = TimeSpan.Zero;
     public DateTime LastRunDate { get; set; }
     public int PersonId { get; set; }
     public bool IsActive { get; set; }
