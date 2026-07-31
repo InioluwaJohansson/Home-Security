@@ -60,14 +60,26 @@ namespace Home_Security.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<bool>("IsPrivate")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsRecurring")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("LastModifiedBy")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("LastModifiedOn")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<DateTime>("LastRunDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
+
+                    b.Property<TimeSpan?>("Time")
+                        .HasColumnType("time(6)");
 
                     b.HasKey("Id");
 
@@ -581,6 +593,8 @@ namespace Home_Security.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ChatId");
+
+                    b.HasIndex("PersonId");
 
                     b.ToTable("ChatParticipant");
                 });
@@ -1810,7 +1824,15 @@ namespace Home_Security.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Home_Security.Entities.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Chat");
+
+                    b.Navigation("Person");
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Chats.Message", b =>
