@@ -94,7 +94,7 @@ public class JWTAuthentication : IJWTAuthentication
 
         var token = new JwtSecurityToken(
             claims: claims,
-            expires: DateTime.UtcNow.AddDays(90),
+            expires: DateTime.MaxValue,
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);

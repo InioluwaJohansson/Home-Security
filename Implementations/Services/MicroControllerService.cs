@@ -1,4 +1,5 @@
-﻿using Home_Security.Entities;
+﻿using Home_Security.Authentication;
+using Home_Security.Entities;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
@@ -18,7 +19,9 @@ public class MicroControllerService : IMicroControllerService
     IActionService _actionService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqttService;
-    public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceRepo applianceRepo, ILightRepo lightRepo, ICameraRepo cameraRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IExternalRepo externalRepo, IActionService actionService, IRealtimeNotificationService realtime, IMqttService mqttService)
+    IJWTAuthentication _jWTAuthentication;
+    IConfiguration _configuration;
+    public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceRepo applianceRepo, ILightRepo lightRepo, ICameraRepo cameraRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IExternalRepo externalRepo, IActionService actionService, IRealtimeNotificationService realtime, IMqttService mqttService, IJWTAuthentication jWTAuthentication, IConfiguration configuration)
     {
         _hardwareRepo = hardwareRepo;
         _applianceRepo = applianceRepo;
@@ -30,11 +33,32 @@ public class MicroControllerService : IMicroControllerService
         _actionService = actionService;
         _realtime = realtime;
         _mqttService = mqttService;
+        _jWTAuthentication = jWTAuthentication;
+        _configuration = configuration;
+    }
+    public async Task<MTTQConfig> GetHardwareMTQQAuth(string hardwareId, string AuthKey)
+    {
+        var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardwareId && x.AuthKey == AuthKey && !x.IsDeleted && !x.IsActive);
+        if (hardware != null)
+        {
+            return new MTTQConfig()
+            {
+                Host = _configuration["Mqtt:Host"],
+                Port = _configuration["Mqtt:Port"],
+                Username = _configuration["Mqtt:Username"],
+                Password = _configuration["Mqtt:Password"],
+                Status = true,
+            };
+        }
+        return new MTTQConfig()
+        {
+            Status = false
+        };
     }
     public async Task<GenericDeviceState> GetByAuth(string hardWareId, string AuthKey)
     {
-        var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardWareId && x.AuthKey == AuthKey && x.IsDeleted == false);
-        if (hardware != null && hardware.IsActive == false)
+        var hardware = await _hardwareRepo.Get(x => x.HardwareId == hardWareId && x.AuthKey == AuthKey && !x.IsDeleted && !x.IsActive);
+        if (hardware != null)
         {
             hardware.IsActive = true;
             await _hardwareRepo.Update(hardware);
@@ -46,7 +70,8 @@ public class MicroControllerService : IMicroControllerService
                 WindowDeviceStates = await GetWindowDeviceStates(hardware.WindowIds) ?? new List<WindowDeviceState>(),
                 DoorDeviceStates = await GetDoorDeviceStates(hardware.DoorIds) ?? new List<DoorDeviceState>(),
                 ExternalDeviceStates = await GetExternalDeviceStates(hardware.ExternalIds) ?? new List<ExternalDeviceState>(),
-                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                Token = _jWTAuthentication.GenerateHardwareToken(hardware.HardwareId, hardware.AuthKey)
             };
             return state;
         }
@@ -64,7 +89,7 @@ public class MicroControllerService : IMicroControllerService
     }
     public async Task SendUpdatedHardwareData()
     {
-        var hardwares = await _hardwareRepo.GetByExpression(x => x.IsActive);
+        var hardwares = await _hardwareRepo.GetByExpression(x => x.IsActive && !x.IsDeleted);
         if(hardwares != null)
         {
             foreach (var hardware in hardwares)

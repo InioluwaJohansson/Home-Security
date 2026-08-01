@@ -12,21 +12,19 @@ using System.Security.Claims;
 public class MicroControllerController : Controller
 {
     IMicroControllerService _microControllerService;
-    IJWTAuthentication _jWTAuthentication;
-    public MicroControllerController(IMicroControllerService microControllerService, IJWTAuthentication jWTAuth)
+    
+    public MicroControllerController(IMicroControllerService microControllerService)
     {
         _microControllerService = microControllerService;
-        _jWTAuthentication = jWTAuth;
     }
-    // [HttpGet("GetMicroControllerDetails")]
-    // public async Task<IActionResult> GetMicroControllerDetails(string hardWareId, string AuthKey)
-    // {
-    //     var microController = await _microControllerService.GetByAuth(hardWareId, AuthKey);
-    //     if (microController.Status == true)
-    //     {
-    //         microController.Token = _jWTAuthentication.GenerateHardwareToken(hardWareId,AuthKey);
-    //         return Ok(microController);
-    //     }
-    //     return Ok(microController);
-    // }
+    [HttpGet("GetMicroControllerMTTQConfig")]
+    public async Task<IActionResult> GetMicroControllerDetails(string hardWareId, string AuthKey)
+    {
+        var microController = await _microControllerService.GetHardwareMTQQAuth(hardWareId, AuthKey);
+        if (microController.Status == true)
+        {
+            return Ok(microController);
+        }
+        return Ok(microController);
+    }
 }

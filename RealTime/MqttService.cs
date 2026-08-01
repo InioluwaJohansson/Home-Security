@@ -281,7 +281,7 @@ public class MqttService : BackgroundService, IMqttService
             MqttQualityOfServiceLevel.AtLeastOnce);
         }).WithTopicFilter(f =>
         {
-            f.WithTopic("home/+/Hardware/Auth");
+            f.WithTopic("home/+/hardware/auth");
             f.WithQualityOfServiceLevel(
             MqttQualityOfServiceLevel.AtLeastOnce);
         }).WithTopicFilter(f =>
