@@ -189,10 +189,10 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
         return new BadRequestObjectResult(errors);
     };
 });
-
+var appName = builder.Configuration.GetSection("ApplicationDetails:AppName").Value;
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo {Title = "Home Security", Version = "v1"});
+    c.SwaggerDoc("v1", new OpenApiInfo {Title = appName, Version = "v1"});
 });
 
 builder.Services.AddRateLimiter(options =>
@@ -213,9 +213,9 @@ builder.Services.AddCors(x => x.AddPolicy("Policies", c =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("Home_Security", policy =>
+    options.AddPolicy(appName, policy =>
     {
-        policy.WithOrigins("https://ais-dev-ypl2vxtjhgwlthzmvnxusu-717948104271.europe-west2.run.app", "https://ais-dev-62beulbfxtpne7lrxwnd4x-717948104271.europe-west2.run.app", "*").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        policy.WithOrigins("https://ais-dev-ypl2vxtjhgwlthzmvnxusu-717948104271.europe-west2.run.app", "https://ais-dev-62beulbfxtpne7lrxwnd4x-717948104271.europe-west2.run.app").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 
@@ -251,6 +251,7 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseRateLimiter();
 app.UseWebSockets();
+app.UseMiddleware<ApiAccessMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
@@ -261,14 +262,9 @@ app.Use(async (context, next) =>
     Console.WriteLine($"➡️ Incoming Request: {context.Request.Method} {context.Request.Path}");
     await next.Invoke();
 });
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
 }
     app.UseSwaggerUI();
     app.UseSwagger();
 app.Run();
-
-internal class CallRepository
-{
-}
