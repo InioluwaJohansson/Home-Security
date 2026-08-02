@@ -79,6 +79,16 @@ public class HomeSecurityHub : Hub
             }
         }
     }
+    public async Task LogOutAllUsers(string token)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(token);
+        if(user != null){
+            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
+            if(auth.Status != false){
+                await Clients.All.SendAsync("HighLevelLogOut");
+            }
+        }
+    }
     public void AddPerson(string token)
     {
         // var user = _jwtAuthentication.GetUserFromToken(token);
