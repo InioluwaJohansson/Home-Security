@@ -33,6 +33,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Text;
+using Home_Security.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 

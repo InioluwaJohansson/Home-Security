@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using Home_Security.Authentication;
 using Home_Security.Interfaces.Controls;
+using Home_Security.Models.CallDTO;
 namespace Home_Security.Hubs;
 [Authorize]
 public class HomeSecurityHub : Hub
