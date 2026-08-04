@@ -90,15 +90,19 @@ public class HomeSecurityHub : Hub
             }
         }
     }
+    public async Task LogOutPersonId(string token, int personId)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(token);
+        if(user != null){
+            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
+            if(auth.Status != false){
+                await Clients.All.SendAsync("LogOut", personId);
+            }
+        }
+    }
     public void AddPerson(string token)
     {
-        // var user = _jwtAuthentication.GetUserFromToken(token);
-        // if(user != null){
-        //     var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
-        //     if(auth.Status != false){
-        //         await Groups.AddToGroupAsync(Context.ConnectionId, auth.Id.ToString());
-        //     }
-        // }
+
     }
 
     //Chats
