@@ -51,7 +51,7 @@ public class ActionService : IActionService
                     }
                 }
             }
-            await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }
     }
     public async Task<BaseResponse> CreateAction(CreateActionDto createActionDto, int personId)
@@ -163,10 +163,9 @@ public class ActionService : IActionService
             Message = "Unable to Retrieve Action!"
         };
     }
-    public async Task<ActionsResponseModel> GetAllActions(int personId)
+    public async Task<ActionsResponseModel> GetAllActions()
     {
-        var actions = await _actionRepo.GetAllActions();
-        actions.Where(x => !x.IsPrivate || x.CreatedBy == personId);
+        var actions =(await _actionRepo.GetAllActions()).ToList();
         if (actions != null)
         {
             return new ActionsResponseModel

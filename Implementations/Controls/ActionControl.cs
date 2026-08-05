@@ -100,9 +100,16 @@ public class ActionControl : IActionControl
     public async Task<ActionsResponseModel> GetAllActions(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
+        if (auth.Status != false && auth.Role == Role.Owner)
         {
-            var action = await _actionService.GetAllActions(auth.Id);
+            var action = await _actionService.GetAllActions();
+            action.Data = action.Data.Select(x => DtoRefactor(x)).ToList();
+            return action;
+        }
+        else if(auth.Status != false && auth.Role == Role.Wife || auth.Role == Role.Child)
+        {
+            var action = await _actionService.GetAllActions();
+            action.Data = action.Data.Where(x => x.IsPrivate == false || x.personId == auth.Id).ToList();
             action.Data = action.Data.Select(x => DtoRefactor(x)).ToList();
             return action;
         }
