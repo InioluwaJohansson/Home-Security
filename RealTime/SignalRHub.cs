@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Home_Security.Authentication;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Models.CallDTO;
+using System.Text.Json;
 namespace Home_Security.Hubs;
 [Authorize]
 public class HomeSecurityHub : Hub
@@ -122,6 +123,10 @@ public class HomeSecurityHub : Hub
     //Calls
     public async Task Offer(OfferDto dto, string token)
     {
+        Console.WriteLine(JsonSerializer.Serialize(dto, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        }));
         var user = _jwtAuthentication.GetUserFromToken(token);
         if (user != null)
         {
@@ -132,6 +137,10 @@ public class HomeSecurityHub : Hub
     }
     public async Task Answer(AnswerDto dto, string token)
     {
+        Console.WriteLine(JsonSerializer.Serialize(dto, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        }));
         var user = _jwtAuthentication.GetUserFromToken(token);
         if (user != null)
         {
@@ -142,6 +151,10 @@ public class HomeSecurityHub : Hub
     }
     public async Task IceCandidate(IceCandidateDto dto, string token)
     {
+        Console.WriteLine(JsonSerializer.Serialize(dto, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        }));
         var user = _jwtAuthentication.GetUserFromToken(token);
         if (user != null)
         {
@@ -152,6 +165,10 @@ public class HomeSecurityHub : Hub
     }
     public async Task ToggleCallItems(ToggleCallItemsDto dto, string token)
     {
+        Console.WriteLine(JsonSerializer.Serialize(dto, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        }));
         var user = _jwtAuthentication.GetUserFromToken(token);
         if (user != null)
         {
