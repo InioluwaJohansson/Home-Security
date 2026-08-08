@@ -320,6 +320,7 @@ public class MicroControllerService : IMicroControllerService
                     DoorId = door.Id,
                     IsOpen = door.IsOpen,
                     IsLocked = door.IsLocked,
+                    DoorType = door.DoorType
                 });
             }
         }

@@ -53,6 +53,7 @@ public class DoorDeviceState
     public int DoorId { get; set; }
     public bool IsLocked { get; set; }
     public bool IsOpen { get; set; }
+    public DoorType DoorType { get; set; }
 }
 public class ExternalDeviceState
 {
