@@ -142,7 +142,19 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
     options.HandshakeTimeout = TimeSpan.FromSeconds(30);
+});
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto;
+
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
 });
 
 var jwtSection = builder.Configuration.GetSection("Jwt");

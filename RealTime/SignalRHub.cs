@@ -123,6 +123,7 @@ public class HomeSecurityHub : Hub
     //Calls
     public async Task Offer(OfferDto dto, string token)
     {
+        Console.WriteLine($"Offer Sent !!!!!!!!!!!!!!!!!!!!!!!!!!");
         Console.WriteLine(JsonSerializer.Serialize(dto, new JsonSerializerOptions
         {
             WriteIndented = true
@@ -130,27 +131,13 @@ public class HomeSecurityHub : Hub
         var user = _jwtAuthentication.GetUserFromToken(token);
         if (user != null)
         {
-            Console.WriteLine($"Offer Sent !!!!!!!!!!!!!!!!!!!!!!!!!!    PersonId: {user.PersonId}");
             var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
             if(auth.Status) await Clients.Group(dto.ChatId.ToString()).SendAsync("Offer", dto);
         }
     }
-    public async Task Answer(AnswerDto dto, string token)
-    {
-        Console.WriteLine(JsonSerializer.Serialize(dto, new JsonSerializerOptions
-        {
-            WriteIndented = true
-        }));
-        var user = _jwtAuthentication.GetUserFromToken(token);
-        if (user != null)
-        {
-            Console.WriteLine($"Call Answered !!!!!!!!!!!!!!!!!!!!!!!!!!    PersonId: {user.PersonId}");
-            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
-            if(auth.Status) await Clients.Group(dto.ChatId.ToString()).SendAsync("Answer", dto);
-        }
-    }
     public async Task IceCandidate(IceCandidateDto dto, string token)
     {
+        Console.WriteLine($"Ice Candidate !!!!!!!!!!!!!!!!!!!!!!!!!!");
         Console.WriteLine(JsonSerializer.Serialize(dto, new JsonSerializerOptions
         {
             WriteIndented = true
@@ -158,13 +145,13 @@ public class HomeSecurityHub : Hub
         var user = _jwtAuthentication.GetUserFromToken(token);
         if (user != null)
         {
-            Console.WriteLine($"Ice Candidate !!!!!!!!!!!!!!!!!!!!!!!!!!    PersonId: {user.PersonId}");
             var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
             if(auth.Status) await Clients.Group(dto.ChatId.ToString()).SendAsync("IceCandidate", dto);
         }
     }
     public async Task ToggleCallItems(ToggleCallItemsDto dto, string token)
     {
+        Console.WriteLine($"Toggle Call Items !!!!!!!!!!!!!!!!!!!!!!!!!!");
         Console.WriteLine(JsonSerializer.Serialize(dto, new JsonSerializerOptions
         {
             WriteIndented = true
@@ -172,7 +159,6 @@ public class HomeSecurityHub : Hub
         var user = _jwtAuthentication.GetUserFromToken(token);
         if (user != null)
         {
-            Console.WriteLine($"Ice Candidate !!!!!!!!!!!!!!!!!!!!!!!!!!    PersonId: {user.PersonId}");
             var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
             if(auth.Status) await Clients.Group(dto.ChatId.ToString()).SendAsync("ToggleCallItems", dto);
         }

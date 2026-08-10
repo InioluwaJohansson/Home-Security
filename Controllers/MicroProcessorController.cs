@@ -17,7 +17,7 @@ public class MicroControllerController : Controller
     {
         _microControllerService = microControllerService;
     }
-    [HttpGet("GetMicroControllerMTTQConfig")]
+    [HttpGet("GetMicroControllerMQTTConfig")]
     public async Task<IActionResult> GetMicroControllerDetails(string hardWareId, string AuthKey)
     {
         var microController = await _microControllerService.GetHardwareMTQQAuth(hardWareId, AuthKey);
