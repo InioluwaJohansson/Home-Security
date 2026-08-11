@@ -202,10 +202,10 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
         return new BadRequestObjectResult(errors);
     };
 });
-var appName = builder.Configuration.GetSection("ApplicationDetails:AppName").Value;
+var appData = builder.Configuration.GetSection("ApplicationDetails");
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo {Title = appName, Version = "v1"});
+    c.SwaggerDoc("v1", new OpenApiInfo {Title = appData["AppName"], Version = "v1"});
 });
 
 builder.Services.AddRateLimiter(options =>
@@ -219,16 +219,16 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
-builder.Services.AddCors(x => x.AddPolicy("Policies", c =>
+builder.Services.AddCors(x => x.AddPolicy(appData["AppName"], c =>
 {
     c.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
 }));
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(appName, policy =>
+    options.AddPolicy(appData["AppName"], policy =>
     {
-        policy.WithOrigins("https://ais-dev-ypl2vxtjhgwlthzmvnxusu-717948104271.europe-west2.run.app", "https://ais-dev-62beulbfxtpne7lrxwnd4x-717948104271.europe-west2.run.app").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        policy.WithOrigins(appData["HomeUrl"], appData["MobileApp"], appData["MicroControllerUrl"]).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 
@@ -259,7 +259,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions{
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
-app.UseCors("Home_Security");
+app.UseCors(appData["AppName"]);
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseRateLimiter();
