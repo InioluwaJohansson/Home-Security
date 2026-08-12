@@ -39,24 +39,29 @@ public class CallService : ICallService
     public async Task CheckTimedOutCallsAsync()
     {
         var calls = await _callRepo.GetTimedOutRingingCallsAsync(TimeSpan.FromSeconds(30));
-        foreach (var call in calls)
+        if(calls != null)
         {
-            foreach (var participant in call.Participants)
+
+            
+            foreach (var call in calls)
             {
-                if (participant.Status == CallParticipantStatus.Ringing)
+                foreach (var participant in call.Participants)
                 {
-                    participant.Status = CallParticipantStatus.Missed;
+                    if (participant.Status == CallParticipantStatus.Ringing)
+                    {
+                        participant.Status = CallParticipantStatus.Missed;
+                    }
                 }
+                bool hasConnectedParticipants = call.Participants.Any(p => p.Status == CallParticipantStatus.Connected);
+                if (!hasConnectedParticipants)
+                {
+                    call.Status = CallStatus.Missed;
+                    call.EndedAt = DateTime.UtcNow;
+                }
+                await _callRepo.Update(call);
+                var callDto = MapToDto(await _callRepo.GetCallDetails(call.Id));
+                await _realtimeNotificationService.UpdateChat("CallTimedOut", call.ChatId, callDto);
             }
-            bool hasConnectedParticipants = call.Participants.Any(p => p.Status == CallParticipantStatus.Connected);
-            if (!hasConnectedParticipants)
-            {
-                call.Status = CallStatus.Missed;
-                call.EndedAt = DateTime.UtcNow;
-            }
-            await _callRepo.Update(call);
-            var callDto = MapToDto(await _callRepo.GetCallDetails(call.Id));
-            await _realtimeNotificationService.UpdateChat("CallTimedOut", call.ChatId, callDto);
         }
     }
     public async Task<CallDto> StartCallAsync(StartCallDto dto, int personId)

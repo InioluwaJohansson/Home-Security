@@ -43,7 +43,7 @@ public class MicroControllerService : IMicroControllerService
         {
             return new MTTQConfig()
             {
-                Host = _configuration["Mqtt:Host"],
+                Host = _configuration["Mqtt:HostLenovo"] ?? _configuration["Mqtt:HostDell"] ?? _configuration["Mqtt:Host"],
                 Port = _configuration["Mqtt:Port"],
                 Username = _configuration["Mqtt:Username"],
                 Password = _configuration["Mqtt:Password"],
