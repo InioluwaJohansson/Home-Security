@@ -627,3 +627,6 @@ while trying to get all messages in a chat, its not passing the id of the chat i
 
 Failed to send message: Converting circular structure to JSON --> starting at object with constructor 'HTMLButtonElement' | property '__reactFiber$3ne4jkbpwvp' -> object with constructor 'FiberNode' --- property 'stateNode' closes the circle. 
 The typing received via signalR should only apply every 5s
+
+Id: HARDWARE58F76
+Key: DC12A5D046244152B1

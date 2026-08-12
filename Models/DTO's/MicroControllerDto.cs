@@ -68,6 +68,10 @@ public class MicroControllerLoginDto
 }
 public class MTTQConfig : BaseResponse
 {
+    public MTTQData Data { get; set; }
+}
+public class MTTQData : BaseResponse
+{
     public string Host { get; set; }
     public string Port { get; set; }
     public string Username { get; set; }
