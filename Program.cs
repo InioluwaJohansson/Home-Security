@@ -228,7 +228,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(appData["AppName"], policy =>
     {
-        policy.WithOrigins(appData["HomeUrl"], appData["MobileApp"], appData["MicroControllerUrl"]).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        policy.WithOrigins(appData["HomeUrl"], appData["MobileApp"], appData["MicroControllerUrl"], "https://hanssonhub.ai.studio").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 

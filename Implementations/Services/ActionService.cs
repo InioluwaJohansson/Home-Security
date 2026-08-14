@@ -75,6 +75,10 @@ public class ActionService : IActionService
             };
             await _actionRepo.Create(action);
             var actionData = GetDetails(await _actionRepo.Get(x => x.ActionId == action.ActionId));
+            if(action.IsPrivate){
+                await _realtime.NotifyAll("ActionCreated", action.PersonId, actionData);
+                await _realtime.NotifyAll("ActionCreated", new List<Role> { Role.Owner }, actionData);
+            }
             await _realtime.NotifyAll("ActionCreated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, actionData);
             return new BaseResponse
             {
