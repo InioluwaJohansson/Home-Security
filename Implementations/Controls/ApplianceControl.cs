@@ -2,6 +2,7 @@
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 namespace Home_Security.Implementations.Controls;
 public class ApplianceControl : IApplianceControl
 {
@@ -25,6 +26,7 @@ public class ApplianceControl : IApplianceControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
                 log.LogDetails = "An Appliance was newly added. Awaiting Physical Interfacing!";
+                log.FacilityType = FacilityTypeApp.Appliance;
                 await _logService.CreateLog(log);
             }
             return appliance;
@@ -42,6 +44,8 @@ public class ApplianceControl : IApplianceControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{updateApplianceDto.ApplianceName} Appliance was recently updated!";
+                log.FacilityType = FacilityTypeApp.Appliance;
+                log.FacilityId = updateApplianceDto.Id;
                 await _logService.CreateLog(log);
             }
             
@@ -161,6 +165,8 @@ public class ApplianceControl : IApplianceControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getAppliance} Appliance was Deleted!";
+                log.FacilityType = FacilityTypeApp.Appliance;
+                log.FacilityId = applianceId;
                 await _logService.CreateLog(log);
             }
             return appliance;

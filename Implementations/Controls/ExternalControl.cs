@@ -3,6 +3,7 @@ using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 namespace Home_Security.Implementations.Controls;
 public class ExternalControl : IExternalControl
 {
@@ -26,6 +27,7 @@ public class ExternalControl : IExternalControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
                 log.LogDetails = "A External was newly added. Awaiting Physical Interfacing!";
+                log.FacilityType = FacilityTypeApp.External;
                 await _logService.CreateLog(log);
             }
             return external;
@@ -43,6 +45,8 @@ public class ExternalControl : IExternalControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{updateExternalDto.ExternalName} External was recently updated!";
+                log.FacilityType = FacilityTypeApp.External;
+                log.FacilityId = updateExternalDto.Id;
                 await _logService.CreateLog(log);
             }
             return external;
@@ -153,6 +157,8 @@ public class ExternalControl : IExternalControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getExternal} External was Deleted!";
+                log.FacilityType = FacilityTypeApp.External;
+                log.FacilityId = externalId;
                 await _logService.CreateLog(log);
             }
             return external;

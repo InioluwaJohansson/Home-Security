@@ -4,6 +4,7 @@ using Home_Security.Implementations.Services;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 namespace Home_Security.Implementations.Controls;
 public class CameraControl : ICameraControl
 {
@@ -27,6 +28,7 @@ public class CameraControl : ICameraControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
                 log.LogDetails = "A Camera was newly added. Awaiting Physical Interfacing!";
+                log.FacilityType = FacilityTypeApp.Camera;
                 await _logService.CreateLog(log);
             }
             return camera;
@@ -44,6 +46,8 @@ public class CameraControl : ICameraControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{updateCameraDto.CameraName} Camera was recently updated!";
+                log.FacilityType = FacilityTypeApp.Action;
+                log.FacilityId = updateCameraDto.Id;
                 await _logService.CreateLog(log);
             }
             return camera;
@@ -191,6 +195,8 @@ public class CameraControl : ICameraControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getCamera} Camera was Deleted!";
+                log.FacilityType = FacilityTypeApp.Camera;
+                log.FacilityId = cameraId;
                 await _logService.CreateLog(log);
             }            
             return camera;

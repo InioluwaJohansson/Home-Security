@@ -29,6 +29,7 @@ public class WindowControl : IWindowControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
                 log.LogDetails = "A Window was newly added. Awaiting Physical Interfacing!";
+                log.FacilityType = FacilityTypeApp.Window;
                 await _logService.CreateLog(log);
                 return window;
             }
@@ -46,6 +47,8 @@ public class WindowControl : IWindowControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{updateWindowDto.WindowName} Window was recently updated!";
+                log.FacilityType = FacilityTypeApp.Window;
+                log.FacilityId = updateWindowDto.Id;
                 await _logService.CreateLog(log);
             }
             return window;
@@ -69,12 +72,16 @@ public class WindowControl : IWindowControl
                 updateWindowDto.IsOpen = false;
                 log.ActionType = "Closed";
                 log.LogDetails = $"{updateWindowDto.WindowName} Window is Closed!";
+                log.FacilityType = FacilityTypeApp.Window;
+                log.FacilityId = updateWindowDto.Id;
             }
             else if(getWindow != null && getWindow.Data.IsOpen == false && getWindow.Data.IsLocked == false)
             {
                 updateWindowDto.IsOpen = true;
                 log.ActionType = "Open";
                 log.LogDetails = $"{updateWindowDto.WindowName} Window is Open!";
+                log.FacilityType = FacilityTypeApp.Window;
+                log.FacilityId = updateWindowDto.Id;
             }
             updateWindowDto.UnlockedBy = auth.Id;
             var door = await _windowService.UpdateWindow(updateWindowDto, auth.Id);
@@ -103,6 +110,8 @@ public class WindowControl : IWindowControl
                         var log = _authControl.CreateLog(auth.Id);
                         log.ActionType = "Unlock";
                         log.LogDetails = $"{updateWindowDto.WindowName} Window was unlocked!";
+                        log.FacilityType = FacilityTypeApp.Window;
+                        log.FacilityId = updateWindowDto.Id;
                         await _logService.CreateLog(log);
                     }
                     return door;
@@ -121,6 +130,8 @@ public class WindowControl : IWindowControl
                     var log = _authControl.CreateLog(auth.Id);
                     log.ActionType = "Lock";
                     log.LogDetails = $"{updateWindowDto.WindowName} Window was locked!";
+                    log.FacilityType = FacilityTypeApp.Window;
+                    log.FacilityId = updateWindowDto.Id;
                     await _logService.CreateLog(log);
                 }
                 return door;
@@ -234,6 +245,8 @@ public class WindowControl : IWindowControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getWindow} Window was Deleted!";
+                log.FacilityType = FacilityTypeApp.Window;
+                log.FacilityId = windowId;
                 await _logService.CreateLog(log);
                 return window;
             }

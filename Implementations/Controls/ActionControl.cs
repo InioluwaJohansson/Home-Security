@@ -2,6 +2,7 @@ using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 namespace Home_Security.Implementations.Controls;
 public class ActionControl : IActionControl
 {
@@ -26,6 +27,7 @@ public class ActionControl : IActionControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
                 log.LogDetails = "An Action was newly added!";
+                log.FacilityType = FacilityTypeApp.Action;
                 await _logService.CreateLog(log);
             }
             return action;
@@ -43,6 +45,8 @@ public class ActionControl : IActionControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{updateActionDto.ActionName} Action was recently updated!";
+                log.FacilityType = FacilityTypeApp.Action;
+                log.FacilityId = updateActionDto.Id;
                 await _logService.CreateLog(log);
             }
             

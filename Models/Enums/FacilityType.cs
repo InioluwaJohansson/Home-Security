@@ -9,3 +9,17 @@ public enum FacilityType
     Light,
     Window
 }
+public enum FacilityTypeApp
+{
+    Person,
+    Appliance,
+    Camera,
+    Door,
+    External,
+    Light,
+    Window,
+    Hardware,
+    Action,
+    Room,
+    Section
+}

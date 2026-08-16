@@ -27,6 +27,8 @@ public class LogService : ILogService
                 TimeOfAction = DateTime.Now,
                 LogDetails = createLogDto.LogDetails,
                 ActionType = createLogDto.ActionType,
+                FacilityType = createLogDto.FacilityType,
+                FacilityId = createLogDto.FacilityId,
                 CreatedOn = DateTime.Now,
                 CreatedBy = createLogDto.PersonId,
                 LastModifiedBy = createLogDto.PersonId,
@@ -161,6 +163,8 @@ public class LogService : ILogService
             TimeOfAction = log.TimeOfAction,
             LogDetails = log.LogDetails,
             ActionType = log.ActionType,
+            FacilityId = log.FacilityId ?? 0,
+            FacilityType = log.FacilityType,
             GetPersonDto = getPerson,
         };
     }
