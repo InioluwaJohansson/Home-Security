@@ -1,6 +1,7 @@
 ﻿using Home_Security.Authentication;
 using Home_Security.Entities;
 using Home_Security.Interfaces.Repositories;
+using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 using Home_Security.Models.Enums;
@@ -10,26 +11,26 @@ namespace Home_Security.Implementations.Services;
 public class MicroControllerService : IMicroControllerService
 {
     IHardwareRepo _hardwareRepo;
-    IApplianceRepo _applianceRepo;
-    ILightRepo _lightRepo;
-    ICameraRepo _cameraRepo;
-    IDoorRepo _doorRepo;
-    IWindowRepo _windowRepo;
-    IExternalRepo _externalRepo;
+    IApplianceControl _applianceControl;
+    ILightControl _lightControl;
+    ICameraControl _cameraControl;
+    IDoorControl _doorControl;
+    IWindowControl _windowControl;
+    IExternalControl _externalControl;
     IActionService _actionService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqttService;
     IJWTAuthentication _jWTAuthentication;
     IConfiguration _configuration;
-    public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceRepo applianceRepo, ILightRepo lightRepo, ICameraRepo cameraRepo, IDoorRepo doorRepo, IWindowRepo windowRepo, IExternalRepo externalRepo, IActionService actionService, IRealtimeNotificationService realtime, IMqttService mqttService, IJWTAuthentication jWTAuthentication, IConfiguration configuration)
+    public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceControl applianceControl, ILightControl lightControl, ICameraControl cameraControl, IDoorControl doorControl, IWindowControl windowControl, IExternalControl externalControl, IActionService actionService, IRealtimeNotificationService realtime, IMqttService mqttService, IJWTAuthentication jWTAuthentication, IConfiguration configuration)
     {
         _hardwareRepo = hardwareRepo;
-        _applianceRepo = applianceRepo;
-        _lightRepo = lightRepo;
-        _cameraRepo = cameraRepo;
-        _doorRepo = doorRepo;
-        _windowRepo = windowRepo;
-        _externalRepo = externalRepo;
+        _applianceControl = applianceControl;
+        _lightControl = lightControl;
+        _cameraControl = cameraControl;
+        _doorControl = doorControl;
+        _windowControl = windowControl;
+        _externalControl = externalControl;
         _actionService = actionService;
         _realtime = realtime;
         _mqttService = mqttService;
@@ -120,11 +121,11 @@ public class MicroControllerService : IMicroControllerService
         switch (genericDeviceUpdateState.FacilityType)
         {
             case FacilityType.Appliance:
-                var appliance = await _applianceRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
+                var appliance = await _applianceControl.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (appliance != null)
                 {
                     appliance.IsActive = genericDeviceUpdateState.IsActive;
-                    await _applianceRepo.Update(appliance);
+                    await _applianceControl.Update(appliance);
                     await _realtime.NotifyAll("ApplianceUpdated", new
                     {
                         appliance.Id,
@@ -138,12 +139,12 @@ public class MicroControllerService : IMicroControllerService
                 }
                 break;
             case FacilityType.Light:
-                var light = await _lightRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
+                var light = await _lightControl.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (light != null)
                 {
                     light.BrightnessLevel = genericDeviceUpdateState.BrightnessLevel;
                     light.IsActive = genericDeviceUpdateState.IsActive;
-                    await _lightRepo.Update(light);
+                    await _lightControl.Update(light);
                     await _realtime.NotifyAll("LightUpdated", new
                     {
                         light.Id,
@@ -158,11 +159,11 @@ public class MicroControllerService : IMicroControllerService
                 }
                 break;
             case FacilityType.Camera:
-                var camera = await _cameraRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
+                var camera = await _cameraControl.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (camera != null)
                 {
                     camera.PowerActive = genericDeviceUpdateState.PowerActive;
-                    await _cameraRepo.Update(camera);
+                    await _cameraControl.Update(camera);
                     await _realtime.NotifyAll("CameraUpdated", new
                     {
                         camera.Id,
@@ -176,12 +177,12 @@ public class MicroControllerService : IMicroControllerService
                 }
                 break;
             case FacilityType.Window:
-                var window = await _windowRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
+                var window = await _windowControl.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (window != null)
                 {
                     window.IsOpen = genericDeviceUpdateState.IsOpen;
                     window.IsLocked = genericDeviceUpdateState.IsLocked;
-                    await _windowRepo.Update(window);
+                    await _windowControl.Update(window);
                     await _realtime.NotifyAll("WindowUpdated", new
                     {
                         window.Id,
@@ -196,12 +197,12 @@ public class MicroControllerService : IMicroControllerService
                 }
                 break;
             case FacilityType.Door:
-                var door = await _doorRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
+                var door = await _doorControl.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (door != null)
                 {
                     door.IsOpen = genericDeviceUpdateState.IsOpen;
                     door.IsLocked = genericDeviceUpdateState.IsLocked;
-                    await _doorRepo.Update(door);
+                    await _doorControl.Update(door);
                     await _realtime.NotifyAll("DoorUpdated", new
                     {
                         door.Id,
@@ -216,11 +217,11 @@ public class MicroControllerService : IMicroControllerService
                 }
                 break;
             case FacilityType.External:
-                var external = await _externalRepo.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
+                var external = await _externalControl.Get(x => x.Id == genericDeviceUpdateState.Id && x.IsDeleted == false);
                 if (external != null)
                 {
                     external.IsActive = genericDeviceUpdateState.IsActive;
-                    await _externalRepo.Update(external);
+                    await _externalControl.Update(external);
                     if (genericDeviceUpdateState.IsTriggered == true) await _actionService.TriggerActionsForExternal(external.Id);
                     return new BaseResponse()
                     {
@@ -241,7 +242,7 @@ public class MicroControllerService : IMicroControllerService
         var applianceDeviceStates = new List<ApplianceDeviceState>();
         foreach (var item in ApplianceIds)
         {
-            var appliance = await _applianceRepo.Get(x => x.Id == item && x.IsDeleted == false);
+            var appliance = await _applianceControl.Get(x => x.Id == item && x.IsDeleted == false);
             if (appliance != null)
             {
                 applianceDeviceStates.Add(new ApplianceDeviceState()
@@ -260,7 +261,7 @@ public class MicroControllerService : IMicroControllerService
         var lightDeviceStates = new List<LightDeviceState>();
         foreach (var item in LightIds)
         {
-            var light = await _lightRepo.Get(x => x.Id == item && x.IsDeleted == false);
+            var light = await _lightControl.Get(x => x.Id == item && x.IsDeleted == false);
             if (light != null)
             {
                 lightDeviceStates.Add(new LightDeviceState()
@@ -279,7 +280,7 @@ public class MicroControllerService : IMicroControllerService
         var cameraDeviceStates = new List<CameraDeviceState>();
         foreach (var item in CameraIds)
         {
-            var camera = await _cameraRepo.Get(x => x.Id == item && x.IsDeleted == false);
+            var camera = await _cameraControl.Get(x => x.Id == item && x.IsDeleted == false);
             if (camera != null)
             {
                 cameraDeviceStates.Add(new CameraDeviceState()
@@ -297,7 +298,7 @@ public class MicroControllerService : IMicroControllerService
         var windowDeviceStates = new List<WindowDeviceState>();
         foreach (var item in WindowIds)
         {
-            var window = await _windowRepo.Get(x => x.Id == item && x.IsDeleted == false);
+            var window = await _windowControl.Get(x => x.Id == item && x.IsDeleted == false);
             if (window != null)
             {
                 windowDeviceStates.Add(new WindowDeviceState()
@@ -316,7 +317,7 @@ public class MicroControllerService : IMicroControllerService
         var doorDeviceStates = new List<DoorDeviceState>();
         foreach (var item in DoorIds)
         {
-            var door = await _doorRepo.Get(x => x.Id == item && x.IsDeleted == false);
+            var door = await _doorControl.Get(x => x.Id == item && x.IsDeleted == false);
             if (door != null)
             {
                 doorDeviceStates.Add(new DoorDeviceState()
@@ -336,7 +337,7 @@ public class MicroControllerService : IMicroControllerService
         var externalDeviceStates = new List<ExternalDeviceState>();
         foreach (var item in ExternalIds)
         {
-            var external = await _externalRepo.Get(x => x.Id == item && x.IsDeleted == false);
+            var external = await _externalControl.Get(x => x.Id == item && x.IsDeleted == false);
             if (external != null)
             {
                 externalDeviceStates.Add(new ExternalDeviceState()
