@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Home_Security.Authentication;
+using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
@@ -15,14 +16,18 @@ public class MqttService : BackgroundService, IMqttService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<MqttService> _logger;
     private IMqttClient _client;
+    IFingerPrintService _fingerPrintService;
+    IJWTAuthentication _jWTAuthentication;
 
-    public MqttService(IConfiguration configuration, IServiceScopeFactory scopeFactory, ILogger<MqttService> logger)
+    public MqttService(IConfiguration configuration, IServiceScopeFactory scopeFactory, ILogger<MqttService> logger, IFingerPrintService fingerPrintService, IJWTAuthentication jWTAuthentication)
     {
         _configuration = configuration;
         _scopeFactory = scopeFactory;
         _logger = logger;
         var factory = new MqttFactory();
         _client = factory.CreateMqttClient();
+        _fingerPrintService = fingerPrintService;
+        _jWTAuthentication = jWTAuthentication;
     }
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -72,8 +77,15 @@ public class MqttService : BackgroundService, IMqttService
                         using var scope = _scopeFactory.CreateScope();
                         if (ValidateHardwareToken(update.Token) == true)
                         {
-                            var _microControllerService = scope.ServiceProvider.GetRequiredService<IMicroControllerService>();
-                            await _microControllerService.UpdateDeviceStates(update);
+                            var _microControllerService = scope.ServiceProvider.GetRequiredService<IMicroControllerControl>();
+                            var user = _jWTAuthentication.GetUserFromToken(update.Token);
+                            if (user == null){
+                                var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+                                    PersonId = user.PersonId,
+                                    AuthorizationCode = user.AuthorizationCode,
+                                };
+                            }
+                            await _microControllerService.UpdateDeviceStates(getAuthControlInfoDto, update);
                             _logger.LogInformation("DEVICE STATE UPDATED");
                         }
                         _logger.LogWarning("INVALID HARDWARE TOKEN");
@@ -92,7 +104,7 @@ public class MqttService : BackgroundService, IMqttService
                         using var scope = _scopeFactory.CreateScope();
                         if (ValidateHardwareToken(update.Token) == true)
                         {
-                            var _fingerPrintService = scope.ServiceProvider.GetRequiredService<IFingerPrintService>();
+                            // var _fingerPrintService = scope.ServiceProvider.GetRequiredService<IFingerPrintService>();
                             await _fingerPrintService.ReceiveFingerPrint(update);
                             _logger.LogInformation("FINGERPRINT DATA SENT");
                         }
@@ -112,7 +124,7 @@ public class MqttService : BackgroundService, IMqttService
                         using var scope = _scopeFactory.CreateScope();
                         if (ValidateHardwareToken(update.Token) == true)
                         {
-                            var _fingerPrintService = scope.ServiceProvider.GetRequiredService<IFingerPrintService>();
+                            // var _fingerPrintService = scope.ServiceProvider.GetRequiredService<IFingerPrintService>();
                             var data = await _fingerPrintService.VerifyFingerPrint(update.Data);
                             if(data.Status == true)
                             {
@@ -387,7 +399,7 @@ public class MqttService : BackgroundService, IMqttService
     private bool ValidateHardwareToken(string token)
     {
         using var scope = _scopeFactory.CreateScope();
-        var hardwareVerification = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
-        return hardwareVerification.ValidateHardwareToken(token);
+        // var hardwareVerification = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
+        return _jWTAuthentication.ValidateHardwareToken(token);
     }
 }

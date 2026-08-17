@@ -79,7 +79,7 @@ public class PersonControl : IPersonControl
                 log.ActionType = "Update";
                 log.LogDetails = $"{getPerson} Profile Address was recently updated!";
                 log.FacilityType = FacilityTypeApp.Person;
-                log.FacilityId = person;
+                log.FacilityId = auth.Id;
                 await _logService.CreateLog(log);
             }
             return person;
@@ -98,6 +98,8 @@ public class PersonControl : IPersonControl
                 var getPerson = _authControl.GetUserPersonName(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{getPerson} Profile Details was recently updated!";
+                log.FacilityType = FacilityTypeApp.Person;
+                log.FacilityId = auth.Id;
                 await _logService.CreateLog(log);
             }
             return person;
@@ -164,6 +166,8 @@ public class PersonControl : IPersonControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getPerson} Profile was Deleted!";
+                log.FacilityType = FacilityTypeApp.Person;
+                log.FacilityId = auth.Id;
                 await _logService.CreateLog(log);
             }
             return person;
@@ -188,6 +192,8 @@ public class PersonControl : IPersonControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Disable";
                 log.LogDetails = $"{getPerson} Profile was Disabled!";
+                log.FacilityType = FacilityTypeApp.Person;
+                log.FacilityId = personId;
                 await _logService.CreateLog(log);
             }
             return person;
@@ -212,6 +218,8 @@ public class PersonControl : IPersonControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getPerson} Person Detail was Deleted!";
+                log.FacilityType = FacilityTypeApp.Person;
+                log.FacilityId = auth.Id;
                 await _logService.CreateLog(log);
             }
             return person;
@@ -236,6 +244,8 @@ public class PersonControl : IPersonControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getPerson} Person Address was Deleted!";
+                log.FacilityType = FacilityTypeApp.Person;
+                log.FacilityId = auth.Id;
                 await _logService.CreateLog(log);
             }
             return person;
