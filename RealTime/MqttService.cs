@@ -84,9 +84,9 @@ public class MqttService : BackgroundService, IMqttService
                                     PersonId = user.PersonId,
                                     AuthorizationCode = user.AuthorizationCode,
                                 };
+                                await _microControllerService.UpdateDeviceStates(getAuthControlInfoDto, update);
+                                _logger.LogInformation("DEVICE STATE UPDATED");
                             }
-                            await _microControllerService.UpdateDeviceStates(getAuthControlInfoDto, update);
-                            _logger.LogInformation("DEVICE STATE UPDATED");
                         }
                         _logger.LogWarning("INVALID HARDWARE TOKEN");
                         return;
