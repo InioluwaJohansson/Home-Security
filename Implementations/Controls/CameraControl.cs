@@ -27,7 +27,7 @@ public class CameraControl : ICameraControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Camera was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = $"{createCameraDto.CameraName} Camera was newly added. Awaiting Physical Interfacing!";
                 log.FacilityType = FacilityTypeApp.Camera;
                 await _logService.CreateLog(log);
             }

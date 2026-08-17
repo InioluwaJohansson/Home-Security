@@ -26,7 +26,7 @@ public class SectionControl : ISectionControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Section was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = $"{createSectionDto.SectionName} Section was newly added. Awaiting Physical Interfacing!";
                 log.FacilityType = FacilityTypeApp.Section;
                 await _logService.CreateLog(log);
             }

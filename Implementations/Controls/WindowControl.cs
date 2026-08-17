@@ -28,7 +28,7 @@ public class WindowControl : IWindowControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Window was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = $"{createWindowDto.WindowName} Window was newly added. Awaiting Physical Interfacing!";
                 log.FacilityType = FacilityTypeApp.Window;
                 await _logService.CreateLog(log);
                 return window;

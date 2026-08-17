@@ -26,7 +26,7 @@ public class PersonControl : IPersonControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Person Profile was newly added!";
+                log.LogDetails = $"{createPersonDto.CreatePersonDetailsDto.FirstName} {createPersonDto.CreatePersonDetailsDto.LastName} Profile was newly added!";
                 log.FacilityType = FacilityTypeApp.Person;
                 await _logService.CreateLog(log);
             }
@@ -39,7 +39,7 @@ public class PersonControl : IPersonControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Person Profile was newly added!";
+                log.LogDetails = $"{createPersonDto.CreatePersonDetailsDto.FirstName} {createPersonDto.CreatePersonDetailsDto.LastName} Profile was newly added!";
                 log.FacilityType = FacilityTypeApp.Person;
                 await _logService.CreateLog(log);
             }

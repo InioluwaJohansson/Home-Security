@@ -26,7 +26,7 @@ public class RoomControl : IRoomControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Room was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = $"{createRoomDto.RoomName} Room was newly added. Awaiting Physical Interfacing!";
                 log.FacilityType = FacilityTypeApp.Room;
                 await _logService.CreateLog(log);
             }

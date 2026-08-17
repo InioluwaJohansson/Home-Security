@@ -4,6 +4,7 @@ using Home_Security.Implementations.Services;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 namespace Home_Security.Implementations.Controls;
 public class ContactControl : IContactControl
 {
@@ -27,7 +28,8 @@ public class ContactControl : IContactControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Contact Category was newly added!";
+                log.LogDetails = $"{createContactDto.FirstName} {createContactDto.LastName} Contact was newly added!";
+                log.FacilityType = FacilityTypeApp.Contact;
                 await _logService.CreateLog(log);
             }
             return contact;
@@ -46,6 +48,8 @@ public class ContactControl : IContactControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{updateContactDto.FirstName} {updateContactDto.LastName} Contact was recently updated!";
+                log.FacilityType = FacilityTypeApp.Contact;
+                log.FacilityId = updateContactDto.Id;
                 await _logService.CreateLog(log);
             }
             return contact;
@@ -184,6 +188,8 @@ public class ContactControl : IContactControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getContact} Contact was Deleted!";
+                log.FacilityType = FacilityTypeApp.Contact;
+                log.FacilityId = contactId;
                 await _logService.CreateLog(log);
             }
             return contact;
@@ -208,6 +214,8 @@ public class ContactControl : IContactControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getContact} Contact Detail was Deleted!";
+                log.FacilityType = FacilityTypeApp.Contact;
+                log.FacilityId = contactId;
                 await _logService.CreateLog(log);
             }
             return contact;
@@ -232,6 +240,8 @@ public class ContactControl : IContactControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getContact} Contact Address was Deleted!";
+                log.FacilityType = FacilityTypeApp.Contact;
+                log.FacilityId = contactId;
                 await _logService.CreateLog(log);
             }
             return contact;

@@ -25,7 +25,7 @@ public class ApplianceControl : IApplianceControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "An Appliance was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = $"{createApplianceDto.ApplianceName} Appliance was newly added. Awaiting Physical Interfacing!";
                 log.FacilityType = FacilityTypeApp.Appliance;
                 await _logService.CreateLog(log);
             }

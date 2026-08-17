@@ -26,7 +26,7 @@ public class ExternalControl : IExternalControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A External was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = $"{createExternalDto.ExternalName} External was newly added. Awaiting Physical Interfacing!";
                 log.FacilityType = FacilityTypeApp.External;
                 await _logService.CreateLog(log);
             }

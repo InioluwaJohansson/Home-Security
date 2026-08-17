@@ -26,7 +26,7 @@ public class LightControl : ILightControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Light was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = $"{createLightDto.LightName} Light was newly added. Awaiting Physical Interfacing!";
                 log.FacilityType = FacilityTypeApp.Light;
                 await _logService.CreateLog(log);
             }

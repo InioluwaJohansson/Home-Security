@@ -26,7 +26,7 @@ public class DoorControl : IDoorControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Door was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = $"{createDoorDto.DoorName} Door was newly added. Awaiting Physical Interfacing!";
                 log.FacilityType = FacilityTypeApp.Door;
                 await _logService.CreateLog(log);
             }

@@ -4,6 +4,7 @@ using Home_Security.Implementations.Services;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 namespace Home_Security.Implementations.Controls;
 public class ContactCategoryControl : IContactCategoryControl
 {
@@ -26,7 +27,8 @@ public class ContactCategoryControl : IContactCategoryControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Contact Category was newly added!";
+                log.LogDetails = $"{createContactCategoryDto.Name} Contact Category was newly added!";
+                log.FacilityType = FacilityTypeApp.ContactCategory;
                 await _logService.CreateLog(log);
             }
             return contactCategory;
@@ -44,6 +46,8 @@ public class ContactCategoryControl : IContactCategoryControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{updateContactCategoryDto.Name} Contact Category was recently updated!";
+                log.FacilityType = FacilityTypeApp.ContactCategory;
+                log.FacilityId = updateContactCategoryDto.Id;
                 await _logService.CreateLog(log);
             }
             return contactCategory;
@@ -110,6 +114,8 @@ public class ContactCategoryControl : IContactCategoryControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getContactCategory} Contact Category was Deleted!";
+                log.FacilityType = FacilityTypeApp.ContactCategory;
+                log.FacilityId = contactCategoryId;
                 await _logService.CreateLog(log);
             }
             return contactCategory;

@@ -26,7 +26,7 @@ public class ActionControl : IActionControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "An Action was newly added!";
+                log.LogDetails = $"{createActionDto.ActionName} Action was newly added!";
                 log.FacilityType = FacilityTypeApp.Action;
                 await _logService.CreateLog(log);
             }
