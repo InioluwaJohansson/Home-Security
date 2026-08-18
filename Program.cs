@@ -90,6 +90,7 @@ builder.Services.AddScoped<IFingerPrintControl, FingerPrintControl>();
 builder.Services.AddScoped<IHardwareControl, HardwareControl>();
 builder.Services.AddScoped<ILightControl, LightControl>();
 builder.Services.AddScoped<ILogControl, LogControl>();
+builder.Services.AddScoped<IMicroControllerControl, MicroControllerControl>();
 builder.Services.AddScoped<IPersonControl, PersonControl>();
 builder.Services.AddScoped<IRoomControl, RoomControl>();
 builder.Services.AddScoped<ISectionControl, SectionControl>();

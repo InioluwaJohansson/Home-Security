@@ -7,12 +7,10 @@ public class FingerPrintControl : IFingerPrintControl
 {
     IAuthControl _authControl;
     IFingerPrintService _fingerPrintService;
-    ILogService _logService;
-    public FingerPrintControl(IAuthControl authControl, IFingerPrintService fingerPrintService, ILogService logService)
+    public FingerPrintControl(IAuthControl authControl, IFingerPrintService fingerPrintService)
     {
         _authControl = authControl;
         _fingerPrintService = fingerPrintService;
-        _logService = logService;
     }
     public async Task<BaseResponse> CreateFingerPrint(GetAuthControlInfoDto getAuthControlInfoDto, CreateFingerPrintDto createFingerPrintDto)
     {

@@ -1,5 +1,6 @@
 ﻿using BCrypt.Net;
 using Home_Security.Authentication;
+using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
@@ -27,7 +28,7 @@ public class UserService : IUserService
         log.ActionType = "Attempted Login";
         log.LogDetails = $"{user.UserName} attempted to login!";
         await _logService.CreateLog(log);
-        if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password))
+        if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password) && user.UserRole.Role != Role.System)
         {
             var data = new UserLoginResponse()
             {
@@ -57,7 +58,7 @@ public class UserService : IUserService
     public async Task<UserLoginResponse> NFIDLogin(string token, string NFIDCode)
     {
         var users = await _userRepo.GetByExpression(x => !x.IsDeleted);
-        if(users != null && _jWTAuthentication.ValidateHardwareToken(token) == true)
+        if(users != null && _jWTAuthentication.ValidateHardwareToken(token)?.Status == true)
         {
             foreach(var user in users)
             {

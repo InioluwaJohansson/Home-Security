@@ -48,3 +48,14 @@ public class UserLoginResponse : BaseResponse
     public string Token { get; set; }
     public string ImageUrl { get; set; }
 }
+public class GetHardwareDataDto : BaseResponse
+{
+    public int Id { get; set; }
+    public string UserName { get; set; }
+    public string RoleName { get; set; }
+    public Role Role { get; set; }
+    public int PersonId { get; set; }
+    public string AuthorizationCode { get; set; }
+    public string HardwareId { get; set; }
+    public string AuthKey { get; set; }
+}

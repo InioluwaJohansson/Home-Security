@@ -400,6 +400,6 @@ public class MqttService : BackgroundService, IMqttService
     {
         using var scope = _scopeFactory.CreateScope();
         // var hardwareVerification = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
-        return _jWTAuthentication.ValidateHardwareToken(token);
+        return _jWTAuthentication.ValidateHardwareToken(token)?.Status ?? false;
     }
 }

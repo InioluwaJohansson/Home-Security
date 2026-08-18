@@ -1,5 +1,6 @@
 ﻿using Home_Security.Authentication;
 using Home_Security.Entities;
+using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Interfaces.Services;
@@ -10,6 +11,8 @@ using Home_Security.RealTimeServices;
 namespace Home_Security.Implementations.Services;
 public class MicroControllerService : IMicroControllerService
 {
+    IUserRepo _userRepo;
+    IPersonRepo _personRepo;
     IHardwareRepo _hardwareRepo;
     IApplianceService _applianceService;
     ILightService _lightService;
@@ -21,8 +24,10 @@ public class MicroControllerService : IMicroControllerService
     IMqttService _mqttService;
     IJWTAuthentication _jWTAuthentication;
     IConfiguration _configuration;
-    public MicroControllerService(IHardwareRepo hardwareRepo, IApplianceService applianceService, ILightService lightService, ICameraService cameraService, IDoorService doorService, IWindowService windowService, IExternalService externalService, IActionService actionService, IMqttService mqttService, IJWTAuthentication jWTAuthentication, IConfiguration configuration)
+    public MicroControllerService(IUserRepo userRepo, IPersonRepo personRepo, IHardwareRepo hardwareRepo, IApplianceService applianceService, ILightService lightService, ICameraService cameraService, IDoorService doorService, IWindowService windowService, IExternalService externalService, IActionService actionService, IMqttService mqttService, IJWTAuthentication jWTAuthentication, IConfiguration configuration)
     {
+        _userRepo = userRepo;
+        _personRepo = personRepo;
         _hardwareRepo = hardwareRepo;
         _applianceService = applianceService;
         _lightService = lightService;
@@ -44,10 +49,10 @@ public class MicroControllerService : IMicroControllerService
             {
                 Data = new MTTQData()
                 {
-                    Host = _configuration["Mqtt:HostLenovo"] ?? _configuration["Mqtt:HostDell"] ?? _configuration["Mqtt:Host"],
-                    Port = _configuration["Mqtt:Port"],
-                    Username = _configuration["Mqtt:Username"],
-                    Password = _configuration["Mqtt:Password"],
+                    Host = _configuration["Mqtt:HostLenovo"] ?? _configuration["Mqtt:HostDell"] ?? _configuration["Mqtt:Host"] ?? "",
+                    Port = _configuration["Mqtt:Port"] ?? "",
+                    Username = _configuration["Mqtt:Username"] ?? "",
+                    Password = _configuration["Mqtt:Password"] ?? "",
                 },
                 Status = true,
                 Message = "Data Retrieved"
@@ -65,18 +70,36 @@ public class MicroControllerService : IMicroControllerService
         {
             hardware.IsActive = true;
             await _hardwareRepo.Update(hardware);
-            var state = new GenericDeviceState()
+            var users = await _userRepo.GetAllUsers();
+            if (users != null)
             {
-                ApplianceDeviceStates = await GetApplianceDeviceStates(hardware.ApplianceIds) ?? new List<ApplianceDeviceState>(),
-                LightDeviceStates = await GetLightDeviceStates(hardware.LightIds) ?? new List<LightDeviceState>(),
-                CameraDeviceStates = await GetCameraDeviceStates(hardware.CameraIds) ?? new List<CameraDeviceState>(),
-                WindowDeviceStates = await GetWindowDeviceStates(hardware.WindowIds) ?? new List<WindowDeviceState>(),
-                DoorDeviceStates = await GetDoorDeviceStates(hardware.DoorIds) ?? new List<DoorDeviceState>(),
-                ExternalDeviceStates = await GetExternalDeviceStates(hardware.ExternalIds) ?? new List<ExternalDeviceState>(),
-                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-                Token = _jWTAuthentication.GenerateHardwareToken(hardware.HardwareId, hardware.AuthKey)
-            };
-            return state;
+                var system = users.FirstOrDefault(x => x.UserRole.Role == Role.System);
+                if (system != null)
+                {
+                    var state = new GenericDeviceState()
+                    {
+                        ApplianceDeviceStates = await GetApplianceDeviceStates(hardware.ApplianceIds) ?? new List<ApplianceDeviceState>(),
+                        LightDeviceStates = await GetLightDeviceStates(hardware.LightIds) ?? new List<LightDeviceState>(),
+                        CameraDeviceStates = await GetCameraDeviceStates(hardware.CameraIds) ?? new List<CameraDeviceState>(),
+                        WindowDeviceStates = await GetWindowDeviceStates(hardware.WindowIds) ?? new List<WindowDeviceState>(),
+                        DoorDeviceStates = await GetDoorDeviceStates(hardware.DoorIds) ?? new List<DoorDeviceState>(),
+                        ExternalDeviceStates = await GetExternalDeviceStates(hardware.ExternalIds) ?? new List<ExternalDeviceState>(),
+                        Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                        Token = _jWTAuthentication.GenerateHardwareToken(new GetHardwareDataDto
+                        {
+                            HardwareId = hardware.HardwareId,
+                            AuthKey = hardware.AuthKey,
+                            Id = system.Id,
+                            PersonId = (await _personRepo.Get(x => x.UserId == system.Id))?.Id ?? 0,
+                            UserName = system.UserName,
+                            RoleName = system.UserRole.Role.ToString(),
+                            Role = system.UserRole.Role,
+                            AuthorizationCode = system.AuthorizationCode,
+                        })
+                    };
+                    return state;
+                }
+            }
         }
         var emptyState = new GenericDeviceState()
         {
