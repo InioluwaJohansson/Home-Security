@@ -16,18 +16,15 @@ public class MqttService : BackgroundService, IMqttService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<MqttService> _logger;
     private IMqttClient _client;
-    IFingerPrintService _fingerPrintService;
-    IJWTAuthentication _jWTAuthentication;
 
-    public MqttService(IConfiguration configuration, IServiceScopeFactory scopeFactory, ILogger<MqttService> logger, IFingerPrintService fingerPrintService, IJWTAuthentication jWTAuthentication)
+    public MqttService(IConfiguration configuration, IServiceScopeFactory scopeFactory, ILogger<MqttService> logger)
     {
         _configuration = configuration;
         _scopeFactory = scopeFactory;
         _logger = logger;
         var factory = new MqttFactory();
         _client = factory.CreateMqttClient();
-        _fingerPrintService = fingerPrintService;
-        _jWTAuthentication = jWTAuthentication;
+
     }
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -75,12 +72,14 @@ public class MqttService : BackgroundService, IMqttService
                     if (update != null)
                     {
                         using var scope = _scopeFactory.CreateScope();
-                        if (ValidateHardwareToken(update.Token) == true)
+                        var user = ValidateHardwareToken(update.Token);
+                        if (user.Status == true)
                         {
                             var _microControllerService = scope.ServiceProvider.GetRequiredService<IMicroControllerControl>();
-                            var user = _jWTAuthentication.GetUserFromToken(update.Token);
-                            if (user == null){
-                                var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+                            if (user == null)
+                            {
+                                var getAuthControlInfoDto = new GetAuthControlInfoDto()
+                                {
                                     PersonId = user.PersonId,
                                     AuthorizationCode = user.AuthorizationCode,
                                 };
@@ -102,9 +101,9 @@ public class MqttService : BackgroundService, IMqttService
                     if (update != null)
                     {
                         using var scope = _scopeFactory.CreateScope();
-                        if (ValidateHardwareToken(update.Token) == true)
+                        if (ValidateHardwareToken(update.Token).Status == true)
                         {
-                            // var _fingerPrintService = scope.ServiceProvider.GetRequiredService<IFingerPrintService>();
+                            var _fingerPrintService = scope.ServiceProvider.GetRequiredService<IFingerPrintService>();
                             await _fingerPrintService.ReceiveFingerPrint(update);
                             _logger.LogInformation("FINGERPRINT DATA SENT");
                         }
@@ -122,9 +121,9 @@ public class MqttService : BackgroundService, IMqttService
                     if (update != null)
                     {
                         using var scope = _scopeFactory.CreateScope();
-                        if (ValidateHardwareToken(update.Token) == true)
+                        if (ValidateHardwareToken(update.Token).Status == true)
                         {
-                            // var _fingerPrintService = scope.ServiceProvider.GetRequiredService<IFingerPrintService>();
+                            var _fingerPrintService = scope.ServiceProvider.GetRequiredService<IFingerPrintService>();
                             var data = await _fingerPrintService.VerifyFingerPrint(update.Data);
                             if(data.Status == true)
                             {
@@ -152,7 +151,7 @@ public class MqttService : BackgroundService, IMqttService
                     if (update != null)
                     {
                         using var scope = _scopeFactory.CreateScope();
-                        if (ValidateHardwareToken(update.Token) == true)
+                        if (ValidateHardwareToken(update.Token).Status == true)
                         {
                             var _hardwareRepo = scope.ServiceProvider.GetRequiredService<IHardwareRepo>();
                             var hardware = await _hardwareRepo.Get(h => h.HardwareId == update.HardwareId);
@@ -179,7 +178,7 @@ public class MqttService : BackgroundService, IMqttService
                     if (update != null)
                     {
                         using var scope = _scopeFactory.CreateScope();
-                        if (ValidateHardwareToken(update.Token) == true)
+                        if (ValidateHardwareToken(update.Token).Status == true)
                         {
                             var _userService = scope.ServiceProvider.GetRequiredService<IUserService>();
                             var response = await _userService.NFIDLogin(update.Token,update.NFIDCode);
@@ -396,10 +395,10 @@ public class MqttService : BackgroundService, IMqttService
         await _client.PublishAsync(message);
         _logger.LogInformation("MQTT MESSAGE PUBLISHED | Topic: {Topic}", topic);
     }
-    private bool ValidateHardwareToken(string token)
+    private GetHardwareDataDto ValidateHardwareToken(string token)
     {
         using var scope = _scopeFactory.CreateScope();
-        // var hardwareVerification = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
-        return _jWTAuthentication.ValidateHardwareToken(token)?.Status ?? false;
+        var _jWTAuthentication = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
+        return _jWTAuthentication.ValidateHardwareToken(token) ?? null;
     }
 }

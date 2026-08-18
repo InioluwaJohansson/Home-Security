@@ -73,9 +73,10 @@ public class PersonService : IPersonService
                 CreatedOn = DateTime.Now,
                 LastModifiedOn = DateTime.Now,
             };
-            await _personRepo.Create(person);
-            var personData = await _personRepo.Get(x => x.PersonId == person.PersonId);
-            await _realTime.NotifyAll("PersonCreated", GetDetails(await _personRepo.GetById(personData.Id)));
+            person = await _personRepo.Create(person);
+            getUser.PersonId = person.Id;
+            await _userRepo.Update(getUser);
+            await _realTime.NotifyAll("PersonCreated", GetDetails(await _personRepo.GetById(person.Id)));
             return new BaseResponse()
             {
                 Status = true,
@@ -98,7 +99,7 @@ public class PersonService : IPersonService
             person.CameraIds = updatePersonDto.CameraIds ?? person.CameraIds;
             person.PersonDetails.FirstName = updatePersonDto.UpdatePersonDetailsDto.FirstName ?? person.PersonDetails.FirstName;
             person.PersonDetails.LastName = updatePersonDto.UpdatePersonDetailsDto.LastName ?? person.PersonDetails.LastName;
-            person.PersonDetails.ImageUrl = await GetImageUrl(updatePersonDto.UpdatePersonDetailsDto.ImageUrl) ?? person.PersonDetails.ImageUrl;
+            person.PersonDetails.ImageUrl = await GetImageUrl(updatePersonDto.UpdatePersonDetailsDto.ImageUrl) ?? person.PersonDetails.ImageUrl ?? null;
             person.PersonDetails.Age = DateTime.Now.Year - person.PersonDetails.DateOfBirth.Year;
             person.LastModifiedOn = DateTime.Now;
             await _personRepo.Update(person);
