@@ -1334,6 +1334,12 @@ namespace Home_Security.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("FacilityId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacilityType")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
 
