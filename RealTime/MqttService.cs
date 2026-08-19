@@ -76,7 +76,7 @@ public class MqttService : BackgroundService, IMqttService
                         if (user.Status == true)
                         {
                             var _microControllerService = scope.ServiceProvider.GetRequiredService<IMicroControllerControl>();
-                            if (user == null)
+                            if (user != null)
                             {
                                 var getAuthControlInfoDto = new GetAuthControlInfoDto()
                                 {
