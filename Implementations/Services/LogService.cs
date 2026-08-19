@@ -164,7 +164,7 @@ public class LogService : ILogService
             LogDetails = log.LogDetails,
             ActionType = log.ActionType,
             FacilityId = log.FacilityId ?? 0,
-            FacilityType = log.FacilityType,
+            FacilityType = log.FacilityType.ToString(),
             GetPersonDto = getPerson,
         };
     }

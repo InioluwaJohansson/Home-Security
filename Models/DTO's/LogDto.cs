@@ -17,7 +17,7 @@ public class GetLogDto
     public string ActionType { get; set; }
     public DateTime TimeOfAction { get; set; }
     public string LogDetails { get; set; }
-    public FacilityTypeApp FacilityType { get; set;}
+    public string FacilityType { get; set;}
     public int FacilityId { get; set; }
 }
 public class LogResponseModel : BaseResponse

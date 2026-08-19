@@ -145,6 +145,8 @@ public class ActionControl : IActionControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getAction} Action was Deleted!";
+                log.FacilityType = FacilityTypeApp.Action;
+                log.FacilityId = actionId;
                 await _logService.CreateLog(log);
             }
             return action;

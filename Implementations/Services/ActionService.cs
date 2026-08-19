@@ -262,6 +262,8 @@ public class ActionService : IActionService
                     appliance.IsActive = actionStep.IsActive;
                     await _applianceService.UpdateAppliance(appliance, action.PersonId);
                     log.PersonId = action.PersonId;
+                    log.FacilityId = appliance.Id;
+                    log.FacilityType = FacilityTypeApp.Appliance;
                     log.LogDetails = "Appliance Triggered by Sensor or User";
                     log.ActionType = "Appliance Activated";
                     await _logService.CreateLog(log);
@@ -273,6 +275,8 @@ public class ActionService : IActionService
                     camera.IsActive = actionStep.IsActive;
                     await _cameraService.UpdateCamera(camera, action.PersonId);
                     log.PersonId = action.PersonId;
+                    log.FacilityId = camera.Id;
+                    log.FacilityType = FacilityTypeApp.Camera;
                     log.LogDetails = "Camera Triggered by Sensor or User";
                     log.ActionType = "Camera Activated";
                     await _logService.CreateLog(log);
@@ -285,6 +289,8 @@ public class ActionService : IActionService
                     light.IsActive = actionStep.IsActive;
                     await _lightService.UpdateLight(light, action.PersonId);
                     log.PersonId = action.PersonId;
+                    log.FacilityId = light.Id;
+                    log.FacilityType = FacilityTypeApp.Light;
                     log.LogDetails = "Light Triggered by Sensor or User";
                     log.ActionType = "Light Activated";
                     await _logService.CreateLog(log);
@@ -296,6 +302,8 @@ public class ActionService : IActionService
                     external.IsActive = actionStep.IsActive;
                     await _externalService.UpdateExternal(external, action.PersonId);
                     log.PersonId = action.PersonId;
+                    log.FacilityId = external.Id;
+                    log.FacilityType = FacilityTypeApp.External;
                     log.LogDetails = "External Triggered by Sersor or User";
                     log.ActionType = "External Activated";
                     await _logService.CreateLog(log);
@@ -308,6 +316,8 @@ public class ActionService : IActionService
                     door.IsLocked = actionStep.IsLocked;
                     await _doorService.UpdateDoor(door, action.PersonId);
                     log.PersonId = action.PersonId;
+                    log.FacilityId = door.Id;
+                    log.FacilityType = FacilityTypeApp.Door;
                     log.LogDetails = "Door Triggered by Sensor or User";
                     log.ActionType = "Door Activated";
                     await _logService.CreateLog(log);
@@ -320,12 +330,17 @@ public class ActionService : IActionService
                     window.IsLocked = actionStep.IsLocked;
                     await _windowService.UpdateWindow(window, action.PersonId);
                     log.PersonId = action.PersonId;
+                    log.FacilityId = window.Id;
+                    log.FacilityType = FacilityTypeApp.Window;
                     log.LogDetails = "Window Triggered by Sensor or User";
                     log.ActionType = "Window Activated";
                     await _logService.CreateLog(log);
                 }
             }
             log.PersonId = action.PersonId;
+            log.ActionType = "Update";
+            log.FacilityId = actionId;
+            log.FacilityType = FacilityTypeApp.Action;
             log.LogDetails = "Action Triggered by Sensor or User";
             log.ActionType = "Action Activated";
             await _logService.CreateLog(log);
