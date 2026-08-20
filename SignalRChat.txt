@@ -702,3 +702,27 @@ After implementation, provide a concise summary of:
 * How incoming signaling messages are handled.
 * How one-to-one and group calls are handled.
 * Any assumptions or remaining backend changes required.
+
+
+For the door
+Lock
+PUT /Door/LockDoor?id={id}
+Unlock
+PUT /Door/LockDoor?id={id}
+Open
+PUT /Door/UnlockDoor?id={id}
+Close
+PUT /Door/UnlockDoor?id={id}
+For the window
+Lock
+PUT /Window/LockWindow?id={id}
+Unlock
+PUT /Window/LockWindow?id={id}
+Open
+PUT /Window/UnlockWindow?id={id}
+Close
+PUT /Window/UnlockWindow?id={id}
+This is what they should call not the close or lock calling the update url. Simple Do this immediately
+
+
+For the door
