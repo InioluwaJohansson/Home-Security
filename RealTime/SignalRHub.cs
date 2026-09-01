@@ -87,6 +87,9 @@ public class HomeSecurityHub : Hub
         if(user != null){
             var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
             if(auth.Status != false){
+
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, auth.Role.ToString());
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, auth.Id.ToString());
                 await Clients.All.SendAsync("HighLevelLogOut");
             }
         }
@@ -101,12 +104,6 @@ public class HomeSecurityHub : Hub
             }
         }
     }
-    public void AddPerson(string token)
-    {
-
-    }
-
-    //Chats
     public async Task JoinChat(int chatId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, chatId.ToString());
