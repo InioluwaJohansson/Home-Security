@@ -129,7 +129,7 @@ public class CameraStreamingService : ICameraStreamingService
             $"-hls_flags delete_segments+append_list " +
             $"\"{hlsOutput}\" " +
             $"-map 0:v " + $"-c:v copy " + $"-f segment " +
-            $"-segment_time 300 " + $"-reset_timestamps 1 " + $"-strftime 1 " + $"\"{recordingOutput}\"";
+            $"-segment_time {60 * Double.Parse(_FFmpeg["RecordingTimeMinutes"])} " + $"-reset_timestamps 1 " + $"-strftime 1 " + $"\"{recordingOutput}\"";
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
