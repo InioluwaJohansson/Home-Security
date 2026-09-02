@@ -27,7 +27,7 @@ public class PersonService : IPersonService
     public async Task<BaseResponse> CreatePerson(CreatePersonDto createPersonDto)
     {
         var checkUser = await _userRepo.Get(x => x.UserName == createPersonDto.CreateUserDto.UserName);
-        if (checkUser == null)
+        if (checkUser == null && createPersonDto.CreateUserDto.Role != Role.System)
         {
             var NFID = $"NFID{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16).ToUpper()}";
             var user = new User()

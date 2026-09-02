@@ -310,13 +310,18 @@ public class ActionService : IActionService
                 }
                 if(actionStep.FacilityType == FacilityType.Door)
                 {
-                    var door = new UpdateDoorDto();
-                    door.Id = actionStep.FacilityTypeId;
-                    door.IsOpen = actionStep.IsOpen;
-                    door.IsLocked = actionStep.IsLocked;
-                    await _doorService.UpdateDoor(door, action.PersonId);
+                    var getDoor = await _doorService.GetById(actionStep.FacilityTypeId);
+                    if(getDoor.Status == true)
+                    {
+                        var door = new UpdateDoorDto();
+                        door.Id = actionStep.FacilityTypeId;
+                        door.IsOpen = actionStep.IsOpen;
+                        door.IsLocked = actionStep.IsLocked;
+                        door.DoorType = Enum.Parse<DoorType>(getDoor.Data.DoorType, true);
+                        await _doorService.UpdateDoor(door, action.PersonId);
+                    }
                     log.PersonId = action.PersonId;
-                    log.FacilityId = door.Id;
+                    log.FacilityId = getDoor.Data.Id;
                     log.FacilityType = FacilityTypeApp.Door;
                     log.LogDetails = "Door Triggered by Sensor or User";
                     log.ActionType = "Door Activated";
