@@ -35,6 +35,25 @@ public class ActionService : IActionService
         _logService = logService;
         _realtime = realtime;
     }
+    public async Task RunAllReccuringActions(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            var actions = await _actionRepo.GetByExpression(x => x.IsRecurring);
+            if(actions != null)
+            {
+                foreach(var action in actions)
+                {
+                    var date = DateTime.UtcNow;
+                    if(((date.TimeOfDay - action.Time) <= (date.TimeOfDay + TimeSpan.FromMinutes(2))) && action.LastRunDate.Date != date.Date){
+                        action.LastRunDate = DateTime.Now;
+                        await TriggerActions(action.Id);
+                    }
+                }
+            }
+            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+        }
+    }
     public async Task<BaseResponse> CreateAction(CreateActionDto createActionDto, int personId)
     {
         if(createActionDto != null)
@@ -43,6 +62,9 @@ public class ActionService : IActionService
             {
                 ActionName = createActionDto.ActionName,
                 Description = createActionDto.Description,
+                IsRecurring = createActionDto.IsRecurring,
+                IsPrivate = createActionDto.IsPrivate,
+                Time = createActionDto.Time,
                 ActionId = $"ACTION{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 PersonId = personId,
                 CreatedBy = personId,
@@ -53,6 +75,10 @@ public class ActionService : IActionService
             };
             await _actionRepo.Create(action);
             var actionData = GetDetails(await _actionRepo.Get(x => x.ActionId == action.ActionId));
+            if(action.IsPrivate){
+                await _realtime.NotifyAll("ActionCreated", action.PersonId, actionData);
+                await _realtime.NotifyAll("ActionCreated", new List<Role> { Role.Owner }, actionData);
+            }
             await _realtime.NotifyAll("ActionCreated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, actionData);
             return new BaseResponse
             {
@@ -74,6 +100,9 @@ public class ActionService : IActionService
         {
             action.ActionName = updateActionDto.ActionName ?? action.ActionName;
             action.Description = updateActionDto.Description ?? action.Description;
+            action.IsPrivate = updateActionDto.IsPrivate;
+            action.IsRecurring = updateActionDto.IsRecurring;
+            action.Time = updateActionDto.Time;
             action.LastModifiedBy = personId;
             action.LastModifiedOn = DateTime.UtcNow;
             await _actionRepo.Update(action);
@@ -140,7 +169,7 @@ public class ActionService : IActionService
     }
     public async Task<ActionsResponseModel> GetAllActions()
     {
-        var actions = await _actionRepo.GetAllActions();
+        var actions =(await _actionRepo.GetAllActions()).ToList();
         if (actions != null)
         {
             return new ActionsResponseModel
@@ -233,6 +262,8 @@ public class ActionService : IActionService
                     appliance.IsActive = actionStep.IsActive;
                     await _applianceService.UpdateAppliance(appliance, action.PersonId);
                     log.PersonId = action.PersonId;
+                    log.FacilityId = appliance.Id;
+                    log.FacilityType = FacilityTypeApp.Appliance;
                     log.LogDetails = "Appliance Triggered by Sensor or User";
                     log.ActionType = "Appliance Activated";
                     await _logService.CreateLog(log);
@@ -244,6 +275,8 @@ public class ActionService : IActionService
                     camera.IsActive = actionStep.IsActive;
                     await _cameraService.UpdateCamera(camera, action.PersonId);
                     log.PersonId = action.PersonId;
+                    log.FacilityId = camera.Id;
+                    log.FacilityType = FacilityTypeApp.Camera;
                     log.LogDetails = "Camera Triggered by Sensor or User";
                     log.ActionType = "Camera Activated";
                     await _logService.CreateLog(log);
@@ -256,6 +289,8 @@ public class ActionService : IActionService
                     light.IsActive = actionStep.IsActive;
                     await _lightService.UpdateLight(light, action.PersonId);
                     log.PersonId = action.PersonId;
+                    log.FacilityId = light.Id;
+                    log.FacilityType = FacilityTypeApp.Light;
                     log.LogDetails = "Light Triggered by Sensor or User";
                     log.ActionType = "Light Activated";
                     await _logService.CreateLog(log);
@@ -267,18 +302,27 @@ public class ActionService : IActionService
                     external.IsActive = actionStep.IsActive;
                     await _externalService.UpdateExternal(external, action.PersonId);
                     log.PersonId = action.PersonId;
+                    log.FacilityId = external.Id;
+                    log.FacilityType = FacilityTypeApp.External;
                     log.LogDetails = "External Triggered by Sersor or User";
                     log.ActionType = "External Activated";
                     await _logService.CreateLog(log);
                 }
                 if(actionStep.FacilityType == FacilityType.Door)
                 {
-                    var door = new UpdateDoorDto();
-                    door.Id = actionStep.FacilityTypeId;
-                    door.IsOpen = actionStep.IsOpen;
-                    door.IsLocked = actionStep.IsLocked;
-                    await _doorService.UpdateDoor(door, action.PersonId);
+                    var getDoor = await _doorService.GetById(actionStep.FacilityTypeId);
+                    if(getDoor.Status == true)
+                    {
+                        var door = new UpdateDoorDto();
+                        door.Id = actionStep.FacilityTypeId;
+                        door.IsOpen = actionStep.IsOpen;
+                        door.IsLocked = actionStep.IsLocked;
+                        door.DoorType = Enum.Parse<DoorType>(getDoor.Data.DoorType, true);
+                        await _doorService.UpdateDoor(door, action.PersonId);
+                    }
                     log.PersonId = action.PersonId;
+                    log.FacilityId = getDoor.Data.Id;
+                    log.FacilityType = FacilityTypeApp.Door;
                     log.LogDetails = "Door Triggered by Sensor or User";
                     log.ActionType = "Door Activated";
                     await _logService.CreateLog(log);
@@ -291,12 +335,17 @@ public class ActionService : IActionService
                     window.IsLocked = actionStep.IsLocked;
                     await _windowService.UpdateWindow(window, action.PersonId);
                     log.PersonId = action.PersonId;
+                    log.FacilityId = window.Id;
+                    log.FacilityType = FacilityTypeApp.Window;
                     log.LogDetails = "Window Triggered by Sensor or User";
                     log.ActionType = "Window Activated";
                     await _logService.CreateLog(log);
                 }
             }
             log.PersonId = action.PersonId;
+            log.ActionType = "Update";
+            log.FacilityId = actionId;
+            log.FacilityType = FacilityTypeApp.Action;
             log.LogDetails = "Action Triggered by Sensor or User";
             log.ActionType = "Action Activated";
             await _logService.CreateLog(log);
@@ -434,11 +483,14 @@ public class ActionService : IActionService
             ActionDescription = action.Description,
             ActionActive = action.IsActive,
             ActionId = action.ActionId,
+            IsPrivate = action.IsPrivate,
+            IsRecurring = action.IsRecurring,
+            Time = action.Time ?? null,
             CreatedBy = action.CreatedBy,
             CreatedOn = action.CreatedOn,
             LastModifiedBy = action.LastModifiedBy,
             LastModifiedOn = action.LastModifiedOn,
-            GetActionStepDtos = action.ActionSteps.Select(x => new GetActionStepDto
+            GetActionStepDtos = action.ActionSteps?.Select(x => new GetActionStepDto
             {
                 Id = x.Id,
                 ActionId = x.ActionId,

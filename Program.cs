@@ -33,6 +33,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Text;
+using Home_Security.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,6 +90,7 @@ builder.Services.AddScoped<IFingerPrintControl, FingerPrintControl>();
 builder.Services.AddScoped<IHardwareControl, HardwareControl>();
 builder.Services.AddScoped<ILightControl, LightControl>();
 builder.Services.AddScoped<ILogControl, LogControl>();
+builder.Services.AddScoped<IMicroControllerControl, MicroControllerControl>();
 builder.Services.AddScoped<IPersonControl, PersonControl>();
 builder.Services.AddScoped<IRoomControl, RoomControl>();
 builder.Services.AddScoped<ISectionControl, SectionControl>();
@@ -130,6 +132,7 @@ builder.Services.AddHostedService<BackgroundServices>();
 builder.Services.AddHostedService<CameraStreamingBackgroundService>();
 builder.Services.AddHostedService<MqttBackgroundService>();
 builder.Services.AddHostedService<HardwareServices>();
+builder.Services.AddHostedService<ReccuringActionsBackgroundService>();
 builder.Services.AddHostedService<CallTimeoutBackgroundService>();
 builder.Services.AddHostedService<RecordingCleanUpBackgroundServiceDelete>();
 builder.Services.AddHostedService<RecordingCleanUpBackgroundService>();
@@ -140,7 +143,19 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
     options.HandshakeTimeout = TimeSpan.FromSeconds(30);
+});
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto;
+
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
 });
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
@@ -188,10 +203,10 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
         return new BadRequestObjectResult(errors);
     };
 });
-
+var appData = builder.Configuration.GetSection("ApplicationDetails");
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo {Title = "Home Security", Version = "v1"});
+    c.SwaggerDoc("v1", new OpenApiInfo {Title = appData["AppName"], Version = "v1"});
 });
 
 builder.Services.AddRateLimiter(options =>
@@ -205,16 +220,16 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
-builder.Services.AddCors(x => x.AddPolicy("Policies", c =>
+builder.Services.AddCors(x => x.AddPolicy(appData["AppName"], c =>
 {
     c.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
 }));
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("Home_Security", policy =>
+    options.AddPolicy(appData["AppName"], policy =>
     {
-        policy.WithOrigins("https://ais-dev-ypl2vxtjhgwlthzmvnxusu-717948104271.europe-west2.run.app", "https://ais-dev-62beulbfxtpne7lrxwnd4x-717948104271.europe-west2.run.app", "*").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        policy.WithOrigins(appData["HomeUrl"], appData["MobileApp"], appData["MicroControllerUrl"], "https://ais-dev-62beulbfxtpne7lrxwnd4x-717948104271.europe-west2.run.app").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 
@@ -245,11 +260,12 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions{
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
 
-app.UseCors("Home_Security");
+app.UseCors(appData["AppName"]);
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseRateLimiter();
 app.UseWebSockets();
+app.UseMiddleware<ApiAccessMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
@@ -260,14 +276,9 @@ app.Use(async (context, next) =>
     Console.WriteLine($"➡️ Incoming Request: {context.Request.Method} {context.Request.Path}");
     await next.Invoke();
 });
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
 }
     app.UseSwaggerUI();
     app.UseSwagger();
 app.Run();
-
-internal class CallRepository
-{
-}

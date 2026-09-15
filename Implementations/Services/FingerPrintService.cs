@@ -54,12 +54,12 @@ public class FingerPrintService : IFingerPrintService
             {
                 Status = true,
                 Message = $"Fingerprint matched (score: {bestScore})",
-                Data = new GetFingerPrintDto
-                {
-                    Id = bestMatch.Id,
-                    PersonId = bestMatch.PersonId,
-                    FingerPrintId = bestMatch.FingerPrintId
-                }
+                //Data = new GetFingerPrintDto
+                // {
+                //     Id = bestMatch.Id,
+                //     PersonId = bestMatch.PersonId,
+                //     FingerPrintId = bestMatch.FingerPrintId
+                // }
             };
         }
         return new FingerPrintResponseModel

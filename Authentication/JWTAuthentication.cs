@@ -80,12 +80,18 @@ public class JWTAuthentication : IJWTAuthentication
             return null;
         }
     }
-    public string GenerateHardwareToken(string hardwareId, string AuthKey)
+    public string GenerateHardwareToken(GetHardwareDataDto getHardwareDataDto)
     {
         var claims = new List<Claim>
         {
-            new("hardwareId", hardwareId),
-            new("authKey", AuthKey)
+            new("hardwareId", getHardwareDataDto.HardwareId),
+            new("authKey", getHardwareDataDto.AuthKey),
+            new Claim("UserId", getHardwareDataDto.Id.ToString()),
+            new Claim("PersonId", getHardwareDataDto.PersonId.ToString()),
+            new Claim("UserName", getHardwareDataDto.UserName.ToString()),
+            new Claim("RoleName", getHardwareDataDto.RoleName),
+            new Claim("AuthorizationCode", getHardwareDataDto.AuthorizationCode),
+            new Claim("TimeStamp", DateTime.Now.ToString())
         };
 
         var credentials = new SigningCredentials(
@@ -94,12 +100,12 @@ public class JWTAuthentication : IJWTAuthentication
 
         var token = new JwtSecurityToken(
             claims: claims,
-            expires: DateTime.UtcNow.AddDays(7),
+            expires: DateTime.MaxValue,
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-    public bool ValidateHardwareToken(string token)
+    public GetHardwareDataDto ValidateHardwareToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_key["SecretKey"] ?? "HomeSecurity1234567890");
@@ -115,21 +121,29 @@ public class JWTAuthentication : IJWTAuthentication
         };
         try
         {
+            if (string.IsNullOrEmpty(token))
+                return null;
             var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
-            var jwtToken = (JwtSecurityToken)validatedToken;
-            var hardwareId = jwtToken.Claims.FirstOrDefault(c => c.Type == "hardwareId")?.Value;
-            var authKey = jwtToken.Claims.FirstOrDefault(c => c.Type == "authKey")?.Value;
-            if (string.IsNullOrEmpty(hardwareId) || string.IsNullOrEmpty(authKey))
-                return false;
-            return true;
+            var jwtToken = ((JwtSecurityToken)validatedToken).Claims;
+            return new GetHardwareDataDto
+            {
+                Id = int.Parse(jwtToken.First(x => x.Type == "UserId").Value),
+                PersonId = int.Parse(jwtToken.First(x => x.Type == "PersonId").Value),
+                UserName = jwtToken.First(x => x.Type == "UserName").Value,
+                RoleName = jwtToken.First(x => x.Type == "RoleName").Value,
+                AuthorizationCode = jwtToken.First(x => x.Type == "AuthorizationCode").Value,
+                HardwareId = jwtToken.First(x => x.Type == "HardwareId").Value,
+                AuthKey = jwtToken.First(x => x.Type == "AuthKey").Value,
+                Status = true
+            };
         }
         catch (SecurityTokenExpiredException)
         {
-            return false;
+            return null;
         }
         catch
         {
-            return false;
+            return null;
         }
     }
 }

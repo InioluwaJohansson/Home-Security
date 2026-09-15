@@ -27,7 +27,7 @@ public class PersonService : IPersonService
     public async Task<BaseResponse> CreatePerson(CreatePersonDto createPersonDto)
     {
         var checkUser = await _userRepo.Get(x => x.UserName == createPersonDto.CreateUserDto.UserName);
-        if (checkUser == null)
+        if (checkUser == null && createPersonDto.CreateUserDto.Role != Role.System)
         {
             var NFID = $"NFID{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 16).ToUpper()}";
             var user = new User()
@@ -73,9 +73,9 @@ public class PersonService : IPersonService
                 CreatedOn = DateTime.Now,
                 LastModifiedOn = DateTime.Now,
             };
-            await _personRepo.Create(person);
-            var personData = await _personRepo.Get(x => x.PersonId == person.PersonId);
-            await _realTime.NotifyAll("PersonCreated", GetDetails(await _personRepo.GetById(personData.Id)));
+            person = await _personRepo.Create(person);
+            await _userRepo.Update(getUser);
+            await _realTime.NotifyAll("PersonCreated", GetDetails(await _personRepo.GetById(person.Id)));
             return new BaseResponse()
             {
                 Status = true,
@@ -98,7 +98,7 @@ public class PersonService : IPersonService
             person.CameraIds = updatePersonDto.CameraIds ?? person.CameraIds;
             person.PersonDetails.FirstName = updatePersonDto.UpdatePersonDetailsDto.FirstName ?? person.PersonDetails.FirstName;
             person.PersonDetails.LastName = updatePersonDto.UpdatePersonDetailsDto.LastName ?? person.PersonDetails.LastName;
-            person.PersonDetails.ImageUrl = await GetImageUrl(updatePersonDto.UpdatePersonDetailsDto.ImageUrl) ?? person.PersonDetails.ImageUrl;
+            person.PersonDetails.ImageUrl = await GetImageUrl(updatePersonDto.UpdatePersonDetailsDto.ImageUrl) ?? person.PersonDetails.ImageUrl ?? null;
             person.PersonDetails.Age = DateTime.Now.Year - person.PersonDetails.DateOfBirth.Year;
             person.LastModifiedOn = DateTime.Now;
             await _personRepo.Update(person);
@@ -375,6 +375,20 @@ public class PersonService : IPersonService
             Status = false,
             Message = "Unable To Delete Person Profile Address!"
         };
+    }
+    public async Task<bool> RemoveCameraIds(int cameraId)
+    {
+        var persons = await _personRepo.GetByExpression(x => !x.IsDeleted);
+        if(persons != null)
+        {
+            foreach (var person in persons)
+            {
+                person.CameraIds.Remove(cameraId);
+                await _personRepo.Update(person);
+                return true;
+            }
+        }
+        return false;
     }
     public GetPersonDto GetDetails(Person person)
     {

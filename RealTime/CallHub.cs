@@ -16,44 +16,4 @@ public class CallHub : ICallHub
         _authControl = authControl;
         _jwtAuthentication = jwtAuthentication;
     }
-    public async Task Offer(OfferDto dto, string token)
-    {
-        var user = _jwtAuthentication.GetUserFromToken(token);
-        if (user != null)
-        {
-            Console.WriteLine($"Offer Sent !!!!!!!!!!!!!!!!!!!!!!!!!!    PersonId: {user.PersonId}");
-            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
-            if(auth.Status) await _hub.Clients.Group(dto.ChatId.ToString()).SendAsync("Offer", dto);
-        }
-    }
-    public async Task Answer(AnswerDto dto, string token)
-    {
-        var user = _jwtAuthentication.GetUserFromToken(token);
-        if (user != null)
-        {
-            Console.WriteLine($"Call Answered !!!!!!!!!!!!!!!!!!!!!!!!!!    PersonId: {user.PersonId}");
-            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
-            if(auth.Status) await _hub.Clients.Group(dto.ChatId.ToString()).SendAsync("Answer", dto);
-        }
-    }
-    public async Task IceCandidate(IceCandidateDto dto, string token)
-    {
-        var user = _jwtAuthentication.GetUserFromToken(token);
-        if (user != null)
-        {
-            Console.WriteLine($"Ice Candidate !!!!!!!!!!!!!!!!!!!!!!!!!!    PersonId: {user.PersonId}");
-            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
-            if(auth.Status) await _hub.Clients.Group(dto.ChatId.ToString()).SendAsync("IceCandidate", dto);
-        }
-    }
-    public async Task ToggleCallItems(ToggleCallItemsDto dto, string token)
-    {
-        var user = _jwtAuthentication.GetUserFromToken(token);
-        if (user != null)
-        {
-            Console.WriteLine($"Ice Candidate !!!!!!!!!!!!!!!!!!!!!!!!!!    PersonId: {user.PersonId}");
-            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
-            if(auth.Status) await _hub.Clients.Group(dto.ChatId.ToString()).SendAsync("ToggleCallItems", dto);
-        }
-    }
 }

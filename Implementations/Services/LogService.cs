@@ -27,13 +27,15 @@ public class LogService : ILogService
                 TimeOfAction = DateTime.Now,
                 LogDetails = createLogDto.LogDetails,
                 ActionType = createLogDto.ActionType,
+                FacilityType = createLogDto.FacilityType,
+                FacilityId = createLogDto.FacilityId,
                 CreatedOn = DateTime.Now,
                 CreatedBy = createLogDto.PersonId,
                 LastModifiedBy = createLogDto.PersonId,
                 LastModifiedOn = DateTime.Now,
                 IsDeleted = false
             };
-            await _logRepo.Create(log);
+            log = await _logRepo.Create(log);
             var logData = await _logRepo.Get(x => x.CreatedOn == log.CreatedOn);
             await _realtime.NotifyAll("LogCreated", await GetDetails(logData));
             return new BaseResponse()
@@ -161,6 +163,8 @@ public class LogService : ILogService
             TimeOfAction = log.TimeOfAction,
             LogDetails = log.LogDetails,
             ActionType = log.ActionType,
+            FacilityId = log.FacilityId ?? 0,
+            FacilityType = log.FacilityType.ToString(),
             GetPersonDto = getPerson,
         };
     }

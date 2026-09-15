@@ -1,9 +1,11 @@
 ﻿using BCrypt.Net;
 using Home_Security.Authentication;
+using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 namespace Home_Security.Implementations.Services;
 public class UserService : IUserService
 {
@@ -26,8 +28,10 @@ public class UserService : IUserService
         var log = _authControl.CreateLog(user.Id);
         log.ActionType = "Attempted Login";
         log.LogDetails = $"{user.UserName} attempted to login!";
+        log.FacilityType = FacilityTypeApp.Person;
+        log.FacilityId = (await _personRepo.Get(x => x.UserId == user.Id))?.Id ?? 0;
         await _logService.CreateLog(log);
-        if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password))
+        if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password) && user.UserRole.Role != Role.System)
         {
             var data = new UserLoginResponse()
             {
@@ -56,28 +60,29 @@ public class UserService : IUserService
     }
     public async Task<UserLoginResponse> NFIDLogin(string token, string NFIDCode)
     {
-        var user = await _userRepo.Get(x => x.NFIDCode == NFIDCode);
-        var log = _authControl.CreateLog(user.Id);
-        log.ActionType = "Attempted Login";
-        log.LogDetails = $"{user.UserName} attempted to login via NFID";
-        await _logService.CreateLog(log);
-        if (_jWTAuthentication.ValidateHardwareToken(token) == true && user != null && BCrypt.Net.BCrypt.EnhancedVerify(NFIDCode, user.NFID))
+        var users = await _userRepo.GetByExpression(x => !x.IsDeleted);
+        if(users != null && _jWTAuthentication.ValidateHardwareToken(token)?.Status == true)
         {
-            return new UserLoginResponse()
+            foreach(var user in users)
             {
-                Data = new GetUserDto()
+                if(BCrypt.Net.BCrypt.EnhancedVerify(NFIDCode, user.NFID))
                 {
-                    Id = user.Id,
-                    RoleName = user.UserRole.Role.ToString(),
-                    PersonId = (await _personRepo.Get(x => x.UserId == user.Id))?.Id ?? 0,
-                },
-                Message = "Login Successful",
-                Status = true,
-            };
+                    var log = _authControl.CreateLog(user.Id);
+                    log.ActionType = "Attempted Login";
+                    log.LogDetails = $"{user.UserName} attempted to login via NFID";
+                    log.FacilityType = FacilityTypeApp.Person;
+                    log.FacilityId = (await _personRepo.Get(x => x.UserId == user.Id))?.Id ?? 0;
+                    await _logService.CreateLog(log);
+                    return new UserLoginResponse()
+                    {
+                        Message = "Login Successful",
+                        Status = true,
+                    };
+                }
+            }
         }
         return new UserLoginResponse()
         {
-            Data = null,
             Message = "Invalid Username Or Password!",
             Status = false
         };
@@ -120,6 +125,8 @@ public class UserService : IUserService
             var log = _authControl.CreateLog(user.Id);
             log.ActionType = "User Role Updated";
             log.LogDetails = $"{user.UserName} updated their role to {user.UserRole.Role}.";
+            log.FacilityType = FacilityTypeApp.Person;
+            log.FacilityId = (await _personRepo.Get(x => x.UserId == user.Id))?.Id ?? 0;
             await _logService.CreateLog(log);
             return new BaseResponse()
             {
@@ -144,6 +151,8 @@ public class UserService : IUserService
             var log = _authControl.CreateLog(user.Id);
             log.ActionType = "Password Changed";
             log.LogDetails = $"{user.UserName} changed their password!";
+            log.FacilityType = FacilityTypeApp.Person;
+            log.FacilityId = (await _personRepo.Get(x => x.UserId == user.Id))?.Id ?? 0;
             await _logService.CreateLog(log);
             return new BaseResponse()
             {
@@ -168,6 +177,8 @@ public class UserService : IUserService
             var log = _authControl.CreateLog(user.Id);
             log.ActionType = "Authorization Code Changed";
             log.LogDetails = $"{user.UserName} changed their authorization code!";
+            log.FacilityType = FacilityTypeApp.Person;
+            log.FacilityId = (await _personRepo.Get(x => x.UserId == user.Id))?.Id ?? 0;
             await _logService.CreateLog(log);
             return new BaseResponse()
             {

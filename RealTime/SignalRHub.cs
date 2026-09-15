@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using Home_Security.Authentication;
 using Home_Security.Interfaces.Controls;
+using Home_Security.Models.CallDTO;
+using System.Text.Json;
 namespace Home_Security.Hubs;
 [Authorize]
 public class HomeSecurityHub : Hub
@@ -79,15 +81,29 @@ public class HomeSecurityHub : Hub
             }
         }
     }
-    public void AddPerson(string token)
+    public async Task LogOutAllUsers(string token)
     {
-        // var user = _jwtAuthentication.GetUserFromToken(token);
-        // if(user != null){
-        //     var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
-        //     if(auth.Status != false){
-        //         await Groups.AddToGroupAsync(Context.ConnectionId, auth.Id.ToString());
-        //     }
-        // }
+        var user = _jwtAuthentication.GetUserFromToken(token);
+        if(user != null){
+            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
+            if(auth.Status != false){
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, auth.Role.ToString());
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, auth.Id.ToString());
+                await Clients.All.SendAsync("HighLevelLogOut");
+            }
+        }
+    }
+    public async Task LogOutPersonId(string token, int personId)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(token);
+        if(user != null){
+            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
+            if(auth.Status != false){
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, auth.Role.ToString());
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, auth.Id.ToString());
+                await Clients.All.SendAsync("LogOut", personId);
+            }
+        }
     }
     public async Task JoinChat(int chatId)
     {
@@ -100,5 +116,49 @@ public class HomeSecurityHub : Hub
     public async Task UserOnline(int personId)
     {
         await Clients.All.SendAsync("UserOnline", personId);
+    }
+
+    //Calls
+    public async Task Offer(OfferDto dto, string token)
+    {
+        Console.WriteLine($"Offer Sent !!!!!!!!!!!!!!!!!!!!!!!!!!");
+        Console.WriteLine(JsonSerializer.Serialize(dto, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        }));
+        var user = _jwtAuthentication.GetUserFromToken(token);
+        if (user != null)
+        {
+            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
+            if(auth.Status) await Clients.Group(dto.ChatId.ToString()).SendAsync("Offer", dto);
+        }
+    }
+    public async Task IceCandidate(IceCandidateDto dto, string token)
+    {
+        Console.WriteLine($"Ice Candidate !!!!!!!!!!!!!!!!!!!!!!!!!!");
+        Console.WriteLine(JsonSerializer.Serialize(dto, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        }));
+        var user = _jwtAuthentication.GetUserFromToken(token);
+        if (user != null)
+        {
+            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
+            if(auth.Status) await Clients.Group(dto.ChatId.ToString()).SendAsync("IceCandidate", dto);
+        }
+    }
+    public async Task ToggleCallItems(ToggleCallItemsDto dto, string token)
+    {
+        Console.WriteLine($"Toggle Call Items !!!!!!!!!!!!!!!!!!!!!!!!!!");
+        Console.WriteLine(JsonSerializer.Serialize(dto, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        }));
+        var user = _jwtAuthentication.GetUserFromToken(token);
+        if (user != null)
+        {
+            var auth = await _authControl.GetAuthDetails(user.PersonId, user.AuthorizationCode);
+            if(auth.Status) await Clients.Group(dto.ChatId.ToString()).SendAsync("ToggleCallItems", dto);
+        }
     }
 }

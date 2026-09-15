@@ -11,18 +11,50 @@ public class StartUpService : IStartUpService
     IPersonService _personService;
     IUserRepo _userRepo;
     IEncryptionService _encryptionService;
-    public StartUpService(IUserRepo userRepo, IPersonService personService, IEncryptionService encryptionService)
+    IConfiguration _configuration;
+    public StartUpService(IUserRepo userRepo, IPersonService personService, IEncryptionService encryptionService, IConfiguration configuration)
     {
         _userRepo = userRepo;
         _personService = personService;
         _encryptionService = encryptionService;
+        _configuration = configuration;
     }
     public async Task InitateStartUp()
     {
         var userData = await _userRepo.GetAllUsers();
         try
         {
-            if (userData?.FirstOrDefault(x => x.UserRole.Role == Role.Owner) == null)
+            if(userData?.Any(x => x.UserRole.Role == Role.System) == false)
+            {
+                var personStartUp = Menu();
+                if(personStartUp.Option == 1 && personStartUp.EncryptedKey != null)
+                {
+                    var decryptedKey = _encryptionService.DecryptEncryptionKeyAsync(personStartUp.EncryptedKey);
+                    var response = await _personService.CreatePerson(decryptedKey);
+                    if(response.Status == true)
+                        Console.WriteLine("\n✅ System created successfully!");
+                    else Console.WriteLine("\n Error unable to create System!");
+                }
+                if(personStartUp.Option == 2 && personStartUp.Person != null)
+                {
+                    await _encryptionService.EncryptFileAsync(personStartUp.Person);
+                    if(personStartUp.Person.CreateUserDto.Role != Role.System)
+                    {
+                        Console.WriteLine("\n❌ Error: The role must be 'System' for system initialization.");
+                        return;
+                    }
+                    var appDetails = _configuration.GetSection("ApplicationDetails");
+                    personStartUp.Person.CreateUserDto.Role = Role.System;
+                    personStartUp.Person.CreateUserDto.UserName = appDetails["AppName"] ?? "HomeSecurity";
+                    personStartUp.Person.CreateUserDto.Password = appDetails["Token"] ?? "HomeSecurity1234567890!@#$%^&*()-+_=";
+                    personStartUp.Person.CreateUserDto.AuthorizationCode = appDetails["Token"] ?? "HomeSecurity1234567890!@#$%^&*()-+_=";
+                    var response = await _personService.CreatePerson(personStartUp.Person);
+                    if(response.Status == true)
+                        Console.WriteLine("\n✅ System created successfully!");
+                    else Console.WriteLine("\n Error unable to create System!");
+                }
+            }
+            if (userData?.Any(x => x.UserRole.Role == Role.Owner) == null)
             {
                 var person = await _encryptionService.DecryptObjectAsync();
                 if(person != null){
@@ -103,7 +135,7 @@ public class StartUpService : IStartUpService
                 UserName = ReadRequiredString("Username"),
                 Password = ReadRequiredString("Password"),
                 AuthorizationCode = ReadSixDigitCode("Authorization Code (6 digits)"),
-                Role = Role.Owner
+                Role = ReadRequiredEnum<Role>("Role")
             },
             Relation = ReadRequiredString("Relation"),
         };

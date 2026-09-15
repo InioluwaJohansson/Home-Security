@@ -60,18 +60,30 @@ namespace Home_Security.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<bool>("IsPrivate")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsRecurring")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("LastModifiedBy")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("LastModifiedOn")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<DateTime>("LastRunDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
 
+                    b.Property<TimeSpan?>("Time")
+                        .HasColumnType("time(6)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Action");
+                    b.ToTable("Action", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.ActionStep", b =>
@@ -128,7 +140,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("ActionId");
 
-                    b.ToTable("ActionStep");
+                    b.ToTable("ActionStep", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Address", b =>
@@ -200,7 +212,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("PersonDetailsId");
 
-                    b.ToTable("Address");
+                    b.ToTable("Address", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Appliance", b =>
@@ -264,7 +276,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Appliance");
+                    b.ToTable("Appliance", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Calls.Call", b =>
@@ -321,7 +333,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("ChatId");
 
-                    b.ToTable("Calls");
+                    b.ToTable("Calls", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Calls.CallParticipant", b =>
@@ -377,7 +389,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("PersonId");
 
-                    b.ToTable("CallParticipants");
+                    b.ToTable("CallParticipants", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Camera", b =>
@@ -476,7 +488,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Camera");
+                    b.ToTable("Camera", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Chats.Chat", b =>
@@ -528,7 +540,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Chat");
+                    b.ToTable("Chat", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Chats.ChatParticipant", b =>
@@ -582,7 +594,9 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("ChatId");
 
-                    b.ToTable("ChatParticipant");
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("ChatParticipant", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Chats.Message", b =>
@@ -641,7 +655,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SenderPersonId");
 
-                    b.ToTable("Message");
+                    b.ToTable("Message", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Chats.MessageAttachment", b =>
@@ -698,7 +712,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("MessageId");
 
-                    b.ToTable("MessageAttachment");
+                    b.ToTable("MessageAttachment", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Contact", b =>
@@ -756,7 +770,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("ContactCategoryId");
 
-                    b.ToTable("Contact");
+                    b.ToTable("Contact", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.ContactCategory", b =>
@@ -806,7 +820,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactCategory");
+                    b.ToTable("ContactCategory", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.ContactDetails", b =>
@@ -858,7 +872,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("PersonDetailsId");
 
-                    b.ToTable("ContactDetails");
+                    b.ToTable("ContactDetails", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Door", b =>
@@ -937,7 +951,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Door");
+                    b.ToTable("Door", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.External", b =>
@@ -1004,7 +1018,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("External");
+                    b.ToTable("External", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.FingerPrint", b =>
@@ -1056,7 +1070,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("PersonId");
 
-                    b.ToTable("FingerPrint");
+                    b.ToTable("FingerPrint", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Hardware", b =>
@@ -1132,7 +1146,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Hardware");
+                    b.ToTable("Hardware", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Identity.User", b =>
@@ -1186,7 +1200,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Identity.UserRole", b =>
@@ -1229,7 +1243,7 @@ namespace Home_Security.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Light", b =>
@@ -1293,7 +1307,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Light");
+                    b.ToTable("Light", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Logs", b =>
@@ -1320,6 +1334,12 @@ namespace Home_Security.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("FacilityId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacilityType")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
 
@@ -1343,7 +1363,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("PersonId");
 
-                    b.ToTable("Logs");
+                    b.ToTable("Logs", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Person", b =>
@@ -1398,7 +1418,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Person");
+                    b.ToTable("Person", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.PersonDetails", b =>
@@ -1453,7 +1473,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PersonDetails");
+                    b.ToTable("PersonDetails", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Recording", b =>
@@ -1506,7 +1526,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("CameraId");
 
-                    b.ToTable("Recording");
+                    b.ToTable("Recording", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Room", b =>
@@ -1565,7 +1585,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Room");
+                    b.ToTable("Room", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Section", b =>
@@ -1610,7 +1630,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Section");
+                    b.ToTable("Section", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Token", b =>
@@ -1651,7 +1671,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tokens");
+                    b.ToTable("Tokens", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Window", b =>
@@ -1727,7 +1747,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Window");
+                    b.ToTable("Window", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.ActionStep", b =>
@@ -1810,7 +1830,15 @@ namespace Home_Security.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Home_Security.Entities.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Chat");
+
+                    b.Navigation("Person");
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Chats.Message", b =>

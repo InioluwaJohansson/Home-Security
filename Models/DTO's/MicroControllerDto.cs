@@ -53,6 +53,7 @@ public class DoorDeviceState
     public int DoorId { get; set; }
     public bool IsLocked { get; set; }
     public bool IsOpen { get; set; }
+    public DoorType DoorType { get; set; }
 }
 public class ExternalDeviceState
 {
@@ -64,4 +65,15 @@ public class MicroControllerLoginDto
 {
     public string HardwareId { get; set; }
     public string AuthKey { get; set; }
+}
+public class MTTQConfig : BaseResponse
+{
+    public MTTQData Data { get; set; }
+}
+public class MTTQData : BaseResponse
+{
+    public string Host { get; set; }
+    public string Port { get; set; }
+    public string Username { get; set; }
+    public string Password { get; set; }
 }

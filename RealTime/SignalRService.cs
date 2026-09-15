@@ -24,4 +24,8 @@ public class RealtimeNotificationService : IRealtimeNotificationService
     {
         foreach (var role in roles) await _hub.Clients.Group(role.ToString()).SendAsync(eventName, payload);
     }
+    public async Task NotifyAll<T>(string eventName, int personId, T payload)
+    {
+        await _hub.Clients.Group(personId.ToString()).SendAsync(eventName, payload);
+    }
 }

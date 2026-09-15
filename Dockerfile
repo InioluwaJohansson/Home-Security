@@ -1,7 +1,7 @@
 # Base image for running the app
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-EXPOSE 7221
+EXPOSE 7190
 #EXPOSE 5191
 
 # Build stage

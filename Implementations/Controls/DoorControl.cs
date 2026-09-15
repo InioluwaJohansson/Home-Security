@@ -26,7 +26,8 @@ public class DoorControl : IDoorControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Door was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = $"{createDoorDto.DoorName} Door was newly added. Awaiting Physical Interfacing!";
+                log.FacilityType = FacilityTypeApp.Door;
                 await _logService.CreateLog(log);
             }
             return door;
@@ -44,6 +45,8 @@ public class DoorControl : IDoorControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{updateDoorDto.DoorName} Door was recently updated!";
+                log.FacilityType = FacilityTypeApp.Door;
+                log.FacilityId = updateDoorDto.Id;
                 await _logService.CreateLog(log);
             }
             return door;
@@ -67,12 +70,16 @@ public class DoorControl : IDoorControl
                 updateDoorDto.IsOpen = false;
                 log.ActionType = "Closed";
                 log.LogDetails = $"{updateDoorDto.DoorName} Door is Closed!";
+                log.FacilityType = FacilityTypeApp.Door;
+                log.FacilityId = updateDoorDto.Id;
             }
             else if(getDoor != null && getDoor.Data.IsOpen == false && getDoor.Data.IsLocked == false)
             {
                 updateDoorDto.IsOpen = true;
                 log.ActionType = "Open";
                 log.LogDetails = $"{updateDoorDto.DoorName} Door is Open!";
+                log.FacilityType = FacilityTypeApp.Door;
+                log.FacilityId = updateDoorDto.Id;
             }
             updateDoorDto.OpenedBy = auth.Id;
             updateDoorDto.DoorType = getDoor.Data.DoorTypeId;
@@ -103,6 +110,8 @@ public class DoorControl : IDoorControl
                         var log = _authControl.CreateLog(auth.Id);
                         log.ActionType = "Unlock";
                         log.LogDetails = $"{updateDoorDto.DoorName} Door was unlocked!";
+                        log.FacilityType = FacilityTypeApp.Door;
+                        log.FacilityId = updateDoorDto.Id;
                         await _logService.CreateLog(log);
                     }
                     return door;
@@ -122,6 +131,8 @@ public class DoorControl : IDoorControl
                     var log = _authControl.CreateLog(auth.Id);
                     log.ActionType = "Lock";
                     log.LogDetails = $"{updateDoorDto.DoorName} Door was locked!";
+                    log.FacilityType = FacilityTypeApp.Door;
+                    log.FacilityId = updateDoorDto.Id;
                     await _logService.CreateLog(log);
                 }
                 return door;
@@ -257,6 +268,8 @@ public class DoorControl : IDoorControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getDoor} Door was Deleted!";
+                log.FacilityType = FacilityTypeApp.Door;
+                log.FacilityId = doorId;
                 await _logService.CreateLog(log);
             }
             return door;

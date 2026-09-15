@@ -6,27 +6,31 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Text.Json;
+
 
 [Route("Home_Security/[controller]")]
 [ApiController]
 public class MicroControllerController : Controller
 {
     IMicroControllerService _microControllerService;
-    IJWTAuthentication _jWTAuthentication;
-    public MicroControllerController(IMicroControllerService microControllerService, IJWTAuthentication jWTAuth)
+    
+    public MicroControllerController(IMicroControllerService microControllerService)
     {
         _microControllerService = microControllerService;
-        _jWTAuthentication = jWTAuth;
     }
-    // [HttpGet("GetMicroControllerDetails")]
-    // public async Task<IActionResult> GetMicroControllerDetails(string hardWareId, string AuthKey)
-    // {
-    //     var microController = await _microControllerService.GetByAuth(hardWareId, AuthKey);
-    //     if (microController.Status == true)
-    //     {
-    //         microController.Token = _jWTAuthentication.GenerateHardwareToken(hardWareId,AuthKey);
-    //         return Ok(microController);
-    //     }
-    //     return Ok(microController);
-    // }
+    [HttpGet("GetMicroControllerMQTTConfig")]
+    public async Task<IActionResult> GetMicroControllerDetails(string hardWareId, string AuthKey)
+    {
+        var microController = await _microControllerService.GetHardwareMTQQAuth(hardWareId, AuthKey);
+        Console.WriteLine(JsonSerializer.Serialize(microController, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        }));
+        if (microController.Status == true)
+        {
+            return Ok(microController);
+        }
+        return Ok(microController);
+    }
 }

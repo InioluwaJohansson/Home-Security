@@ -48,13 +48,6 @@ public class OfferDto
     public int PersonId { get; set; }
     public string Sdp { get; set; } = string.Empty;
 }
-public class AnswerDto
-{
-    public int CallId { get; set; }
-    public int ChatId { get; set; }
-    public int PersonId { get; set; }
-    public string Sdp { get; set; } = string.Empty;
-}
 public class IceCandidateDto
 {
     public int CallId { get; set; }

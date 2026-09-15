@@ -7,12 +7,10 @@ public class FingerPrintControl : IFingerPrintControl
 {
     IAuthControl _authControl;
     IFingerPrintService _fingerPrintService;
-    ILogService _logService;
-    public FingerPrintControl(IAuthControl authControl, IFingerPrintService fingerPrintService, ILogService logService)
+    public FingerPrintControl(IAuthControl authControl, IFingerPrintService fingerPrintService)
     {
         _authControl = authControl;
         _fingerPrintService = fingerPrintService;
-        _logService = logService;
     }
     public async Task<BaseResponse> CreateFingerPrint(GetAuthControlInfoDto getAuthControlInfoDto, CreateFingerPrintDto createFingerPrintDto)
     {
@@ -20,13 +18,6 @@ public class FingerPrintControl : IFingerPrintControl
         if (auth.Status != false && auth.Role == Role.Owner)
         {
             var fingerPrint = await _fingerPrintService.CreateFingerPrint(createFingerPrintDto, auth.Id);
-            if (fingerPrint.Status == true)
-            {
-                var log = _authControl.CreateLog(auth.Id);
-                log.ActionType = "Create";
-                log.LogDetails = "An FingerPrint was newly added. Awaiting Physical Interfacing!";
-                await _logService.CreateLog(log);
-            }
             return fingerPrint;
         }
         return _authControl.AuthFaliure();
@@ -37,13 +28,6 @@ public class FingerPrintControl : IFingerPrintControl
         if (auth.Status != false && auth.Role == Role.Owner)
         {
             var fingerPrint = await _fingerPrintService.RequestFingerPrint(hardwareId, personId);
-            if (fingerPrint.Status == true)
-            {
-                var log = _authControl.CreateLog(auth.Id);
-                log.ActionType = "Create";
-                log.LogDetails = "An FingerPrint was newly added. Awaiting Physical Interfacing!";
-                await _logService.CreateLog(log);
-            }
             return fingerPrint;
         }
         return _authControl.AuthFaliure();
@@ -54,13 +38,6 @@ public class FingerPrintControl : IFingerPrintControl
         if (auth.Status != false && auth.Role == Role.Owner)
         {
             var fingerPrint = await _fingerPrintService.SendNFIDCode(personId, hardwareId);
-            if (fingerPrint.Status == true)
-            {
-                var log = _authControl.CreateLog(auth.Id);
-                log.ActionType = "Create";
-                log.LogDetails = "A FingerPrint was newly added!";
-                await _logService.CreateLog(log);
-            }
             return fingerPrint;
         }
         return _authControl.AuthFaliure();

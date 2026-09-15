@@ -10,11 +10,13 @@ public class RecordingCleanUpService : IRecordingCleanUpService
     public IRecordingRepo _recordingRepo;
     public ICameraRepo _cameraRepo;
     public IRealtimeNotificationService _realtimeNotificationService;
-    public RecordingCleanUpService(IRecordingRepo recordingRepo, ICameraRepo cameraRepo, IRealtimeNotificationService realtimeNotificationService)
+    IConfiguration _config;
+    public RecordingCleanUpService(IRecordingRepo recordingRepo, ICameraRepo cameraRepo, IRealtimeNotificationService realtimeNotificationService, IConfiguration config)
     {
         _recordingRepo = recordingRepo;
         _cameraRepo = cameraRepo;
         _realtimeNotificationService = realtimeNotificationService;
+        _config = config.GetSection("FFMpeg");
     }
     public async Task ExecuteCleanUp(CancellationToken stoppingToken)
     {
@@ -59,7 +61,7 @@ public class RecordingCleanUpService : IRecordingCleanUpService
                 try
                 {
                     var creationTime = File.GetCreationTimeUtc(file);
-                    if (creationTime < DateTime.UtcNow.AddDays(-7)) File.Delete(file);
+                    if (creationTime < DateTime.UtcNow.AddDays(-Double.Parse(_config["RecordingCleanUpTimeDays"]))) File.Delete(file);
                 }
                 catch{}
             }
@@ -80,7 +82,7 @@ public class RecordingCleanUpService : IRecordingCleanUpService
                 try
                 {
                     var creationTime = File.GetCreationTimeUtc(file);
-                    if (creationTime < DateTime.UtcNow.AddDays(-1)) File.Delete(file);
+                    if (creationTime < DateTime.UtcNow.AddDays(-Double.Parse(_config["HlsCleanUpTimeDays"]))) File.Delete(file);
                 }
                 catch{}
             }
@@ -121,13 +123,13 @@ public class RecordingCleanUpService : IRecordingCleanUpService
                     FileName = info.Name,
                     FilePath = Path.Combine(camera.RecordingPath, info.Name),
                     StartTime = startTime,
-                    EndTime = startTime.AddMinutes(5), // Because segment_time = 300
+                    EndTime = startTime.AddMinutes(Double.Parse(_config["RecordingTimeMinutes"])), // Because segment time = 10 mins
                     CreatedOn = DateTime.UtcNow,
                     LastModifiedOn = DateTime.UtcNow,
                     IsDeleted = false
                 };
                 recording = await _recordingRepo.Create(recording);
-                if(camera.IsHidden){ await _realtimeNotificationService.NotifyAll("NewRecording", new List<Role> { Role.Owner, Role.Wife }, GetDetails(recording));}
+                if(camera.IsHidden){ await _realtimeNotificationService.NotifyAll("NewRecording", new List<Role> { Role.Owner, Role.Wife, Role.Child }, GetDetails(recording));}
                 else await _realtimeNotificationService.NotifyAll("NewRecording", GetDetails(recording));
             }
         }

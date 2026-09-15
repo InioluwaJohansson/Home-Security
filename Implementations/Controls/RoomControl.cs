@@ -3,6 +3,7 @@ using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 namespace Home_Security.Implementations.Controls;
 public class RoomControl : IRoomControl
 {
@@ -25,7 +26,8 @@ public class RoomControl : IRoomControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Room was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = $"{createRoomDto.RoomName} Room was newly added. Awaiting Physical Interfacing!";
+                log.FacilityType = FacilityTypeApp.Room;
                 await _logService.CreateLog(log);
             }
             return room;
@@ -43,6 +45,8 @@ public class RoomControl : IRoomControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{updateRoomDto.RoomName} Room was recently updated!";
+                log.FacilityType = FacilityTypeApp.Room;
+                log.FacilityId = updateRoomDto.Id;
                 await _logService.CreateLog(log);
             }
             return room;
@@ -181,6 +185,8 @@ public class RoomControl : IRoomControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getRoom} Room was Deleted!";
+                log.FacilityType = FacilityTypeApp.Room;
+                log.FacilityId = roomId;
                 await _logService.CreateLog(log);
             }
             return room;

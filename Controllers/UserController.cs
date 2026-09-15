@@ -36,18 +36,6 @@ public class UserController : Controller
         return Ok(user);
     }
     [Authorize]
-    [HttpGet("NFIDLogin")]
-    public async Task<IActionResult> NFIDLogin(string token, string NFIDCode)
-    {
-        if(_jwtAuthentication.ValidateHardwareToken(token) == true)
-        {
-            var user = await _userService.NFIDLogin(token, NFIDCode);
-            if (user.Status == true)
-                return Ok(user);            
-        }
-        return Unauthorized();
-    }
-    [Authorize]
     [HttpPut("UpdateUserRole")]
     public async Task<IActionResult> UpdateUserRole(UpdateUserDto updateUserDto)
     {
