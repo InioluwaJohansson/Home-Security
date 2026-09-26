@@ -59,3 +59,10 @@ public class GetHardwareDataDto : BaseResponse
     public string HardwareId { get; set; }
     public string AuthKey { get; set; }
 }
+public class Credentials
+{
+    public string SecretKey { get; set; }
+    public string Token { get; set; }
+    public string Issuer { get; set; }
+    public string Audience { get; set; }
+}

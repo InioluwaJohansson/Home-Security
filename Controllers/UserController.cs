@@ -17,13 +17,15 @@ public class UserController : Controller
     IAuthControl _authControl;
     ITokenService _tokenService;
     IJWTAuthentication _jwtAuthentication;
-    public UserController(IUserService userService, ITokenService tokenService, ITokenControl tokenControl, IAuthControl authControl, IJWTAuthentication jwtAuthentication)
+    IConfiguration _config;
+    public UserController(IUserService userService, ITokenService tokenService, ITokenControl tokenControl, IAuthControl authControl, IJWTAuthentication jwtAuthentication, IConfiguration config)
     {
         _userService = userService;
         _tokenService = tokenService;
         _tokenControl = tokenControl;
         _authControl = authControl;
         _jwtAuthentication = jwtAuthentication;
+        _config = config;
     }
     [HttpGet("Login")]
     public async Task<IActionResult> Login(string userName, string password)
@@ -146,6 +148,24 @@ public class UserController : Controller
             data.Token = _jwtAuthentication.GenerateToken(data.Data);
             data.Data.AuthorizationCode = null;
             return Ok(user);
+        }
+        return Unauthorized();
+    }
+    [HttpPost("GetSigningCredentials")]
+    public async Task<IActionResult> GetSigningCredentials()
+    {
+        var user = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        if (user == null)
+            return Unauthorized();
+        if (user == "LocationTracker"){
+            var data = new Credentials()
+            {
+                SecretKey = _config.GetSection("Jwt")["SecretKey"] ?? "",
+                Issuer = _config.GetSection("Jwt")["Issuer"] ?? "",
+                Audience = _config.GetSection("Jwt")["Audience"] ?? "",
+                Token = _config.GetSection("Jwt")["SecretKey"] ?? "",
+            };
+            return Ok(data);
         }
         return Unauthorized();
     }
