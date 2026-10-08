@@ -25,14 +25,14 @@ public class UserService : IUserService
     public async Task<UserLoginResponse> Login(string userName, string password)
     {
         var user = await _userRepo.GetUserByUserName(userName);
-        var log = _authControl.CreateLog(user.Id);
-        log.ActionType = "Attempted Login";
-        log.LogDetails = $"{user.UserName} attempted to login!";
-        log.FacilityType = FacilityTypeApp.Person;
-        log.FacilityId = (await _personRepo.Get(x => x.UserId == user.Id))?.Id ?? 0;
-        await _logService.CreateLog(log);
         if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password) && user.UserRole.Role != Role.System)
         {
+            var log = _authControl.CreateLog(user.Id);
+            log.ActionType = "Attempted Login";
+            log.LogDetails = $"{user.UserName} attempted to login!";
+            log.FacilityType = FacilityTypeApp.Person;
+            log.FacilityId = (await _personRepo.Get(x => x.UserId == user.Id))?.Id ?? 0;
+            await _logService.CreateLog(log);
             var data = new UserLoginResponse()
             {
                 Data = new GetUserDto()
