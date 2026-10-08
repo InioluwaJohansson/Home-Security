@@ -229,7 +229,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(appData["AppName"], policy =>
     {
-        policy.WithOrigins(appData["HomeUrl"], appData["MobileApp"], appData["HomeTracker"], appData["HomeTrackerApp"], appData["MicroControllerUrl"], "https://ais-dev-ceqn44pw3o6gczux6aezos-717948104271.europe-west2.run.app", "https://ais-dev-62beulbfxtpne7lrxwnd4x-717948104271.europe-west2.run.app").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+        policy.WithOrigins(appData["HomeUrl"], appData["MobileApp"], appData["HomeTrackerApp"], appData["MicroControllerUrl"], "https://ais-dev-ceqn44pw3o6gczux6aezos-717948104271.europe-west2.run.app", "https://ais-dev-62beulbfxtpne7lrxwnd4x-717948104271.europe-west2.run.app").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
 
