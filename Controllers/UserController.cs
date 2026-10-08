@@ -151,9 +151,10 @@ public class UserController : Controller
         }
         return Unauthorized();
     }
-    [HttpPost("GetSigningCredentials")]
+    [HttpGet("GetSigningCredentials")]
     public async Task<IActionResult> GetSigningCredentials()
     {
+
         var user = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
         if (user == null)
             return Unauthorized();
