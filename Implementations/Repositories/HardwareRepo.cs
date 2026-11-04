@@ -12,7 +12,7 @@ public class HardwareRepo : BaseRepository<Hardware>, IHardwareRepo
     }
     public async Task<Hardware> GetHardwareByFacilityTypeId(int id, FacilityType facilityType)
     {   
-        var Hardware =await context.Hardware.Where(h => !h.IsDeleted).ToListAsync();
+        var Hardware = await context.Hardware.Where(h => !h.IsDeleted).ToListAsync();
         switch (facilityType)
         {
             case FacilityType.Appliance:

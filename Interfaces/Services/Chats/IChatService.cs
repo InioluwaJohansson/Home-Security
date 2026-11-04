@@ -1,5 +1,6 @@
 using Home_Security.Models.ChatDTO;
 using Home_Security.Models.DTOs;
+
 namespace Home_Security.Interfaces.Services.Chats;
 public interface IChatService
 {

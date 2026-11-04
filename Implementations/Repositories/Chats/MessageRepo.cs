@@ -1,13 +1,12 @@
 using Home_Security.Entities.Chats;
-using Home_Security.Implementations.Repositories;
 using Home_Security.Interfaces.Repositories.Chats;
 using Home_Security.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-
-public class MessageRepository : BaseRepository<Message>, IMessageRepo
+namespace Home_Security.Implementations.Repositories.Chats;
+public class MessageRepo : BaseRepository<Message>, IMessageRepo
 {
-    public MessageRepository(HomeSecurityContext _context)
+    public MessageRepo(HomeSecurityContext _context)
     {
         context = _context;
     }
@@ -21,7 +20,7 @@ public class MessageRepository : BaseRepository<Message>, IMessageRepo
     }
     public async Task<List<Message>> GetChatMessagesAsync(int chatId, int page, int pageSize)
     {
-        return await context.Message.Include(x => x.Attachments).Include(x => x.SenderPerson).ThenInclude(p => p.PersonDetails).Where(x => x.ChatId == chatId).OrderByDescending(x => x.SentAt).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        return await context.Message.Include(x => x.Attachments).Include(x => x.SenderPerson).ThenInclude(p => p.PersonDetails).Where(x => x.ChatId == chatId && !x.IsDeleted).OrderByDescending(x => x.SentAt).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
     }
     public async Task<int> GetUnreadCountAsync(int chatId, DateTime? lastReadAt)
     {

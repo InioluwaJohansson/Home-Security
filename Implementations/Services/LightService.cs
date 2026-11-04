@@ -1,4 +1,5 @@
 ﻿using Home_Security.Entities;
+using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
@@ -6,14 +7,12 @@ using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
-
 public class LightService : ILightService
 {
     ILightRepo _lightRepo;
     IHardwareService _hardwareService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
-
     public LightService(ILightRepo lightRepo, IHardwareService hardwareService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _lightRepo = lightRepo;
@@ -21,7 +20,6 @@ public class LightService : ILightService
         _realtime = realtime;
         _mqtt = mqtt;
     }
-
     public async Task<BaseResponse> CreateLight(CreateLightDto createLightDto, int personId)
     {
         if (createLightDto != null)
@@ -39,29 +37,16 @@ public class LightService : ILightService
                 CreatedOn = DateTime.Now,
                 BrightnessLevel = 0,
             };
-
             await _lightRepo.Create(light);
-            var lightData = await _lightRepo.Get(x => x.LightId == light.LightId);
-            await _realtime.NotifyAll("LightCreated", GetDetails(lightData));
-            var hardware = await _hardwareService.GetHardwareName(lightData.Id, FacilityType.Appliance);
-            await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
-            {
-                FacilityType = FacilityType.Light,
-                Id = lightData.Id,
-                BrightnessLevel = 0,
-                IsActive = true,
-                PowerActive = false,
-                IsLocked = false,
-                IsOpen = false
-            });
-
+            var lightData = GetDetails(await _lightRepo.Get(x => x.LightId == light.LightId));
+            if(lightData.IsHidden){ await _realtime.NotifyAll("LightCreated", new List<Role> { Role.Owner, Role.Wife }, lightData);}
+            else await _realtime.NotifyAll("LightCreated", lightData);
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Light Successfully Added!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
@@ -74,46 +59,45 @@ public class LightService : ILightService
         if (updateLightDto != null)
         {
             var light = await _lightRepo.Get(x => x.Id == updateLightDto.Id);
-
-            light.LightName = updateLightDto.LightName ?? light.LightName;
-            light.LastModifiedBy = personId;
-            light.LastModifiedOn = DateTime.Now;
-            light.BrightnessLevel = updateLightDto.BrightnessLevel;
-            light.SectionId = updateLightDto.SectionId ?? null;
-            light.RoomId = updateLightDto.RoomId ?? null;
-            await _lightRepo.Update(light);
-
-            await _realtime.NotifyAll("LightUpdated", GetDetails(light));
-            var hardware = await _hardwareService.GetHardwareName(light.Id, FacilityType.Appliance);
-            await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
+            if(light != null)
             {
-                FacilityType = FacilityType.Light,
-                Id = light.Id,
-                BrightnessLevel = light.BrightnessLevel,
-                IsActive = light.IsActive,
-                PowerActive = light.PowerActive,
-                IsLocked = false,
-                IsOpen = false
-            });
-
-            return new BaseResponse()
-            {
-                Status = true,
-                Message = "Light Updated Successfully!"
-            };
+                light.LightName = updateLightDto.LightName ?? light.LightName;
+                light.LastModifiedBy = personId;
+                light.LastModifiedOn = DateTime.Now;
+                light.BrightnessLevel = updateLightDto.BrightnessLevel;
+                light.IsActive = updateLightDto.IsActive;
+                light.SectionId = updateLightDto.SectionId ?? null;
+                light.RoomId = updateLightDto.RoomId ?? null;
+                await _lightRepo.Update(light);
+                if(light.IsHidden){ await _realtime.NotifyAll("LightUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(light));}
+                else await _realtime.NotifyAll("LightUpdated", GetDetails(light));
+                var hardware = await _hardwareService.GetHardwareName(light.Id, FacilityType.Light);
+                await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
+                {
+                    FacilityType = FacilityType.Light,
+                    Id = light.Id,
+                    BrightnessLevel = light.BrightnessLevel,
+                    IsActive = light.IsActive,
+                    PowerActive = light.PowerActive,
+                    IsLocked = false,
+                    IsOpen = false
+                });
+                return new BaseResponse()
+                {
+                    Status = true,
+                    Message = "Light Updated Successfully!"
+                };
+            }
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Update Light!"
         };
     }
-
     public async Task<LightResponseModel> GetById(int lightId)
     {
         var light = await _lightRepo.Get(x => x.Id == lightId && x.IsDeleted == false);
-
         if (light != null)
         {
             return new LightResponseModel()
@@ -123,7 +107,6 @@ public class LightService : ILightService
                 Message = "Light Retrieved Successfully!"
             };
         }
-
         return new LightResponseModel()
         {
             Data = null,
@@ -131,11 +114,9 @@ public class LightService : ILightService
             Message = "Unable To Retrieve Light!"
         };
     }
-
     public async Task<LightsResponseModel> GetAllLights()
     {
         var lights = await _lightRepo.GetByExpression(x => x.IsDeleted == false);
-
         if (lights != null)
         {
             return new LightsResponseModel()
@@ -145,7 +126,6 @@ public class LightService : ILightService
                 Status = true
             };
         }
-
         return new LightsResponseModel()
         {
             Data = null,
@@ -153,11 +133,9 @@ public class LightService : ILightService
             Status = false
         };
     }
-
     public async Task<LightsResponseModel> GetAllLightsByRoomId(int roomId)
     {
         var lights = await _lightRepo.GetByExpression(x => x.RoomId == roomId && x.IsDeleted == false);
-
         if (lights != null)
         {
             return new LightsResponseModel()
@@ -167,7 +145,6 @@ public class LightService : ILightService
                 Status = true
             };
         }
-
         return new LightsResponseModel()
         {
             Data = null,
@@ -175,11 +152,9 @@ public class LightService : ILightService
             Status = false
         };
     }
-
     public async Task<LightsResponseModel> GetAllLightsBySectionId(int sectionId)
     {
         var lights = await _lightRepo.GetByExpression(x => x.SectionId == sectionId && x.IsDeleted == false);
-
         if (lights != null)
         {
             return new LightsResponseModel()
@@ -189,7 +164,6 @@ public class LightService : ILightService
                 Status = true
             };
         }
-
         return new LightsResponseModel()
         {
             Data = null,
@@ -197,11 +171,9 @@ public class LightService : ILightService
             Status = false
         };
     }
-
     public async Task<BaseResponse> Delete(int lightId, int personId)
     {
         var light = await _lightRepo.Get(x => x.Id == lightId);
-
         if (light != null)
         {
             light.IsActive = false;
@@ -211,14 +183,12 @@ public class LightService : ILightService
             light.DeletedOn = DateTime.Now;
             light.DeletedBy = personId;
             light.IsDeleted = true;
-
             await _lightRepo.Update(light);
-
+            await _hardwareService.RemoveFacilityItem(light.Id, FacilityType.Light);
             await _realtime.NotifyAll("LightDeleted", new
             {
                 light.Id,
             });
-
             await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Light,
@@ -229,21 +199,18 @@ public class LightService : ILightService
                 IsLocked = false,
                 IsOpen = false
             });
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Light Deleted Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Delete Light!"
         };
     }
-
     public GetLightDto GetDetails(Light light)
     {
         return new GetLightDto()

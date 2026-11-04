@@ -28,11 +28,11 @@ public class WindowControl : IWindowControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Window was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = $"{createWindowDto.WindowName} Window was newly added. Awaiting Physical Interfacing!";
+                log.FacilityType = FacilityTypeApp.Window;
                 await _logService.CreateLog(log);
                 return window;
             }
-            
         }
         return _authControl.AuthFaliure();
     }
@@ -47,6 +47,8 @@ public class WindowControl : IWindowControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{updateWindowDto.WindowName} Window was recently updated!";
+                log.FacilityType = FacilityTypeApp.Window;
+                log.FacilityId = updateWindowDto.Id;
                 await _logService.CreateLog(log);
             }
             return window;
@@ -62,52 +64,80 @@ public class WindowControl : IWindowControl
     public async Task<BaseResponse> UnlockWindow(GetAuthControlInfoDto getAuthControlInfoDto, UpdateWindowDto updateWindowDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        var log = _authControl.CreateLog(auth.Id);
         if (auth.Status != false)
         {
-            var fail = _authControl.AuthFaliure();
             var getWindow = await _windowService.GetById(updateWindowDto.Id);
-            if (getWindow != null && getWindow.Data.IsLocked == true)
-            {
-                var personCheck = await _authControl.GetPersonDetails(getWindow.Data.LockedBy);
-                if (_authControl.CompareRole(personCheck.Role, auth.Role))
-                {
-                    updateWindowDto.UnlockedBy = auth.Id;
-                    updateWindowDto.IsLocked = false;
-                    var window = await _windowService.UpdateWindow(updateWindowDto, auth.Id);
-                    if (window.Status == true)
-                    {
-                        var log = _authControl.CreateLog(auth.Id);
-                        log.ActionType = "Unlocke";
-                        log.LogDetails = $"{updateWindowDto.WindowName}  Window was locked!";
-                        await _logService.CreateLog(log);
-                    }
-                    return window;
-                }
-                fail.Message = "Persmission Required";
-                return fail;
+            if(getWindow != null && getWindow.Data.IsOpen == true){  
+                updateWindowDto.IsOpen = false;
+                log.ActionType = "Closed";
+                log.LogDetails = $"{updateWindowDto.WindowName} Window is Closed!";
+                log.FacilityType = FacilityTypeApp.Window;
+                log.FacilityId = updateWindowDto.Id;
             }
-            fail.Message = "Unauthorized Action";
-            return fail;
+            else if(getWindow != null && getWindow.Data.IsOpen == false && getWindow.Data.IsLocked == false)
+            {
+                updateWindowDto.IsOpen = true;
+                log.ActionType = "Open";
+                log.LogDetails = $"{updateWindowDto.WindowName} Window is Open!";
+                log.FacilityType = FacilityTypeApp.Window;
+                log.FacilityId = updateWindowDto.Id;
+            }
+            updateWindowDto.UnlockedBy = auth.Id;
+            var door = await _windowService.UpdateWindow(updateWindowDto, auth.Id);
+            if (door.Status == true)    await _logService.CreateLog(log);
+            return door;
         }
         return _authControl.AuthFaliure();
     }
     public async Task<BaseResponse> LockWindow(GetAuthControlInfoDto getAuthControlInfoDto, UpdateWindowDto updateWindowDto)
     {
+        var fail = _authControl.AuthFaliure();
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
         {
-            updateWindowDto.IsOpen = false;
-            updateWindowDto.LockedBy = auth.Id;
-            updateWindowDto.IsLocked = true;
-            var window = await _windowService.UpdateWindow(updateWindowDto, auth.Id);
-            if (window.Status == true)
+            var getDoor = await _windowService.GetById(updateWindowDto.Id);
+            if(getDoor != null && getDoor.Data.IsLocked == true)
             {
-                var log = _authControl.CreateLog(auth.Id);
-                log.ActionType = "Locked";
-                log.LogDetails = $"{updateWindowDto.WindowName} Window was Locked!";
-                await _logService.CreateLog(log);
+                var personCheck = await _authControl.GetPersonDetails(getDoor.Data.LockedBy);
+                if(_authControl.CompareRole(personCheck.Role, auth.Role))
+                {
+                    updateWindowDto.UnlockedBy = auth.Id;
+                    updateWindowDto.IsLocked = false;
+                    var door = await _windowService.UpdateWindow(updateWindowDto, auth.Id);
+                    if (door.Status == true)
+                    {
+                        var log = _authControl.CreateLog(auth.Id);
+                        log.ActionType = "Unlock";
+                        log.LogDetails = $"{updateWindowDto.WindowName} Window was unlocked!";
+                        log.FacilityType = FacilityTypeApp.Window;
+                        log.FacilityId = updateWindowDto.Id;
+                        await _logService.CreateLog(log);
+                    }
+                    return door;
+                }
+                fail.Message = "Persmission Required";
+                return fail;
             }
-            return window;
+            else if (getDoor != null && getDoor.Data.IsLocked == false)
+            {
+                updateWindowDto.UnlockedBy = auth.Id;
+                updateWindowDto.IsLocked = true;
+                updateWindowDto.IsOpen = false;
+                var door = await _windowService.UpdateWindow(updateWindowDto, auth.Id);
+                if (door.Status == true)
+                {
+                    var log = _authControl.CreateLog(auth.Id);
+                    log.ActionType = "Lock";
+                    log.LogDetails = $"{updateWindowDto.WindowName} Window was locked!";
+                    log.FacilityType = FacilityTypeApp.Window;
+                    log.FacilityId = updateWindowDto.Id;
+                    await _logService.CreateLog(log);
+                }
+                return door;
+            }
+            fail.Message = "Unauthorized Action";
+            return fail;           
         }
         return _authControl.AuthFaliure();
     }
@@ -215,6 +245,8 @@ public class WindowControl : IWindowControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getWindow} Window was Deleted!";
+                log.FacilityType = FacilityTypeApp.Window;
+                log.FacilityId = windowId;
                 await _logService.CreateLog(log);
                 return window;
             }

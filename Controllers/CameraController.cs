@@ -54,6 +54,42 @@ public class CameraController : Controller
         return Ok(camera);
     }
     [Authorize]
+    [HttpPut("RestartCamera")]
+    public async Task<IActionResult> RestartCamera(int id)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        var camera = await _cameraControl.RestartCamera(getAuthControlInfoDto, id);
+        if (camera.Status == true)
+        {
+            return Ok(camera);
+        }
+        return Ok(camera);
+    }
+    [Authorize]
+    [HttpPost("ToggleCamera")]
+    public async Task<IActionResult> ToggleCamera(int id)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        var camera = await _cameraControl.ToggleCamera(getAuthControlInfoDto, id);
+        if (camera.Status == true)
+        {
+            return Ok(camera);
+        }
+        return Ok(camera);
+    }
+    [Authorize]
     [HttpPost("GetCameraById")]
     public async Task<IActionResult> GetCameraById(int id)
     {

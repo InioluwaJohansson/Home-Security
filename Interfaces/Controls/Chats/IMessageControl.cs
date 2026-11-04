@@ -9,5 +9,6 @@ public interface IMessageControl
     public Task<List<MessageDto>> GetChatMessages(GetAuthControlInfoDto getAuthControlInfoDto, int chatId, int page, int pageSize);
     public Task<BaseResponse> DeleteMessage(GetAuthControlInfoDto getAuthControlInfoDto, int messageId);
     public Task<int> GetUnreadCount(GetAuthControlInfoDto getAuthControlInfoDto, int chatId);
-    Task Typing(GetAuthControlInfoDto getAuthControlInfoDto, int chatId);
+    Task Typing(GetAuthControlInfoDto getAuthControlInfoDto, int chatId, string action);
+    Task MarkAsReadAsync(GetAuthControlInfoDto getAuthControlInfoDto, int chatId);
 }

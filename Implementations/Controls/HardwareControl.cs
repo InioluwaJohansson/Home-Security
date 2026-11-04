@@ -28,6 +28,7 @@ public class HardwareControl : IHardwareControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
                 log.LogDetails = "A Hardware was newly added. Awaiting Physical Interfacing!";
+                log.FacilityType = FacilityTypeApp.Hardware;
                 await _logService.CreateLog(log);
             }
             return hardware;
@@ -45,6 +46,8 @@ public class HardwareControl : IHardwareControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = "A Hardware was updated. Awaiting Physical Interfacing!";
+                log.FacilityType = FacilityTypeApp.Hardware;
+                log.FacilityId = updateHardwareDto.Id;
                 await _logService.CreateLog(log);
             }
             return hardware;

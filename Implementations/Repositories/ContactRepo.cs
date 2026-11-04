@@ -11,22 +11,22 @@ public class ContactRepo : BaseRepository<Contact>, IContactRepo
     }
     public async Task<Contact> GetById(int id)
     {
-        return await context.Contact.Include(x => x.ContactDetails).Include(x => x.Address).SingleOrDefaultAsync(x => x.Id == id);   
+        return await context.Contact.Include(x => x.ContactDetails).Include(x => x.Category).Include(x => x.Address).SingleOrDefaultAsync(x => x.Id == id);   
     }
     public async Task<List<Contact>> GetByFirstName(string name)
     {
-        return await context.Contact.Include(x => x.ContactDetails).Include(x => x.Address).Where(x => x.FirstName.StartsWith(name)).ToListAsync();
+        return await context.Contact.Include(x => x.ContactDetails).Include(x => x.Category).Include(x => x.Address).Where(x => x.FirstName.StartsWith(name)).ToListAsync();
     }
     public async Task<List<Contact>> GetByLastName(string name)
     {
-        return await context.Contact.Include(x => x.ContactDetails).Include(x => x.Address).Where(x => x.LastName.StartsWith(name)).ToListAsync();
+        return await context.Contact.Include(x => x.ContactDetails).Include(x => x.Category).Include(x => x.Address).Where(x => x.LastName.StartsWith(name)).ToListAsync();
     }
     public async Task<List<Contact>> GetByContactCategory(int contactCategory)
     {
-        return await context.Contact.Include(x => x.ContactDetails).Include(x => x.Address).Where(x => x.ContactCategory == contactCategory).ToListAsync();
+        return await context.Contact.Include(x => x.ContactDetails).Include(x => x.Category).Include(x => x.Address).Where(x => x.ContactCategoryId == contactCategory).ToListAsync();
     }
     public async Task<List<Contact>> List()
     {
-        return await context.Contact.Include(x => x.ContactDetails).Include(x => x.Address).ToListAsync();
+        return await context.Contact.Include(x => x.ContactDetails).Include(x => x.Category).Include(x => x.Address).ToListAsync();
     }
 }

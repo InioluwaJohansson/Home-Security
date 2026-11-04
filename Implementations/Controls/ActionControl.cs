@@ -2,6 +2,7 @@ using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 namespace Home_Security.Implementations.Controls;
 public class ActionControl : IActionControl
 {
@@ -25,7 +26,8 @@ public class ActionControl : IActionControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "An Action was newly added!";
+                log.LogDetails = $"{createActionDto.ActionName} Action was newly added!";
+                log.FacilityType = FacilityTypeApp.Action;
                 await _logService.CreateLog(log);
             }
             return action;
@@ -43,6 +45,8 @@ public class ActionControl : IActionControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{updateActionDto.ActionName} Action was recently updated!";
+                log.FacilityType = FacilityTypeApp.Action;
+                log.FacilityId = updateActionDto.Id;
                 await _logService.CreateLog(log);
             }
             
@@ -59,7 +63,7 @@ public class ActionControl : IActionControl
             action.Data = DtoRefactor(action.Data);
             return action;
         }
-        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
+        else if (auth.Status != false && auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
             return new ActionResponseModel()
             {
@@ -100,13 +104,20 @@ public class ActionControl : IActionControl
     public async Task<ActionsResponseModel> GetAllActions(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false && auth.Role == Role.Owner || auth.Role == Role.Wife || auth.Role == Role.Child)
+        if (auth.Status != false && auth.Role == Role.Owner)
         {
             var action = await _actionService.GetAllActions();
             action.Data = action.Data.Select(x => DtoRefactor(x)).ToList();
             return action;
         }
-        else if (auth.Status != false && auth.Role == Role.Child || auth.Role == Role.Relative || auth.Role == Role.Visitor)
+        else if(auth.Status != false && auth.Role == Role.Wife || auth.Role == Role.Child)
+        {
+            var action = await _actionService.GetAllActions();
+            action.Data = action.Data.Where(x => x.IsPrivate == false || x.personId == auth.Id).ToList();
+            action.Data = action.Data.Select(x => DtoRefactor(x)).ToList();
+            return action;
+        }
+        else if (auth.Status != false && auth.Role == Role.Relative || auth.Role == Role.Visitor)
         {
             return new ActionsResponseModel()
             {
@@ -134,6 +145,8 @@ public class ActionControl : IActionControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getAction} Action was Deleted!";
+                log.FacilityType = FacilityTypeApp.Action;
+                log.FacilityId = actionId;
                 await _logService.CreateLog(log);
             }
             return action;

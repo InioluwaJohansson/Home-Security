@@ -6,7 +6,7 @@ using Home_Security.Interfaces.Services.Chats;
 using Home_Security.Models.ChatDTO;
 using Home_Security.Models.DTOs;
 using Home_Security.RealTimeServices;
-namespace Home_Security.Implementations.Controls.Messages;
+namespace Home_Security.Implementations.Controls;
 public class MessageControl : IMessageControl
 {
     IAuthControl _authControl;
@@ -57,7 +57,13 @@ public class MessageControl : IMessageControl
             return await _messageService.GetUnreadCountAsync(chatId, auth.Id);
         return 0;
     }
-    public async Task Typing(GetAuthControlInfoDto getAuthControlInfoDto, int chatId)
+    public async Task MarkAsReadAsync(GetAuthControlInfoDto getAuthControlInfoDto, int chatId)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false)
+            await _messageService.MarkAsReadAsync(chatId, auth.Id);
+    }
+    public async Task Typing(GetAuthControlInfoDto getAuthControlInfoDto, int chatId, string action)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
         if (auth.Status != false)
@@ -66,6 +72,7 @@ public class MessageControl : IMessageControl
                ChatId = chatId,
                PersonId = auth.Id,
                Name = _authControl.GetUserPersonName(auth.Id),
+               Action = action,
                IsTyping = true
            });
     }

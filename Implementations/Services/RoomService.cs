@@ -1,4 +1,5 @@
 ﻿using Home_Security.Entities;
+using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
@@ -34,8 +35,9 @@ public class RoomService : IRoomService
             };
             await _roomRepo.Create(room);
             var roomData = await _roomRepo.Get(x => x.RoomId == room.RoomId);
-            await _realtime.NotifyAll("RoomCreated", GetDetails(await _roomRepo.GetById(roomData.Id)));
-
+            var roomSend = GetDetails(await _roomRepo.GetById(roomData.Id));
+            if(roomData.IsHidden){ await _realtime.NotifyAll("RoomCreated", new List<Role> { Role.Owner, Role.Wife }, roomSend);}
+            else await _realtime.NotifyAll("RoomCreated", roomSend);
             return new BaseResponse()
             {
                 Status = true,
@@ -68,11 +70,9 @@ public class RoomService : IRoomService
             }
             room.LastModifiedBy = personId;
             room.LastModifiedOn = DateTime.Now;
-
             await _roomRepo.Update(room);
-
-            await _realtime.NotifyAll("RoomUpdated", GetDetails(room));
-
+            if(room.IsHidden){ await _realtime.NotifyAll("RoomUpdated", new List<Role> { Role.Owner, Role.Wife }, room);}
+            else await _realtime.NotifyAll("RoomUpdated", room);
             return new BaseResponse()
             {
                 Status = true,
@@ -190,11 +190,8 @@ public class RoomService : IRoomService
             room.DeletedBy = personId;
             room.LastModifiedBy = personId;
             room.LastModifiedOn = DateTime.Now;
-
             await _roomRepo.Update(room);
-
             await _realtime.NotifyAll("RoomDeleted", id);
-
             return new BaseResponse()
             {
                 Status = true,
@@ -255,7 +252,7 @@ public class RoomService : IRoomService
         {
             Id = door.Id,
             DoorName = door.DoorName,
-            DoorType = door.DoorType,
+            DoorType = door.DoorType.ToString(),
             IsLocked = door.IsLocked,
             IsOpen = door.IsOpen,
             OpenedBy = door.OpenedBy,
@@ -281,23 +278,24 @@ public class RoomService : IRoomService
             Id = camera.Id,
             CameraName = camera.CameraName,
             CameraId = camera.CameraId,
-
             IsActive = camera.IsActive,
             PowerActive = camera.PowerActive,
-
             RoomId = camera.RoomId,
             SectionId = camera.SectionId,
-
             LastModifiedBy = camera.LastModifiedBy,
             DeletedBy = camera.DeletedBy,
             CreatedBy = camera.CreatedBy,
-
             LastModifiedOn = camera.LastModifiedOn,
             CreatedOn = camera.CreatedOn,
-
+            Port = camera.Port,
+            IpAddress = camera.IpAddress,
+            Username = camera.Username,
+            StreamPath = camera.StreamPath,
             LiveStreamUrl = camera.LiveStreamUrl,
             Recordings = camera.Recordings.Select(x => new GetRecordingDto
             {
+                CameraId = x.CameraId,
+                FileName = x.FileName,
                 FilePath = x.FilePath,
                 StartTime = x.StartTime,
                 EndTime = x.EndTime

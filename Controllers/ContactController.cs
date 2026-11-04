@@ -54,42 +54,6 @@ public class ContactController : Controller
         return Ok(contact);
     }
     [Authorize]
-    [HttpPut("AddContactAddress")]
-    public async Task<IActionResult> AddContactAddress(int contactId, [FromForm] List<CreateAddressDto> createAddressDtos)
-    {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
-        if (user == null)
-            return Unauthorized();
-        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = user.PersonId,
-            AuthorizationCode = user.AuthorizationCode,
-        };
-        var contact = await _contactControl.AddContactAddress(getAuthControlInfoDto, contactId, createAddressDtos);
-        if (contact.Status == true)
-        {
-            return Ok(contact);
-        }
-        return Ok(contact);
-    }
-    [Authorize]
-    [HttpPut("AddContactDetails")]
-    public async Task<IActionResult> AddContactDetails(int contactId, [FromForm] List<CreateContactDetailsDto> createContactDetailsDtos)
-    {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
-        if (user == null)
-            return Unauthorized();
-        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = user.PersonId,
-            AuthorizationCode = user.AuthorizationCode,
-        };
-        var contact = await _contactControl.AddContactDetails(getAuthControlInfoDto, contactId, createContactDetailsDtos);
-        if (contact.Status == true)
-        {
-            return Ok(contact);
-        }
-        return Ok(contact);
-    }
-    [Authorize]
     [HttpPost("GetContactById")]
     public async Task<IActionResult> GetContactById(int id)
     {

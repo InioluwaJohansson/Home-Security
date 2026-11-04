@@ -4,6 +4,8 @@ using Home_Security.Models.ChatDTO;
 using Home_Security.Entities.Chats;
 using Home_Security.RealTimeServices;
 using Home_Security.Models.DTOs;
+
+namespace Home_Security.Implementations.Services.Chats;
 public class MessageService : IMessageService
 {
     private readonly IMessageRepo _messageRepo;
@@ -19,6 +21,13 @@ public class MessageService : IMessageService
     public async Task<BaseResponse> SendMessageAsync(SendMessageDto dto, int senderId)
     {
         var isParticipant = await _chatRepo.IsParticipantAsync(dto.ChatId, senderId);
+        Console.WriteLine($"Chat Id: {dto.ChatId}, Sender Id: {senderId}");
+        Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(
+            dto,
+            new System.Text.Json.JsonSerializerOptions
+            {
+                WriteIndented = true
+            }));
         if (!isParticipant)
         {
             return new BaseResponse()
@@ -34,19 +43,19 @@ public class MessageService : IMessageService
             SenderPersonId = senderId,
             ReplyToMessageId = dto.ReplyToMessageId,
             Content = dto.Content,
-            Type = dto.Type,
+            Type = MessageType.Text,
             SentAt = date,
             Attachments = (await Task.WhenAll(
             dto.Attachments?.Select(async a => new MessageAttachment
             {
                 FileName = a.FileName,
-                FilePath = await GetAttachmentUrl(a.FilePath, dto.Type),
-                ContentType = a.ContentType,
+                FilePath = await GetAttachmentUrl(a.FilePath, a.Type),
+                ContentType = a.Type.ToString(),
                 FileSize = a.FileSize,
                 ThumbnailPath = a.ThumbnailPath
             }))).ToList()
         };
-        await _messageRepo.Create(message);
+        message = await _messageRepo.Create(message);
         var messageData = await _messageRepo.GetMessageByExpression(x => x.SentAt == date && !x.IsDeleted);
         await _chatHub.UpdateChat("MessageSent", message.ChatId, MapToDto(messageData));
         return new BaseResponse()
@@ -177,23 +186,16 @@ public class MessageService : IMessageService
             SenderName = $"{message.SenderPerson.PersonDetails.FirstName} {message.SenderPerson.PersonDetails.LastName}",
             SenderProfileImage = message.SenderPerson.PersonDetails.ImageUrl ?? "",
             Attachments = message.Attachments?
-                .Select(a => new GetMessageAttachmentDto
-                {
-                    FileName = a.FileName,
-                    FilePath = a.FilePath,
-                    ContentType = a.ContentType,
-                    FileSize = a.FileSize,
-                    ThumbnailPath = a.ThumbnailPath
-                })
-                .ToList() ?? new List<GetMessageAttachmentDto>()
+            .Select(a => new GetMessageAttachmentDto
+            {
+                FileName = a.FileName,
+                FilePath = a.FilePath,
+                ContentType = a.ContentType,
+                FileSize = a.FileSize,
+                ThumbnailPath = a.ThumbnailPath
+            })
+            .ToList() ?? new List<GetMessageAttachmentDto>()
         };
-    }
-    public static string? ConvertImageToBase64(string? path)
-    {
-        if (!File.Exists(path))
-            return null;
-        var bytes = File.ReadAllBytes(path);
-        return Convert.ToBase64String(bytes);
     }
     public async Task<string> GetAttachmentUrl(IFormFile file, MessageType type)
     {
@@ -201,16 +203,16 @@ public class MessageService : IMessageService
             return string.Empty;
         var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
         var storagePath = Path.Combine(basePath, "storage");
-        var folderName = type switch
+        var folderName = Path.Combine("Messages" ,type switch
         {
             MessageType.Image => "Images",
             MessageType.Video => "Videos",
             MessageType.Audio => "Audios",
             MessageType.File => "Files",
             _ => "Others"
-        };
+        });
         var folderPath = Path.Combine(storagePath, folderName);
-        Directory.CreateDirectory(folderPath);
+        if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         var extension = Path.GetExtension(file.FileName);
         var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
         var absolutePath = Path.Combine(folderPath, uniqueFileName);

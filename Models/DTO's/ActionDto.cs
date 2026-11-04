@@ -5,12 +5,18 @@ public class CreateActionDto
 {
     public string ActionName { get; set; }
     public string Description { get; set; }
+    public bool IsPrivate { get; set; }
+    public bool IsRecurring { get; set; }
+    public TimeSpan Time { get; set; }
 }
 public class UpdateActionDto
 {
     public int Id { get; set; }
     public string ActionName { get; set; }
     public string Description { get; set; }
+    public bool IsPrivate { get; set; }
+    public bool IsRecurring { get; set; }
+    public TimeSpan Time { get; set; }
 }
 public class CreateActionStepDto
 {
@@ -51,6 +57,9 @@ public class GetActionDto : UserBaseDefaultDto
     public string ActionName { get; set; }
     public string ActionDescription { get; set; }
     public bool ActionActive { get; set; }
+    public bool IsPrivate { get; set; }
+    public bool IsRecurring { get; set; }
+    public TimeSpan? Time { get; set; }
     public List<GetActionStepDto> GetActionStepDtos { get; set; }
 }
 public class ActionResponseModel : BaseResponse

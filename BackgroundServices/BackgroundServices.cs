@@ -5,10 +5,12 @@ using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
+using Home_Security.Interfaces.Services.Calls;
 using Home_Security.Models.DTOs;
 using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 using Home_Security.StartUp;
+using Home_Security.Streaming;
 using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -23,10 +25,7 @@ public class BackgroundServices : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using var scope = _serviceScopeFactory.CreateAsyncScope();
-        
-        
-        // var hardwareService = scope.ServiceProvider.GetRequiredService<IHardwareService>();
-        // await hardwareService.CheckHardwareStatus();
+        // Any Other Thing
         await Task.CompletedTask;
     }
 }
@@ -42,49 +41,18 @@ public class StartupInitializer : IHostedService
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<HomeSecurityContext>();
         await context.Database.MigrateAsync();
-        var personService = scope.ServiceProvider.GetRequiredService<IPersonService>();
-        //await personService.InjectDefaultUser();
-        var userRepo = scope.ServiceProvider.GetRequiredService<IUserRepo>();
-        var userData = await userRepo.GetAllUsers();
-        try
-        {
-            foreach(var data in userData) Console.WriteLine(data.UserName ?? "null");
-            if (userData?.FirstOrDefault(x => x.UserRole.Role == Role.Owner) == null)
-            {
-                var encryption = scope.ServiceProvider.GetRequiredService<IEncryptionService>();
-                var person = await encryption.DecryptObjectAsync();
-                if(person != null){
-                    await personService.CreatePerson(person);
-                    encryption.DeleteFile();
-                }
-                else
-                {
-                    var startUp = scope.ServiceProvider.GetRequiredService<IStartUpService>();
-                    var personStartUp = startUp.CreatePerson();
-                    await encryption.EncryptFileAsync(personStartUp);
-                    await personService.CreatePerson(personStartUp);
-                    Console.WriteLine("\n✅ Person created successfully!");
-                    Console.WriteLine($"Name: {personStartUp.CreatePersonDetailsDto.FirstName} {personStartUp.CreatePersonDetailsDto.LastName}");
-                }
-            }
-            else Console.WriteLine("\n✅ Users Exist!");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"StartupInitializer error: {ex.Message}");
-        }
+        var startUp = scope.ServiceProvider.GetRequiredService<IStartUpService>();
+        await startUp.InitateStartUp();
     }
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 }
 public class AuthServices : BackgroundService
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
-
     public AuthServices(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
     }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
@@ -106,12 +74,10 @@ public class AuthServices : BackgroundService
 public class HardwareServices : BackgroundService
 {
     private readonly IServiceScopeFactory _serviceScopeFactory;
-
     public HardwareServices(IServiceScopeFactory serviceScopeFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
     }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
@@ -131,20 +97,88 @@ public class HardwareServices : BackgroundService
             await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
         }
     }
-    public class MqttBackgroundService : BackgroundService
+}
+public class MqttBackgroundService : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    public MqttBackgroundService(IServiceScopeFactory scopeFactory)
     {
-        private readonly IServiceScopeFactory _scopeFactory;
-
-        public MqttBackgroundService(IServiceScopeFactory scopeFactory)
-        {
-            _scopeFactory = scopeFactory;
-        }
-
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            using var scope = _scopeFactory.CreateScope();
-            var mqttService = scope.ServiceProvider.GetRequiredService<IMqttService>();
-            await mqttService.ConnectAsync(stoppingToken);
-        }
+        _scopeFactory = scopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var mqttService = scope.ServiceProvider.GetRequiredService<IMqttService>();
+        await mqttService.ConnectAsync(stoppingToken);
+    }
+}
+public class CameraStreamingBackgroundService : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    public CameraStreamingBackgroundService(IServiceScopeFactory scopeFactory)
+    {
+        _scopeFactory = scopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var cameraStreamingService = scope.ServiceProvider.GetRequiredService<ICameraStreamingService>();
+        await cameraStreamingService.StartProcessingCameras(stoppingToken);
+    }
+}
+public class RecordingCleanUpBackgroundService : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    public RecordingCleanUpBackgroundService(IServiceScopeFactory scopeFactory)
+    {
+        _scopeFactory = scopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var recordingCleanUpService = scope.ServiceProvider.GetRequiredService<IRecordingCleanUpService>();
+        await recordingCleanUpService.SyncAllRecordings(stoppingToken);
+    }
+}
+public class RecordingCleanUpBackgroundServiceDelete : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    public RecordingCleanUpBackgroundServiceDelete(IServiceScopeFactory scopeFactory)
+    {
+        _scopeFactory = scopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var recordingCleanUpService = scope.ServiceProvider.GetRequiredService<IRecordingCleanUpService>();
+        await recordingCleanUpService.ExecuteCleanUp(stoppingToken);
+    }
+}
+public class CallTimeoutBackgroundService  : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    public CallTimeoutBackgroundService (IServiceScopeFactory scopeFactory)
+    {
+        _scopeFactory = scopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var callService = scope.ServiceProvider.GetRequiredService<ICallService>();
+        await callService.ExecuteAllAsync(stoppingToken);
+    }
+}
+public class ReccuringActionsBackgroundService  : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    public ReccuringActionsBackgroundService (IServiceScopeFactory scopeFactory)
+    {
+        _scopeFactory = scopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var callService = scope.ServiceProvider.GetRequiredService<IActionService>();
+        await callService.RunAllReccuringActions(stoppingToken);
     }
 }

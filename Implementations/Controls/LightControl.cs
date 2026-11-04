@@ -3,6 +3,7 @@ using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 namespace Home_Security.Implementations.Controls;
 public class LightControl : ILightControl
 {
@@ -25,7 +26,8 @@ public class LightControl : ILightControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Light was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = $"{createLightDto.LightName} Light was newly added. Awaiting Physical Interfacing!";
+                log.FacilityType = FacilityTypeApp.Light;
                 await _logService.CreateLog(log);
             }
             return light;
@@ -43,6 +45,8 @@ public class LightControl : ILightControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{updateLightDto.LightName} Light was recently updated!";
+                log.FacilityType = FacilityTypeApp.Light;
+                log.FacilityId = updateLightDto.Id;
                 await _logService.CreateLog(log);
             }
             return light;
@@ -153,6 +157,8 @@ public class LightControl : ILightControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getLight} Light was Deleted!";
+                log.FacilityType = FacilityTypeApp.Light;
+                log.FacilityId = lightId;
                 await _logService.CreateLog(log);
             }
             return light;

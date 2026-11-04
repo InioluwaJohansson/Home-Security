@@ -4,6 +4,8 @@ using Home_Security.Models.ChatDTO;
 using Home_Security.Entities.Chats;
 using Home_Security.Models.DTOs;
 using Home_Security.RealTimeServices;
+
+namespace Home_Security.Implementations.Services.Chats;
 public class ChatService : IChatService
 {
     private readonly IChatRepo _chatRepo;
@@ -37,7 +39,7 @@ public class ChatService : IChatService
         };
         var chatData = await _chatRepo.Create(chat);
         
-        await _chatHub.UpdateChat("ChatCreated", chatData.Id, MapToDto(chatData));
+        await _chatHub.UpdateChat("ChatCreated", MapToDto(chatData));
         return MapToDto(chat);
     }
     public async Task<ChatDto> CreateGroupChatAsync(CreateGroupChatDto dto, int currentPersonId)
@@ -47,7 +49,7 @@ public class ChatService : IChatService
             IsGroup = true,
             Name = dto.Name,
             Description = dto.Description,
-            ImageUrl = await GetImageUrl(dto.ImageUrl ?? null),
+            ImageUrl = await GetImageUrl(dto.ImageUrl) ?? null,
             CreatedByPersonId = currentPersonId,
             Participants = dto.ParticipantPersonIds.Append(currentPersonId).Distinct()
             .Select(x => new ChatParticipant
@@ -56,9 +58,8 @@ public class ChatService : IChatService
                 IsAdmin = x == currentPersonId
             }).ToList()
         };
-        var chatData = await _chatRepo.Create(chat);
-        
-        await _chatHub.UpdateChat("GroupChatCreated", chatData.Id, MapToDto(chatData));
+        var chatData = await _chatRepo.Create(chat);        
+        await _chatHub.UpdateChat("GroupChatCreated", MapToDto(chatData));
         return MapToDto(chatData);
     }
     public async Task<List<ChatDto>> GetMyChatsAsync(int personId)
@@ -108,8 +109,7 @@ public class ChatService : IChatService
         }
         chat.Name = dto.Name ?? chat.Name;
         chat.Description = dto.Description ?? chat.Description;
-        if (dto.ImageUrl != null)
-            chat.ImageUrl = chat.ImageUrl ?? await GetImageUrl(dto.ImageUrl);
+        if (dto.ImageUrl != null)   chat.ImageUrl = await GetImageUrl(dto.ImageUrl) ?? chat.ImageUrl;
         await _chatRepo.Update(chat);
         await _chatHub.UpdateChat("GroupChatUpdated", chat.Id, MapToDto(chat));
         return new BaseResponse()
@@ -207,8 +207,8 @@ public class ChatService : IChatService
         }));    
         return new BaseResponse()
         {
-            Status = false,
-            Message = "Unable to find chat!"  
+            Status = true,
+            Message = "Participant(s) Added!"  
         };
     }
     public async Task<BaseResponse> RemoveParticipantAsync(int chatId, int personId, int currentPersonId)
@@ -293,7 +293,8 @@ public class ChatService : IChatService
                     IsAdmin = p.IsAdmin,
                     IsOnline = false,
                     FullName = "",
-                    ProfileImageUrl = null
+                    ProfileImageUrl = null,
+                    LastReadAt = p.LastReadAt
                 })
                 .ToList() ?? new List<ChatParticipantDto>(),
             LastMessage = chat.Messages?
@@ -308,8 +309,6 @@ public class ChatService : IChatService
                     IsEdited = x.IsEdited,
                     IsDeleted = x.IsDeleted,
                     SentAt = x.SentAt,
-                    SenderName = "",
-                    SenderProfileImage = null,
                     Attachments = x.Attachments?
                     .Select(a => new GetMessageAttachmentDto
                     {
@@ -324,27 +323,39 @@ public class ChatService : IChatService
             UnreadCount = 0
         };
     }
-    public static string? ConvertImageToBase64(string? path)
-    {
-        if (string.IsNullOrWhiteSpace(path))
-            return null;
-        if (!File.Exists(path))
-            return null;
-        var bytes = File.ReadAllBytes(path);
-        return Convert.ToBase64String(bytes);
-    }
-    public async Task<string> GetImageUrl(IFormFile file){
+    public async Task<string> GetImageUrl(string file){
         if (file == null || file.Length == 0)
             return string.Empty;
+        if (string.IsNullOrWhiteSpace(file))
+            return null;
+        string extension = ".bin";
+        if (file.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+        {
+            var header = file[..file.IndexOf(',')];
+            var mimeType = header.Replace("data:", "").Replace(";base64", "");
+            extension = mimeType.ToLower() switch
+            {
+                "image/jpeg" => ".jpg",
+                "image/jpg"  => ".jpg",
+                "image/png"  => ".png",
+                "image/gif"  => ".gif",
+                "image/webp" => ".webp",
+                "image/bmp"  => ".bmp",
+                "image/tiff" => ".tiff",
+                "image/svg+xml" => ".svg",
+                _ => ".bin"
+            };
+            file = file[(file.IndexOf(',') + 1)..];
+        }
+        byte[] bytes = Convert.FromBase64String(file);
         var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
         var storagePath = Path.Combine(basePath, "storage");
-        var folderPath = Path.Combine(storagePath, "Images");
-        Directory.CreateDirectory(folderPath);
-        var extension = Path.GetExtension(file.FileName);
+        var folderName = Path.Combine("Chat", "Images");
+        var folderPath = Path.Combine(storagePath, folderName);
+        if(!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         var uniqueFileName = $"{Guid.NewGuid():N}{extension}";
         var absolutePath = Path.Combine(folderPath, uniqueFileName);
-        await using var stream = new FileStream(absolutePath, FileMode.Create);
-        await file.CopyToAsync(stream);
-        return Path.Combine("Images", uniqueFileName);
+        await File.WriteAllBytesAsync(absolutePath, bytes);
+        return Path.Combine(folderName, uniqueFileName);
     }
 }

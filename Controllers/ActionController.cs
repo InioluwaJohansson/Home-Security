@@ -54,6 +54,24 @@ public class ActionController : Controller
         return Ok(action);
     }
     [Authorize]
+    [HttpPost("ActivateDeactivateAction")]
+    public async Task<IActionResult> ActivateDeactivateAction(int id)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        var action = await _actionControl.ActivateDeactivateAction(getAuthControlInfoDto, id);
+        if (action.Status == true)
+        {
+            return Ok(action);
+        }
+        return Ok(action);
+    }
+    [Authorize]
     [HttpPost("GetActionById")]
     public async Task<IActionResult> GetActionById(int id)
     {

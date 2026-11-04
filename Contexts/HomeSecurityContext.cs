@@ -2,9 +2,9 @@
 using Home_Security.Entities;
 using Home_Security.Entities.Identity;
 using Home_Security.Entities.Chats;
+using Home_Security.Entities.Calls;
 
 namespace Home_Security.Context;
-
 public class HomeSecurityContext: DbContext
 {
     public HomeSecurityContext(DbContextOptions<HomeSecurityContext> optionsBuilder): base(optionsBuilder)
@@ -52,4 +52,8 @@ public class HomeSecurityContext: DbContext
     public DbSet<ChatParticipant> ChatParticipant { get; set; }
     public DbSet<Message> Message { get; set; }
     public DbSet<MessageAttachment> MessageAttachment { get; set; }
+
+    //Calls
+    public DbSet<Call> Calls { get; set; }
+    public DbSet<CallParticipant> CallParticipants { get; set; }
 }

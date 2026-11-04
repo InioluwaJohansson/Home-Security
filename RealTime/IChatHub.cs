@@ -5,5 +5,5 @@ namespace Home_Security.RealTimeServices;
 public interface IChatHub
 {
     Task UpdateChat(string eventName, int chatId, object update);
-
+    Task UpdateChat(string eventName, ChatDto update);
 }

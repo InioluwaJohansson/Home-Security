@@ -22,60 +22,6 @@ namespace Home_Security.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("ChatParticipant", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ChatId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("DeletedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeletedOn")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<bool>("IsAdmin")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<bool>("IsMuted")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<DateTime>("JoinedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("LastModifiedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime?>("LastReadAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("PersonId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChatId");
-
-                    b.ToTable("ChatParticipant");
-                });
-
             modelBuilder.Entity("Home_Security.Entities.Action", b =>
                 {
                     b.Property<int>("Id")
@@ -114,18 +60,30 @@ namespace Home_Security.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<bool>("IsPrivate")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsRecurring")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("LastModifiedBy")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("LastModifiedOn")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<DateTime>("LastRunDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("PersonId")
                         .HasColumnType("int");
 
+                    b.Property<TimeSpan?>("Time")
+                        .HasColumnType("time(6)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Action");
+                    b.ToTable("Action", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.ActionStep", b =>
@@ -182,7 +140,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("ActionId");
 
-                    b.ToTable("ActionStep");
+                    b.ToTable("ActionStep", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Address", b =>
@@ -254,7 +212,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("PersonDetailsId");
 
-                    b.ToTable("Address");
+                    b.ToTable("Address", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Appliance", b =>
@@ -318,7 +276,120 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Appliance");
+                    b.ToTable("Appliance", (string)null);
+                });
+
+            modelBuilder.Entity("Home_Security.Entities.Calls.Call", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("AnsweredAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("CallerPersonId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ChatId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatId");
+
+                    b.ToTable("Calls", (string)null);
+                });
+
+            modelBuilder.Entity("Home_Security.Entities.Calls.CallParticipant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CallId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsCameraEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsMuted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsScreenSharing")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CallId");
+
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("CallParticipants", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Camera", b =>
@@ -385,6 +456,12 @@ namespace Home_Security.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Password")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Port")
+                        .HasColumnType("int");
+
                     b.Property<bool>("PowerActive")
                         .HasColumnType("tinyint(1)");
 
@@ -398,13 +475,20 @@ namespace Home_Security.Migrations
                     b.Property<int?>("SectionId")
                         .HasColumnType("int");
 
+                    b.Property<string>("StreamPath")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("longtext");
+
                     b.HasKey("Id");
 
                     b.HasIndex("RoomId");
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Camera");
+                    b.ToTable("Camera", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Chats.Chat", b =>
@@ -456,7 +540,63 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Chat");
+                    b.ToTable("Chat", (string)null);
+                });
+
+            modelBuilder.Entity("Home_Security.Entities.Chats.ChatParticipant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChatId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsMuted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("LastReadAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatId");
+
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("ChatParticipant", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Chats.Message", b =>
@@ -515,7 +655,64 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SenderPersonId");
 
-                    b.ToTable("Message");
+                    b.ToTable("Message", (string)null);
+                });
+
+            modelBuilder.Entity("Home_Security.Entities.Chats.MessageAttachment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("DeletedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("LastModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastModifiedOn")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("MessageId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ThumbnailPath")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MessageId");
+
+                    b.ToTable("MessageAttachment", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Contact", b =>
@@ -526,10 +723,7 @@ namespace Home_Security.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ContactCategory")
+                    b.Property<int>("ContactCategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("ContactId")
@@ -574,9 +768,9 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("ContactCategoryId");
 
-                    b.ToTable("Contact");
+                    b.ToTable("Contact", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.ContactCategory", b =>
@@ -626,7 +820,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactCategory");
+                    b.ToTable("ContactCategory", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.ContactDetails", b =>
@@ -678,7 +872,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("PersonDetailsId");
 
-                    b.ToTable("ContactDetails");
+                    b.ToTable("ContactDetails", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Door", b =>
@@ -757,7 +951,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Door");
+                    b.ToTable("Door", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.External", b =>
@@ -824,7 +1018,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("External");
+                    b.ToTable("External", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.FingerPrint", b =>
@@ -876,7 +1070,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("PersonId");
 
-                    b.ToTable("FingerPrint");
+                    b.ToTable("FingerPrint", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Hardware", b =>
@@ -952,7 +1146,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Hardware");
+                    b.ToTable("Hardware", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Identity.User", b =>
@@ -1006,7 +1200,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Identity.UserRole", b =>
@@ -1049,7 +1243,7 @@ namespace Home_Security.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Light", b =>
@@ -1113,7 +1307,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Light");
+                    b.ToTable("Light", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Logs", b =>
@@ -1140,6 +1334,12 @@ namespace Home_Security.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int?>("FacilityId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacilityType")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
 
@@ -1163,7 +1363,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("PersonId");
 
-                    b.ToTable("Logs");
+                    b.ToTable("Logs", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Person", b =>
@@ -1218,7 +1418,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Person");
+                    b.ToTable("Person", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.PersonDetails", b =>
@@ -1273,7 +1473,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PersonDetails");
+                    b.ToTable("PersonDetails", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Recording", b =>
@@ -1284,7 +1484,7 @@ namespace Home_Security.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CameraId")
+                    b.Property<int>("CameraId")
                         .HasColumnType("int");
 
                     b.Property<int>("CreatedBy")
@@ -1301,6 +1501,10 @@ namespace Home_Security.Migrations
 
                     b.Property<DateTime>("EndTime")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("FilePath")
                         .IsRequired()
@@ -1322,7 +1526,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("CameraId");
 
-                    b.ToTable("Recording");
+                    b.ToTable("Recording", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Room", b =>
@@ -1381,7 +1585,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Room");
+                    b.ToTable("Room", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Section", b =>
@@ -1426,7 +1630,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Section");
+                    b.ToTable("Section", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Token", b =>
@@ -1467,7 +1671,7 @@ namespace Home_Security.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tokens");
+                    b.ToTable("Tokens", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Window", b =>
@@ -1543,75 +1747,7 @@ namespace Home_Security.Migrations
 
                     b.HasIndex("SectionId");
 
-                    b.ToTable("Window");
-                });
-
-            modelBuilder.Entity("MessageAttachment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("DeletedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeletedOn")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<int>("LastModifiedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("MessageId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ThumbnailPath")
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MessageId");
-
-                    b.ToTable("MessageAttachment");
-                });
-
-            modelBuilder.Entity("ChatParticipant", b =>
-                {
-                    b.HasOne("Home_Security.Entities.Chats.Chat", "Chat")
-                        .WithMany("Participants")
-                        .HasForeignKey("ChatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Chat");
+                    b.ToTable("Window", (string)null);
                 });
 
             modelBuilder.Entity("Home_Security.Entities.ActionStep", b =>
@@ -1645,6 +1781,36 @@ namespace Home_Security.Migrations
                         .HasForeignKey("SectionId");
                 });
 
+            modelBuilder.Entity("Home_Security.Entities.Calls.Call", b =>
+                {
+                    b.HasOne("Home_Security.Entities.Chats.Chat", "Chat")
+                        .WithMany()
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
+                });
+
+            modelBuilder.Entity("Home_Security.Entities.Calls.CallParticipant", b =>
+                {
+                    b.HasOne("Home_Security.Entities.Calls.Call", "Call")
+                        .WithMany("Participants")
+                        .HasForeignKey("CallId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Home_Security.Entities.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Call");
+
+                    b.Navigation("Person");
+                });
+
             modelBuilder.Entity("Home_Security.Entities.Camera", b =>
                 {
                     b.HasOne("Home_Security.Entities.Room", null)
@@ -1654,6 +1820,25 @@ namespace Home_Security.Migrations
                     b.HasOne("Home_Security.Entities.Section", null)
                         .WithMany("Camera")
                         .HasForeignKey("SectionId");
+                });
+
+            modelBuilder.Entity("Home_Security.Entities.Chats.ChatParticipant", b =>
+                {
+                    b.HasOne("Home_Security.Entities.Chats.Chat", "Chat")
+                        .WithMany("Participants")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Home_Security.Entities.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
+
+                    b.Navigation("Person");
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Chats.Message", b =>
@@ -1675,11 +1860,22 @@ namespace Home_Security.Migrations
                     b.Navigation("SenderPerson");
                 });
 
+            modelBuilder.Entity("Home_Security.Entities.Chats.MessageAttachment", b =>
+                {
+                    b.HasOne("Home_Security.Entities.Chats.Message", "Message")
+                        .WithMany("Attachments")
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Message");
+                });
+
             modelBuilder.Entity("Home_Security.Entities.Contact", b =>
                 {
                     b.HasOne("Home_Security.Entities.ContactCategory", "Category")
                         .WithMany()
-                        .HasForeignKey("CategoryId")
+                        .HasForeignKey("ContactCategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1790,7 +1986,9 @@ namespace Home_Security.Migrations
                 {
                     b.HasOne("Home_Security.Entities.Camera", null)
                         .WithMany("Recordings")
-                        .HasForeignKey("CameraId");
+                        .HasForeignKey("CameraId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Room", b =>
@@ -1817,20 +2015,14 @@ namespace Home_Security.Migrations
                         .HasForeignKey("SectionId");
                 });
 
-            modelBuilder.Entity("MessageAttachment", b =>
-                {
-                    b.HasOne("Home_Security.Entities.Chats.Message", "Message")
-                        .WithMany("Attachments")
-                        .HasForeignKey("MessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Message");
-                });
-
             modelBuilder.Entity("Home_Security.Entities.Action", b =>
                 {
                     b.Navigation("ActionSteps");
+                });
+
+            modelBuilder.Entity("Home_Security.Entities.Calls.Call", b =>
+                {
+                    b.Navigation("Participants");
                 });
 
             modelBuilder.Entity("Home_Security.Entities.Camera", b =>

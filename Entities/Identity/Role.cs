@@ -6,5 +6,6 @@ public enum Role
     Wife,
     Child,
     Relative,
-    Visitor
+    Visitor,
+    System
 }

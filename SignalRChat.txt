@@ -120,3 +120,609 @@ public async Task UpdateChat(string eventName, int chatId, object update)
 
 in the UpdateChat method, the fitst parameter is what the signalr should listen for and the third parameter is the response from the server
 Understand and make provision where necessary in the app.
+
+
+public class AppNamesDetailList{
+    public List<GenericNames> ApplianceIdNames { get; set; }
+    public List<GenericNames> CameraIdNames { get; set; }
+    public List<GenericNames> LightIdNames { get; set; }
+    public List<GenericNames> WindowIdNames { get; set; }
+    public List<GenericNames> DoorIdNames { get; set; }
+    public List<GenericNames> ExternalIdNames { get; set; }
+    public List<GenericNames> PersonIdNames { get; set; }
+    public List<GenericNames> SectionIdNames { get; set; }
+    public List<GenericRoomNames> RoomIdNames { get; set; }
+    public List<GenericIdNames> ContactCategoryIdNames { get; set; }
+    public List<GenericIdNames> ActionIdNames { get; set; }
+    public List<GenericIdNames> HardwareIdNames { get; set; }
+    public List<GenericIdNames> ApplianceType { get; set; }
+    public List<GenericIdNames> Gender { get; set; }
+    public List<GenericIdNames> DoorType { get; set; }
+    public List<GenericIdNames> FacilityType { get; set; }
+    public List<GenericIdNames> Role { get; set; }
+}
+public class GenericRoomNames : GenericIdNames{
+    public bool IsHidden { get; set; }
+    public int? SectionId { get; set; }
+}
+
+
+
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/EndCall?callId=1' \
+  -H 'accept: */*' \
+  -d '' this is the curl to end a call.
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/StartCall' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "chatId": 0,
+  "type": 1
+}' this is the curl to end a call.
+curl -X 'GET' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/GetCallLogs?page=1&pageSize=1' \
+  -H 'accept: */*' this is the curl to get all call logs which returns a list of call logs
+
+public enum CallType
+{
+    Audio = 1,
+    Video = 2
+} for the type field in start call
+public class CallDto
+{
+    public int Id { get; set; }
+    public int ChatId { get; set; }
+    public int CallerPersonId { get; set; }
+    public CallType Type { get; set; }
+    public CallStatus Status { get; set; }
+    public DateTime StartedAt { get; set; }
+    public DateTime? AnsweredAt { get; set; }
+    public DateTime? EndedAt { get; set; }
+    public List<CallParticipantDto> Participants { get; set; } = new();
+}
+public class CallParticipantDto
+{
+    public int PersonId { get; set; }
+    public string FullName { get; set; } = string.Empty;
+    public string ProfileImage { get; set; } = string.Empty;
+    public bool IsMuted { get; set; }
+    public bool IsCameraEnabled { get; set; }
+    public bool IsScreenSharing { get; set; }
+    public CallParticipantStatus Status { get; set; }
+}
+public class CallLogDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public string ChatName { get; set; } = "";
+    public CallType Type { get; set; }
+    public CallStatus Status { get; set; }
+    public DateTime StartedAt { get; set; }
+    public DateTime? EndedAt { get; set; }
+    public TimeSpan Duration { get; set; }
+    public bool IsIncoming { get; set; }
+    public int CallerPersonId { get; set; }
+    public bool IsMissed { get; set; }
+}
+public class StartCallDto
+{
+    public int ChatId { get; set; }
+    public CallType Type { get; set; }
+}
+public class OfferDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public string Sdp { get; set; } = string.Empty;
+}
+public class AnswerDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public string Sdp { get; set; } = string.Empty;
+}
+public class RejectDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+}
+public class IceCandidateDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public string Candidate { get; set; } = string.Empty;
+    public string? SdpMid { get; set; }
+    public int? SdpMLineIndex { get; set; }
+}
+public class ToggleMicrophoneDto
+{
+    public int CallId { get; set; }
+    public bool IsMuted { get; set; }
+}
+public class ToggleCameraDto
+{
+    public int CallId { get; set; }
+    public bool IsCameraEnabled { get; set; }
+}
+public class ScreenShareDto
+{
+    public int CallId { get; set; }
+    public bool IsSharing { get; set; }
+} you will need these dtos
+create necessary icons to do this in each chat 
+await _realtimeNotificationService.UpdateChat("IncomingCall", call.ChatId, CallDto);
+await _realtimeNotificationService.UpdateChat("CallAccepted", call.ChatId, MapToDto(call));
+await _realtimeNotificationService.UpdateChat("CallRejected", call.ChatId, new
+{
+    CallId = call.Id,
+    PersonId = personId,
+    Status = participant.Status,
+    CallStatus = call.Status
+});
+await _realtimeNotificationService.UpdateChat("CallEnded", call.ChatId, new
+{
+    CallId = call.Id,
+    PersonId = personId,
+    Status = participant.Status,
+    CallStatus = call.Status
+}); you will need to listen for this too. I want the call to be like a whatapp call kinda thing with the cards for multiple users and the animated audio for voice calls and the controls for mute switch camera and the end call. Only the user that initiated the call can end the call but the user can leave the call by 
+public async Task RejectCall(RejectDto dto, string token) invoking this via signalR 
+and once a call is accepted, invoke the two below.
+public async Task Offer(OfferDto dto, string token) 
+public async Task IceCandidate(IceCandidateDto dto, string token)
+
+public async Task AcceptCall(int callId, string token) invoke this via signalR to accept a call when the answer button is clicked
+await _realtimeNotificationService.UpdateChat("IncomingCall", call.ChatId, callDto); 
+The end call end point is used by the user if the call originates from the user else, the RejectCall signalR invoke is used to end the call and the public async Task AcceptCall(int callId, string token) signalR invoke is used to accept a call
+
+
+If an incoming call is not originating from the user, the answer call and reject call button when clicked on invokes two methods public async Task AcceptCall(int callId, string token) invoke this via signalR to accept a call when the answer button is clicked and public async Task RejectCall(int callId, string token) to reject a call when the reject call button is clicked.
+
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/AcceptCall?callId=1' \
+  -H 'accept: */*' \
+  -d '' to answer a call that is not originating from the user / for the answer button
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Call/RejectCall?callId=1' \
+  -H 'accept: */*' \
+  -d '' to reject a call that is not originating from the user / for the reject button ure to get rid of the and the response for both is the base response so that means getting rid of the signalR invoke for both the answer call and reject call
+
+  await _realtimeNotificationService.UpdateChat("CallRejected", call.ChatId, callDto);
+  await _realtimeNotificationService.UpdateChat("CallEnded", call.ChatId, callDto);
+  these two now return the callDto which is now used to update the call in the call history
+
+
+
+
+
+Eusure auto complete is diaabled for all text input fields in the app and ensure for the dark theme the modal headers background color is uniform with the modal body background color including the option fields and no part of a modal, must be dark blue just dark even the screen saver and the divs in the dashboard page. The add new category modal not all parts of the modal is adhereing to the dark them most especially the footer. Including the crete new group and start a chart modal, not all parts of the modals adhere to the dark theme
+
+
+
+When ever a call is received or accepted or a participant joins a call, invoke these methods via signalR connection
+public async Task Offer(OfferDto dto, string token) 
+public async Task IceCandidate(IceCandidateDto dto, string token)
+public async Task ToggleCallItems(ToggleCallItemsDto dto, string token)
+
+the token is the jwt token and the dto for each method are
+public class OfferDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public int PersonId { get; set; }
+    public string Sdp { get; set; } = string.Empty;
+} 
+public class IceCandidateDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public int PersonId { get; set; }
+    public string Candidate { get; set; } = string.Empty;
+    public string? SdpMid { get; set; }
+    public int? SdpMLineIndex { get; set; }
+}
+public class ToggleCallItemsDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public int PersonId { get; set; }
+    public bool IsMuted { get; set; }
+    public bool IsCameraEnabled { get; set; }
+    public bool IsSharing { get; set; }
+}
+Where the callId and chatId is the id of the ongoing call and the chatId of the ongoing call and the personId is the personId of the logged in user.
+
+For the microphone div, the animation should start from the middle bars of the animation then spread to the other bars at both sides uniformly. Replace the microphone icon with Hey, Friday with a big font size. Remove the Microphone active text and icon and replace it with the live transcription of the microphone input in english. Remove the click to stop button.
+Increase the no of bars in the voice animation and increase the height of the bars slightly and the bars should use 70% of the width and the grainly background shoule be more transparent. Hey Friday voice command should trigger the microphone overlay and the word dispose should end the microphone activities. Hey friday should mute a call if it is ongoing and trigger the microphone modal and dispose should unmute the call if the user did not mute the call before saying hey friday
+
+External device name should not have a rounded input and the section name and room name are not aligned somthing is wrong with that of section name. 
+In the all users page, serch bar input field should have a transparent background. The add new category submit button
+
+
+Implement WebRTC audio/video calling into my existing React application and integrate it with the existing call and SignalR functionality. **Do not create a separate calling system. Inspect and reuse the existing call components, services, SignalR connection, authentication, CallDto, and call lifecycle already implemented in the project.**
+
+### Existing SignalR WebRTC DTOs
+
+```csharp
+public class OfferDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public int PersonId { get; set; }
+    public string Sdp { get; set; } = string.Empty;
+}
+
+public class AnswerDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public int PersonId { get; set; }
+    public string Sdp { get; set; } = string.Empty;
+}
+
+public class IceCandidateDto
+{
+    public int CallId { get; set; }
+    public int ChatId { get; set; }
+    public int PersonId { get; set; }
+    public string Candidate { get; set; } = string.Empty;
+    public string? SdpMid { get; set; }
+    public int? SdpMLineIndex { get; set; }
+}
+```
+
+The backend SignalR methods are:
+
+```text
+Offer
+Answer
+IceCandidate
+```
+
+The server currently broadcasts the signaling messages to the SignalR group associated with the ChatId.
+
+### Requirements
+
+Use the browser's **native WebRTC API**. Do not install a WebRTC library unless the project already uses one.
+
+Use:
+
+```javascript
+RTCPeerConnection
+navigator.mediaDevices.getUserMedia()
+RTCSessionDescription
+RTCIceCandidate
+```
+
+### Caller
+
+When a user starts a call:
+
+1. Obtain the user's microphone and camera using:
+
+```javascript
+navigator.mediaDevices.getUserMedia({
+    audio: true,
+    video: true
+});
+```
+
+Respect the existing call type. For an audio call, request only audio.
+
+2. Create an `RTCPeerConnection`.
+
+3. Add all local media tracks:
+
+```javascript
+stream.getTracks().forEach(track => {
+    peerConnection.addTrack(track, stream);
+});
+```
+
+4. Configure STUN:
+
+```javascript
+{
+    iceServers: [
+        {
+            urls: "stun:stun.l.google.com:19302"
+        }
+    ]
+}
+```
+
+Keep the configuration easy to extend later with TURN.
+
+5. Register:
+
+```javascript
+peerConnection.onicecandidate
+```
+
+Whenever a candidate is generated, send:
+
+```text
+CallId
+ChatId
+PersonId
+Candidate
+SdpMid
+SdpMLineIndex
+```
+
+through the existing SignalR `IceCandidate` method.
+
+6. Create the SDP offer:
+
+```javascript
+const offer = await peerConnection.createOffer();
+await peerConnection.setLocalDescription(offer);
+```
+
+Send:
+
+```text
+CallId
+ChatId
+PersonId
+Sdp
+```
+
+through the existing SignalR `Offer` method.
+
+### Receiving an Offer
+
+Listen for the existing SignalR `Offer` event.
+
+Before processing the event:
+
+```javascript
+if (dto.personId === currentPersonId) {
+    return;
+}
+```
+
+Never process an offer generated by the current user.
+
+For an offer from another participant:
+
+1. Get/create the appropriate `RTCPeerConnection`.
+2. Set the remote description.
+3. Obtain the local media stream.
+4. Add the local tracks.
+5. Create an answer.
+6. Set the local description.
+7. Send the answer through the existing SignalR `Answer` method.
+
+### Receiving an Answer
+
+Listen for:
+
+```text
+Answer
+```
+
+Ignore the answer if:
+
+```javascript
+dto.personId === currentPersonId
+```
+
+Otherwise:
+
+```javascript
+await peerConnection.setRemoteDescription({
+    type: "answer",
+    sdp: dto.sdp
+});
+```
+
+### Receiving ICE Candidates
+
+Listen for:
+
+```text
+IceCandidate
+```
+
+Ignore candidates originating from the current user:
+
+```javascript
+if (dto.personId === currentPersonId) {
+    return;
+}
+```
+
+Otherwise add the candidate to the correct peer connection:
+
+```javascript
+await peerConnection.addIceCandidate(
+    new RTCIceCandidate({
+        candidate: dto.candidate,
+        sdpMid: dto.sdpMid,
+        sdpMLineIndex: dto.sdpMLineIndex
+    })
+);
+```
+
+Handle candidates that arrive before the remote SDP has been set by temporarily queueing them and adding them after `setRemoteDescription()` completes.
+
+### Remote Media
+
+Handle:
+
+```javascript
+peerConnection.ontrack
+```
+
+and display the received remote stream in the existing call UI.
+
+Do not create a new unrelated video-call page if an existing call UI exists. Integrate the WebRTC media into the existing call interface.
+
+### Group Calls
+
+The application supports group calls.
+
+Do not assume there is only one remote peer.
+
+For group calls, maintain separate `RTCPeerConnection` instances for each remote participant, keyed by `PersonId`.
+
+For example:
+
+```text
+peerConnections[personId]
+```
+
+Incoming offers, answers and ICE candidates must be associated with the correct remote participant.
+
+Since the current backend DTO only contains `PersonId` and does not contain `ToPersonId`, initially use the existing `PersonId` to identify the sender and ignore messages originating from the current user.
+
+Do not break the existing SignalR implementation.
+
+### Call Lifecycle
+
+Respect the existing API-based call lifecycle:
+
+* `StartCall` → starts a ringing call.
+* `JoinCall` → accepts/joins the call and transitions it to Connected.
+* `RejectCall` → only used while the call is Ringing.
+* `EndCall` → used when a connected participant leaves.
+* A timeout is handled by the backend and results in a Missed call.
+
+WebRTC connection setup should happen at the appropriate point in this lifecycle and must not incorrectly mark calls as connected or ended.
+
+### Microphone
+
+Implement microphone toggle using the existing call state/API.
+
+When muted:
+
+```javascript
+audioTrack.enabled = false;
+```
+
+When unmuted:
+
+```javascript
+audioTrack.enabled = true;
+```
+
+Also use the existing `ToggleCallItems` functionality so other participants receive the updated microphone state.
+
+### Camera
+
+Implement camera toggle:
+
+```javascript
+videoTrack.enabled = false;
+```
+
+or:
+
+```javascript
+videoTrack.enabled = true;
+```
+
+Synchronize the state using the existing call API/SignalR mechanism.
+
+### Screen Sharing
+
+Implement screen sharing using:
+
+```javascript
+navigator.mediaDevices.getDisplayMedia({
+    video: true
+});
+```
+
+Replace the video sender's track with the screen-sharing track using:
+
+```javascript
+RTCRtpSender.replaceTrack()
+```
+
+When screen sharing stops, restore the original camera track.
+
+Synchronize screen-sharing state using the existing call functionality.
+
+### Cleanup
+
+When the call ends:
+
+* Stop all local media tracks.
+* Close all `RTCPeerConnection` instances.
+* Remove WebRTC event handlers where appropriate.
+* Clear peer connection references.
+* Clear queued ICE candidates.
+* Clear remote streams.
+* Release the camera and microphone.
+* Reset the call UI.
+
+Also handle browser/page cleanup appropriately.
+
+### Debugging
+
+Add useful development logging for:
+
+```text
+WebRTC offer created
+WebRTC answer created
+Local SDP
+Remote SDP received
+ICE candidate generated
+ICE candidate received
+ICE connection state
+Peer connection state
+Signaling state
+Remote track received
+Call WebRTC cleanup
+```
+
+Do not log authentication tokens or other sensitive credentials.
+
+### Important
+
+Before modifying anything:
+
+1. Inspect the existing project structure.
+2. Find the existing SignalR connection.
+3. Find the existing CallDto/call state.
+4. Find the existing StartCall, JoinCall, RejectCall and EndCall API calls.
+5. Find the existing incoming-call and active-call UI.
+6. Reuse the existing authentication state to obtain the current `PersonId`.
+7. Integrate WebRTC into the existing architecture rather than creating duplicate services or state management.
+
+After implementation, provide a concise summary of:
+
+* Files changed.
+* WebRTC functionality added.
+* How SDP is generated and sent.
+* How ICE candidates are generated and sent.
+* How incoming signaling messages are handled.
+* How one-to-one and group calls are handled.
+* Any assumptions or remaining backend changes required.
+
+
+For the door
+Lock
+PUT /Door/LockDoor?id={id}
+Unlock
+PUT /Door/LockDoor?id={id}
+Open
+PUT /Door/UnlockDoor?id={id}
+Close
+PUT /Door/UnlockDoor?id={id}
+For the window
+Lock
+PUT /Window/LockWindow?id={id}
+Unlock
+PUT /Window/LockWindow?id={id}
+Open
+PUT /Window/UnlockWindow?id={id}
+Close
+PUT /Window/UnlockWindow?id={id}
+This is what they should call not the close or lock calling the update url. Simple Do this immediately
+
+
+For the door

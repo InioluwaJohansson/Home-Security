@@ -1,11 +1,9 @@
-using Home_Security.Entities.Identity;
-using Home_Security.Entities.Chats;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Controls.Chats;
 using Home_Security.Interfaces.Services.Chats;
 using Home_Security.Models.ChatDTO;
 using Home_Security.Models.DTOs;
-using Home_Security.RealTimeServices;
+
 namespace Home_Security.Implementations.Controls.Chats;
 public class ChatControl : IChatControl
 {
@@ -87,13 +85,15 @@ public class ChatControl : IChatControl
     }
     private ChatDto ChatRefactor(ChatDto x, int personId){
         if(!x.IsGroup){
-            if(x.Participants.FirstOrDefault().PersonId == personId) x.Name = _authControl.GetUserPersonName(x.Participants.LastOrDefault().PersonId);
-            if(x.Participants.LastOrDefault().PersonId == personId) x.Name = _authControl.GetUserPersonName(x.Participants.FirstOrDefault().PersonId);
+            if(x.Participants.FirstOrDefault().PersonId == personId){
+                x.Name = _authControl.GetUserPersonName(x.Participants.LastOrDefault().PersonId);
+                x.ImageUrl = _authControl.GetPersonById(x.Participants.LastOrDefault().PersonId)?.PersonDetails.ImageUrl ?? "";
+            }
+            if(x.Participants.LastOrDefault().PersonId == personId){
+                x.Name = _authControl.GetUserPersonName(x.Participants.FirstOrDefault().PersonId);
+                x.ImageUrl = _authControl.GetPersonById(x.Participants.FirstOrDefault().PersonId)?.PersonDetails.ImageUrl ?? "";
+            }
         }
-        // if(x.IsGroup){
-        //     x.Participants?
-        //         .Select(p => x.FullName = _authControl.);
-        // }
         return x;
     }
 }

@@ -1,13 +1,126 @@
+using Home_Security.Encryption;
 using Home_Security.Entities.Identity;
+using Home_Security.Interfaces.Repositories;
+using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
 using Home_Security.Models.Enums;
 
 namespace Home_Security.StartUp;
 public class StartUpService : IStartUpService
 {
+    IPersonService _personService;
+    IUserRepo _userRepo;
+    IEncryptionService _encryptionService;
+    IConfiguration _configuration;
+    public StartUpService(IUserRepo userRepo, IPersonService personService, IEncryptionService encryptionService, IConfiguration configuration)
+    {
+        _userRepo = userRepo;
+        _personService = personService;
+        _encryptionService = encryptionService;
+        _configuration = configuration;
+    }
+    public async Task InitateStartUp()
+    {
+        var userData = await _userRepo.GetAllUsers();
+        try
+        {
+            if(userData?.Any(x => x.UserRole.Role == Role.System) == false)
+            {
+                var personStartUp = Menu();
+                if(personStartUp.Option == 1 && personStartUp.EncryptedKey != null)
+                {
+                    var decryptedKey = _encryptionService.DecryptEncryptionKeyAsync(personStartUp.EncryptedKey);
+                    var response = await _personService.CreatePerson(decryptedKey);
+                    if(response.Status == true)
+                        Console.WriteLine("\n✅ System created successfully!");
+                    else Console.WriteLine("\n Error unable to create System!");
+                }
+                if(personStartUp.Option == 2 && personStartUp.Person != null)
+                {
+                    await _encryptionService.EncryptFileAsync(personStartUp.Person);
+                    if(personStartUp.Person.CreateUserDto.Role != Role.System)
+                    {
+                        Console.WriteLine("\n❌ Error: The role must be 'System' for system initialization.");
+                        return;
+                    }
+                    var appDetails = _configuration.GetSection("ApplicationDetails");
+                    personStartUp.Person.CreateUserDto.Role = Role.System;
+                    personStartUp.Person.CreateUserDto.UserName = appDetails["AppName"] ?? "HomeSecurity";
+                    personStartUp.Person.CreateUserDto.Password = appDetails["Token"] ?? "HomeSecurity1234567890!@#$%^&*()-+_=";
+                    personStartUp.Person.CreateUserDto.AuthorizationCode = appDetails["Token"] ?? "HomeSecurity1234567890!@#$%^&*()-+_=";
+                    var response = await _personService.CreatePerson(personStartUp.Person);
+                    if(response.Status == true)
+                        Console.WriteLine("\n✅ System created successfully!");
+                    else Console.WriteLine("\n Error unable to create System!");
+                }
+            }
+            if (userData?.Any(x => x.UserRole.Role == Role.Owner) == null)
+            {
+                var person = await _encryptionService.DecryptObjectAsync();
+                if(person != null){
+                    await _personService.CreatePerson(person);
+                    _encryptionService.DeleteFile();
+                }
+                else
+                {
+                    var personStartUp = Menu();
+                    if(personStartUp.Option == 1 && personStartUp.EncryptedKey != null)
+                    {
+                        var decryptedKey = _encryptionService.DecryptEncryptionKeyAsync(personStartUp.EncryptedKey);
+                        var response = await _personService.CreatePerson(decryptedKey);
+                        if(response.Status == true)
+                            Console.WriteLine("\n✅ Person created successfully!");
+                        else Console.WriteLine("\n Error unable to create Person!");
+                    }
+                    if(personStartUp.Option == 2 && personStartUp.Person != null)
+                    {
+                        await _encryptionService.EncryptFileAsync(personStartUp.Person);
+                        var response = await _personService.CreatePerson(personStartUp.Person);
+                        if(response.Status == true)
+                            Console.WriteLine("\n✅ Person created successfully!");
+                        else Console.WriteLine("\n Error unable to create Person!");
+                    }
+                }
+            }
+            else Console.WriteLine("\n✅ Users Exist!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"StartupInitializer error: {ex.Message}");
+        }
+    }
+    public MenuResult Menu()
+    {
+        bool op = true;
+        while (op)
+        {
+            Console.WriteLine("Home Security Initialization\n 1.Enter Encrypted User Key \n 2. Enter Person Details");
+            var input = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(input) && input.Length == 1 && input.All(char.IsDigit))
+            {
+                switch (int.Parse(input))
+                {
+                    case 1:
+                        Console.WriteLine();
+                        Console.Write("Enter Encrypted User Key: ");
+                        return new MenuResult {
+                            Option = 1,
+                            EncryptedKey = Console.ReadLine()
+                        };
+                    case 2:
+                        return new MenuResult {
+                        Option = 2,
+                        Person = CreatePerson()
+                    };
+                }
+                op = false;
+            }
+        }
+        return new MenuResult();
+    }
     public CreatePersonDto CreatePerson()
     {
-        Console.WriteLine("Home Security Initialization\nPlease provide the following details to create a new person:");
+        Console.WriteLine("Please provide the following details to create a new person:");
         return new CreatePersonDto
         {
             CreatePersonDetailsDto = new CreatePersonDetailsDto
@@ -22,7 +135,7 @@ public class StartUpService : IStartUpService
                 UserName = ReadRequiredString("Username"),
                 Password = ReadRequiredString("Password"),
                 AuthorizationCode = ReadSixDigitCode("Authorization Code (6 digits)"),
-                Role = Role.Owner
+                Role = ReadRequiredEnum<Role>("Role")
             },
             Relation = ReadRequiredString("Relation"),
         };
@@ -47,7 +160,6 @@ public class StartUpService : IStartUpService
             Console.WriteLine("❌ Value cannot be empty. Try again.");
         }
     }
-
     private DateOnly ReadRequiredDate(string fieldName)
     {
         while (true)
@@ -70,4 +182,10 @@ public class StartUpService : IStartUpService
             Console.WriteLine("❌ Invalid selection. Try again.");
         }
     }
+}
+public class MenuResult
+{
+    public int Option { get; set; }
+    public string? EncryptedKey { get; set; }
+    public CreatePersonDto? Person { get; set; }
 }

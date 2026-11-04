@@ -1,4 +1,5 @@
 ﻿using Home_Security.Entities;
+using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
@@ -6,14 +7,12 @@ using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
-
 public class DoorService : IDoorService
 {
     IDoorRepo _doorRepo;
     IHardwareService _hardwareService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
-
     public DoorService(IDoorRepo doorRepo,IHardwareService hardwareService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _doorRepo = doorRepo;
@@ -21,7 +20,6 @@ public class DoorService : IDoorService
         _realtime = realtime;
         _mqtt = mqtt;
     }
-
     public async Task<BaseResponse> CreateDoor(CreateDoorDto createDoorDto, int personId)
     {
         if (createDoorDto != null)
@@ -45,29 +43,16 @@ public class DoorService : IDoorService
                 LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now
             };
-
             await _doorRepo.Create(door);
-            var doorData = await _doorRepo.Get(x => x.DoorId == door.DoorId);
-            await _realtime.NotifyAll("DoorCreated", GetDetails(doorData));
-            var hardware = await _hardwareService.GetHardwareName(doorData.Id, FacilityType.Appliance);
-            await _mqtt.PublishDeviceUpdate(door.DoorId, new GenericDeviceUpdateState
-            {
-                FacilityType = FacilityType.Door,
-                Id = doorData.Id,
-                IsLocked = door.IsLocked,
-                IsOpen = door.IsOpen,
-                IsActive = door.IsActive,
-                PowerActive = door.PowerActive,
-                BrightnessLevel = 0
-            });
-
+            var doorData = GetDetails(await _doorRepo.Get(x => x.DoorId == door.DoorId));
+            if(doorData.IsHidden){ await _realtime.NotifyAll("DoorCreated", new List<Role> { Role.Owner, Role.Wife }, doorData);}
+            else await _realtime.NotifyAll("DoorCreated", doorData);
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Door Successfully Added!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
@@ -80,7 +65,6 @@ public class DoorService : IDoorService
         if (updateDoorDto != null)
         {
             var door = await _doorRepo.Get(x => x.Id == updateDoorDto.Id);
-
             door.DoorName = updateDoorDto.DoorName ?? door.DoorName;
             door.LastModifiedBy = personId;
             door.IsLocked = updateDoorDto.IsLocked;
@@ -89,12 +73,13 @@ public class DoorService : IDoorService
             door.LockedBy = updateDoorDto.LockedBy;
             door.UnlockedBy = updateDoorDto.UnlockedBy;
             door.LastModifiedOn = DateTime.Now;
+            door.DoorType = updateDoorDto.DoorType;
             door.SectionId = updateDoorDto.SectionId ?? null;
             door.RoomId = updateDoorDto.RoomId ?? null;
             await _doorRepo.Update(door);
-
-            await _realtime.NotifyAll("DoorUpdated", GetDetails(door));
-            var hardware = await _hardwareService.GetHardwareName(door.Id, FacilityType.Appliance);
+            if(door.IsHidden){ await _realtime.NotifyAll("DoorUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(door));}
+            else await _realtime.NotifyAll("DoorUpdated", GetDetails(door));
+            var hardware = await _hardwareService.GetHardwareName(door.Id, FacilityType.Door);
             await _mqtt.PublishDeviceUpdate(door.DoorId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Door,
@@ -105,25 +90,21 @@ public class DoorService : IDoorService
                 PowerActive = door.PowerActive,
                 BrightnessLevel = 0
             });
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Door Updated Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Update Door!"
         };
     }
-
     public async Task<DoorResponseModel> GetById(int doorId)
     {
         var door = await _doorRepo.Get(x => x.Id == doorId && x.IsDeleted == false);
-
         if (door != null)
         {
             return new DoorResponseModel()
@@ -133,7 +114,6 @@ public class DoorService : IDoorService
                 Message = "Door Retrieved Successfully!"
             };
         }
-
         return new DoorResponseModel()
         {
             Data = null,
@@ -141,11 +121,9 @@ public class DoorService : IDoorService
             Message = "Unable To Retrieve Door!"
         };
     }
-
     public async Task<DoorsResponseModel> GetAllDoors()
     {
         var doors = await _doorRepo.GetByExpression(x => x.IsDeleted == false);
-
         if (doors != null)
         {
             return new DoorsResponseModel()
@@ -155,7 +133,6 @@ public class DoorService : IDoorService
                 Status = true
             };
         }
-
         return new DoorsResponseModel()
         {
             Data = null,
@@ -163,11 +140,9 @@ public class DoorService : IDoorService
             Status = false
         };
     }
-
     public async Task<DoorsResponseModel> GetAllDoorsByDoorType(DoorType doorType)
     {
         var doors = await _doorRepo.GetByExpression(x => x.DoorType == doorType && x.IsDeleted == false);
-
         if (doors != null)
         {
             return new DoorsResponseModel()
@@ -177,7 +152,6 @@ public class DoorService : IDoorService
                 Status = true
             };
         }
-
         return new DoorsResponseModel()
         {
             Data = null,
@@ -185,11 +159,9 @@ public class DoorService : IDoorService
             Status = false
         };
     }
-
     public async Task<DoorsResponseModel> GetAllDoorsByRoomId(int roomId)
     {
         var doors = await _doorRepo.GetByExpression(x => x.RoomId == roomId && x.IsDeleted == false);
-
         if (doors != null)
         {
             return new DoorsResponseModel()
@@ -199,7 +171,6 @@ public class DoorService : IDoorService
                 Status = true
             };
         }
-
         return new DoorsResponseModel()
         {
             Data = null,
@@ -207,11 +178,9 @@ public class DoorService : IDoorService
             Status = false
         };
     }
-
     public async Task<DoorsResponseModel> GetAllDoorsBySectionId(int sectionId)
     {
         var doors = await _doorRepo.GetByExpression(x => x.SectionId == sectionId && x.IsDeleted == false);
-
         if (doors != null)
         {
             return new DoorsResponseModel()
@@ -221,7 +190,6 @@ public class DoorService : IDoorService
                 Status = true
             };
         }
-
         return new DoorsResponseModel()
         {
             Data = null,
@@ -229,11 +197,9 @@ public class DoorService : IDoorService
             Status = false
         };
     }
-
     public async Task<BaseResponse> Delete(int doorId, int personId)
     {
         var door = await _doorRepo.Get(x => x.Id == doorId);
-
         if (door != null)
         {
             door.IsActive = false;
@@ -243,15 +209,13 @@ public class DoorService : IDoorService
             door.DeletedOn = DateTime.Now;
             door.DeletedBy = personId;
             door.IsDeleted = true;
-
             await _doorRepo.Update(door);
-
+            await _hardwareService.RemoveFacilityItem(door.Id, FacilityType.Door);
             await _realtime.NotifyAll("DoorDeleted", new
             {
                 door.Id,
                 door.DoorId
             });
-
             await _mqtt.PublishDeviceUpdate(door.DoorId, new GenericDeviceUpdateState
             {
                 FacilityType = FacilityType.Door,
@@ -262,28 +226,26 @@ public class DoorService : IDoorService
                 PowerActive = false,
                 BrightnessLevel = 0
             });
-
             return new BaseResponse()
             {
                 Status = true,
                 Message = "Door Deleted Successfully!"
             };
         }
-
         return new BaseResponse()
         {
             Status = false,
             Message = "Unable To Delete Door!"
         };
     }
-
     public GetDoorDto GetDetails(Door door)
     {
         return new GetDoorDto()
         {
             Id = door.Id,
             DoorName = door.DoorName,
-            DoorType = door.DoorType,
+            DoorType = door.DoorType.ToString(),
+            DoorTypeId = door.DoorType,
             IsLocked = door.IsLocked,
             IsOpen = door.IsOpen,
             OpenedBy = door.OpenedBy,

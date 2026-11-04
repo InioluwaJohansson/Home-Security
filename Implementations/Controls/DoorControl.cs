@@ -26,7 +26,8 @@ public class DoorControl : IDoorControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Door was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = $"{createDoorDto.DoorName} Door was newly added. Awaiting Physical Interfacing!";
+                log.FacilityType = FacilityTypeApp.Door;
                 await _logService.CreateLog(log);
             }
             return door;
@@ -44,6 +45,8 @@ public class DoorControl : IDoorControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{updateDoorDto.DoorName} Door was recently updated!";
+                log.FacilityType = FacilityTypeApp.Door;
+                log.FacilityId = updateDoorDto.Id;
                 await _logService.CreateLog(log);
             }
             return door;
@@ -63,18 +66,23 @@ public class DoorControl : IDoorControl
         if (auth.Status != false)
         {
             var getDoor = await _doorService.GetById(updateDoorDto.Id);
-            if(getDoor != null && getDoor.Data.IsOpen == true){  
+            if(getDoor != null && getDoor.Data.IsOpen == true && getDoor.Data.IsLocked == false){  
                 updateDoorDto.IsOpen = false;
                 log.ActionType = "Closed";
                 log.LogDetails = $"{updateDoorDto.DoorName} Door is Closed!";
+                log.FacilityType = FacilityTypeApp.Door;
+                log.FacilityId = updateDoorDto.Id;
             }
-            else if(getDoor != null && getDoor.Data.IsOpen == false)
+            else if(getDoor != null && getDoor.Data.IsOpen == false && getDoor.Data.IsLocked == false)
             {
                 updateDoorDto.IsOpen = true;
                 log.ActionType = "Open";
                 log.LogDetails = $"{updateDoorDto.DoorName} Door is Open!";
+                log.FacilityType = FacilityTypeApp.Door;
+                log.FacilityId = updateDoorDto.Id;
             }
-            updateDoorDto.UnlockedBy = auth.Id;
+            updateDoorDto.OpenedBy = auth.Id;
+            updateDoorDto.DoorType = getDoor.Data.DoorTypeId;
             var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
             if (door.Status == true)    await _logService.CreateLog(log);
             return door;
@@ -95,12 +103,15 @@ public class DoorControl : IDoorControl
                 {
                     updateDoorDto.UnlockedBy = auth.Id;
                     updateDoorDto.IsLocked = false;
+                    updateDoorDto.DoorType = getDoor.Data.DoorTypeId;
                     var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
                     if (door.Status == true)
                     {
                         var log = _authControl.CreateLog(auth.Id);
                         log.ActionType = "Unlock";
                         log.LogDetails = $"{updateDoorDto.DoorName} Door was unlocked!";
+                        log.FacilityType = FacilityTypeApp.Door;
+                        log.FacilityId = updateDoorDto.Id;
                         await _logService.CreateLog(log);
                     }
                     return door;
@@ -108,54 +119,26 @@ public class DoorControl : IDoorControl
                 fail.Message = "Persmission Required";
                 return fail;
             }
+            else if (getDoor != null && getDoor.Data.IsLocked == false)
+            {
+                updateDoorDto.LockedBy = auth.Id;
+                updateDoorDto.IsLocked = true;
+                updateDoorDto.IsOpen = false;
+                updateDoorDto.DoorType = getDoor.Data.DoorTypeId;
+                var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
+                if (door.Status == true)
+                {
+                    var log = _authControl.CreateLog(auth.Id);
+                    log.ActionType = "Lock";
+                    log.LogDetails = $"{updateDoorDto.DoorName} Door was locked!";
+                    log.FacilityType = FacilityTypeApp.Door;
+                    log.FacilityId = updateDoorDto.Id;
+                    await _logService.CreateLog(log);
+                }
+                return door;
+            }
             fail.Message = "Unauthorized Action";
             return fail;           
-        }
-        else if(getAuthControlInfoDto.PersonId != 0)
-        {
-            var person = await _authControl.GetPersonDetails(getAuthControlInfoDto.PersonId);
-            if (person != null)
-            {
-                var getDoor = await _doorService.GetById(updateDoorDto.Id);
-                if (getDoor != null && getDoor.Data.IsLocked == true)
-                {
-                    var personCheck = await _authControl.GetPersonDetails(getDoor.Data.LockedBy);
-                    if (_authControl.CompareRole(personCheck.Role, auth.Role))
-                    {
-                        updateDoorDto.UnlockedBy = auth.Id;
-                        updateDoorDto.IsLocked = false;
-                        var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
-                        if (door.Status == true)
-                        {
-                            var log = _authControl.CreateLog(auth.Id);
-                            log.ActionType = "Unlock";
-                            log.LogDetails = $"{updateDoorDto.DoorName} Door was unlocked!";
-                            await _logService.CreateLog(log);
-                        }
-                        return door;
-                    }
-                    fail.Message = "Persmission Required!";
-                    return fail;
-                }
-                else if (getDoor != null && getDoor.Data.IsLocked == false)
-                {
-                        updateDoorDto.UnlockedBy = auth.Id;
-                        updateDoorDto.IsLocked = true;
-                        var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
-                        if (door.Status == true)
-                        {
-                            var log = _authControl.CreateLog(auth.Id);
-                            log.ActionType = "Lock";
-                            log.LogDetails = $"{updateDoorDto.DoorName} Door was locked!";
-                            await _logService.CreateLog(log);
-                        }
-                        return door;
-                }
-                fail.Message = "Unauthorized Action!";
-                return fail;
-            }
-            fail.Message = "Failed Action!";
-            return fail;
         }
         return _authControl.AuthFaliure();
     }
@@ -285,6 +268,8 @@ public class DoorControl : IDoorControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getDoor} Door was Deleted!";
+                log.FacilityType = FacilityTypeApp.Door;
+                log.FacilityId = doorId;
                 await _logService.CreateLog(log);
             }
             return door;

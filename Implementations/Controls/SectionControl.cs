@@ -3,6 +3,7 @@ using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 namespace Home_Security.Implementations.Controls;
 public class SectionControl : ISectionControl
 {
@@ -25,7 +26,8 @@ public class SectionControl : ISectionControl
             {
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Create";
-                log.LogDetails = "A Section was newly added. Awaiting Physical Interfacing!";
+                log.LogDetails = $"{createSectionDto.SectionName} Section was newly added. Awaiting Physical Interfacing!";
+                log.FacilityType = FacilityTypeApp.Section;
                 await _logService.CreateLog(log);
             }
             return section;
@@ -43,6 +45,8 @@ public class SectionControl : ISectionControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Update";
                 log.LogDetails = $"{updateSectionDto.SectionName} Section was recently updated!";
+                log.FacilityType = FacilityTypeApp.Section;
+                log.FacilityId = updateSectionDto.Id;
                 await _logService.CreateLog(log);
             }
             return section;
@@ -136,6 +140,8 @@ public class SectionControl : ISectionControl
                 var log = _authControl.CreateLog(auth.Id);
                 log.ActionType = "Delete";
                 log.LogDetails = $"{getSection} Section was Deleted!";
+                log.FacilityType = FacilityTypeApp.Section;
+                log.FacilityId = sectionId;
                 await _logService.CreateLog(log);
             }
             return section;

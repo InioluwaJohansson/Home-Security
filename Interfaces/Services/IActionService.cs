@@ -3,6 +3,7 @@
 namespace Home_Security.Interfaces.Services;
 public interface IActionService
 {
+    public Task RunAllReccuringActions(CancellationToken stoppingToken);
     public Task<BaseResponse> CreateAction(CreateActionDto createActionDto, int personId);
     public Task<BaseResponse> UpdateAction(UpdateActionDto updateActionDto, int personId);
     public Task<ActionResponseModel> GetById(int actionId);

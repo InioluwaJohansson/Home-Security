@@ -37,7 +37,7 @@ public class PersonController : Controller
     }
     [Authorize]
     [HttpPut("UpdatePerson")]
-    public async Task<IActionResult> UpdatePerson([FromBody] UpdatePersonDto updatePersonDto)
+    public async Task<IActionResult> UpdatePerson(UpdatePersonDto updatePersonDto)
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
