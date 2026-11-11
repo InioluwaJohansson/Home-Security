@@ -65,42 +65,6 @@ public class UtilityController : Controller
         return Ok(utility);
     }
     [Authorize]
-    [HttpPost("GetAllUtilitysBySectionId")]
-    public async Task<IActionResult> GetAllUtilitysBySectionId(int sectionId)
-    {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
-        if (user == null)
-            return Unauthorized();
-        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = user.PersonId,
-            AuthorizationCode = user.AuthorizationCode,
-        };
-        var utility = await _utilityControl.GetAllUtilitysBySectionId(getAuthControlInfoDto, sectionId);
-        if (utility.Status == true)
-        {
-            return Ok(utility);
-        }
-        return Ok(utility);
-    }
-    [Authorize]
-    [HttpPost("GetAllUtilitysByRoomId")]
-    public async Task<IActionResult> GetAllUtilitysByRoomId(int roomId)
-    {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
-        if (user == null)
-            return Unauthorized();
-        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
-            PersonId = user.PersonId,
-            AuthorizationCode = user.AuthorizationCode,
-        };
-        var utility = await _utilityControl.GetAllUtilitysByRoomId(getAuthControlInfoDto, roomId);
-        if (utility.Status == true)
-        {
-            return Ok(utility);
-        }
-        return Ok(utility);
-    }
-    [Authorize]
     [HttpPost("GetAllUtilities")]
     public async Task<IActionResult> GetAllUtilities()
     {
