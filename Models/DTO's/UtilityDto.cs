@@ -54,7 +54,7 @@ public class UpdateUtilityDto
     // For Irrigation
     public int? IrrigationDuration { get; set; }
 }
-public class GetUtilityDto
+public class GetUtilityDto : BaseDefaultDto
 {
     //General Utilities
     public int PersonId { get; set; }

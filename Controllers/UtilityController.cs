@@ -101,8 +101,8 @@ public class UtilityController : Controller
         return Ok(utility);
     }
     [Authorize]
-    [HttpPost("GetAllUtilitys")]
-    public async Task<IActionResult> GetAllUtilitys()
+    [HttpPost("GetAllUtilities")]
+    public async Task<IActionResult> GetAllUtilities()
     {
         var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
@@ -111,7 +111,7 @@ public class UtilityController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        var utility = await _utilityControl.GetAllUtilitys(getAuthControlInfoDto);
+        var utility = await _utilityControl.GetAllUtilities(getAuthControlInfoDto);
         if (utility.Status == true)
         {
             return Ok(utility);

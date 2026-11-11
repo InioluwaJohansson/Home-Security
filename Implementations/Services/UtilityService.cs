@@ -212,7 +212,13 @@ public class UtilityService : IUtilityService
             CurrentWaterLevel = utility.CurrentWaterLevel,
             MaxWaterLevel = utility.MaxWaterLevel,
             MinWaterLevel = utility.MinWaterLevel,
-            IrrigationDuration = utility.IrrigationDuration
+            IrrigationDuration = utility.IrrigationDuration,
+            LastModifiedBy = utility.LastModifiedBy,
+            DeletedBy = utility.DeletedBy,
+            CreatedBy = utility.CreatedBy,
+            LastModifiedOn = utility.LastModifiedOn,
+            CreatedOn = utility.CreatedOn,
+            IsDeleted = utility.IsDeleted,
         };
     }
 }
