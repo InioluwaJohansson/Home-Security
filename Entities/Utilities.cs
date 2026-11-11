@@ -12,19 +12,19 @@ public class Utilities : AuditableEntity
     public bool IsActive { get; set; }
 
     //For Electricity & HVAC
-    public int? CurrentPowerLevel { get; set; }
-    public int? VoltageLevel { get; set; }
-    public int? PowerConsumption { get; set; }
-    public int? PowerConsumptionToday { get; set; }
+    public double? CurrentPowerLevel { get; set; }
+    public double? VoltageLevel { get; set; }
+    public double? PowerConsumption { get; set; }
+    public double? PowerConsumptionToday { get; set; }
 
     //For Emergencies
     public List<int>? ActionIds { get; set; } = new List<int>();
     public int? EmergencyTimeOut { get; set; }
 
     // For Water
-    public int? CurrentWaterLevel { get; set; }
-    public int? MaxWaterLevel { get; set; }
-    public int? MinWaterLevel { get; set; }
+    public double? CurrentWaterLevel { get; set; }
+    public double? MaxWaterLevel { get; set; }
+    public double? MinWaterLevel { get; set; }
 
     // For Irrigation
     public int? IrrigationDuration { get; set; }

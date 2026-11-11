@@ -13,5 +13,6 @@ public enum FacilityTypeApp
     Section,
     Person,
     Contact,
-    ContactCategory
+    ContactCategory,
+    Utility
 }

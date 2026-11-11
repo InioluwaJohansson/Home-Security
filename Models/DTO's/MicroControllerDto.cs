@@ -77,3 +77,19 @@ public class MTTQData : BaseResponse
     public string Username { get; set; }
     public string Password { get; set; }
 }
+public class GenericUtilityUpdateState
+{
+    public int Id { get; set; }
+    public UtilityType UtilityType { get; set; }
+    public UtilityComponent? UtilityComponent { get; set; }
+    public bool IsActive { get; set; }
+
+    //For Electricity & HVAC
+    public double? CurrentPowerLevel { get; set; }
+    public double? VoltageLevel { get; set; }
+    public double? PowerConsumptionToday { get; set; }
+    // For Water
+    public double? CurrentWaterLevel { get; set; }
+    public double? MaxWaterLevel { get; set; }
+    public double? MinWaterLevel { get; set; }
+}

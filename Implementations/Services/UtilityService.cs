@@ -48,9 +48,9 @@ public class UtilityService : IUtilityService
                 LastModifiedOn = DateTime.Now
             };
 
-            await _UtilityRepo.Create(utility);
+            utility = await _UtilityRepo.Create(utility);
 
-            await _realtime.NotifyUser(personId, $"New utility {utility.UtilityName} has been created.");
+            await _realtime.NotifyAll("UtilityCreated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, GetDetails(utility));
             return new BaseResponse
             {
                 Status = true,
@@ -65,7 +65,7 @@ public class UtilityService : IUtilityService
     }
     public async Task<BaseResponse> UpdateUtility(UpdateUtilityDto updateUtilityDto, int personId)
     {
-        var utility = await _UtilityRepo.Get(x => x.UtilityId == updateUtilityDto.UtilityId);
+        var utility = await _UtilityRepo.Get(x => x.Id == updateUtilityDto.Id);
         if (utility != null)
         {
             utility.UtilityName = updateUtilityDto.UtilityName;
@@ -87,7 +87,20 @@ public class UtilityService : IUtilityService
             utility.LastModifiedOn = DateTime.Now;
 
             await _UtilityRepo.Update(utility);
-            await _realtime.Notify(personId, $"Utility {utility.UtilityName} has been updated.");
+            await _realtime.NotifyAll("UtilityUpdated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, GetDetails(utility));
+            await _mqtt.PublishUtilityUpdate(utility.UtilityId, new GenericUtilityUpdateState
+            {
+                Id = utility.Id,
+                UtilityType = utility.UtilityType,
+                UtilityComponent = utility.UtilityComponent,
+                IsActive = utility.IsActive,
+                CurrentPowerLevel = utility.CurrentPowerLevel,
+                VoltageLevel = utility.VoltageLevel,
+                PowerConsumptionToday = utility.PowerConsumptionToday,
+                CurrentWaterLevel = utility.CurrentWaterLevel,
+                MaxWaterLevel = utility.MaxWaterLevel,
+                MinWaterLevel = utility.MinWaterLevel
+            });
             return new BaseResponse
             {
                 Status = true,
@@ -107,25 +120,7 @@ public class UtilityService : IUtilityService
         {
             return new UtilityResponseModel
             {
-                Data = new GetUtilityDto
-                {
-                    PersonId = utility.PersonId,
-                    UtilityName = utility.UtilityName,
-                    UtilityId = utility.UtilityId,
-                    UtilityType = utility.UtilityType,
-                    UtilityComponent = utility.UtilityComponent ?? 0,
-                    IsActive = utility.IsActive,
-                    CurrentPowerLevel = utility.CurrentPowerLevel,
-                    VoltageLevel = utility.VoltageLevel,
-                    PowerConsumption = utility.PowerConsumption,
-                    PowerConsumptionToday = utility.PowerConsumptionToday,
-                    ActionIds = utility.ActionIds,
-                    EmergencyTimeOut = utility.EmergencyTimeOut,
-                    CurrentWaterLevel = utility.CurrentWaterLevel,
-                    MaxWaterLevel = utility.MaxWaterLevel,
-                    MinWaterLevel = utility.MinWaterLevel,
-                    IrrigationDuration = utility.IrrigationDuration
-                },
+                Data = GetDetails(utility),
                 Message = "Utility retrieved successfully",
                 Status = true
             };
@@ -144,25 +139,7 @@ public class UtilityService : IUtilityService
         {
             return new UtilitiesResponseModel
             {
-                Data = utilities.Select(utility => new GetUtilityDto
-                {
-                    PersonId = utility.PersonId,
-                    UtilityName = utility.UtilityName,
-                    UtilityId = utility.UtilityId,
-                    UtilityType = utility.UtilityType,
-                    UtilityComponent = utility.UtilityComponent ?? 0,
-                    IsActive = utility.IsActive,
-                    CurrentPowerLevel = utility.CurrentPowerLevel,
-                    VoltageLevel = utility.VoltageLevel,
-                    PowerConsumption = utility.PowerConsumption,
-                    PowerConsumptionToday = utility.PowerConsumptionToday,
-                    ActionIds = utility.ActionIds,
-                    EmergencyTimeOut = utility.EmergencyTimeOut,
-                    CurrentWaterLevel = utility.CurrentWaterLevel,
-                    MaxWaterLevel = utility.MaxWaterLevel,
-                    MinWaterLevel = utility.MinWaterLevel,
-                    IrrigationDuration = utility.IrrigationDuration
-                }).ToList(),
+                Data = utilities.Select(utility => GetDetails(utility)).ToList(),
                 Message = "Utilities retrieved successfully",
                 Status = true
             };
@@ -186,7 +163,24 @@ public class UtilityService : IUtilityService
             utility.LastModifiedBy = personId;
             utility.LastModifiedOn = DateTime.Now;
             await _UtilityRepo.Update(utility);
-            await _realtime.Notify(personId, $"Utility {utility.UtilityName} has been deleted.");
+            await _realtime.NotifyAll("UtilityDeleted", new
+            {
+                utility.Id,
+                utility.UtilityId
+            });
+            await _mqtt.PublishUtilityUpdate(utility.UtilityId, new GenericUtilityUpdateState
+            {
+                Id = utility.Id,
+                UtilityType = 0,
+                UtilityComponent = 0,
+                IsActive = false,
+                CurrentPowerLevel = 0,
+                VoltageLevel = 0,
+                PowerConsumptionToday = 0,
+                CurrentWaterLevel = 0,
+                MaxWaterLevel = 0,
+                MinWaterLevel = 0
+            });
             return new BaseResponse
             {
                 Status = true,
@@ -197,6 +191,28 @@ public class UtilityService : IUtilityService
         {
             Status = false,
             Message = "Utility not found"
+        };
+    }
+    public GetUtilityDto GetDetails(Utilities utility)
+    {
+        return new GetUtilityDto
+        {
+            PersonId = utility.PersonId,
+            UtilityName = utility.UtilityName,
+            UtilityId = utility.UtilityId,
+            UtilityType = utility.UtilityType,
+            UtilityComponent = utility.UtilityComponent ?? 0,
+            IsActive = utility.IsActive,
+            CurrentPowerLevel = utility.CurrentPowerLevel,
+            VoltageLevel = utility.VoltageLevel,
+            PowerConsumption = utility.PowerConsumption,
+            PowerConsumptionToday = utility.PowerConsumptionToday,
+            ActionIds = utility.ActionIds,
+            EmergencyTimeOut = utility.EmergencyTimeOut,
+            CurrentWaterLevel = utility.CurrentWaterLevel,
+            MaxWaterLevel = utility.MaxWaterLevel,
+            MinWaterLevel = utility.MinWaterLevel,
+            IrrigationDuration = utility.IrrigationDuration
         };
     }
 }

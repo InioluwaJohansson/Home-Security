@@ -16,6 +16,7 @@ public interface IAuthControl
     public string GetCameraName(int id);
     public string GetWindowName(int id);
     public string GetDoorName(int id);
+    public string GetUtilityName(int id);
     public string GetExternalName(int id);
     public string GetContactName(int id);
     public string GetContactCategoryName(int id);
