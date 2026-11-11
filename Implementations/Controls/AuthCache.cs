@@ -14,6 +14,7 @@ public class AuthCache : IAuthCache
     public List<Window> _windowCache { get; } =  new ();
     public List<Door> _doorCache { get; } =  new ();
     public List<Home_Security.Entities.Action> _actionCache { get; } =  new ();
+    public List<Utilities> _utilityCache { get; } =  new ();
     public List<External> _externalCache { get; } =  new ();
     public List<Contact> _contactCache { get; } =  new ();
     public List<ContactCategory> _contactCategoryCache { get; } =  new ();

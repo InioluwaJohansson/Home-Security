@@ -27,6 +27,7 @@ public class HomeSecurityContext: DbContext
 
     //Operations
     public DbSet<Entities.Action> Action { get; set; }
+    public DbSet<Utilities> Utilities { get; set; }
     public DbSet<Logs> Logs { get; set; }
     public DbSet<Recording> Recording { get; set; }
 

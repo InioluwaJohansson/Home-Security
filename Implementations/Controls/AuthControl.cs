@@ -24,6 +24,7 @@ public class AuthControl : IAuthControl
     IWindowRepo _windowRepo;
     IDoorRepo _doorRepo;
     IActionRepo _actionRepo;
+    IUtilityRepo _utilityRepo;
     IExternalRepo _externalRepo;
     IHardwareRepo _hardwareRepo;
     IContactRepo _contactRepo;
@@ -210,6 +211,19 @@ public class AuthControl : IAuthControl
         var action = _authCache._actionCache.FirstOrDefault(x => x.Id == id);
         if (action != null)
             return action.ActionName;
+        return null;
+    }
+    public async Task GetAllUtilities()
+    {
+        var utilities = await _utilityRepo.GetByExpression(x => x.IsDeleted == false);
+        if (utilities != null && utilities.Any())
+            foreach (var utility in utilities) _authCache._utilityCache.Add(utility);
+    }
+    public string GetUtilityName(int id)
+    {
+        var utility = _authCache._utilityCache.FirstOrDefault(x => x.Id == id);
+        if (utility != null)
+            return utility.UtilityName;
         return null;
     }
     public async Task GetAllExternals()
@@ -433,6 +447,12 @@ public class AuthControl : IAuthControl
                 Id = c.Id,
                 Name = c.ActionName,
             }).ToList(),
+            UtilityIdNames = _authCache._utilityCache.Where(x => x.IsDeleted == false)
+            .Select(c => new GenericIdNames
+            {
+                Id = c.Id,
+                Name = c.UtilityName,
+            }).ToList(),
             HardwareIdNames = _authCache._hardwareCache.Where(x => x.IsDeleted == false)
             .Select(c => new GenericIdNames
             {
@@ -443,6 +463,8 @@ public class AuthControl : IAuthControl
             Gender = EnumToList<Gender>(),
             DoorType = EnumToList<DoorType>(),
             FacilityType = EnumToList<FacilityType>(),
+            UtilityType = EnumToList<UtilityType>(),
+            UtilityComponent = GetAllUtilityComponents(),
             Role = EnumToList<Role>()
         };
     }
@@ -457,4 +479,67 @@ public class AuthControl : IAuthControl
         })
         .ToList();
     }
+    public List<UtilityTypeComponentsDto> GetAllUtilityComponents()
+    {
+        return GetUtilityComponents().Select(x => new UtilityTypeComponentsDto
+        {
+            UtilityType = new GenericIdNames
+            {
+                Id = (int)x.Key,
+                Name = x.Key.ToString()
+            },
+            Components = x.Value.Select(component => new GenericIdNames
+            {
+                Id = (int)component,
+                Name = component.ToString()
+            }).ToList()
+
+        }).ToList();
+    }
+    public Dictionary<UtilityType, List<UtilityComponent>> GetUtilityComponents()
+    {
+        return new Dictionary<UtilityType, List<UtilityComponent>>
+        {
+            [UtilityType.Electricity] = new()
+            {
+                UtilityComponent.Generator,
+                UtilityComponent.SolarPanel
+            },
+
+            [UtilityType.Water] = new()
+            {
+                UtilityComponent.WaterTank,
+                UtilityComponent.WaterPump,
+                UtilityComponent.WaterMeter
+            },
+
+            [UtilityType.Gas] = new()
+            {
+                UtilityComponent.GasCylinder
+            },
+
+            [UtilityType.HVAC] = new()
+            {
+                UtilityComponent.AirConditioner,
+                UtilityComponent.Heater
+            },
+
+            [UtilityType.Emergency] = new()
+            {
+                UtilityComponent.EmergencyNone,
+                UtilityComponent.EmergencyMild,
+                UtilityComponent.EmergencySevere,
+                UtilityComponent.EmergencyCritical
+            },
+
+            [UtilityType.Telecommunication] = new()
+            {
+            },
+
+            [UtilityType.Irrigation] = new()
+            {
+            }
+        };
+    }
 }
+

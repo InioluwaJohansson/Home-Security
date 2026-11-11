@@ -60,11 +60,14 @@ public class AppNamesDetailList{
     public List<GenericRoomNames> RoomIdNames { get; set; }
     public List<GenericIdNames> ContactCategoryIdNames { get; set; }
     public List<GenericIdNames> ActionIdNames { get; set; }
+    public List<GenericIdNames> UtilityIdNames { get; set; }
     public List<GenericIdNames> HardwareIdNames { get; set; }
     public List<GenericIdNames> ApplianceType { get; set; }
     public List<GenericIdNames> Gender { get; set; }
     public List<GenericIdNames> DoorType { get; set; }
     public List<GenericIdNames> FacilityType { get; set; }
+    public List<GenericIdNames> UtilityType { get; set; }
+    public List<UtilityTypeComponentsDto> UtilityComponent { get; set; }
     public List<GenericIdNames> Role { get; set; }
 }
 public class GenericNames : GenericIdNames{
@@ -74,6 +77,11 @@ public class GenericNames : GenericIdNames{
 public class GenericRoomNames : GenericIdNames{
     public bool IsHidden { get; set; }
     public int? SectionId { get; set; }
+}
+public class UtilityTypeComponentsDto
+{
+    public GenericIdNames UtilityType { get; set; }
+    public List<GenericIdNames> Components { get; set; } = new();
 }
 public class DashBoardResponseModel
 {

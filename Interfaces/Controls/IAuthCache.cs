@@ -11,6 +11,7 @@ public interface IAuthCache
     public List<Window> _windowCache { get; }
     public List<Door> _doorCache { get; }
     public List<Home_Security.Entities.Action> _actionCache { get; }
+    public List<Utilities> _utilityCache { get; }
     public List<External> _externalCache { get; }
     public List<Contact> _contactCache { get; }
     public List<ContactCategory> _contactCategoryCache { get; }
