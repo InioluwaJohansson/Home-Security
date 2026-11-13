@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Home_Security.Authentication;
+using Home_Security.BackgroundServices;
 using Home_Security.Interfaces.Controls;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
@@ -210,6 +211,22 @@ public class MqttService : BackgroundService, IMqttService
                         return;
                     }
                 }
+                if (topic.EndsWith("/utiliy"))
+                {
+                    var update = JsonSerializer.Deserialize<UtilityDataMQTT>(payload,
+                    new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                    if (update != null)
+                    {
+                        using var scope = _scopeFactory.CreateScope();
+                        var _utiliyService = scope.ServiceProvider.GetRequiredService<IUtilitySaveCleanUpService>();
+                        await _utiliyService.SaveUtilityCacheData(update);
+                        _logger.LogInformation("UTILITY DATA SENT");
+                        return;
+                    }
+                }
                 // DEVICE FULL SYNC
                 if (topic.EndsWith("/sync"))
                 {
@@ -217,7 +234,7 @@ public class MqttService : BackgroundService, IMqttService
                     new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
-                    }); 
+                    });
                     if (state != null) _logger.LogInformation("FULL DEVICE SYNC RECEIVED");
                 }
                 // DEVICE STATUS
@@ -320,6 +337,11 @@ public class MqttService : BackgroundService, IMqttService
             f.WithTopic("home/+/status");
             f.WithQualityOfServiceLevel(
             MqttQualityOfServiceLevel.AtLeastOnce);
+        }).WithTopicFilter(f =>
+        {
+            f.WithTopic("home/+/utility");
+            f.WithQualityOfServiceLevel(
+            MqttQualityOfServiceLevel.AtLeastOnce);
         }).Build();
         await _client.SubscribeAsync(options);
         _logger.LogInformation("MQTT TOPICS SUBSCRIBED");
@@ -346,6 +368,13 @@ public class MqttService : BackgroundService, IMqttService
     public async Task PublishDeviceUpdate(string hardwareId, GenericDeviceUpdateState update)
     {
         var topic = $"home/{hardwareId}/command";
+        await PublishAsync(topic, update);
+        _logger.LogInformation("DEVICE UPDATE SENT");
+    }
+    // SEND SINGLE DEVICE UPDATE
+    public async Task PublishUtilityUpdate(string utilityId, GenericUtilityUpdateState update)
+    {
+        var topic = $"home/{utilityId}/command";
         await PublishAsync(topic, update);
         _logger.LogInformation("DEVICE UPDATE SENT");
     }

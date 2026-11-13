@@ -30,7 +30,7 @@ public class AuthControl : IAuthControl
     IContactRepo _contactRepo;
     IContactCategoryRepo _contactCategoryRepo;
     IRealtimeNotificationService _realtimeNotificationService;
-    public AuthControl(IAuthCache authCache, IUserRepo userRepo, IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo,IApplianceRepo applianceRepo,ILightRepo lightRepo, ICameraRepo cameraRepo,IWindowRepo windowRepo, IDoorRepo doorRepo,IActionRepo actionRepo, IExternalRepo externalRepo, IHardwareRepo hardwareRepo, IContactRepo contactRepo, IContactCategoryRepo contactCategoryRepo, IRealtimeNotificationService realtimeNotificationService)
+    public AuthControl(IAuthCache authCache, IUserRepo userRepo, IPersonRepo personRepo, IRoomRepo roomRepo, ISectionRepo sectionRepo,IApplianceRepo applianceRepo,ILightRepo lightRepo, ICameraRepo cameraRepo,IWindowRepo windowRepo, IDoorRepo doorRepo,IActionRepo actionRepo, IExternalRepo externalRepo, IUtilityRepo utilityRepo, IHardwareRepo hardwareRepo, IContactRepo contactRepo, IContactCategoryRepo contactCategoryRepo, IRealtimeNotificationService realtimeNotificationService)
     {
         _authCache = authCache;
         _userRepo = userRepo;
@@ -45,6 +45,7 @@ public class AuthControl : IAuthControl
         _externalRepo = externalRepo;
         _hardwareRepo = hardwareRepo;
         _actionRepo = actionRepo;
+        _utilityRepo = utilityRepo;
         _contactRepo = contactRepo;
         _contactCategoryRepo = contactCategoryRepo;
         _realtimeNotificationService = realtimeNotificationService;

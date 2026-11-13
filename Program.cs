@@ -56,6 +56,7 @@ builder.Services.AddScoped<IRoomRepo, RoomRepo>();
 builder.Services.AddScoped<ISectionRepo, SectionRepo>();
 builder.Services.AddScoped<ITokenRepo, TokenRepo>();
 builder.Services.AddScoped<IUserRepo, UserRepo>();
+builder.Services.AddScoped<IUtilityRepo, UtilityRepo>();
 builder.Services.AddScoped<IWindowRepo, WindowRepo>();
 
 builder.Services.AddScoped<IActionService, ActionService>();
@@ -75,6 +76,7 @@ builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUtilityService, UtilityService>();
 builder.Services.AddScoped<IWindowService, WindowService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
@@ -96,16 +98,17 @@ builder.Services.AddScoped<IRoomControl, RoomControl>();
 builder.Services.AddScoped<ISectionControl, SectionControl>();
 builder.Services.AddScoped<ITokenControl, TokenControl>();
 builder.Services.AddScoped<IWindowControl, WindowControl>();
+builder.Services.AddScoped<IUtilityControl, UtilityControl>();
 builder.Services.AddScoped<IDashboardControl, DashboardControl>();
 
-builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IChatRepo, ChatRepo>();
+builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IChatControl, ChatControl>();
-builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IMessageRepo, MessageRepo>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IMessageControl, MessageControl>();
-builder.Services.AddScoped<ICallControl, CallControl>();
 builder.Services.AddScoped<ICallRepo, CallRepo>();
+builder.Services.AddScoped<ICallControl, CallControl>();
 builder.Services.AddScoped<ICallService, CallService>();
 
 builder.Services.AddSingleton<IAuthCache, AuthCache>();
@@ -136,6 +139,7 @@ builder.Services.AddHostedService<ReccuringActionsBackgroundService>();
 builder.Services.AddHostedService<CallTimeoutBackgroundService>();
 builder.Services.AddHostedService<RecordingCleanUpBackgroundServiceDelete>();
 builder.Services.AddHostedService<RecordingCleanUpBackgroundService>();
+builder.Services.AddHostedService<UtilitiesBackgroundService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();

@@ -36,7 +36,7 @@ public class UtilityControl : IUtilityControl
     public async Task<BaseResponse> UpdateUtility(GetAuthControlInfoDto getAuthControlInfoDto, UpdateUtilityDto updateUtilityDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false)
+        if ((auth.Status != false  && auth.Role == Role.Owner) || updateUtilityDto.UtilityType == UtilityType.Emergency && (auth.Role == Role.Wife ||  auth.Role == Role.Child))
         {
             var utility = await _utilityService.UpdateUtility(updateUtilityDto, auth.Id);
             if (utility.Status == true)
@@ -48,7 +48,6 @@ public class UtilityControl : IUtilityControl
                 log.FacilityId = updateUtilityDto.Id;
                 await _logService.CreateLog(log);
             }
-            
             return utility;
         }
         return _authControl.AuthFaliure();

@@ -10,22 +10,20 @@ public class Utilities : AuditableEntity
     public UtilityType UtilityType { get; set; }
     public UtilityComponent? UtilityComponent { get; set; }
     public bool IsActive { get; set; }
+    public double? TimeOut { get; set; }
 
     //For Electricity & HVAC
-    public double? CurrentPowerLevel { get; set; }
+    public double? CurrentLevel { get; set; }
     public double? VoltageLevel { get; set; }
     public double? PowerConsumption { get; set; }
     public double? PowerConsumptionToday { get; set; }
 
     //For Emergencies
     public List<int>? ActionIds { get; set; } = new List<int>();
-    public int? EmergencyTimeOut { get; set; }
 
     // For Water
     public double? CurrentWaterLevel { get; set; }
     public double? MaxWaterLevel { get; set; }
     public double? MinWaterLevel { get; set; }
 
-    // For Irrigation
-    public int? IrrigationDuration { get; set; }
 }

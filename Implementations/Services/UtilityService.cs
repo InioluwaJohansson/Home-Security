@@ -10,13 +10,11 @@ namespace Home_Security.Implementations.Services;
 public class UtilityService : IUtilityService
 {
     IUtilityRepo _UtilityRepo;
-    IHardwareService _hardwareService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
-    public UtilityService(IUtilityRepo UtilityRepo, IHardwareService hardwareService, IRealtimeNotificationService realtime, IMqttService mqtt)
+    public UtilityService(IUtilityRepo UtilityRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _UtilityRepo = UtilityRepo;
-        _hardwareService = hardwareService;
         _realtime = realtime;
         _mqtt = mqtt;
     }
@@ -32,24 +30,21 @@ public class UtilityService : IUtilityService
                 UtilityType = createUtilityDto.UtilityType,
                 UtilityComponent = createUtilityDto.UtilityComponent,
                 IsActive = false,
-                CurrentPowerLevel = createUtilityDto.CurrentPowerLevel,
-                VoltageLevel = createUtilityDto.VoltageLevel,
-                PowerConsumption = createUtilityDto.PowerConsumption,
-                PowerConsumptionToday = createUtilityDto.PowerConsumptionToday,
+                CurrentLevel = 0,
+                VoltageLevel = 0,
+                PowerConsumption = 0,
+                PowerConsumptionToday = 0,
                 ActionIds = createUtilityDto.ActionIds,
-                EmergencyTimeOut = createUtilityDto.EmergencyTimeOut,
-                CurrentWaterLevel = createUtilityDto.CurrentWaterLevel,
+                TimeOut = createUtilityDto.TimeOut,
+                CurrentWaterLevel = 0,
                 MaxWaterLevel = createUtilityDto.MaxWaterLevel,
                 MinWaterLevel = createUtilityDto.MinWaterLevel,
-                IrrigationDuration = createUtilityDto.IrrigationDuration,
                 IsDeleted = false,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now
             };
-
             utility = await _UtilityRepo.Create(utility);
-
             await _realtime.NotifyAll("UtilityCreated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, GetDetails(utility));
             return new BaseResponse
             {
@@ -68,20 +63,19 @@ public class UtilityService : IUtilityService
         var utility = await _UtilityRepo.Get(x => x.Id == updateUtilityDto.Id);
         if (utility != null)
         {
-            utility.UtilityName = updateUtilityDto.UtilityName;
+            utility.UtilityName = updateUtilityDto.UtilityName ?? utility.UtilityName;
             utility.UtilityType = updateUtilityDto.UtilityType;
             utility.UtilityComponent = updateUtilityDto.UtilityComponent;
             utility.IsActive = updateUtilityDto.IsActive;
-            utility.CurrentPowerLevel = updateUtilityDto.CurrentPowerLevel;
+            utility.CurrentLevel = updateUtilityDto.CurrentLevel;
             utility.VoltageLevel = updateUtilityDto.VoltageLevel;
             utility.PowerConsumption = updateUtilityDto.PowerConsumption;
             utility.PowerConsumptionToday = updateUtilityDto.PowerConsumptionToday;
-            utility.ActionIds = updateUtilityDto.ActionIds;
-            utility.EmergencyTimeOut = updateUtilityDto.EmergencyTimeOut;
+            utility.ActionIds = updateUtilityDto.ActionIds ?? utility.ActionIds;
+            utility.TimeOut = updateUtilityDto.TimeOut;
             utility.CurrentWaterLevel = updateUtilityDto.CurrentWaterLevel;
             utility.MaxWaterLevel = updateUtilityDto.MaxWaterLevel;
             utility.MinWaterLevel = updateUtilityDto.MinWaterLevel;
-            utility.IrrigationDuration = updateUtilityDto.IrrigationDuration;
             utility.IsDeleted = false;
             utility.LastModifiedBy = personId;
             utility.LastModifiedOn = DateTime.Now;
@@ -94,10 +88,7 @@ public class UtilityService : IUtilityService
                 UtilityType = utility.UtilityType,
                 UtilityComponent = utility.UtilityComponent,
                 IsActive = utility.IsActive,
-                CurrentPowerLevel = utility.CurrentPowerLevel,
-                VoltageLevel = utility.VoltageLevel,
                 PowerConsumptionToday = utility.PowerConsumptionToday,
-                CurrentWaterLevel = utility.CurrentWaterLevel,
                 MaxWaterLevel = utility.MaxWaterLevel,
                 MinWaterLevel = utility.MinWaterLevel
             });
@@ -135,6 +126,25 @@ public class UtilityService : IUtilityService
     public async Task<UtilitiesResponseModel> GetAllUtilities()
     {
         var utilities = await _UtilityRepo.GetByExpression(x => x.IsDeleted == false);
+        if (utilities != null && utilities.Any())
+        {
+            return new UtilitiesResponseModel
+            {
+                Data = utilities.Select(utility => GetDetails(utility)).ToList(),
+                Message = "Utilities retrieved successfully",
+                Status = true
+            };
+        }
+        return new UtilitiesResponseModel
+        {
+            Data = null,
+            Message = "No utilities found",
+            Status = false
+        };
+    }
+    public async Task<UtilitiesResponseModel> GetAllUtilitiesByUtilityType(UtilityType utilityType)
+    {
+        var utilities = await _UtilityRepo.GetByExpression(x => x.IsDeleted == false && x.UtilityType == utilityType);
         if (utilities != null && utilities.Any())
         {
             return new UtilitiesResponseModel
@@ -197,22 +207,22 @@ public class UtilityService : IUtilityService
     {
         return new GetUtilityDto
         {
+            Id = utility.Id, 
             PersonId = utility.PersonId,
             UtilityName = utility.UtilityName,
             UtilityId = utility.UtilityId,
             UtilityType = utility.UtilityType,
             UtilityComponent = utility.UtilityComponent ?? 0,
             IsActive = utility.IsActive,
-            CurrentPowerLevel = utility.CurrentPowerLevel,
+            CurrentLevel = utility.CurrentLevel,
             VoltageLevel = utility.VoltageLevel,
             PowerConsumption = utility.PowerConsumption,
             PowerConsumptionToday = utility.PowerConsumptionToday,
             ActionIds = utility.ActionIds,
-            EmergencyTimeOut = utility.EmergencyTimeOut,
+            TimeOut = utility.TimeOut,
             CurrentWaterLevel = utility.CurrentWaterLevel,
             MaxWaterLevel = utility.MaxWaterLevel,
             MinWaterLevel = utility.MinWaterLevel,
-            IrrigationDuration = utility.IrrigationDuration,
             LastModifiedBy = utility.LastModifiedBy,
             DeletedBy = utility.DeletedBy,
             CreatedBy = utility.CreatedBy,
