@@ -30,7 +30,7 @@ public class UtilityService : IUtilityService
                 UtilityName = createUtilityDto.UtilityName,
                 UtilityId = $"UTILITY{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 UtilityType = createUtilityDto.UtilityType,
-                UtilityComponent = createUtilityDto.UtilityComponent,
+                UtilityComponent = createUtilityDto.UtilityComponent ?? 0,
                 IsActive = false,
                 CurrentLevel = 0,
                 VoltageLevel = 0,
@@ -211,7 +211,7 @@ public class UtilityService : IUtilityService
         return new GetUtilityDto
         {
             Id = utility.Id, 
-            PersonId = utility.PersonId,
+            personId = utility.PersonId,
             UtilityName = utility.UtilityName,
             UtilityId = utility.UtilityId,
             UtilityType = utility.UtilityType,

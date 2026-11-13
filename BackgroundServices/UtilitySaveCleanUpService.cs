@@ -100,7 +100,6 @@ public class UtilitySaveCleanUpService : IUtilitySaveCleanUpService
             {
                 Id = utility.Id,
                 UtilityName = utility.UtilityName,
-                UtilityId = utility.UtilityId,
                 UtilityType = utility.UtilityType,
                 UtilityComponent = utility.UtilityComponent ?? 0,
                 IsActive = utility.IsActive,

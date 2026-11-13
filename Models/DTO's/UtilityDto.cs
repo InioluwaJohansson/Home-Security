@@ -24,7 +24,6 @@ public class UpdateUtilityDto
     //General Utilities
     public int Id { get; set; }
     public string UtilityName { get; set; }
-    public string UtilityId { get; set; }
     public UtilityType UtilityType { get; set; }
     public UtilityComponent? UtilityComponent { get; set; }
     public bool IsActive { get; set; }
@@ -48,7 +47,6 @@ public class UpdateUtilityDto
 public class GetUtilityDto : BaseDefaultDto
 {
     //General Utilities
-    public int PersonId { get; set; }
     public int Id { get; set;  }
     public string UtilityName { get; set; }
     public string UtilityId { get; set; }
