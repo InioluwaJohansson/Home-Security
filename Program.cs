@@ -119,6 +119,8 @@ builder.Services.AddScoped<ICameraStreamingService, CameraStreamingService>();
 
 builder.Services.AddScoped<IRecordingCleanUpService, RecordingCleanUpService>();
 
+builder.Services.AddScoped<IUtilitySaveCleanUpService, UtilitySaveCleanUpService>();
+
 builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationService>();
 builder.Services.AddScoped<IChatHub, ChatHub>();
 builder.Services.AddScoped<ICallHub, CallHub>();

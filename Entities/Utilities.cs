@@ -25,5 +25,4 @@ public class Utilities : AuditableEntity
     public double? CurrentWaterLevel { get; set; }
     public double? MaxWaterLevel { get; set; }
     public double? MinWaterLevel { get; set; }
-
 }

@@ -12,6 +12,7 @@ public class ActionService : IActionService
 {
     IActionRepo _actionRepo;
     IExternalRepo _externalRepo;
+    IUtilityRepo _utilityRepo;
     IApplianceService _applianceService;
     ILightService _lightService;
     IExternalService _externalService;
@@ -22,10 +23,11 @@ public class ActionService : IActionService
     IRealtimeNotificationService _realtime;
 
     public ActionService(
-        IActionRepo actionRepo, IExternalRepo externalRepo, IApplianceService applianceService, ILightService lightService, IExternalService externalService, ICameraService cameraService, IDoorService doorService, IWindowService windowService, ILogService logService, IRealtimeNotificationService realtime)
+        IActionRepo actionRepo, IExternalRepo externalRepo, IUtilityRepo utilityRepo, IApplianceService applianceService, ILightService lightService, IExternalService externalService, ICameraService cameraService, IDoorService doorService, IWindowService windowService, ILogService logService, IRealtimeNotificationService realtime)
     {
         _actionRepo = actionRepo;
         _externalRepo = externalRepo;
+        _utilityRepo = utilityRepo;
         _applianceService = applianceService;
         _lightService = lightService;
         _externalService = externalService;
@@ -227,6 +229,19 @@ public class ActionService : IActionService
             {
                 ExternalId = external.Id,
                 Actions = external.ActionIds
+            });
+        }
+    }
+    public async Task TriggerActionsForUtilities(int utilityId)
+    {
+        var utility = await _utilityRepo.Get(x => x.Id == utilityId);
+        if(utility != null)
+        {
+            foreach(var action in utility.ActionIds)   await TriggerActions(action);
+            await _realtime.NotifyAll("UtilityTriggeredActions", new
+            {
+                UtilityId = utility.Id,
+                Actions = utility.ActionIds
             });
         }
     }

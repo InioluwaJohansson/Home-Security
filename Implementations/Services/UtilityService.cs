@@ -10,11 +10,13 @@ namespace Home_Security.Implementations.Services;
 public class UtilityService : IUtilityService
 {
     IUtilityRepo _UtilityRepo;
+    IActionService _actionService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
-    public UtilityService(IUtilityRepo UtilityRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
+    public UtilityService(IUtilityRepo UtilityRepo, IActionService actionService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _UtilityRepo = UtilityRepo;
+        _actionService = actionService;
         _realtime = realtime;
         _mqtt = mqtt;
     }
@@ -81,6 +83,7 @@ public class UtilityService : IUtilityService
             utility.LastModifiedOn = DateTime.Now;
 
             await _UtilityRepo.Update(utility);
+            if(updateUtilityDto.IsActive) await _actionService.TriggerActionsForUtilities(utility.Id);
             await _realtime.NotifyAll("UtilityUpdated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, GetDetails(utility));
             await _mqtt.PublishUtilityUpdate(utility.UtilityId, new GenericUtilityUpdateState
             {
