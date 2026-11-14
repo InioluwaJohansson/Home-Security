@@ -237,7 +237,7 @@ public class ActionService : IActionService
         var utility = await _utilityRepo.Get(x => x.Id == utilityId);
         if(utility.ActionIds != null)
         {
-            foreach(var action in utility.ActionIds)   await TriggerActions(action);
+            foreach(var action in utility.ActionIds)   await ActivateDeactivateAction(action);
             await _realtime.NotifyAll("UtilityTriggeredActions", new
             {
                 UtilityId = utility.Id,

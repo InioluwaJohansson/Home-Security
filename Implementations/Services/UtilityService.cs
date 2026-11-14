@@ -67,7 +67,7 @@ public class UtilityService : IUtilityService
         {
             utility.UtilityName = updateUtilityDto.UtilityName ?? utility.UtilityName;
             utility.UtilityType = updateUtilityDto.UtilityType;
-            utility.UtilityComponent = updateUtilityDto.UtilityComponent;
+            utility.UtilityComponent = updateUtilityDto.UtilityComponent ?? 0;
             utility.IsActive = updateUtilityDto.IsActive;
             utility.CurrentLevel = updateUtilityDto.CurrentLevel;
             utility.VoltageLevel = updateUtilityDto.VoltageLevel;
