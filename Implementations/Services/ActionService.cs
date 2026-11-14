@@ -19,11 +19,12 @@ public class ActionService : IActionService
     ICameraService _cameraService;
     IDoorService _doorService;
     IWindowService _windowService;
+    IUtilityUpdateService _utilityUpdateService;
     ILogService _logService;
     IRealtimeNotificationService _realtime;
 
     public ActionService(
-        IActionRepo actionRepo, IExternalRepo externalRepo, IUtilityRepo utilityRepo, IApplianceService applianceService, ILightService lightService, IExternalService externalService, ICameraService cameraService, IDoorService doorService, IWindowService windowService, ILogService logService, IRealtimeNotificationService realtime)
+        IActionRepo actionRepo, IExternalRepo externalRepo, IUtilityRepo utilityRepo, IApplianceService applianceService, ILightService lightService, IExternalService externalService, ICameraService cameraService, IDoorService doorService, IWindowService windowService, IUtilityUpdateService utilityUpdateService, ILogService logService, IRealtimeNotificationService realtime)
     {
         _actionRepo = actionRepo;
         _externalRepo = externalRepo;
@@ -34,6 +35,7 @@ public class ActionService : IActionService
         _cameraService = cameraService;
         _doorService = doorService;
         _windowService = windowService;
+        _utilityUpdateService = utilityUpdateService;
         _logService = logService;
         _realtime = realtime;
     }
@@ -354,6 +356,19 @@ public class ActionService : IActionService
                     log.FacilityType = FacilityTypeApp.Window;
                     log.LogDetails = "Window Triggered by Sensor or User";
                     log.ActionType = "Window Activated";
+                    await _logService.CreateLog(log);
+                }
+                if(actionStep.FacilityType == FacilityType.Utility)
+                {
+                    var utility = new UpdateUtilityDto();
+                    utility.Id = actionStep.FacilityTypeId;
+                    utility.IsActive = actionStep.IsActive;
+                    await _utilityUpdateService.UpdateUtility(utility, action.PersonId);
+                    log.PersonId = action.PersonId;
+                    log.FacilityId = utility.Id;
+                    log.FacilityType = FacilityTypeApp.Utility;
+                    log.LogDetails = "Utility Triggered by Sensor or User";
+                    log.ActionType = "Utility Activated";
                     await _logService.CreateLog(log);
                 }
             }

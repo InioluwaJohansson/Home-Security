@@ -77,6 +77,7 @@ builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUtilityService, UtilityService>();
+builder.Services.AddScoped<IUtilityUpdateService, UtilityUpdateService>();
 builder.Services.AddScoped<IWindowService, WindowService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 

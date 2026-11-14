@@ -11,12 +11,14 @@ public class UtilityService : IUtilityService
 {
     IUtilityRepo _UtilityRepo;
     IActionService _actionService;
+    IUtilityUpdateService _utilityUpdateService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
-    public UtilityService(IUtilityRepo UtilityRepo, IActionService actionService, IRealtimeNotificationService realtime, IMqttService mqtt)
+    public UtilityService(IUtilityRepo UtilityRepo, IActionService actionService, IUtilityUpdateService utilityUpdateService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _UtilityRepo = UtilityRepo;
         _actionService = actionService;
+        _utilityUpdateService = utilityUpdateService;
         _realtime = realtime;
         _mqtt = mqtt;
     }
@@ -62,50 +64,7 @@ public class UtilityService : IUtilityService
     }
     public async Task<BaseResponse> UpdateUtility(UpdateUtilityDto updateUtilityDto, int personId)
     {
-        var utility = await _UtilityRepo.Get(x => x.Id == updateUtilityDto.Id);
-        if (utility != null)
-        {
-            utility.UtilityName = updateUtilityDto.UtilityName ?? utility.UtilityName;
-            utility.UtilityType = updateUtilityDto.UtilityType;
-            utility.UtilityComponent = updateUtilityDto.UtilityComponent ?? 0;
-            utility.IsActive = updateUtilityDto.IsActive;
-            utility.CurrentLevel = updateUtilityDto.CurrentLevel;
-            utility.VoltageLevel = updateUtilityDto.VoltageLevel;
-            utility.PowerConsumption = updateUtilityDto.PowerConsumption;
-            utility.PowerConsumptionToday = updateUtilityDto.PowerConsumptionToday;
-            utility.ActionIds = updateUtilityDto.ActionIds ?? utility.ActionIds;
-            utility.TimeOut = updateUtilityDto.TimeOut;
-            utility.CurrentWaterLevel = updateUtilityDto.CurrentWaterLevel;
-            utility.MaxWaterLevel = updateUtilityDto.MaxWaterLevel;
-            utility.MinWaterLevel = updateUtilityDto.MinWaterLevel;
-            utility.IsDeleted = false;
-            utility.LastModifiedBy = personId;
-            utility.LastModifiedOn = DateTime.Now;
-
-            await _UtilityRepo.Update(utility);
-            if(updateUtilityDto.IsActive) await _actionService.TriggerActionsForUtilities(utility.Id);
-            await _realtime.NotifyAll("UtilityUpdated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, GetDetails(utility));
-            await _mqtt.PublishUtilityUpdate(utility.UtilityId, new GenericUtilityUpdateState
-            {
-                Id = utility.Id,
-                UtilityType = utility.UtilityType,
-                UtilityComponent = utility.UtilityComponent,
-                IsActive = utility.IsActive,
-                PowerConsumptionToday = utility.PowerConsumptionToday,
-                MaxWaterLevel = utility.MaxWaterLevel,
-                MinWaterLevel = utility.MinWaterLevel
-            });
-            return new BaseResponse
-            {
-                Status = true,
-                Message = "Utility updated successfully"
-            };
-        }
-        return new BaseResponse
-        {
-            Status = false,
-            Message = "Utility not found"
-        };
+        return await _utilityUpdateService.UpdateUtility(updateUtilityDto, personId);
     }
     public async Task<UtilityResponseModel> GetById(int utilityId)
     {

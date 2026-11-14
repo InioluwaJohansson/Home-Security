@@ -7,5 +7,6 @@ public enum FacilityType
     Door,
     External,
     Light,
-    Window
+    Window,
+    Utility
 }
