@@ -15,6 +15,7 @@ public class UpdateHardwareDto
     public List<int> WindowIds { get; set; }
     public List<int> DoorIds { get; set; }
     public List<int> ExternalIds { get; set; }
+    public List<int> UtilityIds { get; set; } = new List<int>();
 }
 public class GetHardwareDto
 {
@@ -30,16 +31,7 @@ public class GetHardwareDto
     public List<GenericIdNames> WindowIdNames { get; set; }
     public List<GenericIdNames> DoorIdNames { get; set; }
     public List<GenericIdNames> ExternalIdNames { get; set; }
-}
-public class GetHardwareIdsDto
-{
-    public int Id { get; set; }
-    public List<int> ApplianceIds { get; set; }
-    public List<int> CameraIds { get; set; }
-    public List<int> LightIds { get; set; }
-    public List<int> WindowIds { get; set; }
-    public List<int> DoorIds { get; set; }
-    public List<int> ExternalIds { get; set; }
+    public List<GenericIdNames> UtilityIdNames { get; set; }
 }
 public class GenericIdNames
 {

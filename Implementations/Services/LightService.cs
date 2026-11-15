@@ -72,16 +72,19 @@ public class LightService : ILightService
                 if(light.IsHidden){ await _realtime.NotifyAll("LightUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(light));}
                 else await _realtime.NotifyAll("LightUpdated", GetDetails(light));
                 var hardware = await _hardwareService.GetHardwareName(light.Id, FacilityType.Light);
-                await _mqtt.PublishDeviceUpdate(light.LightId, new GenericDeviceUpdateState
+                if (hardware != null)
                 {
-                    FacilityType = FacilityType.Light,
-                    Id = light.Id,
-                    BrightnessLevel = light.BrightnessLevel,
-                    IsActive = light.IsActive,
-                    PowerActive = light.PowerActive,
-                    IsLocked = false,
-                    IsOpen = false
-                });
+                    await _mqtt.PublishDeviceUpdate(hardware, new GenericDeviceUpdateState
+                    {
+                        FacilityType = FacilityType.Light,
+                        Id = light.Id,
+                        BrightnessLevel = light.BrightnessLevel,
+                        IsActive = light.IsActive,
+                        PowerActive = light.PowerActive,
+                        IsLocked = false,
+                        IsOpen = false
+                    });
+                }
                 return new BaseResponse()
                 {
                     Status = true,

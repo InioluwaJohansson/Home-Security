@@ -126,16 +126,19 @@ public class CameraService : ICameraService
                 if(camera.IsHidden){ await _realtime.NotifyAll("CameraUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(camera));}
                 else await _realtime.NotifyAll("CameraUpdated", GetDetails(camera));
                 var hardware = await _hardwareService.GetHardwareName(camera.Id, FacilityType.Camera);
-                await _mqtt.PublishDeviceUpdate(hardware, new GenericDeviceUpdateState
+                if (hardware != null)
                 {
-                    FacilityType = FacilityType.Camera,
-                    Id = camera.Id,
-                    IsActive = camera.IsActive,
-                    PowerActive = camera.PowerActive,
-                    IsLocked = false,
-                    IsOpen = false,
-                    BrightnessLevel = 0
-                });
+                    await _mqtt.PublishDeviceUpdate(hardware, new GenericDeviceUpdateState
+                    {
+                        FacilityType = FacilityType.Camera,
+                        Id = camera.Id,
+                        IsActive = camera.IsActive,
+                        PowerActive = camera.PowerActive,
+                        IsLocked = false,
+                        IsOpen = false,
+                        BrightnessLevel = 0
+                    }); 
+                }
                 return new BaseResponse
                 {
                     Status = true,

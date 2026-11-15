@@ -73,19 +73,22 @@ public class ExternalService : IExternalService
                 Externals.IsTriggered = false;
                 Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds;
                 var externalData = await _externalRepo.Update(Externals);
-                var hardware = await _hardwareService.GetHardwareName(Externals.Id, FacilityType.External);
                 if(externalData.IsHidden){ await _realtime.NotifyAll("ExternalsUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(externalData));}
                 else await _realtime.NotifyAll("ExternalsUpdated", GetDetails(externalData));
-                await _mqtt.PublishDeviceUpdate(Externals.ExternalId, new GenericDeviceUpdateState
+                var hardware = await _hardwareService.GetHardwareName(Externals.Id, FacilityType.External);
+                if (hardware != null)
                 {
-                    FacilityType = FacilityType.External,
-                    Id = externalData.Id,
-                    BrightnessLevel = 0,
-                    IsActive = externalData.IsActive,
-                    PowerActive = externalData.PowerActive,
-                    IsLocked = false,
-                    IsOpen = false
-                });
+                    await _mqtt.PublishDeviceUpdate(hardware, new GenericDeviceUpdateState
+                    {
+                        FacilityType = FacilityType.External,
+                        Id = externalData.Id,
+                        BrightnessLevel = 0,
+                        IsActive = externalData.IsActive,
+                        PowerActive = externalData.PowerActive,
+                        IsLocked = false,
+                        IsOpen = false
+                    });
+                }
                 return new BaseResponse()
                 {
                     Status = true,

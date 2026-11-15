@@ -4,6 +4,7 @@ using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
 using Home_Security.Interfaces.Services;
 using Home_Security.Models.DTOs;
+using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
@@ -11,12 +12,14 @@ namespace Home_Security.Implementations.Services;
 public class UtilityUpdateService : IUtilityUpdateService
 {
     private readonly IUtilityRepo _utilityRepo;
+    private readonly IHardwareService _hardwareService;
     private readonly IRealtimeNotificationService _realtime;
     private readonly IMqttService _mqtt;
 
-    public UtilityUpdateService(IUtilityRepo utilityRepo, IRealtimeNotificationService realtime, IMqttService mqtt)
+    public UtilityUpdateService(IUtilityRepo utilityRepo, IHardwareService hardwareService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _utilityRepo = utilityRepo;
+        _hardwareService = hardwareService;
         _realtime = realtime;
         _mqtt = mqtt;
     }
@@ -43,15 +46,11 @@ public class UtilityUpdateService : IUtilityUpdateService
             utility.LastModifiedOn = DateTime.Now;
 
             await _utilityRepo.Update(utility);
-
-            await _realtime.NotifyAll(
-                "UtilityUpdated",
-                new List<Role> { Role.Owner, Role.Wife, Role.Child },
-                GetDetails(utility));
-
-            await _mqtt.PublishUtilityUpdate(
-                utility.UtilityId,
-                new GenericUtilityUpdateState
+            await _realtime.NotifyAll("UtilityUpdated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, GetDetails(utility));
+            var hardware = await _hardwareService.GetHardwareName(utility.Id, FacilityType.Utility);
+            if (hardware != null)
+            {
+                await _mqtt.PublishUtilityUpdate(hardware, new GenericUtilityUpdateState
                 {
                     Id = utility.Id,
                     UtilityType = utility.UtilityType,
@@ -61,6 +60,7 @@ public class UtilityUpdateService : IUtilityUpdateService
                     MaxWaterLevel = utility.MaxWaterLevel,
                     MinWaterLevel = utility.MinWaterLevel
                 });
+            }
 
             return new BaseResponse
             {

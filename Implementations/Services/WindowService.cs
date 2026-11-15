@@ -80,16 +80,19 @@ public class WindowService : IWindowService
                 if(window.IsHidden){ await _realtime.NotifyAll("WindowUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(window));}
                 else await _realtime.NotifyAll("WindowUpdated", GetDetails(window));
                 var hardware = await _hardwareService.GetHardwareName(window.Id, FacilityType.Window);
-                await _mqtt.PublishDeviceUpdate(window.WindowId, new GenericDeviceUpdateState
-                {
-                    FacilityType = FacilityType.Window,
-                    Id = window.Id,
-                    IsLocked = window.IsLocked,
-                    IsOpen = window.IsOpen,
-                    IsActive = window.IsActive,
-                    PowerActive = window.PowerActive,
-                    BrightnessLevel = 0
-                });
+                if (hardware != null)
+                {    
+                    await _mqtt.PublishDeviceUpdate(hardware, new GenericDeviceUpdateState
+                    {
+                        FacilityType = FacilityType.Window,
+                        Id = window.Id,
+                        IsLocked = window.IsLocked,
+                        IsOpen = window.IsOpen,
+                        IsActive = window.IsActive,
+                        PowerActive = window.PowerActive,
+                        BrightnessLevel = 0
+                    });
+                }
                 return new BaseResponse()
                 {
                     Status = true,

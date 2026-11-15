@@ -10,6 +10,7 @@ public class GenericDeviceState : BaseResponse
     public List<WindowDeviceState> WindowDeviceStates { get; set; }
     public List<DoorDeviceState> DoorDeviceStates { get; set; }
     public List<ExternalDeviceState> ExternalDeviceStates { get; set; }
+    public List<UtilityDeviceState> UtilityDeviceStates { get; set; }
     public long Timestamp { get; set; } = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
     public string Token { get; set;}
 }
@@ -23,6 +24,11 @@ public class GenericDeviceUpdateState
     public bool IsTriggered { get; set; }
     public bool IsActive { get; set; }
     public bool PowerActive { get; set; }
+    public double? CurrentLevel { get; set; }
+    public double? VoltageLevel { get; set; }
+    public double? PowerConsumptionToday { get; set; }
+    // For Water
+    public double? CurrentWaterLevel { get; set; }
     public string Token { get; set; }
 }
 public class ApplianceDeviceState
@@ -60,6 +66,28 @@ public class ExternalDeviceState
     public int ExternalId { get; set; }
     public bool IsActive { get; set; }
     public bool IsTriggered { get; set; }
+}
+public class UtilityDeviceState
+{
+    public int UtilityId { get; set; }
+    public bool IsActive { get; set; }
+    public UtilityType UtilityType { get; set; }
+    public UtilityComponent? UtilityComponent { get; set; }
+    public double? TimeOut { get; set; }
+    
+    //For Electricity & HVAC
+    public double? CurrentLevel { get; set; }
+    public double? VoltageLevel { get; set; }
+    public double? PowerConsumption { get; set; }
+    public double? PowerConsumptionToday { get; set; }
+
+    //For Emergencies
+    public List<int>? ActionIds { get; set; } = new List<int>();
+
+    // For Water
+    public double? CurrentWaterLevel { get; set; }
+    public double? MaxWaterLevel { get; set; }
+    public double? MinWaterLevel { get; set; }
 }
 public class MicroControllerLoginDto
 {

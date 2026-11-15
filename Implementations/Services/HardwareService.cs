@@ -33,6 +33,7 @@ public class HardwareService : IHardwareService
                 WindowIds = new List<int>(),
                 DoorIds = new List<int>(),
                 ExternalIds = new List<int>(),
+                UtilityIds = new List<int>(),
                 CreatedOn = DateTime.Now,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
@@ -66,6 +67,7 @@ public class HardwareService : IHardwareService
             hardware.WindowIds = updateHardwareDto.WindowIds ?? hardware.WindowIds;
             hardware.DoorIds = updateHardwareDto.DoorIds ?? hardware.DoorIds;
             hardware.ExternalIds = updateHardwareDto.ExternalIds ?? hardware.ExternalIds;
+            hardware.UtilityIds = updateHardwareDto.UtilityIds ?? hardware.UtilityIds;
             hardware.LastModifiedBy = personId;
             hardware.LastModifiedOn = DateTime.Now;
             await _hardwareRepo.Update(hardware);
@@ -167,6 +169,9 @@ public class HardwareService : IHardwareService
                 case FacilityType.External:
                     hardware.ExternalIds.Remove(id);
                     break;
+                case FacilityType.Utility:
+                    hardware.UtilityIds.Remove(id);
+                    break;
             }
             await _hardwareRepo.Update(hardware);
             await _realtime.NotifyAll("HardwareUpdated", GetDetails(hardware));
@@ -187,7 +192,8 @@ public class HardwareService : IHardwareService
             CameraIdNames = hardware.CameraIds.Select(x => GenericIdDetails(x, FacilityType.Camera)).ToList(),
             WindowIdNames = hardware.WindowIds.Select(x => GenericIdDetails(x, FacilityType.Window)).ToList(),
             DoorIdNames = hardware.DoorIds.Select(x => GenericIdDetails(x, FacilityType.Door)).ToList(),
-            ExternalIdNames = hardware.ExternalIds.Select(x => GenericIdDetails(x, FacilityType.External)).ToList()
+            ExternalIdNames = hardware.ExternalIds.Select(x => GenericIdDetails(x, FacilityType.External)).ToList(),
+            UtilityIdNames = hardware.UtilityIds.Select(x => GenericIdDetails(x, FacilityType.Utility)).ToList()
         };
     }
     private GenericIdNames GenericIdDetails(int id, FacilityType facilityType)
@@ -196,8 +202,10 @@ public class HardwareService : IHardwareService
         {
             case FacilityType.Appliance:
                 string appliance = _authControl.GetApplianceName(id);
-                if(appliance != null){
-                    return new GenericIdNames(){
+                if (appliance != null)
+                {
+                    return new GenericIdNames()
+                    {
                         Id = id,
                         Name = appliance
                     };
@@ -205,8 +213,10 @@ public class HardwareService : IHardwareService
                 break;
             case FacilityType.Light:
                 string light = _authControl.GetLightName(id);
-                if(light != null){
-                    return new GenericIdNames(){
+                if (light != null)
+                {
+                    return new GenericIdNames()
+                    {
                         Id = id,
                         Name = light
                     };
@@ -214,8 +224,10 @@ public class HardwareService : IHardwareService
                 break;
             case FacilityType.Camera:
                 string camera = _authControl.GetCameraName(id);
-                if(camera != null){
-                    return new GenericIdNames(){
+                if (camera != null)
+                {
+                    return new GenericIdNames()
+                    {
                         Id = id,
                         Name = camera
                     };
@@ -223,8 +235,10 @@ public class HardwareService : IHardwareService
                 break;
             case FacilityType.External:
                 string external = _authControl.GetExternalName(id);
-                if(external != null){
-                    return new GenericIdNames(){
+                if (external != null)
+                {
+                    return new GenericIdNames()
+                    {
                         Id = id,
                         Name = external
                     };
@@ -232,8 +246,10 @@ public class HardwareService : IHardwareService
                 break;
             case FacilityType.Door:
                 string door = _authControl.GetDoorName(id);
-                if(door != null){
-                    return new GenericIdNames(){
+                if (door != null)
+                {
+                    return new GenericIdNames()
+                    {
                         Id = id,
                         Name = door
                     };
@@ -241,10 +257,21 @@ public class HardwareService : IHardwareService
                 break;
             case FacilityType.Window:
                 string window = _authControl.GetWindowName(id);
-                if(window != null){
-                    return new GenericIdNames(){
+                if (window != null)
+                {
+                    return new GenericIdNames()
+                    {
                         Id = id,
                         Name = window
+                    };
+                }
+                break;
+            case FacilityType.Utility:
+                string utility = _authControl.GetUtilityName(id);
+                if(utility != null){
+                    return new GenericIdNames(){
+                        Id = id,
+                        Name = utility
                     };
                 }
                 break;

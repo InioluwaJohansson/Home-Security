@@ -73,8 +73,6 @@ public class GetUtilityDto : BaseDefaultDto
 public class UtilityDataMQTT
 {
     public int Id { get; set; }
-    public UtilityType UtilityType { get; set; }
-    public UtilityComponent? UtilityComponent { get; set; }
     public bool IsActive { get; set; }
     public double? CurrentLevel { get; set; }
     public double? VoltageLevel { get; set; }

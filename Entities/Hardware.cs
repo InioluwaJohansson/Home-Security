@@ -2,6 +2,7 @@ using Home_Security.Contracts;
 using System.Dynamic;
 
 namespace Home_Security.Entities;
+
 public class Hardware : AuditableEntity
 {
     public string HardwareName { get; set; }
@@ -15,4 +16,5 @@ public class Hardware : AuditableEntity
     public List<int> WindowIds { get; set; } = new List<int>();
     public List<int> DoorIds { get; set; } = new List<int>();
     public List<int> ExternalIds { get; set; } = new List<int>();
+    public List<int> UtilityIds { get; set; } = new List<int>();
 }

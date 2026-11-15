@@ -1,4 +1,5 @@
 ﻿using Home_Security.Authentication;
+using Home_Security.BackgroundServices;
 using Home_Security.Entities;
 using Home_Security.Entities.Identity;
 using Home_Security.Interfaces.Repositories;
@@ -9,6 +10,7 @@ using Home_Security.Models.Enums;
 using Home_Security.RealTimeServices;
 
 namespace Home_Security.Implementations.Services;
+
 public class MicroControllerService : IMicroControllerService
 {
     IUserRepo _userRepo;
@@ -21,10 +23,12 @@ public class MicroControllerService : IMicroControllerService
     IWindowService _windowService;
     IExternalService _externalService;
     IActionService _actionService;
+    IUtilityUpdateService _utilityUpdateService;
+    IUtilitySaveCleanUpService _utilitySaveCleanUpService;
     IMqttService _mqttService;
     IJWTAuthentication _jWTAuthentication;
     IConfiguration _configuration;
-    public MicroControllerService(IUserRepo userRepo, IPersonRepo personRepo, IHardwareRepo hardwareRepo, IApplianceService applianceService, ILightService lightService, ICameraService cameraService, IDoorService doorService, IWindowService windowService, IExternalService externalService, IActionService actionService, IMqttService mqttService, IJWTAuthentication jWTAuthentication, IConfiguration configuration)
+    public MicroControllerService(IUserRepo userRepo, IPersonRepo personRepo, IHardwareRepo hardwareRepo, IApplianceService applianceService, ILightService lightService, ICameraService cameraService, IDoorService doorService, IWindowService windowService, IExternalService externalService, IActionService actionService, IUtilityUpdateService utilityUpdateService, IUtilitySaveCleanUpService utilitySaveCleanUpService, IMqttService mqttService, IJWTAuthentication jWTAuthentication, IConfiguration configuration)
     {
         _userRepo = userRepo;
         _personRepo = personRepo;
@@ -36,6 +40,8 @@ public class MicroControllerService : IMicroControllerService
         _windowService = windowService;
         _externalService = externalService;
         _actionService = actionService;
+        _utilityUpdateService = utilityUpdateService;
+        _utilitySaveCleanUpService = utilitySaveCleanUpService;
         _mqttService = mqttService;
         _jWTAuthentication = jWTAuthentication;
         _configuration = configuration;
@@ -84,6 +90,7 @@ public class MicroControllerService : IMicroControllerService
                         WindowDeviceStates = await GetWindowDeviceStates(hardware.WindowIds) ?? new List<WindowDeviceState>(),
                         DoorDeviceStates = await GetDoorDeviceStates(hardware.DoorIds) ?? new List<DoorDeviceState>(),
                         ExternalDeviceStates = await GetExternalDeviceStates(hardware.ExternalIds) ?? new List<ExternalDeviceState>(),
+                        UtilityDeviceStates = await GetUtilityDeviceStates(hardware.UtilityIds) ?? new List<UtilityDeviceState>(),
                         Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
                         Token = _jWTAuthentication.GenerateHardwareToken(new GetHardwareDataDto
                         {
@@ -109,6 +116,7 @@ public class MicroControllerService : IMicroControllerService
             WindowDeviceStates = new List<WindowDeviceState>(),
             DoorDeviceStates = new List<DoorDeviceState>(),
             ExternalDeviceStates = new List<ExternalDeviceState>(),
+            UtilityDeviceStates = new List<UtilityDeviceState>(),
             Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
         };
         return emptyState;
@@ -116,7 +124,7 @@ public class MicroControllerService : IMicroControllerService
     public async Task SendUpdatedHardwareData()
     {
         var hardwares = await _hardwareRepo.GetByExpression(x => x.IsActive && !x.IsDeleted);
-        if(hardwares != null)
+        if (hardwares != null)
         {
             foreach (var hardware in hardwares)
             {
@@ -130,6 +138,7 @@ public class MicroControllerService : IMicroControllerService
                         WindowDeviceStates = await GetWindowDeviceStates(hardware.WindowIds) ?? new List<WindowDeviceState>(),
                         DoorDeviceStates = await GetDoorDeviceStates(hardware.DoorIds) ?? new List<DoorDeviceState>(),
                         ExternalDeviceStates = await GetExternalDeviceStates(hardware.ExternalIds) ?? new List<ExternalDeviceState>(),
+                        UtilityDeviceStates = await GetUtilityDeviceStates(hardware.UtilityIds) ?? new List<UtilityDeviceState>(),
                         Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                     };
                     await _mqttService.PublishFullStateSync(hardware.HardwareId, state);
@@ -164,7 +173,7 @@ public class MicroControllerService : IMicroControllerService
                     Id = genericDeviceUpdateState.Id,
                     IsActive = genericDeviceUpdateState.IsActive,
                 };
-                    await _cameraService.UpdateCamera(camera, personId);
+                await _cameraService.UpdateCamera(camera, personId);
                 break;
             case FacilityType.Window:
                 var window = new UpdateWindowDto()
@@ -182,7 +191,7 @@ public class MicroControllerService : IMicroControllerService
                     IsOpen = genericDeviceUpdateState.IsOpen,
                     IsLocked = genericDeviceUpdateState.IsLocked
                 };
-                    await _doorService.UpdateDoor(door, personId);
+                await _doorService.UpdateDoor(door, personId);
                 break;
             case FacilityType.External:
                 var external = new UpdateExternalDto()
@@ -193,6 +202,18 @@ public class MicroControllerService : IMicroControllerService
                 await _externalService.UpdateExternal(external, personId);
                 if (genericDeviceUpdateState.IsTriggered == true) await _actionService.TriggerActionsForExternal(external.Id);
                 break;
+            case FacilityType.Utility:
+                var utility = new UtilityDataMQTT()
+                {
+                    Id = genericDeviceUpdateState.Id,
+                    IsActive = genericDeviceUpdateState.IsActive,
+                    CurrentLevel = genericDeviceUpdateState.CurrentLevel,
+                    VoltageLevel = genericDeviceUpdateState.VoltageLevel,
+                    PowerConsumptionToday = genericDeviceUpdateState.PowerConsumptionToday,
+                    CurrentWaterLevel = genericDeviceUpdateState.CurrentWaterLevel,
+                };
+                await _utilitySaveCleanUpService.SaveUtilityCacheData(utility);
+                break;
         }
         return new BaseResponse()
         {
@@ -200,7 +221,7 @@ public class MicroControllerService : IMicroControllerService
             Message = "Generic State Updated!"
         };
     }
-    private async Task <List<ApplianceDeviceState>> GetApplianceDeviceStates(List<int> ApplianceIds)
+    private async Task<List<ApplianceDeviceState>> GetApplianceDeviceStates(List<int> ApplianceIds)
     {
         var applianceDeviceStates = new List<ApplianceDeviceState>();
         foreach (var item in ApplianceIds)
@@ -219,7 +240,7 @@ public class MicroControllerService : IMicroControllerService
         applianceDeviceStates.OrderBy(x => x.ApplianceId);
         return applianceDeviceStates;
     }
-    private async Task <List<LightDeviceState>> GetLightDeviceStates(List<int> LightIds)
+    private async Task<List<LightDeviceState>> GetLightDeviceStates(List<int> LightIds)
     {
         var lightDeviceStates = new List<LightDeviceState>();
         foreach (var item in LightIds)
@@ -238,7 +259,7 @@ public class MicroControllerService : IMicroControllerService
         lightDeviceStates.OrderBy(x => x.LightId);
         return lightDeviceStates;
     }
-    private async Task <List<CameraDeviceState>> GetCameraDeviceStates(List<int> CameraIds)
+    private async Task<List<CameraDeviceState>> GetCameraDeviceStates(List<int> CameraIds)
     {
         var cameraDeviceStates = new List<CameraDeviceState>();
         foreach (var item in CameraIds)
@@ -256,7 +277,7 @@ public class MicroControllerService : IMicroControllerService
         cameraDeviceStates.OrderBy(x => x.CameraId);
         return cameraDeviceStates;
     }
-    private async Task <List<WindowDeviceState>> GetWindowDeviceStates(List<int> WindowIds)
+    private async Task<List<WindowDeviceState>> GetWindowDeviceStates(List<int> WindowIds)
     {
         var windowDeviceStates = new List<WindowDeviceState>();
         foreach (var item in WindowIds)
@@ -275,7 +296,7 @@ public class MicroControllerService : IMicroControllerService
         windowDeviceStates.OrderBy(x => x.WindowId);
         return windowDeviceStates;
     }
-    private async Task <List<DoorDeviceState>> GetDoorDeviceStates(List<int> DoorIds)
+    private async Task<List<DoorDeviceState>> GetDoorDeviceStates(List<int> DoorIds)
     {
         var doorDeviceStates = new List<DoorDeviceState>();
         foreach (var item in DoorIds)
@@ -295,7 +316,7 @@ public class MicroControllerService : IMicroControllerService
         doorDeviceStates.OrderBy(x => x.DoorId);
         return doorDeviceStates;
     }
-    private async Task <List<ExternalDeviceState>> GetExternalDeviceStates(List<int> ExternalIds)
+    private async Task<List<ExternalDeviceState>> GetExternalDeviceStates(List<int> ExternalIds)
     {
         var externalDeviceStates = new List<ExternalDeviceState>();
         foreach (var item in ExternalIds)
@@ -313,5 +334,33 @@ public class MicroControllerService : IMicroControllerService
         }
         externalDeviceStates.OrderBy(x => x.ExternalId);
         return externalDeviceStates;
+    }
+    private async Task <List<UtilityDeviceState>> GetUtilityDeviceStates(List<int> UtilityIds)
+    {
+        var utilityDeviceStates = new List<UtilityDeviceState>();
+        foreach (var item in UtilityIds)
+        {
+            var utility = await _utilityUpdateService.GetById(item);
+            if (utility != null)
+            {
+                utilityDeviceStates.Add(new UtilityDeviceState()
+                {
+                    UtilityType = utility.UtilityType,
+                    UtilityComponent = utility.UtilityComponent,
+                    IsActive = utility.IsActive,
+                    CurrentLevel = utility.CurrentLevel,
+                    VoltageLevel = utility.VoltageLevel,
+                    PowerConsumption = utility.PowerConsumption,
+                    PowerConsumptionToday = utility.PowerConsumptionToday,
+                    ActionIds = utility.ActionIds,
+                    TimeOut = utility.TimeOut,
+                    CurrentWaterLevel = utility.CurrentWaterLevel,
+                    MaxWaterLevel = utility.MaxWaterLevel,
+                    MinWaterLevel = utility.MinWaterLevel,
+                });
+            }
+        }
+        utilityDeviceStates.OrderBy(x => x.UtilityId);
+        return utilityDeviceStates;
     }
 }
