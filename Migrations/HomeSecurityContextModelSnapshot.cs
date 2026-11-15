@@ -1140,6 +1140,10 @@ namespace Home_Security.Migrations
                     b.Property<bool>("PowerActive")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<string>("UtilityIds")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("WindowIds")
                         .IsRequired()
                         .HasColumnType("longtext");
