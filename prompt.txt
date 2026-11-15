@@ -211,3 +211,35 @@ curl -X 'PUT' \
   -H 'accept: */*' this is the curl to delete an utility by its id.
 
 await _realtimeNotificationService.NotifyAll("UtilityUpdated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, utilityDataMQTT); utilityDataMQTT is the UtilityDataMQTT class that applies the live updates via signalR to the app
+
+
+public class UpdateHardwareDto
+{
+    public int Id { get; set; }
+    public string HardwareName { get; set; }
+    public string AuthKey { get; set; }
+    public List<int> LightIds { get; set; }
+    public List<int> ApplianceIds { get; set; }
+    public List<int> CameraIds { get; set; }
+    public List<int> WindowIds { get; set; }
+    public List<int> DoorIds { get; set; }
+    public List<int> ExternalIds { get; set; }
+    public List<int> UtilityIds { get; set; } = new List<int>();
+}
+public class GetHardwareDto
+{
+    public int Id { get; set; }
+    public string HardwareName { get; set; }
+    public string HardwareId { get; set; }
+    public string AuthKey { get; set; }
+    public bool IsActive { get; set; }
+    public bool PowerActive { get; set; }
+    public List<GenericIdNames> ApplianceIdNames { get; set; }
+    public List<GenericIdNames> CameraIdNames { get; set; }
+    public List<GenericIdNames> LightIdNames { get; set; }
+    public List<GenericIdNames> WindowIdNames { get; set; }
+    public List<GenericIdNames> DoorIdNames { get; set; }
+    public List<GenericIdNames> ExternalIdNames { get; set; }
+    public List<GenericIdNames> UtilityIdNames { get; set; }
+}
+these two classes have been updated make modifications to their view and edit hardware modals
