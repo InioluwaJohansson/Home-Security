@@ -72,8 +72,7 @@ public class UtilitySaveCleanUpService : IUtilitySaveCleanUpService
         {
             foreach (var uMQTT in _authCache._utilityStateCache)
             {
-                var utility = utilities.FirstOrDefault(x => x.Id == uMQTT.Id);
-                if (utility != null)
+                if (utilities.FirstOrDefault(x => x.Id == uMQTT.Id) != null)
                 {
                     utilities.FirstOrDefault(x => x.Id == uMQTT.Id).PowerConsumption += uMQTT.PowerConsumptionToday;
                     utilities.FirstOrDefault(x => x.Id == uMQTT.Id).PowerConsumptionToday += uMQTT.PowerConsumptionToday;
