@@ -360,16 +360,21 @@ public class ActionService : IActionService
                 }
                 if(actionStep.FacilityType == FacilityType.Utility)
                 {
-                    var utility = new UpdateUtilityDto();
-                    utility.Id = actionStep.FacilityTypeId;
-                    utility.IsActive = actionStep.IsActive;
-                    await _utilityUpdateService.UpdateUtility(utility, action.PersonId);
-                    log.PersonId = action.PersonId;
-                    log.FacilityId = utility.Id;
-                    log.FacilityType = FacilityTypeApp.Utility;
-                    log.LogDetails = "Utility Triggered by Sensor or User";
-                    log.ActionType = "Utility Activated";
-                    await _logService.CreateLog(log);
+                    var getUtility = await _utilityUpdateService.GetById(actionStep.FacilityTypeId);
+                    if(getUtility != null){
+                        var utility = new UpdateUtilityDto();
+                        utility.Id = actionStep.FacilityTypeId;
+                        utility.IsActive = actionStep.IsActive;
+                        utility.UtilityComponent = getUtility.UtilityComponent;
+                        utility.UtilityType = getUtility.UtilityType;
+                        await _utilityUpdateService.UpdateUtility(utility, action.PersonId);
+                        log.PersonId = action.PersonId;
+                        log.FacilityId = utility.Id;
+                        log.FacilityType = FacilityTypeApp.Utility;
+                        log.LogDetails = "Utility Triggered by Sensor or User";
+                        log.ActionType = "Utility Activated";
+                        await _logService.CreateLog(log);
+                    }
                 }
             }
             log.PersonId = action.PersonId;

@@ -74,7 +74,15 @@ public class UtilityUpdateService : IUtilityUpdateService
             Message = "Utility not found"
         };
     }
-
+    public async Task<Utilities> GetById(int utilityId)
+    {
+        var utility = await _utilityRepo.Get(x => x.Id == utilityId);
+        if (utility != null)
+        {
+            return utility;
+        }
+        return null;
+    }
     private GetUtilityDto GetDetails(Utilities utility)
     {
         return new GetUtilityDto

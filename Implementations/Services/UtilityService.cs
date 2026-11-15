@@ -9,14 +9,14 @@ using Home_Security.RealTimeServices;
 namespace Home_Security.Implementations.Services;
 public class UtilityService : IUtilityService
 {
-    IUtilityRepo _UtilityRepo;
+    IUtilityRepo _utilityRepo;
     IActionService _actionService;
     IUtilityUpdateService _utilityUpdateService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
-    public UtilityService(IUtilityRepo UtilityRepo, IActionService actionService, IUtilityUpdateService utilityUpdateService, IRealtimeNotificationService realtime, IMqttService mqtt)
+    public UtilityService(IUtilityRepo utilityRepo, IActionService actionService, IUtilityUpdateService utilityUpdateService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
-        _UtilityRepo = UtilityRepo;
+        _utilityRepo = utilityRepo;
         _actionService = actionService;
         _utilityUpdateService = utilityUpdateService;
         _realtime = realtime;
@@ -48,7 +48,7 @@ public class UtilityService : IUtilityService
                 LastModifiedBy = personId,
                 LastModifiedOn = DateTime.Now
             };
-            utility = await _UtilityRepo.Create(utility);
+            utility = await _utilityRepo.Create(utility);
             await _realtime.NotifyAll("UtilityCreated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, GetDetails(utility));
             return new BaseResponse
             {
@@ -68,7 +68,7 @@ public class UtilityService : IUtilityService
     }
     public async Task<UtilityResponseModel> GetById(int utilityId)
     {
-        var utility = await _UtilityRepo.Get(x => x.Id == utilityId);
+        var utility = await _utilityRepo.Get(x => x.Id == utilityId);
         if (utility != null)
         {
             return new UtilityResponseModel
@@ -87,7 +87,7 @@ public class UtilityService : IUtilityService
     }
     public async Task<UtilitiesResponseModel> GetAllUtilities()
     {
-        var utilities = await _UtilityRepo.GetByExpression(x => x.IsDeleted == false);
+        var utilities = await _utilityRepo.GetByExpression(x => x.IsDeleted == false);
         if (utilities != null && utilities.Any())
         {
             return new UtilitiesResponseModel
@@ -106,7 +106,7 @@ public class UtilityService : IUtilityService
     }
     public async Task<UtilitiesResponseModel> GetAllUtilitiesByUtilityType(UtilityType utilityType)
     {
-        var utilities = await _UtilityRepo.GetByExpression(x => x.IsDeleted == false && x.UtilityType == utilityType);
+        var utilities = await _utilityRepo.GetByExpression(x => x.IsDeleted == false && x.UtilityType == utilityType);
         if (utilities != null && utilities.Any())
         {
             return new UtilitiesResponseModel
@@ -125,7 +125,7 @@ public class UtilityService : IUtilityService
     }
     public async Task<BaseResponse> Delete(int utilityId, int personId)
     {
-        var utility = await _UtilityRepo.Get(x => x.Id == utilityId);
+        var utility = await _utilityRepo.Get(x => x.Id == utilityId);
         if (utility != null)
         {
             utility.IsDeleted = true;
@@ -134,7 +134,7 @@ public class UtilityService : IUtilityService
             utility.DeletedOn = DateTime.Now;
             utility.LastModifiedBy = personId;
             utility.LastModifiedOn = DateTime.Now;
-            await _UtilityRepo.Update(utility);
+            await _utilityRepo.Update(utility);
             await _realtime.NotifyAll("UtilityDeleted", new
             {
                 utility.Id,
