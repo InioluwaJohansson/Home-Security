@@ -1,0 +1,213 @@
+public enum UtilityType
+{
+    Electricity = 1,
+    Water,
+    Gas,
+    HVAC,
+    Telecommunication,
+    Irrigation,
+    Emergency,
+}
+public enum UtilityComponent
+{
+    Generator,
+    SolarPanel,
+
+    WaterTank,
+    WaterPump,
+    WaterMeter,
+
+    GasCylinder,
+
+    AirConditioner,
+    Heater,
+
+    EmergencyNone,
+    EmergencyMild,
+    EmergencySevere,
+    EmergencyCritical,
+}
+public class CreateUtilityDto
+{
+    //General Utilities
+    public string UtilityName { get; set; }
+    public UtilityType UtilityType { get; set; }
+    public UtilityComponent? UtilityComponent { get; set; }
+    public double? TimeOut { get; set; }
+
+    //For Electricity & HVAC
+    
+    //For Emergencies
+    public List<int>? ActionIds { get; set; } = new List<int>();
+
+    // For Water
+    public int? MaxWaterLevel { get; set; }
+    public int? MinWaterLevel { get; set; }
+
+}
+public class UpdateUtilityDto
+{
+    //General Utilities
+    public int Id { get; set; }
+    public string UtilityName { get; set; }
+    public string UtilityId { get; set; }
+    public UtilityType UtilityType { get; set; }
+    public UtilityComponent? UtilityComponent { get; set; }
+    public bool IsActive { get; set; }
+    public double? TimeOut { get; set; }
+    
+    //For Electricity & HVAC
+    public double? CurrentLevel { get; set; }
+    public double? VoltageLevel { get; set; }
+    public double? PowerConsumption { get; set; }
+    public double? PowerConsumptionToday { get; set; }
+
+    //For Emergencies
+    public List<int>? ActionIds { get; set; } = new List<int>();
+
+    // For Water
+    public double? CurrentWaterLevel { get; set; }
+    public double? MaxWaterLevel { get; set; }
+    public double? MinWaterLevel { get; set; }
+
+}
+public class GetUtilityDto : BaseDefaultDto
+{
+    //General Utilities
+    public int PersonId { get; set; }
+    public int Id { get; set;  }
+    public string UtilityName { get; set; }
+    public string UtilityId { get; set; }
+    public UtilityType UtilityType { get; set; }
+    public UtilityComponent? UtilityComponent { get; set; }
+    public bool IsActive { get; set; }
+
+    //For Electricity & HVAC
+    public double? CurrentLevel { get; set; }
+    public double? VoltageLevel { get; set; }
+    public double? PowerConsumption { get; set; }
+    public double? PowerConsumptionToday { get; set; }
+    public double? TimeOut { get; set; }
+
+    //For Emergencies
+    public List<int>? ActionIds { get; set; } = new List<int>();
+
+    // For Water
+    public double? CurrentWaterLevel { get; set; }
+    public double? MaxWaterLevel { get; set; }
+    public double? MinWaterLevel { get; set; }
+
+}
+the dto above is used to transfer data between the client and server for utility-related operations. It includes properties for general utilities, electricity & HVAC, emergencies, and water management. The CreateUtilityDto is used for creating new utilities, UpdateUtilityDto is for updating existing utilities, and GetUtilityDto is for retrieving utility information.
+public class UtilityDataMQTT
+{
+    public int Id { get; set; }
+    public UtilityType UtilityType { get; set; }
+    public UtilityComponent? UtilityComponent { get; set; }
+    public bool IsActive { get; set; }
+    public double? CurrentLevel { get; set; }
+    public double? VoltageLevel { get; set; }
+    public double? PowerConsumptionToday { get; set; }
+    public double? CurrentWaterLevel { get; set; }
+}
+This is used to apply real-time updates to the utility data via signalR or MQTT. It includes properties for the utility's ID, type, component, active status, current level, voltage level, power consumption today, and current water level. This allows for efficient communication and synchronization of utility data between the client and server the updates is received every 10s
+public class UtilityResponseModel : BaseResponse
+{
+    public GetUtilityDto Data { get; set; }
+}
+public class UtilitiesResponseModel : BaseResponse
+{
+    public ICollection<GetUtilityDto> Data { get; set; } = new HashSet<GetUtilityDto>();
+}
+public class AppNamesDetailList{
+    public List<GenericNames> ApplianceIdNames { get; set; }
+    public List<GenericNames> CameraIdNames { get; set; }
+    public List<GenericNames> LightIdNames { get; set; }
+    public List<GenericNames> WindowIdNames { get; set; }
+    public List<GenericNames> DoorIdNames { get; set; }
+    public List<GenericNames> ExternalIdNames { get; set; }
+    public List<GenericNames> PersonIdNames { get; set; }
+    public List<GenericNames> SectionIdNames { get; set; }
+    public List<GenericRoomNames> RoomIdNames { get; set; }
+    public List<GenericIdNames> ContactCategoryIdNames { get; set; }
+    public List<GenericIdNames> ActionIdNames { get; set; }
+    public List<GenericIdNames> UtilityIdNames { get; set; }
+    public List<GenericIdNames> HardwareIdNames { get; set; }
+    public List<GenericIdNames> ApplianceType { get; set; }
+    public List<GenericIdNames> Gender { get; set; }
+    public List<GenericIdNames> DoorType { get; set; }
+    public List<GenericIdNames> FacilityType { get; set; }
+    public List<GenericIdNames> UtilityType { get; set; }
+    public List<UtilityTypeComponentsDto> UtilityComponent { get; set; }
+    public List<GenericIdNames> Role { get; set; }
+}
+this has been updated to include a list of utility types and their corresponding components. Each utility type can have multiple components associated with it, which are represented as a list of GenericIdNames. This structure allows for easy retrieval and management of utility types and their components in the application.
+public class UtilityTypeComponentsDto
+{
+    public GenericIdNames UtilityType { get; set; }
+    public List<GenericIdNames> Components { get; set; } = new();
+}
+The utility component list is a list of utility types and their corresponding components. Each utility type can have multiple components associated with it, which are represented as a list of GenericIdNames. This structure allows for easy retrieval and management of utility types and their components in the application.
+
+await _realtime.NotifyAll("UtilityUpdated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, GetDetails(utility));
+listen to apply updates to an utility
+await _realtime.NotifyAll("UtilityCreated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, GetDetails(utility));
+listen  to apply the created utility
+await _realtime.NotifyAll("UtilityDeleted", new
+{
+    utility.Id,
+    utility.UtilityId
+});
+listen to apply the deleted utility
+GetDetails(utility) is a method that returns the GetUtilityDto object for the updated utility.
+
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Utility/CreateUtility' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "utilityName": "string",
+  "utilityType": 1,
+  "utilityComponent": 0,
+  "timeOut": 0,
+  "actionIds": [
+    0
+  ],
+  "maxWaterLevel": 0,
+  "minWaterLevel": 0
+}' this is the curl to create an utility
+
+curl -X 'PUT' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Utility/UpdateUtility' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "id": 0,
+  "utilityName": "string",
+  "utilityId": "string",
+  "utilityType": 1,
+  "utilityComponent": 0,
+  "isActive": true,
+  "timeOut": 0,
+  "currentLevel": 0,
+  "voltageLevel": 0,
+  "powerConsumption": 0,
+  "powerConsumptionToday": 0,
+  "actionIds": [
+    0
+  ],
+  "currentWaterLevel": 0,
+  "maxWaterLevel": 0,
+  "minWaterLevel": 0
+}' this is the curl to update an utility
+
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Utility/GetAllUtilities' \
+  -H 'accept: */*' \
+  -d '' this is the curl to get all utilities.
+
+curl -X 'PUT' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Utility/DeleteUtility?utilityId=1' \
+  -H 'accept: */*' this is the curl to delete an utility by its id.
+
+await _realtimeNotificationService.NotifyAll("UtilityUpdated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, utilityDataMQTT); utilityDataMQTT is the UtilityDataMQTT class that applies the live updates via signalR to the app
