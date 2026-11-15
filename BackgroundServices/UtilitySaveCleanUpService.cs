@@ -57,7 +57,7 @@ public class UtilitySaveCleanUpService : IUtilitySaveCleanUpService
                 }
             }
             catch { }
-            await Task.Delay(TimeSpan.FromMinutes(3), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }
     }
     public async Task SaveUtilityCacheData(UtilityDataMQTT utilityDataMQTT)
