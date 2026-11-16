@@ -9,7 +9,7 @@ public interface IActionService
     public Task<ActionResponseModel> GetById(int actionId);
     public Task<ActionsResponseModel> GetAllActions();
     public Task<BaseResponse> ActivateDeactivateAction(int actionId);
-    public Task TriggerActionsForUtilities(int utilityId);
+    public Task TriggerActionsForUtilities(List<int> utilityActionIds);
     public Task<BaseResponse> DeleteAction(int actionId, int personId);
     public Task<BaseResponse> AddActionStep(List<CreateActionStepDto> createActionStepDtos, int personId);
     public Task<BaseResponse> UpdateActionStep(List<UpdateActionStepDto> updateActionStepDtos, int personId); 

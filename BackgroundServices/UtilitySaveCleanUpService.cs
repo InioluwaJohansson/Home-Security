@@ -43,12 +43,13 @@ public class UtilitySaveCleanUpService : IUtilitySaveCleanUpService
         {
             try
             {
-                var utilities = await _utiltyRepo.GetByExpression(x => x.IsDeleted == false && x.IsActive == true);
+                var utilities = await _utiltyRepo.GetByExpression(x => x.IsDeleted == false && x.IsActive == true && x.TimeOut > 0);
                 if (utilities != null)
                 {
+                    var currentTime = DateTime.UtcNow;
                     foreach (var x in utilities)
                     {
-                        if (x.LastModifiedOn?.AddMinutes(x.TimeOut ?? 0) < DateTime.Now && x.TimeOut.HasValue)
+                        if (x.LastModifiedOn.HasValue && x.LastModifiedOn.Value.AddMinutes(x.TimeOut.Value) <= currentTime)
                         {
                             x.IsActive = false;
                             await UpdateUtility(x); 
@@ -77,7 +78,7 @@ public class UtilitySaveCleanUpService : IUtilitySaveCleanUpService
                     utilities.FirstOrDefault(x => x.Id == uMQTT.Id).PowerConsumption += uMQTT.PowerConsumptionToday;
                     utilities.FirstOrDefault(x => x.Id == uMQTT.Id).PowerConsumptionToday += uMQTT.PowerConsumptionToday;
                     utilities.FirstOrDefault(x => x.Id == uMQTT.Id).CurrentWaterLevel = uMQTT.CurrentWaterLevel;
-                    utilities.FirstOrDefault(x => x.Id == uMQTT.Id).CurrentLevel += uMQTT.CurrentLevel;
+                    utilities.FirstOrDefault(x => x.Id == uMQTT.Id).CurrentLevel = uMQTT.CurrentLevel;
                     utilities.FirstOrDefault(x => x.Id == uMQTT.Id).VoltageLevel += uMQTT.VoltageLevel;
                 }
             }

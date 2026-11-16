@@ -234,17 +234,11 @@ public class ActionService : IActionService
             });
         }
     }
-    public async Task TriggerActionsForUtilities(int utilityId)
+    public async Task TriggerActionsForUtilities(List<int> utilityActionIds)
     {
-        var utility = await _utilityRepo.Get(x => x.Id == utilityId);
-        if(utility.ActionIds != null)
+        if(utilityActionIds != null)
         {
-            foreach(var action in utility.ActionIds)   await ActivateDeactivateAction(action);
-            await _realtime.NotifyAll("UtilityTriggeredActions", new
-            {
-                UtilityId = utility.Id,
-                Actions = utility.ActionIds
-            });
+            foreach(var action in utilityActionIds)   await ActivateDeactivateAction(action);
         }
     }
     private async Task RemoveActionFromExternal(int actionId, int personId)

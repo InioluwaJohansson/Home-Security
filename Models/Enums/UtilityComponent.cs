@@ -1,7 +1,7 @@
 namespace Home_Security.Models.Enums;
 public enum UtilityComponent
 {
-    Generator,
+    Generator = 1,
     SolarPanel,
 
     WaterTank,

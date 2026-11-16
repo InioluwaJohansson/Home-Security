@@ -10,15 +10,15 @@ namespace Home_Security.Implementations.Services;
 public class UtilityService : IUtilityService
 {
     IUtilityRepo _utilityRepo;
-    IActionService _actionService;
     IUtilityUpdateService _utilityUpdateService;
+    IActionService _actionService;
     IRealtimeNotificationService _realtime;
     IMqttService _mqtt;
-    public UtilityService(IUtilityRepo utilityRepo, IActionService actionService, IUtilityUpdateService utilityUpdateService, IRealtimeNotificationService realtime, IMqttService mqtt)
+    public UtilityService(IUtilityRepo utilityRepo, IUtilityUpdateService utilityUpdateService, IActionService actionService, IRealtimeNotificationService realtime, IMqttService mqtt)
     {
         _utilityRepo = utilityRepo;
-        _actionService = actionService;
         _utilityUpdateService = utilityUpdateService;
+        _actionService = actionService;
         _realtime = realtime;
         _mqtt = mqtt;
     }
@@ -64,7 +64,19 @@ public class UtilityService : IUtilityService
     }
     public async Task<BaseResponse> UpdateUtility(UpdateUtilityDto updateUtilityDto, int personId)
     {
-        return await _utilityUpdateService.UpdateUtility(updateUtilityDto, personId);
+        var response = await _utilityUpdateService.UpdateUtility(updateUtilityDto, personId);
+        if (response.Status)
+        {
+            var utility = await _utilityRepo.Get(x => x.Id == updateUtilityDto.Id && !x.IsDeleted);
+            if (utility != null && utility.IsActive && utility.ActionIds != null && utility.ActionIds.Any())
+            {
+                if (utility.UtilityType == UtilityType.Emergency && utility.UtilityComponent > UtilityComponent.EmergencyNone)
+                {
+                    await _actionService.TriggerActionsForUtilities(utility.ActionIds);
+                }
+            }
+        }
+        return response;
     }
     public async Task<UtilityResponseModel> GetById(int utilityId)
     {

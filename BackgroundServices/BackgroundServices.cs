@@ -178,8 +178,8 @@ public class ReccuringActionsBackgroundService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using var scope = _scopeFactory.CreateScope();
-        var callService = scope.ServiceProvider.GetRequiredService<IActionService>();
-        await callService.RunAllReccuringActions(stoppingToken);
+        var actionService = scope.ServiceProvider.GetRequiredService<IActionService>();
+        await actionService.RunAllReccuringActions(stoppingToken);
     }
 }
 public class UtilitiesBackgroundService  : BackgroundService
@@ -194,6 +194,19 @@ public class UtilitiesBackgroundService  : BackgroundService
         using var scope = _scopeFactory.CreateScope();
         var utilitySaveCleanUpService = scope.ServiceProvider.GetRequiredService<IUtilitySaveCleanUpService>();
         await utilitySaveCleanUpService.ExecuteCleanUp(stoppingToken);
+    }
+}
+public class UtilitiesCheckBackgroundService  : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    public UtilitiesCheckBackgroundService (IServiceScopeFactory scopeFactory)
+    {
+        _scopeFactory = scopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var utilitySaveCleanUpService = scope.ServiceProvider.GetRequiredService<IUtilitySaveCleanUpService>();
         await utilitySaveCleanUpService.ExecuteUtilityCheck(stoppingToken);
     }
 }
