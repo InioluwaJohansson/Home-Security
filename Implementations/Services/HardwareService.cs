@@ -187,13 +187,13 @@ public class HardwareService : IHardwareService
             IsActive = hardware.IsActive,
             PowerActive = hardware.PowerActive,
             HardwareId = hardware.HardwareId,
-            ApplianceIdNames = hardware.ApplianceIds.Select(x => GenericIdDetails(x, FacilityType.Appliance)).ToList(),
-            LightIdNames = hardware.LightIds.Select(x => GenericIdDetails(x, FacilityType.Light)).ToList(),
-            CameraIdNames = hardware.CameraIds.Select(x => GenericIdDetails(x, FacilityType.Camera)).ToList(),
-            WindowIdNames = hardware.WindowIds.Select(x => GenericIdDetails(x, FacilityType.Window)).ToList(),
-            DoorIdNames = hardware.DoorIds.Select(x => GenericIdDetails(x, FacilityType.Door)).ToList(),
-            ExternalIdNames = hardware.ExternalIds.Select(x => GenericIdDetails(x, FacilityType.External)).ToList(),
-            UtilityIdNames = hardware.UtilityIds.Select(x => GenericIdDetails(x, FacilityType.Utility)).ToList()
+            ApplianceIdNames = hardware.ApplianceIds.Select(x => GenericIdDetails(x, FacilityType.Appliance)).ToList() ?? new List<GenericIdNames>(),
+            LightIdNames = hardware.LightIds.Select(x => GenericIdDetails(x, FacilityType.Light)).ToList() ?? new List<GenericIdNames>(),
+            CameraIdNames = hardware.CameraIds.Select(x => GenericIdDetails(x, FacilityType.Camera)).ToList() ?? new List<GenericIdNames>(),
+            WindowIdNames = hardware.WindowIds.Select(x => GenericIdDetails(x, FacilityType.Window)).ToList() ?? new List<GenericIdNames>(),
+            DoorIdNames = hardware.DoorIds.Select(x => GenericIdDetails(x, FacilityType.Door)).ToList() ?? new List<GenericIdNames>(),
+            ExternalIdNames = hardware.ExternalIds.Select(x => GenericIdDetails(x, FacilityType.External)).ToList() ?? new List<GenericIdNames>(),
+            UtilityIdNames = hardware.UtilityIds.Select(x => GenericIdDetails(x, FacilityType.Utility)).ToList() ?? new List<GenericIdNames>()
         };
     }
     private GenericIdNames GenericIdDetails(int id, FacilityType facilityType)
