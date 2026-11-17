@@ -72,6 +72,20 @@ public class ActionController : Controller
         return Ok(action);
     }
     [Authorize]
+    [HttpPost("TriggerActions")]
+    public async Task<IActionResult> TriggerActions(List<int> ActionIds)
+    {
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        if (user == null)
+            return Unauthorized();
+        var getAuthControlInfoDto = new GetAuthControlInfoDto(){
+            PersonId = user.PersonId,
+            AuthorizationCode = user.AuthorizationCode,
+        };
+        await _actionControl.TriggerActions(getAuthControlInfoDto, ActionIds);
+        return Ok();
+    }
+    [Authorize]
     [HttpPost("GetActionById")]
     public async Task<IActionResult> GetActionById(int id)
     {

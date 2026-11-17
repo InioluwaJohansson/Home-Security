@@ -131,7 +131,7 @@ public class DoorService : IDoorService
         {
             return new DoorsResponseModel()
             {
-                Data = doors.Select(x => GetDetails(x)).ToList(),
+                Data = doors.Select(GetDetails).ToList(),
                 Message = "Doors Retrieved Successfully!",
                 Status = true
             };
@@ -150,7 +150,7 @@ public class DoorService : IDoorService
         {
             return new DoorsResponseModel()
             {
-                Data = doors.Select(x => GetDetails(x)).ToList(),
+                Data = doors.Select(GetDetails).ToList(),
                 Message = "Doors Retrieved Successfully!",
                 Status = true
             };
@@ -169,7 +169,7 @@ public class DoorService : IDoorService
         {
             return new DoorsResponseModel()
             {
-                Data = doors.Select(x => GetDetails(x)).ToList(),
+                Data = doors.Select(GetDetails).ToList(),
                 Message = "Doors Retrieved Successfully!",
                 Status = true
             };
@@ -188,7 +188,7 @@ public class DoorService : IDoorService
         {
             return new DoorsResponseModel()
             {
-                Data = doors.Select(x => GetDetails(x)).ToList(),
+                Data = doors.Select(GetDetails).ToList(),
                 Message = "Doors Retrieved Successfully!",
                 Status = true
             };

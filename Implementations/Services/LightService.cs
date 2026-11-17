@@ -124,7 +124,7 @@ public class LightService : ILightService
         {
             return new LightsResponseModel()
             {
-                Data = lights.Select(x => GetDetails(x)).ToList(),
+                Data = lights.Select(GetDetails).ToList(),
                 Message = "Lights Retrieved Successfully!",
                 Status = true
             };
@@ -143,7 +143,7 @@ public class LightService : ILightService
         {
             return new LightsResponseModel()
             {
-                Data = lights.Select(x => GetDetails(x)).ToList(),
+                Data = lights.Select(GetDetails).ToList(),
                 Message = "Lights Retrieved Successfully!",
                 Status = true
             };
@@ -162,7 +162,7 @@ public class LightService : ILightService
         {
             return new LightsResponseModel()
             {
-                Data = lights.Select(x => GetDetails(x)).ToList(),
+                Data = lights.Select(GetDetails).ToList(),
                 Message = "Lights Retrieved Successfully!",
                 Status = true
             };

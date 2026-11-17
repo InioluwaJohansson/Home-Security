@@ -101,6 +101,11 @@ public class ActionControl : IActionControl
             Message = _authControl.AuthFaliure().Message
         };
     }
+    public async Task TriggerActions(GetAuthControlInfoDto getAuthControlInfoDto, List<int> ActionIds)
+    {
+        var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
+        if (auth.Status != false) await _actionService.TriggerActionsForUtilities(ActionIds);
+    }
     public async Task<ActionsResponseModel> GetAllActions(GetAuthControlInfoDto getAuthControlInfoDto)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
@@ -110,7 +115,7 @@ public class ActionControl : IActionControl
             action.Data = action.Data.Select(x => DtoRefactor(x)).ToList();
             return action;
         }
-        else if(auth.Status != false && auth.Role == Role.Wife || auth.Role == Role.Child)
+        else if (auth.Status != false && auth.Role == Role.Wife || auth.Role == Role.Child)
         {
             var action = await _actionService.GetAllActions();
             action.Data = action.Data.Where(x => x.IsPrivate == false || x.personId == auth.Id).ToList();

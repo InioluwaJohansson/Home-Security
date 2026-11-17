@@ -265,7 +265,7 @@ public class PersonService : IPersonService
         {
             return new PersonsResponseModel()
             {
-                Data = persons.Select(x => GetDetails(x)).ToList(),
+                Data = persons.Select(GetDetails).ToList(),
                 Status = true,
                 Message = "Persons Profiles Retrieved Successfully!"
             };
@@ -412,8 +412,8 @@ public class PersonService : IPersonService
                 LastName = person.PersonDetails.LastName,
                 ImageUrl = person.PersonDetails.ImageUrl ?? "",
                 Gender = person.PersonDetails.Gender,
-                GetContactDetailsDtos = person.PersonDetails.ContactDetails.Select(x => GetContactDetails(x)).ToList() ?? new List<GetContactDetailsDto>(),
-                GetAddressDtos = person.PersonDetails.Addresses.Select(x => GetAddressDetails(x)).ToList(),
+                GetContactDetailsDtos = person.PersonDetails.ContactDetails.Select(GetContactDetails).ToList() ?? new List<GetContactDetailsDto>(),
+                GetAddressDtos = person.PersonDetails.Addresses.Select(GetAddressDetails).ToList(),
             }
         };
     }

@@ -104,7 +104,7 @@ public class UtilityService : IUtilityService
         {
             return new UtilitiesResponseModel
             {
-                Data = utilities.Select(utility => GetDetails(utility)).ToList(),
+                Data = utilities.Select(GetDetails).ToList(),
                 Message = "Utilities retrieved successfully",
                 Status = true
             };
@@ -123,7 +123,7 @@ public class UtilityService : IUtilityService
         {
             return new UtilitiesResponseModel
             {
-                Data = utilities.Select(utility => GetDetails(utility)).ToList(),
+                Data = utilities.Select(GetDetails).ToList(),
                 Message = "Utilities retrieved successfully",
                 Status = true
             };

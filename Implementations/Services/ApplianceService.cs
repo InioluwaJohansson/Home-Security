@@ -120,7 +120,7 @@ public class ApplianceService : IApplianceService
         {
             return new AppliancesResponseModel()
             {
-                Data = appliances.Select(x => GetDetails(x)).ToList(),
+                Data = appliances.Select(GetDetails).ToList(),
                 Message = "Appliances Retrieved Successfully!",
                 Status = true
             };
@@ -139,7 +139,7 @@ public class ApplianceService : IApplianceService
         {
             return new AppliancesResponseModel()
             {
-                Data = appliances.Select(x => GetDetails(x)).ToList(),
+                Data = appliances.Select(GetDetails).ToList(),
                 Message = "Appliances Retrieved Successfully!",
                 Status = true
             };
@@ -158,7 +158,7 @@ public class ApplianceService : IApplianceService
         {
             return new AppliancesResponseModel()
             {
-                Data = appliances.Select(x => GetDetails(x)).ToList(),
+                Data = appliances.Select(GetDetails).ToList(),
                 Message = "Appliances Retrieved Successfully!",
                 Status = true
             };

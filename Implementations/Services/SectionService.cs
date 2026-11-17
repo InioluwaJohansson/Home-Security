@@ -133,7 +133,7 @@ public class SectionService : ISectionService
         {
             return new SectionsResponseModel()
             {
-                Data = Sections.Select(x => GetDetails(x)).ToList(),
+                Data = Sections.Select(GetDetails).ToList(),
                 Status = true,
                 Message = "Sections Retrieved Successfully!"
             };
@@ -152,7 +152,7 @@ public class SectionService : ISectionService
         {
             return new SectionsResponseModel()
             {
-                Data = Sections.Select(x => GetDetails(x)).ToList(),
+                Data = Sections.Select(GetDetails).ToList(),
                 Status = true,
                 Message = "Sections Retrieved Successfully!"
             };
@@ -176,13 +176,13 @@ public class SectionService : ISectionService
             LastModifiedOn = Section.LastModifiedOn,
             CreatedBy = Section.CreatedBy,
             CreatedOn = Section.CreatedOn,
-            Doors = Section.Door == null ? new List<GetDoorDto>() : Section.Door.Select(x => GetDoorDetails(x)).ToList(),
-            Appliances = Section.Appliance == null ? new List<GetApplianceDto>() : Section.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
-            Lights = Section.Light == null ? new List<GetLightDto>() : Section.Light.Select(x => GetLightDetails(x)).ToList(),
-            Windows = Section.Window == null ? new List<GetWindowDto>() : Section.Window.Select(x => GetWindowDetails(x)).ToList(),
-            Rooms = Section.Room == null ? new List<GetRoomDto>() : Section.Room.Select(x => GetRoomDetails(x)).ToList(),
-            Cameras = Section.Camera == null ? new List<GetCameraDto>() : Section.Camera.Select(x => GetCameraDetails(x)).ToList(),
-            Externals = Section.External == null ? new List<GetExternalDto>() : Section.External.Select(x => GetExternalDetails(x)).ToList(),
+            Doors = Section.Door == null ? new List<GetDoorDto>() : Section.Door.Select(GetDoorDetails).ToList(),
+            Appliances = Section.Appliance == null ? new List<GetApplianceDto>() : Section.Appliance.Select(GetApplianceDetails).ToList(),
+            Lights = Section.Light == null ? new List<GetLightDto>() : Section.Light.Select(GetLightDetails).ToList(),
+            Windows = Section.Window == null ? new List<GetWindowDto>() : Section.Window.Select(GetWindowDetails).ToList(),
+            Rooms = Section.Room == null ? new List<GetRoomDto>() : Section.Room.Select(GetRoomDetails).ToList(),
+            Cameras = Section.Camera == null ? new List<GetCameraDto>() : Section.Camera.Select(GetCameraDetails).ToList(),
+            Externals = Section.External == null ? new List<GetExternalDto>() : Section.External.Select(GetExternalDetails).ToList(),
         };
     }
     public GetRoomDto GetRoomDetails(Room room)
@@ -194,12 +194,12 @@ public class SectionService : ISectionService
             RoomName = room.RoomName,
             SectionId = room.SectionId,
             personId = room.PersonId,
-            Doors = room.Door == null ? new List<GetDoorDto>() : room.Door.Select(x => GetDoorDetails(x)).ToList(),
-            Appliances = room.Appliance == null ? new List<GetApplianceDto>() : room.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
-            Lights = room.Light == null ? new List<GetLightDto>() : room.Light.Select(x => GetLightDetails(x)).ToList(),
-            Windows = room.Window == null ? new List<GetWindowDto>() : room.Window.Select(x => GetWindowDetails(x)).ToList(),
-            Cameras = room.Camera == null ? new List<GetCameraDto>() : room.Camera.Select(x => GetCameraDetails(x)).ToList(),
-            Externals = room.External == null ? new List<GetExternalDto>() : room.External.Select(x => GetExternalDetails(x)).ToList(),
+            Doors = room.Door == null ? new List<GetDoorDto>() : room.Door.Select(GetDoorDetails).ToList(),
+            Appliances = room.Appliance == null ? new List<GetApplianceDto>() : room.Appliance.Select(GetApplianceDetails).ToList(),
+            Lights = room.Light == null ? new List<GetLightDto>() : room.Light.Select(GetLightDetails).ToList(),
+            Windows = room.Window == null ? new List<GetWindowDto>() : room.Window.Select(GetWindowDetails).ToList(),
+            Cameras = room.Camera == null ? new List<GetCameraDto>() : room.Camera.Select(GetCameraDetails).ToList(),
+            Externals = room.External == null ? new List<GetExternalDto>() : room.External.Select(GetExternalDetails).ToList(),
         };
     }
     public GetApplianceDto GetApplianceDetails(Appliance appliance)

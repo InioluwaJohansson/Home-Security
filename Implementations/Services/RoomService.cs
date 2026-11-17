@@ -111,7 +111,7 @@ public class RoomService : IRoomService
         {
             return new RoomsResponseModel()
             {
-                Data = rooms.Select(x => GetDetails(x)).ToList(),
+                Data = rooms.Select(GetDetails).ToList(),
                 Status = true,
                 Message = "Rooms Retrieved Successfully!"
             };
@@ -130,7 +130,7 @@ public class RoomService : IRoomService
         {
             return new RoomsResponseModel()
             {
-                Data = rooms.Select(x => GetDetails(x)).ToList(),
+                Data = rooms.Select(GetDetails).ToList(),
                 Status = true,
                 Message = "Rooms Retrieved Successfully!"
             };
@@ -149,7 +149,7 @@ public class RoomService : IRoomService
         {
             return new RoomsResponseModel()
             {
-                Data = rooms.Select(x => GetDetails(x)).ToList(),
+                Data = rooms.Select(GetDetails).ToList(),
                 Status = true,
                 Message = "Rooms Retrieved Successfully!"
             };
@@ -168,7 +168,7 @@ public class RoomService : IRoomService
         {
             return new RoomsResponseModel()
             {
-                Data = rooms.Select(x => GetDetails(x)).ToList(),
+                Data = rooms.Select(GetDetails).ToList(),
                 Status = true,
                 Message = "Rooms Retrieved Successfully!"
             };
@@ -215,12 +215,12 @@ public class RoomService : IRoomService
             personId = room.PersonId,
             Icon = room.Icon,
             IsHidden = room.IsHidden,
-            Doors = room.Door == null ? new List<GetDoorDto>() : room.Door.Select(x => GetDoorDetails(x)).ToList(),
-            Appliances = room.Appliance == null ? new List<GetApplianceDto>() : room.Appliance.Select(x => GetApplianceDetails(x)).ToList(),
-            Lights = room.Light == null ? new List<GetLightDto>() : room.Light.Select(x => GetLightDetails(x)).ToList(),
-            Windows = room.Window == null ? new List<GetWindowDto>() : room.Window.Select(x => GetWindowDetails(x)).ToList(),
-            Cameras = room.Camera == null ? new List<GetCameraDto>() : room.Camera.Select(x => GetCameraDetails(x)).ToList(),
-            Externals = room.External == null ? new List<GetExternalDto>() : room.External.Select(x => GetExternalDetails(x)).ToList(),
+            Doors = room.Door == null ? new List<GetDoorDto>() : room.Door.Select(GetDoorDetails).ToList(),
+            Appliances = room.Appliance == null ? new List<GetApplianceDto>() : room.Appliance.Select(GetApplianceDetails).ToList(),
+            Lights = room.Light == null ? new List<GetLightDto>() : room.Light.Select(GetLightDetails).ToList(),
+            Windows = room.Window == null ? new List<GetWindowDto>() : room.Window.Select(GetWindowDetails).ToList(),
+            Cameras = room.Camera == null ? new List<GetCameraDto>() : room.Camera.Select(GetCameraDetails).ToList(),
+            Externals = room.External == null ? new List<GetExternalDto>() : room.External.Select(GetExternalDetails).ToList(),
             LastModifiedBy = room.LastModifiedBy,
             CreatedBy = room.CreatedBy,
             LastModifiedOn = room.LastModifiedOn,

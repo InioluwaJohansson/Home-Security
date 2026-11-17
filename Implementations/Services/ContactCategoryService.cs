@@ -97,7 +97,7 @@ public class ContactCategoryService : IContactCategoryService
         {
             return new ContactCategoriesResponseModel()
             {
-                Data = contactCategorys.Select(x => GetDetails(x)).ToList(),
+                Data = contactCategorys.Select(GetDetails).ToList(),
                 Message = "Contact Categories Retrieved Successfully!",
                 Status = true
             };

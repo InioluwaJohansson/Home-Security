@@ -208,7 +208,7 @@ public class ContactService : IContactService
         {
             return new ContactsResponseModel()
             {
-                Data = contacts.Select(x => GetDetails(x)).ToList(),
+                Data = contacts.Select(GetDetails).ToList(),
                 Message = "Contacts Retrieved Successfully!",
                 Status = true
             };
@@ -227,7 +227,7 @@ public class ContactService : IContactService
         {
             return new ContactsResponseModel()
             {
-                Data = contacts.Select(x => GetDetails(x)).ToList(),
+                Data = contacts.Select(GetDetails).ToList(),
                 Message = "Contacts Retrieved Successfully!",
                 Status = true
             };
@@ -246,7 +246,7 @@ public class ContactService : IContactService
         {
             return new ContactsResponseModel()
             {
-                Data = contacts.Select(x => GetDetails(x)).ToList(),
+                Data = contacts.Select(GetDetails).ToList(),
                 Message = "Contacts Retrieved Successfully!",
                 Status = true
             };
@@ -265,7 +265,7 @@ public class ContactService : IContactService
         {
             return new ContactsResponseModel()
             {
-                Data = contacts.Select(x => GetDetails(x)).ToList(),
+                Data = contacts.Select(GetDetails).ToList(),
                 Message = "Contacts Retrieved Successfully!",
                 Status = true
             };

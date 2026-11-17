@@ -110,7 +110,7 @@ public class HardwareService : IHardwareService
         {
             return new HardwaresResponseModel()
             {
-                Data = hardwares.Select(x => GetDetails(x)).ToList(),
+                Data = hardwares.Select(GetDetails).ToList(),
                 Message = "Hardwares Retrieved Successfully!",
                 Status = true
             };

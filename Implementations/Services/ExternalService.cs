@@ -134,7 +134,7 @@ public class ExternalService : IExternalService
         {
             return new ExternalsResponseModel()
             {
-                Data = externals.Select(x => GetDetails(x)).ToList(),
+                Data = externals.Select(GetDetails).ToList(),
                 Message = "Externals Retrieved Successfully!",
                 Status = true
             };
@@ -155,7 +155,7 @@ public class ExternalService : IExternalService
         {
             return new ExternalsResponseModel()
             {
-                Data = externals.Select(x => GetDetails(x)).ToList(),
+                Data = externals.Select(GetDetails).ToList(),
                 Message = "Externals Retrieved Successfully!",
                 Status = true
             };
@@ -174,7 +174,7 @@ public class ExternalService : IExternalService
         {
             return new ExternalsResponseModel()
             {
-                Data = externals.Select(x => GetDetails(x)).ToList(),
+                Data = externals.Select(GetDetails).ToList(),
                 Message = "Externals Retrieved Successfully!",
                 Status = true
             };

@@ -178,7 +178,7 @@ public class ActionService : IActionService
         {
             return new ActionsResponseModel
             {
-                Data = actions.Select(x => GetDetails(x)).ToList(),
+                Data = actions.Select(GetDetails).ToList(),
                 Status = true,
                 Message = "Action Retrieved!",
             };
@@ -224,22 +224,11 @@ public class ActionService : IActionService
     public async Task TriggerActionsForExternal(int externalId)
     {
         var external = await _externalRepo.Get(x => x.Id == externalId);
-        if(external != null && external.ActionIds != null)
-        {
-            foreach(var action in external.ActionIds)   await TriggerActions(action);
-            await _realtime.NotifyAll("ExternalTriggeredActions", new
-            {
-                ExternalId = external.Id,
-                Actions = external.ActionIds
-            });
-        }
+        if(external != null && external.ActionIds != null) foreach(var action in external.ActionIds) await TriggerActions(action);
     }
     public async Task TriggerActionsForUtilities(List<int> utilityActionIds)
     {
-        if(utilityActionIds != null)
-        {
-            foreach(var action in utilityActionIds)   await ActivateDeactivateAction(action);
-        }
+        if(utilityActionIds != null) foreach(var action in utilityActionIds) await ActivateDeactivateAction(action);
     }
     private async Task RemoveActionFromExternal(int actionId, int personId)
     {

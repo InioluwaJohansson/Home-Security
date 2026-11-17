@@ -132,7 +132,7 @@ public class WindowService : IWindowService
         {
             return new WindowsResponseModel()
             {
-                Data = windows.Select(x => GetDetails(x)).ToList(),
+                Data = windows.Select(GetDetails).ToList(),
                 Message = "Windows Retrieved Successfully!",
                 Status = true
             };
@@ -151,7 +151,7 @@ public class WindowService : IWindowService
         {
             return new WindowsResponseModel()
             {
-                Data = windows.Select(x => GetDetails(x)).ToList(),
+                Data = windows.Select(GetDetails).ToList(),
                 Message = "Windows Retrieved Successfully!",
                 Status = true
             };
@@ -171,7 +171,7 @@ public class WindowService : IWindowService
         {
             return new WindowsResponseModel()
             {
-                Data = windows.Select(x => GetDetails(x)).ToList(),
+                Data = windows.Select(GetDetails).ToList(),
                 Message = "Windows Retrieved Successfully!",
                 Status = true
             };
