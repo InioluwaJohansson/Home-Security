@@ -46,7 +46,7 @@ public class UtilitySaveCleanUpService : IUtilitySaveCleanUpService
                 var utilities = await _utiltyRepo.GetByExpression(x => x.IsDeleted == false && x.IsActive == true && x.TimeOut > 0);
                 if (utilities != null)
                 {
-                    var currentTime = DateTime.UtcNow;
+                    var currentTime = DateTime.Now;
                     foreach (var x in utilities)
                     {
                         if (x.LastModifiedOn.HasValue && x.LastModifiedOn.Value.AddMinutes(x.TimeOut.Value) <= currentTime)
@@ -58,7 +58,7 @@ public class UtilitySaveCleanUpService : IUtilitySaveCleanUpService
                 }
             }
             catch { }
-            await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
+            await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
         }
     }
     public async Task SaveUtilityCacheData(UtilityDataMQTT utilityDataMQTT)
