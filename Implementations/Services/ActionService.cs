@@ -224,7 +224,7 @@ public class ActionService : IActionService
     public async Task TriggerActionsForExternal(int externalId)
     {
         var external = await _externalRepo.Get(x => x.Id == externalId);
-        if(external != null)
+        if(external != null && external.ActionIds != null)
         {
             foreach(var action in external.ActionIds)   await TriggerActions(action);
             await _realtime.NotifyAll("ExternalTriggeredActions", new
