@@ -68,8 +68,8 @@ public class ExternalService : IExternalService
                 Externals.LastModifiedBy = personId;
                 Externals.LastModifiedOn = DateTime.Now;
                 Externals.IsActive = updateExternalDto.IsActive;
-                Externals.SectionId = updateExternalDto.SectionId ?? null;
-                Externals.RoomId = updateExternalDto.RoomId ?? null;
+                Externals.SectionId = updateExternalDto.SectionId ?? Externals.SectionId;
+                Externals.RoomId = updateExternalDto.RoomId ?? Externals.RoomId;
                 Externals.IsTriggered = false;
                 Externals.ActionIds = updateExternalDto.ActionIds ?? Externals.ActionIds;
                 var externalData = await _externalRepo.Update(Externals);

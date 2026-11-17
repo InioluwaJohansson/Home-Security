@@ -55,8 +55,8 @@ public class RoomService : IRoomService
         var room = await _roomRepo.GetById(updateRoomDto.Id);
         if (room != null)
         {
-            room.PersonId = updateRoomDto.PersonId ?? null;
-            room.SectionId = updateRoomDto.SectionId ?? null;
+            room.PersonId = updateRoomDto.PersonId ?? room.PersonId;
+            room.SectionId = updateRoomDto.SectionId ?? room.SectionId;
             room.RoomName = updateRoomDto.RoomName ?? room.RoomName;
             room.Icon = updateRoomDto.Icon ?? room.Icon;
             if(room.IsHidden != updateRoomDto.IsHidden){

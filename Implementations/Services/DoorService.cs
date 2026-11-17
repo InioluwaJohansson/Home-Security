@@ -74,8 +74,8 @@ public class DoorService : IDoorService
             door.UnlockedBy = updateDoorDto.UnlockedBy;
             door.LastModifiedOn = DateTime.Now;
             door.DoorType = updateDoorDto.DoorType;
-            door.SectionId = updateDoorDto.SectionId ?? null;
-            door.RoomId = updateDoorDto.RoomId ?? null;
+            door.SectionId = updateDoorDto.SectionId ?? door.SectionId;
+            door.RoomId = updateDoorDto.RoomId ?? door.RoomId;
             await _doorRepo.Update(door);
             if(door.IsHidden){ await _realtime.NotifyAll("DoorUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(door));}
             else await _realtime.NotifyAll("DoorUpdated", GetDetails(door));

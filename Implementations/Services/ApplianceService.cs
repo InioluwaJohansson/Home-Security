@@ -62,8 +62,8 @@ public class ApplianceService : IApplianceService
         {
             var appliance = await _applianceRepo.Get(x => x.Id == updateApplianceDto.Id);
             appliance.ApplianceName = updateApplianceDto.ApplianceName ?? appliance.ApplianceName;
-            appliance.SectionId = updateApplianceDto.SectionId ?? null;
-            appliance.RoomId = updateApplianceDto.RoomId ?? null;
+            appliance.SectionId = updateApplianceDto.SectionId ?? appliance.SectionId;
+            appliance.RoomId = updateApplianceDto.RoomId ?? appliance.RoomId;
             appliance.IsActive = updateApplianceDto.IsActive;
             appliance.LastModifiedBy = personId;
             appliance.LastModifiedOn = DateTime.Now;

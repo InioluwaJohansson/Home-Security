@@ -66,8 +66,8 @@ public class LightService : ILightService
                 light.LastModifiedOn = DateTime.Now;
                 light.BrightnessLevel = updateLightDto.BrightnessLevel;
                 light.IsActive = updateLightDto.IsActive;
-                light.SectionId = updateLightDto.SectionId ?? null;
-                light.RoomId = updateLightDto.RoomId ?? null;
+                light.SectionId = updateLightDto.SectionId ?? light.SectionId;
+                light.RoomId = updateLightDto.RoomId ?? light.RoomId;
                 await _lightRepo.Update(light);
                 if(light.IsHidden){ await _realtime.NotifyAll("LightUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(light));}
                 else await _realtime.NotifyAll("LightUpdated", GetDetails(light));

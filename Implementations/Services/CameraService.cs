@@ -119,8 +119,8 @@ public class CameraService : ICameraService
                 camera.IsActive = updateCameraDto.IsActive;
                 camera.LastModifiedBy = personId;
                 camera.LastModifiedOn = DateTime.Now;
-                camera.SectionId = updateCameraDto.SectionId ?? null;
-                camera.RoomId = updateCameraDto.RoomId ?? null;
+                camera.SectionId = updateCameraDto.SectionId ?? camera.SectionId;
+                camera.RoomId = updateCameraDto.RoomId ?? camera.RoomId;
                 if (!camera.IsStreaming) camera = await _cameraStreamingService.RestartStream(camera);
                 await _cameraRepo.Update(camera);
                 if(camera.IsHidden){ await _realtime.NotifyAll("CameraUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(camera));}

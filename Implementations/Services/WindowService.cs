@@ -66,8 +66,8 @@ public class WindowService : IWindowService
             if(window != null)
             {
                 window.WindowName = updateWindowDto.WindowName ?? window.WindowName;
-                window.SectionId = updateWindowDto.SectionId ?? null;
-                window.RoomId = updateWindowDto.RoomId ?? null;
+                window.SectionId = updateWindowDto.SectionId ?? window.SectionId;
+                window.RoomId = updateWindowDto.RoomId ?? window.RoomId;
                 window.LastModifiedBy = personId;
                 window.IsLocked = updateWindowDto.IsLocked;
                 window.IsOpen = updateWindowDto.IsOpen;

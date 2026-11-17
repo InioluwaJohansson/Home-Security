@@ -58,7 +58,7 @@ public class UtilitySaveCleanUpService : IUtilitySaveCleanUpService
                 }
             }
             catch { }
-            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(30), stoppingToken);
         }
     }
     public async Task SaveUtilityCacheData(UtilityDataMQTT utilityDataMQTT)
@@ -78,7 +78,7 @@ public class UtilitySaveCleanUpService : IUtilitySaveCleanUpService
                     utilities.FirstOrDefault(x => x.Id == uMQTT.Id).PowerConsumption += uMQTT.PowerConsumptionToday;
                     utilities.FirstOrDefault(x => x.Id == uMQTT.Id).PowerConsumptionToday += uMQTT.PowerConsumptionToday;
                     utilities.FirstOrDefault(x => x.Id == uMQTT.Id).CurrentWaterLevel = uMQTT.CurrentWaterLevel;
-                    utilities.FirstOrDefault(x => x.Id == uMQTT.Id).CurrentLevel = uMQTT.CurrentLevel;
+                    utilities.FirstOrDefault(x => x.Id == uMQTT.Id).CurrentLevel += uMQTT.CurrentLevel;
                     utilities.FirstOrDefault(x => x.Id == uMQTT.Id).VoltageLevel += uMQTT.VoltageLevel;
                 }
             }
