@@ -7,7 +7,7 @@ public interface IActionControl
     public Task<BaseResponse> UpdateAction(GetAuthControlInfoDto getAuthControlInfoDto, UpdateActionDto updateActionDto);
     public Task<ActionResponseModel> GetActionById(GetAuthControlInfoDto getAuthControlInfoDto, int id);
     public Task<BaseResponse> ActivateDeactivateAction(GetAuthControlInfoDto getAuthControlInfoDto, int actionId);
-    public Task TriggerActions(GetAuthControlInfoDto getAuthControlInfoDto, List<int> ActionIds);
+    public Task<bool> TriggerActions(GetAuthControlInfoDto getAuthControlInfoDto, List<int> ActionIds);
     public Task<ActionsResponseModel> GetAllActions(GetAuthControlInfoDto getAuthControlInfoDto);
     public Task<BaseResponse> DeleteAction(GetAuthControlInfoDto getAuthControlInfoDto, int actionId);
     public Task<BaseResponse> AddActionStep(GetAuthControlInfoDto getAuthControlInfoDto, List<CreateActionStepDto> createActionStepDtos);

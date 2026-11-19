@@ -82,8 +82,9 @@ public class ActionController : Controller
             PersonId = user.PersonId,
             AuthorizationCode = user.AuthorizationCode,
         };
-        await _actionControl.TriggerActions(getAuthControlInfoDto, ActionIds);
-        return Ok();
+        var status = await _actionControl.TriggerActions(getAuthControlInfoDto, ActionIds);
+        if (status) return Ok();
+        else return BadRequest();
     }
     [Authorize]
     [HttpPost("GetActionById")]

@@ -101,10 +101,15 @@ public class ActionControl : IActionControl
             Message = _authControl.AuthFaliure().Message
         };
     }
-    public async Task TriggerActions(GetAuthControlInfoDto getAuthControlInfoDto, List<int> ActionIds)
+    public async Task<bool> TriggerActions(GetAuthControlInfoDto getAuthControlInfoDto, List<int> ActionIds)
     {
         var auth = await _authControl.GetAuthDetails(getAuthControlInfoDto.PersonId, getAuthControlInfoDto.AuthorizationCode);
-        if (auth.Status != false) await _actionService.TriggerActionsForUtilities(ActionIds);
+        if (auth.Status != false)
+        {
+            await _actionService.TriggerActionsForUtilities(ActionIds);
+            return true;
+        }
+        else return false;
     }
     public async Task<ActionsResponseModel> GetAllActions(GetAuthControlInfoDto getAuthControlInfoDto)
     {
