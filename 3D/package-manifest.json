@@ -1,0 +1,28 @@
+{
+  "package": "HanssonHubSpatial3D",
+  "generated_utc": "2026-11-20",
+  "prompt_count": 14,
+  "files": [
+    "Backend/Configuration/SpatialModelConfiguration.cs",
+    "Backend/Context/HomeSecurityContext.additions.cs.txt",
+    "Backend/Controllers/SpatialController.cs",
+    "Backend/Entities/SpatialEntities.cs",
+    "Backend/Program.additions.cs.txt",
+    "Backend/Services/SpatialContracts.cs",
+    "Backend/Services/SpatialGeometryValidator.cs",
+    "Backend/Services/SpatialService.cs",
+    "Backend/Services/SpatialTargetValidator.cs",
+    "Backend/SpatialApi.http",
+    "Integration/Database-and-API-review-checklist.md",
+    "Integration/Realtime.integration.notes.txt",
+    "README.md",
+    "prompt.txt"
+  ],
+  "notes": [
+    "Integration overlay, not a replacement backend project.",
+    "EF Core model and service/controller source included.",
+    "Migration must be generated and reviewed against the actual project.",
+    "Exact mesh/solid containment requires a geometry-kernel implementation.",
+    "Existing login DTO body intentionally not invented."
+  ]
+}

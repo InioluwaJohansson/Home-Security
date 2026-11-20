@@ -1,0 +1,10 @@
+Repository code inspected:
+- RealTime/SignalRService.cs: RealtimeNotificationService uses IHubContext<HomeSecurityHub>.
+- IRealtimeNotificationService.NotifyAll(eventName, personId, payload) sends to Clients.Group(personId.ToString()).
+- RealTime/SignalRHub.cs: [Authorize] HomeSecurityHub, AddPersonRole(token) calls IJWTAuthentication.GetUserFromToken then IAuthControl.GetAuthDetails and joins role and auth.Id groups.
+- Program.cs: AddJwtBearer validates issuer, audience, signing key, lifetime; access_token query parsing is currently limited to /HomeSecurityHub.
+- Existing frontend should use SignalR accessTokenFactory and invoke AddPersonRole(token).
+- JWTAuthentication claims: UserId, PersonId, UserName, RoleName, AuthorizationCode, TimeStamp.
+- Existing controllers typically use [Authorize], then extract Authorization bearer, call GetUserFromToken, and call GetAuthDetails(PersonId, AuthorizationCode).
+- User's existing login response has a `token` property. Existing login route observed: POST /Home_Security/User/Login.
+Do not put JWT tokens in URLs for HTTP APIs. SignalR's accessTokenFactory handles its transport token behavior.

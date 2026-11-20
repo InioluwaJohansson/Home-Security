@@ -1,0 +1,12 @@
+// Add using directives:
+using Home_Security.Spatial.Services;
+using Home_Security.Spatial.Controllers;
+
+// Add service registrations before builder.Build():
+builder.Services.AddScoped<ISpatialTargetValidator, SpatialTargetValidator>();
+builder.Services.AddScoped<ISpatialGeometryValidator, SpatialGeometryValidator>();
+builder.Services.AddScoped<SpatialService>();
+
+// No new JWT configuration and no new SignalR hub are required.
+// Existing Program.cs already registers JWT, HomeSecurityHub, HomeSecurityContext,
+// IJWTAuthentication, IAuthControl and IRealtimeNotificationService.
