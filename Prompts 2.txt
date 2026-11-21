@@ -1,0 +1,162 @@
+In the app header inbetween the Friday assistant button and the chatbox button add a button called 3D that opens a fullscreen overlay that uses Three.js and implements the below ensure all impelmentations have a polished finish and are fully functional. The overlay should be dismissable by clicking a close button or pressing the escape key. The 3D view should be responsive and adapt to different screen sizes.
+public enum SpatialNodeKind { Property = 1, Building = 2, Floor = 3, Section = 4, Room = 5, ExteriorArea = 6, Structure = 7 }
+public enum SpatialGeometryKind { RoomOutline = 1, Wall = 2, WallSegment = 3, Slab = 4, RoofSurface = 5, Boundary = 6, Pool = 7, GlassPanel = 8, StairFlight = 9, StairLanding = 10, Void = 11, Generic = 12 }
+public enum SpatialTargetKind { Door = 1, Window = 2, Light = 3, Camera = 4, Appliance = 5, External = 6, Utility = 7 }
+public enum SpatialAttachmentKind { Free = 1, WallMounted = 2, CeilingMounted = 3, FloorMounted = 4, OpeningMounted = 5, StructureMounted = 6, Suspended = 7 }
+public enum SpatialOpeningKind { Door = 1, Window = 2, Gate = 3, Generic = 4 }
+public enum SpatialVisibilityEffect { HideNodeAndDescendants = 1, HidePlacement = 2, HideOpening = 3 }
+
+
+
+Create typed functions for GET Properties, POST Properties, POST Buildings, POST Floors, floor section/room bindings, geometry, placements, scene retrieval and placement deletion.
+
+All curls require the JWT bearer token in the Authorization header.
+- API client and JWT handling
+//
+curl -X 'GET' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Spatial/Properties' \
+  -H 'accept: */*'
+Create typed functions for GET Properties, POST Properties, POST Buildings, POST Floors, floor section/room bindings, geometry, placements, scene retrieval and placement deletion.
+//
+- Property and building setup
+Build the property setup screen. Use authenticated APIs only. Create property:
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Spatial/CreateProperty?propertyName=Home' \
+  -H 'accept: */*' \
+  -d ''
+Create building:
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Spatial/CreateBuilding' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "propertyId": 0,
+  "name": "string",
+  "baseElevation": 0
+}' Display server validation errors clearly.
+
+//
+- Floor levels and existing sections/rooms
+Implement floor management with Underground, Ground and Top as suggested labels, but allow user-defined names and elevations. Create floor:
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Spatial/CreateFloor' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "buildingId": 1,
+  "name": "string",
+  "levelIndex": -1,
+  "elevation": -3.2,
+  "defaultCeilingHeight": 2.7
+}'
+Reuse existing Home Security sections and rooms; do not create duplicate room/section records. Bind a section:
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Spatial/BindSection?floorId=1&sectionId=2' \
+  -H 'accept: */*' \
+  -d ''
+Bind a room directly to a floor only when existing Room.SectionId is null:
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Spatial/BindRoom?floorId=1&roomId=2&sectionId=0' \
+  -H 'accept: */*' \
+  -d ''
+A room may be linked through a section or directly to a floor, not both.
+
+//
+- Three.js scene foundation and coordinates
+Build the 3D scene using the project's existing supported stack; use Three.js if not already present. Coordinate convention: right-handed, Y-up, metres; X/Z horizontal. Persist rotations as quaternions. Use parent-relative transforms and a property world root. Create scene loading from:
+curl -X 'GET' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Spatial/GetScene?propertyId=1' \
+  -H 'accept: */*' \
+Render only what the server returns. Include orbit controls, selection, transform gizmos, floor visibility toggles and a clear loading/error state. Avoid fabricating geometry for absent data.
+
+//
+- Room outline editor and generated geometry
+Implement a room-outline editor supporting irregular polygons, not only rectangles. Room outline is logical space geometry. Provide actions to generate initial wall segments, floor surface and optional ceiling. Generated geometry must retain source-outline identity; manually edited segments remain editable without silently overwriting the original outline. Support line segments, circular arcs and Bezier curves in data structures. Use metres. Send geometry to:
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Spatial/CreateGeometry?propertyId=1' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "kind": 1,
+  "name": "Study outline",
+  "geometryJson": "{"type":"polygon","points":[[0,0,0],[4,0,0],[4,0,3],[0,0,3]]}",
+  "height": 2.8,
+  "thickness": 0
+}'
+Do not claim exact solid collision checking client-side; backend validation is authoritative.
+
+//
+- Walls, shared geometry, openings, glass and slabs
+Implement physical wall editing with shared wall identity and multiple space associations. A wall can span several floors. Segments may vary in height, thickness, material and curve. Support glass panels, frames, railings, partial walls and open boundaries. Openings belong to physical wall geometry. Doors/windows are separate existing smart-home devices installed into openings. Support one shared physical slab as underground ceiling and ground floor, multiple slabs per floor, and voids through slabs. Never duplicate a shared wall/slab just because two rooms/floors reference it.
+
+//
+- Roof, stairs, pool and exterior spaces
+Implement building-level roof geometry: flat surfaces, slanted perimeter edges, overhangs, parapets and multiple roof sections. Implement staircases as multiple straight flights plus landings and slab voids; support U-turn layout with the second flight reversing direction. The garage is a room/space on the Underground floor. The swimming pool is INDOOR and belongs to a room; model basin, water surface, depth and deck features as room-contained geometry. Exterior areas such as garden/driveway remain property areas outside floor hierarchy. Use existing API contracts; do not invent endpoints.
+
+//
+- Existing devices and placement
+Create a device placement panel that selects existing Doors, Windows, Lights, Cameras, Appliances, Externals and Utilities from existing backend APIs. Do not create duplicate device records. Placement request example:
+curl -X 'POST' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Spatial/Placements' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "id": 0,
+  "createdBy": 0,
+  "createdOn": "2026-11-20T10:55:43.116Z",
+  "lastModifiedBy": 0,
+  "lastModifiedOn": "2026-11-20T10:55:43.116Z",
+  "deletedOn": "2026-11-20T10:55:43.116Z",
+  "deletedBy": 0,
+  "isDeleted": true,
+  "personId": 0,
+  "version": 0,
+  "propertyId":1,
+  "targetKind":3,
+  "targetId":1,
+  "parentKind":5,
+  "parentId":1,
+  "attachmentKind":1,
+  "positionX":1.2,
+  "positionY":2.4,
+  "positionZ":0.8,
+  "rotationX":0,
+  "rotationY":0,
+  "rotationZ":0,
+  "rotationW":1,
+  "scaleX":1,
+  "scaleY":1,
+  "scaleZ":1,
+  "width":0.15,
+  "height":0.15,
+  "depth":0.08
+  "assetCode": "string",
+  "anchorJson": "string"
+}'
+TargetKind(SpatialTargetKind): 1 Door, 2 Window, 3 Light, 4 Camera, 5 Appliance, 6 External, 7 Utility. Existing device identity, Deleting placement must not delete device.
+
+//
+- Light fixture grouping and structural supports
+Implement visual fixture groups separately from individual Light devices. Support individual, square grid, rectangular grid, horizontal strip and vertical strip arrangements, with mounting style and spacing. Members retain independent light IDs and operational states. Implement standalone scaffold structures and support relationships for tanks or other equipment. Utilities can be located inside rooms/sections, directly on floors, in exterior zones or on structures. Irrigation is allowed anywhere within property boundary EXCEPT directly on the Property root; do not invent UtilityComponent enum values.
+
+//
+- Visibility and security behavior
+Respect server-filtered scene output. Existing Room.IsHidden and Section.IsHidden are authoritative hidden flags. Never cache hidden geometry in browser storage, never request hidden detail through alternate endpoints, and never reveal hidden room names, coordinates, device identities or opening data. For unauthorized hidden-room entrances, render continuous wall surface only when the backend supplies safe wall geometry; do not reconstruct hidden openings. Do not implement security by CSS visibility alone. Do not send user/role authorization decisions from client as trusted claims.
+
+//
+- Real-time updates through existing SignalR
+Listen for `SpatialSceneChanged`, `SpatialPlacementChanged`, and `SpatialVisibilityChanged`. Refresh only the affected property/scene using the authorized GET endpoint. Existing backend RealtimeNotificationService sends person-targeted notifications to a SignalR group keyed by PersonId; AddPersonRole(token) joins that group. Never broadcast private geometry to all users. Handle reconnect by invoking AddPersonRole again after successful reconnection.
+realtime.NotifyAll("SpatialSceneChanged", personId, new SpatialChange(propertyId, id, type, 1, operation));
+public sealed record SpatialChange(int PropertyId, int ResourceId, string ResourceType, int Version, string Operation);
+//
+- Editing workflow, autosave and concurrency
+Implement incremental save operations. Do not submit the entire scene for every edit. Debounce harmless transform changes, but persist explicit committed edits. Use entity Version values for optimistic concurrency when supported by API responses; show a conflict dialog and reload the affected object rather than silently overwriting. Group related geometry operations into one user action. Support undo/redo locally until a server save is confirmed. Never treat a local optimistic update as persisted before API success.
+//
+- QA, cURL verification and handoff
+Run through the complete frontend flow: existing login, property creation, building, floors, section/room binding, geometry, shared wall, shared slab, stair void, indoor pool room, device placement, utility/scaffold, hidden room filtering and SignalR update. Use bearer token in every protected curl. Example scene:
+
+Example delete placement:
+curl -X 'DELETE' \
+  'https://kv5zhpcr-7190.uks1.devtunnels.ms/Home_Security/Spatial/DeletePlacement?id=1' \
+  -H 'accept: */*' \
+Do not claim backend geometry validation is exact unless the geometry-kernel implementation is connected. Document unimplemented backend endpoints visibly. Preserve existing app features and provide a concise list of files changed, API calls used and manual tests still required.

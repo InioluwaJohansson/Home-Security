@@ -243,3 +243,13 @@ public class GetHardwareDto
     public List<GenericIdNames> UtilityIdNames { get; set; }
 }
 these two classes have been updated make modifications to their view and edit hardware modals
+
+
+
+
+public enum SpatialNodeKind { Property = 1, Building = 2, Floor = 3, Section = 4, Room = 5, ExteriorArea = 6, Structure = 7 }
+public enum SpatialGeometryKind { RoomOutline = 1, Wall = 2, WallSegment = 3, Slab = 4, RoofSurface = 5, Boundary = 6, Pool = 7, GlassPanel = 8, StairFlight = 9, StairLanding = 10, Void = 11, Generic = 12 }
+public enum SpatialTargetKind { Door = 1, Window = 2, Light = 3, Camera = 4, Appliance = 5, External = 6, Utility = 7 }
+public enum SpatialAttachmentKind { Free = 1, WallMounted = 2, CeilingMounted = 3, FloorMounted = 4, OpeningMounted = 5, StructureMounted = 6, Suspended = 7 }
+public enum SpatialOpeningKind { Door = 1, Window = 2, Gate = 3, Generic = 4 }
+public enum SpatialVisibilityEffect { HideNodeAndDescendants = 1, HidePlacement = 2, HideOpening = 3 }

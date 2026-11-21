@@ -1,0 +1,669 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace Home_Security.Migrations
+{
+    /// <inheritdoc />
+    public partial class HomeSecurityMigrationSpatial : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.CreateTable(
+                name: "SpatialAccessRules",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    PropertyId = table.Column<int>(type: "int", nullable: false),
+                    TargetKind = table.Column<int>(type: "int", nullable: false),
+                    TargetId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: true),
+                    RoleName = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CanView = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CanEdit = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    Priority = table.Column<int>(type: "int", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialAccessRules", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialLightFixtures",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    PropertyId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Arrangement = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    MountingStyle = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LayoutJson = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialLightFixtures", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialPlacements",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    PropertyId = table.Column<int>(type: "int", nullable: false),
+                    TargetKind = table.Column<int>(type: "int", nullable: false),
+                    TargetId = table.Column<int>(type: "int", nullable: false),
+                    ParentKind = table.Column<int>(type: "int", nullable: false),
+                    ParentId = table.Column<int>(type: "int", nullable: false),
+                    AttachmentKind = table.Column<int>(type: "int", nullable: false),
+                    HostGeometryId = table.Column<int>(type: "int", nullable: true),
+                    OpeningId = table.Column<int>(type: "int", nullable: true),
+                    SupportingPlacementId = table.Column<int>(type: "int", nullable: true),
+                    PositionX = table.Column<double>(type: "double", nullable: false),
+                    PositionY = table.Column<double>(type: "double", nullable: false),
+                    PositionZ = table.Column<double>(type: "double", nullable: false),
+                    RotationX = table.Column<double>(type: "double", nullable: false),
+                    RotationY = table.Column<double>(type: "double", nullable: false),
+                    RotationZ = table.Column<double>(type: "double", nullable: false),
+                    RotationW = table.Column<double>(type: "double", nullable: false),
+                    ScaleX = table.Column<double>(type: "double", nullable: false),
+                    ScaleY = table.Column<double>(type: "double", nullable: false),
+                    ScaleZ = table.Column<double>(type: "double", nullable: false),
+                    Width = table.Column<double>(type: "double", nullable: false),
+                    Height = table.Column<double>(type: "double", nullable: false),
+                    Depth = table.Column<double>(type: "double", nullable: false),
+                    AssetCode = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    AnchorJson = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialPlacements", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialProperties",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CoordinateSystem = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    BoundaryArea = table.Column<double>(type: "double", nullable: true),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialProperties", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialStructures",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    PropertyId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    StructureType = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    GeometryJson = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialStructures", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialLightFixtureMembers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    FixtureId = table.Column<int>(type: "int", nullable: false),
+                    LightId = table.Column<int>(type: "int", nullable: false),
+                    Sequence = table.Column<int>(type: "int", nullable: false),
+                    OffsetX = table.Column<double>(type: "double", nullable: false),
+                    OffsetY = table.Column<double>(type: "double", nullable: false),
+                    OffsetZ = table.Column<double>(type: "double", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialLightFixtureMembers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SpatialLightFixtureMembers_SpatialLightFixtures_FixtureId",
+                        column: x => x.FixtureId,
+                        principalTable: "SpatialLightFixtures",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialBuildings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    PropertyId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    BaseElevation = table.Column<double>(type: "double", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialBuildings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SpatialBuildings_SpatialProperties_PropertyId",
+                        column: x => x.PropertyId,
+                        principalTable: "SpatialProperties",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialExteriorAreas",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    PropertyId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    AreaKind = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialExteriorAreas", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SpatialExteriorAreas_SpatialProperties_PropertyId",
+                        column: x => x.PropertyId,
+                        principalTable: "SpatialProperties",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialGeometries",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    PropertyId = table.Column<int>(type: "int", nullable: false),
+                    Kind = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    GeometryJson = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Thickness = table.Column<double>(type: "double", nullable: false),
+                    Height = table.Column<double>(type: "double", nullable: false),
+                    MaterialCode = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    IsGenerated = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    SourceOutlineGeometryId = table.Column<int>(type: "int", nullable: true),
+                    HostGeometryId = table.Column<int>(type: "int", nullable: true),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialGeometries", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SpatialGeometries_SpatialProperties_PropertyId",
+                        column: x => x.PropertyId,
+                        principalTable: "SpatialProperties",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialStructureSupports",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    StructureId = table.Column<int>(type: "int", nullable: false),
+                    PlacementId = table.Column<int>(type: "int", nullable: false),
+                    SupportPointCode = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    MaxLoadKg = table.Column<double>(type: "double", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialStructureSupports", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SpatialStructureSupports_SpatialStructures_StructureId",
+                        column: x => x.StructureId,
+                        principalTable: "SpatialStructures",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialFloors",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    BuildingId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LevelIndex = table.Column<int>(type: "int", nullable: false),
+                    Elevation = table.Column<double>(type: "double", nullable: false),
+                    DefaultCeilingHeight = table.Column<double>(type: "double", nullable: true),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialFloors", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SpatialFloors_SpatialBuildings_BuildingId",
+                        column: x => x.BuildingId,
+                        principalTable: "SpatialBuildings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialGeometryPoints",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    GeometryId = table.Column<int>(type: "int", nullable: false),
+                    Sequence = table.Column<int>(type: "int", nullable: false),
+                    X = table.Column<double>(type: "double", nullable: false),
+                    Y = table.Column<double>(type: "double", nullable: false),
+                    Z = table.Column<double>(type: "double", nullable: false),
+                    PointKind = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ControlX = table.Column<double>(type: "double", nullable: true),
+                    ControlY = table.Column<double>(type: "double", nullable: true),
+                    ControlZ = table.Column<double>(type: "double", nullable: true),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialGeometryPoints", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SpatialGeometryPoints_SpatialGeometries_GeometryId",
+                        column: x => x.GeometryId,
+                        principalTable: "SpatialGeometries",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialGeometrySpaceLinks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    GeometryId = table.Column<int>(type: "int", nullable: false),
+                    SpaceKind = table.Column<int>(type: "int", nullable: false),
+                    SpaceId = table.Column<int>(type: "int", nullable: false),
+                    Relationship = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialGeometrySpaceLinks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SpatialGeometrySpaceLinks_SpatialGeometries_GeometryId",
+                        column: x => x.GeometryId,
+                        principalTable: "SpatialGeometries",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialOpenings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    PropertyId = table.Column<int>(type: "int", nullable: false),
+                    HostGeometryId = table.Column<int>(type: "int", nullable: false),
+                    Kind = table.Column<int>(type: "int", nullable: false),
+                    Offset = table.Column<double>(type: "double", nullable: false),
+                    Width = table.Column<double>(type: "double", nullable: false),
+                    Height = table.Column<double>(type: "double", nullable: false),
+                    SillHeight = table.Column<double>(type: "double", nullable: false),
+                    FrameMaterial = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Operation = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    PanelConfigurationJson = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialOpenings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SpatialOpenings_SpatialGeometries_HostGeometryId",
+                        column: x => x.HostGeometryId,
+                        principalTable: "SpatialGeometries",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialFloorSections",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    FloorId = table.Column<int>(type: "int", nullable: false),
+                    SectionId = table.Column<int>(type: "int", nullable: false),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialFloorSections", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SpatialFloorSections_SpatialFloors_FloorId",
+                        column: x => x.FloorId,
+                        principalTable: "SpatialFloors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SpatialRoomBindings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    FloorId = table.Column<int>(type: "int", nullable: false),
+                    RoomId = table.Column<int>(type: "int", nullable: false),
+                    SectionId = table.Column<int>(type: "int", nullable: true),
+                    CreatedBy = table.Column<int>(type: "int", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    LastModifiedBy = table.Column<int>(type: "int", nullable: false),
+                    LastModifiedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedOn = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    DeletedBy = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    PersonId = table.Column<int>(type: "int", nullable: false),
+                    Version = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SpatialRoomBindings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SpatialRoomBindings_SpatialFloors_FloorId",
+                        column: x => x.FloorId,
+                        principalTable: "SpatialFloors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpatialBuildings_PropertyId",
+                table: "SpatialBuildings",
+                column: "PropertyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpatialExteriorAreas_PropertyId",
+                table: "SpatialExteriorAreas",
+                column: "PropertyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpatialFloors_BuildingId",
+                table: "SpatialFloors",
+                column: "BuildingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpatialFloorSections_FloorId",
+                table: "SpatialFloorSections",
+                column: "FloorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpatialGeometries_PropertyId",
+                table: "SpatialGeometries",
+                column: "PropertyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpatialGeometryPoints_GeometryId",
+                table: "SpatialGeometryPoints",
+                column: "GeometryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpatialGeometrySpaceLinks_GeometryId",
+                table: "SpatialGeometrySpaceLinks",
+                column: "GeometryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpatialLightFixtureMembers_FixtureId",
+                table: "SpatialLightFixtureMembers",
+                column: "FixtureId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpatialOpenings_HostGeometryId",
+                table: "SpatialOpenings",
+                column: "HostGeometryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpatialRoomBindings_FloorId",
+                table: "SpatialRoomBindings",
+                column: "FloorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpatialStructureSupports_StructureId",
+                table: "SpatialStructureSupports",
+                column: "StructureId");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "SpatialAccessRules");
+
+            migrationBuilder.DropTable(
+                name: "SpatialExteriorAreas");
+
+            migrationBuilder.DropTable(
+                name: "SpatialFloorSections");
+
+            migrationBuilder.DropTable(
+                name: "SpatialGeometryPoints");
+
+            migrationBuilder.DropTable(
+                name: "SpatialGeometrySpaceLinks");
+
+            migrationBuilder.DropTable(
+                name: "SpatialLightFixtureMembers");
+
+            migrationBuilder.DropTable(
+                name: "SpatialOpenings");
+
+            migrationBuilder.DropTable(
+                name: "SpatialPlacements");
+
+            migrationBuilder.DropTable(
+                name: "SpatialRoomBindings");
+
+            migrationBuilder.DropTable(
+                name: "SpatialStructureSupports");
+
+            migrationBuilder.DropTable(
+                name: "SpatialLightFixtures");
+
+            migrationBuilder.DropTable(
+                name: "SpatialGeometries");
+
+            migrationBuilder.DropTable(
+                name: "SpatialFloors");
+
+            migrationBuilder.DropTable(
+                name: "SpatialStructures");
+
+            migrationBuilder.DropTable(
+                name: "SpatialBuildings");
+
+            migrationBuilder.DropTable(
+                name: "SpatialProperties");
+        }
+    }
+}

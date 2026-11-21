@@ -1,15 +1,3 @@
-using Home_Security.Contracts;
-using Home_Security.Models.Enums;
-
-namespace Home_Security.Spatial.Entities;
-
-public enum SpatialNodeKind { Property = 1, Building = 2, Floor = 3, Section = 4, Room = 5, ExteriorArea = 6, Structure = 7 }
-public enum SpatialGeometryKind { RoomOutline = 1, Wall = 2, WallSegment = 3, Slab = 4, RoofSurface = 5, Boundary = 6, Pool = 7, GlassPanel = 8, StairFlight = 9, StairLanding = 10, Void = 11, Generic = 12 }
-public enum SpatialTargetKind { Door = 1, Window = 2, Light = 3, Camera = 4, Appliance = 5, External = 6, Utility = 7 }
-public enum SpatialAttachmentKind { Free = 1, WallMounted = 2, CeilingMounted = 3, FloorMounted = 4, OpeningMounted = 5, StructureMounted = 6, Suspended = 7 }
-public enum SpatialOpeningKind { Door = 1, Window = 2, Gate = 3, Generic = 4 }
-public enum SpatialVisibilityEffect { HideNodeAndDescendants = 1, HidePlacement = 2, HideOpening = 3 }
-
 public abstract class SpatialAuditableEntity : AuditableEntity
 {
     public int PersonId { get; set; }
@@ -189,3 +177,23 @@ public sealed class SpatialAccessRule : SpatialAuditableEntity
     public bool CanEdit { get; set; }
     public int Priority { get; set; }
 }
+public async Task<object> GetSceneAsync(SpatialActor actor, int propertyId)
+    {
+        var property = await OwnedProperty(actor.PersonId, propertyId);
+        var buildings = await db.SpatialBuildings.AsNoTracking().Where(x => x.PropertyId == propertyId && !x.IsDeleted)
+            .Select(b => new { b.Id, b.Name, b.BaseElevation, Floors = b.Floors.Where(f => !f.IsDeleted).Select(f => new { f.Id, f.Name, f.LevelIndex, f.Elevation, f.DefaultCeilingHeight }).ToList() }).ToListAsync();
+        var geometry = await db.SpatialGeometries.AsNoTracking().Where(x => x.PropertyId == propertyId && !x.IsDeleted).ToListAsync();
+        var placements = await db.SpatialPlacements.AsNoTracking().Where(x => x.PropertyId == propertyId && !x.IsDeleted).ToListAsync();
+        // Conservative filtering using legacy IsHidden flags. Never serialize hidden room/section records.
+        var hiddenRoomIds = await db.SpatialRoomBindings.Where(x => x.PersonId == actor.PersonId && !x.IsDeleted)
+            .Join(db.Room.Where(r => r.IsHidden || r.IsDeleted), x => x.RoomId, r => r.Id, (x, r) => x.RoomId).ToListAsync();
+        var hiddenSectionIds = await db.SpatialFloorSections.Join(db.Section.Where(s => s.IsDeleted), x => x.SectionId, s => s.Id, (x, s) => x.SectionId).ToListAsync();
+        var hiddenGeometryIds = await db.SpatialGeometrySpaceLinks.Where(x =>
+            (x.SpaceKind == SpatialNodeKind.Room && hiddenRoomIds.Contains(x.SpaceId)) ||
+            (x.SpaceKind == SpatialNodeKind.Section && hiddenSectionIds.Contains(x.SpaceId))).Select(x => x.GeometryId).ToListAsync();
+        var visibleGeometry = geometry.Where(x => !hiddenGeometryIds.Contains(x.Id)).ToList();
+        var visiblePlacements = placements.Where(x => !(x.ParentKind == SpatialNodeKind.Room && hiddenRoomIds.Contains(x.ParentId))
+            && !(x.ParentKind == SpatialNodeKind.Section && hiddenSectionIds.Contains(x.ParentId))).ToList();
+        return new { Property = new { property.Id, property.Name, property.CoordinateSystem, property.Version }, Buildings = buildings, Geometry = visibleGeometry, Placements = visiblePlacements };
+    }
+    this is what the get scene returns can you implement it and butild the 3D scene for me and also i want to do dray and drop for creating the walls, adding widows, devices and untilites while also editing dimemsions for the rooms and sections and any necessary modifications.

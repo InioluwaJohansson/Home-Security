@@ -34,6 +34,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Text;
 using Home_Security.Middleware;
+using Home_Security.Spatial;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -126,6 +127,11 @@ builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationSer
 builder.Services.AddScoped<IChatHub, ChatHub>();
 builder.Services.AddScoped<ICallHub, CallHub>();
 
+//3D Spatial Services
+builder.Services.AddScoped<ISpatialService, SpatialService>();
+builder.Services.AddScoped<ISpatialTargetValidator, SpatialTargetValidator>();
+builder.Services.AddScoped<ISpatialGeometryValidator, SpatialGeometryValidator>();
+
 builder.Services.AddSingleton<IMqttService, MqttService>();
 
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();
@@ -210,6 +216,10 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 
         return new BadRequestObjectResult(errors);
     };
+}).AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler =
+        System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
 });
 var appData = builder.Configuration.GetSection("ApplicationDetails");
 builder.Services.AddSwaggerGen(c =>

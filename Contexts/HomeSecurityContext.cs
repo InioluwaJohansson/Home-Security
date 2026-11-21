@@ -3,6 +3,7 @@ using Home_Security.Entities;
 using Home_Security.Entities.Identity;
 using Home_Security.Entities.Chats;
 using Home_Security.Entities.Calls;
+using Home_Security.Spatial;
 
 namespace Home_Security.Context;
 public class HomeSecurityContext: DbContext
@@ -57,4 +58,22 @@ public class HomeSecurityContext: DbContext
     //Calls
     public DbSet<Call> Calls { get; set; }
     public DbSet<CallParticipant> CallParticipants { get; set; }
+
+    //3D Spatial Entities
+    public DbSet<SpatialProperty> SpatialProperties => Set<SpatialProperty>();
+    public DbSet<SpatialBuilding> SpatialBuildings => Set<SpatialBuilding>();
+    public DbSet<SpatialFloor> SpatialFloors => Set<SpatialFloor>();
+    public DbSet<SpatialFloorSection> SpatialFloorSections => Set<SpatialFloorSection>();
+    public DbSet<SpatialRoomBinding> SpatialRoomBindings => Set<SpatialRoomBinding>();
+    public DbSet<SpatialExteriorArea> SpatialExteriorAreas => Set<SpatialExteriorArea>();
+    public DbSet<SpatialGeometry> SpatialGeometries => Set<SpatialGeometry>();
+    public DbSet<SpatialGeometryPoint> SpatialGeometryPoints => Set<SpatialGeometryPoint>();
+    public DbSet<SpatialGeometrySpaceLink> SpatialGeometrySpaceLinks => Set<SpatialGeometrySpaceLink>();
+    public DbSet<SpatialOpening> SpatialOpenings => Set<SpatialOpening>();
+    public DbSet<SpatialPlacement> SpatialPlacements => Set<SpatialPlacement>();
+    public DbSet<SpatialStructure> SpatialStructures => Set<SpatialStructure>();
+    public DbSet<SpatialStructureSupport> SpatialStructureSupports => Set<SpatialStructureSupport>();
+    public DbSet<SpatialLightFixture> SpatialLightFixtures => Set<SpatialLightFixture>();
+    public DbSet<SpatialLightFixtureMember> SpatialLightFixtureMembers => Set<SpatialLightFixtureMember>();
+    public DbSet<SpatialAccessRule> SpatialAccessRules => Set<SpatialAccessRule>();
 }
