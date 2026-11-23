@@ -34,9 +34,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Text;
 using Home_Security.Middleware;
-using Home_Security.Spatial;
-using Home_Security.Interfaces.Repositories.Spatial;
-using Home_Security.Implementations.Repositories.Spatial;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -129,10 +126,6 @@ builder.Services.AddScoped<IRealtimeNotificationService, RealtimeNotificationSer
 builder.Services.AddScoped<IChatHub, ChatHub>();
 builder.Services.AddScoped<ICallHub, CallHub>();
 
-//3D Spatial Services
-builder.Services.AddScoped(typeof(ISpatialRepository<>), typeof(SpatialRepository<>));
-
-builder.Services.AddScoped<ISpatialModelRepository, SpatialModelRepository>();
 
 builder.Services.AddSingleton<IMqttService, MqttService>();
 
