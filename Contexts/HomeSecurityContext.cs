@@ -3,7 +3,6 @@ using Home_Security.Entities;
 using Home_Security.Entities.Identity;
 using Home_Security.Entities.Chats;
 using Home_Security.Entities.Calls;
-using Home_Security.Spatial;
 
 namespace Home_Security.Context;
 public class HomeSecurityContext: DbContext
@@ -59,49 +58,6 @@ public class HomeSecurityContext: DbContext
     public DbSet<Call> Calls { get; set; }
     public DbSet<CallParticipant> CallParticipants { get; set; }
 
-    // Spatial: Property and Building
-    public DbSet<SpatialProperty> SpatialProperties { get; set; }
-    public DbSet<SpatialBuilding> SpatialBuildings { get; set; }
-
-    // Spatial: Floors and Spaces
-    public DbSet<SpatialFloor> SpatialFloors { get; set; }
-    public DbSet<SpatialFloorSection> SpatialFloorSections { get; set; }
-    public DbSet<SpatialRoomBinding> SpatialRoomBindings { get; set; }
-    public DbSet<SpatialExteriorArea> SpatialExteriorAreas { get; set; }
-
-    // Spatial: Geometry
-    public DbSet<SpatialGeometry> SpatialGeometries { get; set; }
-    public DbSet<SpatialGeometryPoint> SpatialGeometryPoints { get; set; }
-    public DbSet<SpatialGeometrySpaceLink> SpatialGeometrySpaceLinks { get; set; }
-
-    // Spatial: Surfaces and Walls
-    public DbSet<SpatialFloorSurface> SpatialFloorSurfaces { get; set; }
-    public DbSet<SpatialFloorSurfaceAssignment> SpatialFloorSurfaceAssignments { get; set; }
-    public DbSet<SpatialWall> SpatialWalls { get; set; }
-    public DbSet<SpatialWallFloor> SpatialWallFloors { get; set; }
-    public DbSet<SpatialWallSegment> SpatialWallSegments { get; set; }
-
-    // Spatial: Openings and Property Boundary
-    public DbSet<SpatialOpening> SpatialOpenings { get; set; }
-    public DbSet<SpatialBoundarySegment> SpatialBoundarySegments { get; set; }
-
-    // Spatial: Device Placement
-    public DbSet<SpatialPlacement> SpatialPlacements { get; set; }
-    public DbSet<SpatialLightFixture> SpatialLightFixtures { get; set; }
-    public DbSet<SpatialLightFixtureMember> SpatialLightFixtureMembers { get; set; }
-
-    // Spatial: Stairs and Roof
-    public DbSet<SpatialStaircase> SpatialStaircases { get; set; }
-    public DbSet<SpatialStairFlight> SpatialStairFlights { get; set; }
-    public DbSet<SpatialStairLanding> SpatialStairLandings { get; set; }
-    public DbSet<SpatialRoof> SpatialRoofs { get; set; }
-    public DbSet<SpatialRoofEdge> SpatialRoofEdges { get; set; }
-
-    // Spatial: Structures
-    public DbSet<SpatialStructure> SpatialStructures { get; set; }
-    public DbSet<SpatialStructureSupport> SpatialStructureSupports { get; set; }
-
-    // Spatial: Utilities and Access
-    public DbSet<SpatialUtilityPlacement> SpatialUtilityPlacements { get; set; }
-    public DbSet<SpatialAccessRule> SpatialAccessRules { get; set; }
+    //3D
+    public DbSet<Property> Property { get; set; }
 }

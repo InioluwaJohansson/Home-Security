@@ -1,0 +1,9 @@
+using System.Text.Json;
+using Home_Security.Contracts;
+using Home_Security.Entities.Identity;
+namespace Home_Security.Entities;
+public class Property : AuditableEntity
+{
+    public string PropertyName { get; set; }
+    public string JsonData { get; set; }
+}
