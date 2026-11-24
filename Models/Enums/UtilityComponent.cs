@@ -17,4 +17,6 @@ public enum UtilityComponent
     EmergencyMild,
     EmergencySevere,
     EmergencyCritical,
+
+    SwimmingPool
 }

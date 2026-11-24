@@ -512,7 +512,8 @@ public class AuthControl : IAuthControl
             {
                 UtilityComponent.WaterTank,
                 UtilityComponent.WaterPump,
-                UtilityComponent.WaterMeter
+                UtilityComponent.WaterMeter,
+                UtilityComponent.SwimmingPool
             },
 
             [UtilityType.Gas] = new()

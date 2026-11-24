@@ -34,6 +34,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Text;
 using Home_Security.Middleware;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -248,7 +249,10 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(appData["HomeUrl"], appData["MobileApp"], appData["HomeTrackerApp"], appData["MicroControllerUrl"], "https://ais-dev-ceqn44pw3o6gczux6aezos-717948104271.europe-west2.run.app", "https://ais-dev-62beulbfxtpne7lrxwnd4x-717948104271.europe-west2.run.app").AllowAnyHeader().AllowAnyMethod().AllowCredentials();
     });
 });
-
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+});
 var connectionString = builder.Configuration.GetConnectionString("HomeSecurityContext");
 builder.Services.AddDbContext<HomeSecurityContext>(c => c.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 42))));
 
@@ -289,6 +293,10 @@ app.MapHub<HomeSecurityHub>("/HomeSecurityHub");
 
 app.Use(async (context, next) =>
 {
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    await next();
     Console.WriteLine($"➡️ Incoming Request: {context.Request.Method} {context.Request.Path}");
     await next.Invoke();
 });
