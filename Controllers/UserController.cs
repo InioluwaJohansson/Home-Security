@@ -123,7 +123,7 @@ public class UserController : Controller
     [HttpPost("VerifyAuthCode")]
     public async Task<IActionResult> VerifyAuthCode(string authCode)
     {
-        var user = await _jwtAuthentication.GetUserFromToken(Request);
+        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
         if (user == null)
             return Unauthorized();
         if (user != null && BCrypt.Net.BCrypt.EnhancedVerify(authCode, user.AuthorizationCode))

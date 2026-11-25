@@ -222,6 +222,6 @@ public class BrowserIdRefreshService  : BackgroundService
     {
         using var scope = _scopeFactory.CreateScope();
         var jwtBrowserRefresh = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
-        await jwtBrowserRefresh.RefreshBrowserId(stoppingToken);
+        //await jwtBrowserRefresh.RefreshBrowserId(stoppingToken);
     }
 }
