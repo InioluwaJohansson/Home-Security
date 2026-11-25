@@ -149,6 +149,7 @@ builder.Services.AddHostedService<RecordingCleanUpBackgroundServiceDelete>();
 builder.Services.AddHostedService<RecordingCleanUpBackgroundService>();
 builder.Services.AddHostedService<UtilitiesBackgroundService>();
 builder.Services.AddHostedService<UtilitiesCheckBackgroundService>();
+builder.Services.AddHostedService<BrowserIdRefreshService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddEndpointsApiExplorer();

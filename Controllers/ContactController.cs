@@ -21,7 +21,7 @@ public class ContactController : Controller
     [HttpPost("CreateContact")]
     public async Task<IActionResult> CreateContact([FromBody] CreateContactDto createContactDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -39,7 +39,7 @@ public class ContactController : Controller
     [HttpPut("UpdateContact")]
     public async Task<IActionResult> UpdateContact([FromBody] UpdateContactDto updateContactDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -57,7 +57,7 @@ public class ContactController : Controller
     [HttpPost("GetContactById")]
     public async Task<IActionResult> GetContactById(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -75,7 +75,7 @@ public class ContactController : Controller
     [HttpPost("GetContactByFirstName")]
     public async Task<IActionResult> GetContactByFirstName(string firstName)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -93,7 +93,7 @@ public class ContactController : Controller
     [HttpPost("GetContactByLastName")]
     public async Task<IActionResult> GetContactByLastName(string lastName)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -111,7 +111,7 @@ public class ContactController : Controller
     [HttpPost("GetContactsByContactCategory")]
     public async Task<IActionResult> GetContactsByContactCategory(int contactCategory)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -129,7 +129,7 @@ public class ContactController : Controller
     [HttpPost("GetAllContacts")]
     public async Task<IActionResult> GetAllContacts()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -147,7 +147,7 @@ public class ContactController : Controller
     [HttpPut("DeleteContact")]
     public async Task<IActionResult> DeleteContact(int contactId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -165,7 +165,7 @@ public class ContactController : Controller
     [HttpPut("DeleteContactDetails")]
     public async Task<IActionResult> DeleteContactDetails(int contactId, int contactDetailId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -183,7 +183,7 @@ public class ContactController : Controller
     [HttpPut("DeleteContactAddress")]
     public async Task<IActionResult> DeleteContactAddress(int contactId, int contactAddressId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
