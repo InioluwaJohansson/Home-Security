@@ -8,6 +8,8 @@ public interface IJWTAuthentication
 {
     public string GenerateToken(GetUserDto getUserDto);
     public GetUserDto? GetUserFromToken(string token);
+    public GetUserDto? GetUserFromToken(HttpRequest token);
+
     public string GenerateHardwareToken(GetHardwareDataDto getHardwareDataDto);
     public GetHardwareDataDto? ValidateHardwareToken(string token);
 }

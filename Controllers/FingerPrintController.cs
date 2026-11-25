@@ -22,7 +22,7 @@ public class FingerPrintController : Controller
     [HttpPost("CreateFingerPrint")]
     public async Task<IActionResult> CreateFingerPrint(CreateFingerPrintDto createFingerPrintDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -40,7 +40,7 @@ public class FingerPrintController : Controller
     [HttpPost("RequestFingerPrint")]
     public async Task<IActionResult> RequestFingerPrint(int hardwareId, int personId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -58,7 +58,7 @@ public class FingerPrintController : Controller
     [HttpPost("SendNFIDCode")]
     public async Task<IActionResult> SendNFIDCode(int hardwareId, int personId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

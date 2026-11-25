@@ -18,6 +18,6 @@ public interface IAuthCache
     public List<Contact> _contactCache { get; }
     public List<ContactCategory> _contactCategoryCache { get; }
     public List<Hardware> _hardwareCache { get; }
-    
     public List<UtilityDataMQTT> _utilityStateCache { get; }
+    public List<BrowserCacheData> _browserCache { get; }
 }

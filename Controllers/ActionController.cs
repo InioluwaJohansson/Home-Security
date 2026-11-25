@@ -21,7 +21,7 @@ public class ActionController : Controller
     [HttpPost("CreateAction")]
     public async Task<IActionResult> CreateAction(CreateActionDto createActionDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -39,7 +39,7 @@ public class ActionController : Controller
     [HttpPut("UpdateAction")]
     public async Task<IActionResult> UpdateAction(UpdateActionDto updateActionDto)
     {
-       var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -57,7 +57,8 @@ public class ActionController : Controller
     [HttpPost("ActivateDeactivateAction")]
     public async Task<IActionResult> ActivateDeactivateAction(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
+        Console.WriteLine("BROWSER ID: " + Request.Headers["X-Browser-Id"].ToString());
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -75,7 +76,7 @@ public class ActionController : Controller
     [HttpPost("TriggerActions")]
     public async Task<IActionResult> TriggerActions(List<int> ActionIds)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -90,7 +91,7 @@ public class ActionController : Controller
     [HttpPost("GetActionById")]
     public async Task<IActionResult> GetActionById(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -108,7 +109,7 @@ public class ActionController : Controller
     [HttpPost("GetActionByActionName")]
     public async Task<IActionResult> GetActionByActionName(int actionId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -126,7 +127,7 @@ public class ActionController : Controller
     [HttpPost("GetAllActions")]
     public async Task<IActionResult> GetAllActions()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -144,7 +145,7 @@ public class ActionController : Controller
     [HttpPut("DeleteAction")]
     public async Task<IActionResult> DeleteAction(int actionId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -162,7 +163,7 @@ public class ActionController : Controller
     [HttpPut("CreateActionStep")]
     public async Task<IActionResult> CreateActionStep(List<CreateActionStepDto> createActionStepDtos)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -180,7 +181,7 @@ public class ActionController : Controller
     [HttpPut("UpdateActionStep")]
     public async Task<IActionResult> UpdateActionStep(List<UpdateActionStepDto> updateActionStepDtos)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -198,7 +199,7 @@ public class ActionController : Controller
     [HttpPut("DeleteActionStep")]
     public async Task<IActionResult> DeleteActionStep(int actionId,int actionStepId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

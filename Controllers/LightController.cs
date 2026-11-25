@@ -21,7 +21,7 @@ public class LightController : Controller
     [HttpPost("CreateLight")]
     public async Task<IActionResult> CreateLight([FromBody] CreateLightDto createLightDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -39,7 +39,7 @@ public class LightController : Controller
     [HttpPut("UpdateLight")]
     public async Task<IActionResult> UpdateLight([FromBody] UpdateLightDto updateLightDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -57,7 +57,7 @@ public class LightController : Controller
     [HttpPost("GetLightById")]
     public async Task<IActionResult> GetLightById(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -75,7 +75,7 @@ public class LightController : Controller
     [HttpPost("GetAllLightsBySectionId")]
     public async Task<IActionResult> GetAllLightsBySectionId(int sectionId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -93,7 +93,7 @@ public class LightController : Controller
     [HttpPost("GetAllLightsByRoomId")]
     public async Task<IActionResult> GetAllLightsByRoomId(int roomId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -111,7 +111,7 @@ public class LightController : Controller
     [HttpPost("GetAllLights")]
     public async Task<IActionResult> GetAllLights()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -129,7 +129,7 @@ public class LightController : Controller
     [HttpPut("DeleteLight")]
     public async Task<IActionResult> DeleteLight(int lightId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

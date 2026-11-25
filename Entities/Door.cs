@@ -5,6 +5,7 @@ public class Door : BaseDefault
     public string DoorName { get; set; }
     public string DoorId { get; set; }
     public DoorType DoorType { get; set; }
+    public AccessLevel MinimumAccessLevel{ get; set; } = AccessLevel.Visitor;
     public bool IsLocked { get; set; }
     public bool IsOpen { get; set; }
     public int OpenedBy { get; set; }

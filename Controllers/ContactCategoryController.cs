@@ -21,7 +21,7 @@ public class ContactCategoryController : Controller
     [HttpPost("CreateContactCategory")]
     public async Task<IActionResult> CreateContactCategory([FromBody] CreateContactCategoryDto createContactCategoryDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -39,7 +39,7 @@ public class ContactCategoryController : Controller
     [HttpPut("UpdateContactCategory")]
     public async Task<IActionResult> UpdateContactCategory([FromBody] UpdateContactCategoryDto updateContactCategoryDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -57,7 +57,7 @@ public class ContactCategoryController : Controller
     [HttpPost("GetContactCategoryById")]
     public async Task<IActionResult> GetContactCategoryById(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -75,7 +75,7 @@ public class ContactCategoryController : Controller
     [HttpPost("GetAllContactCategories")]
     public async Task<IActionResult> GetAllContactCategories()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -93,7 +93,7 @@ public class ContactCategoryController : Controller
     [HttpPut("DeleteContactCategory")]
     public async Task<IActionResult> DeleteContactCategory(int contactCategoryId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

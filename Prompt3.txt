@@ -1,0 +1,36 @@
+public class UpdateDoorDto : CreateBaseDefaultDto
+{
+    public int Id { get; set; }
+    public string DoorName { get; set; }
+    public DoorType DoorType { get; set; }
+    public AccessLevel MinimumAccessLevel{ get; set; }
+    public bool IsLocked { get; set; }
+    public bool IsOpen { get; set; }
+    public int OpenedBy { get; set; }
+    public int LockedBy { get; set; }
+    public int UnlockedBy { get; set; }
+}
+public class GetDoorDto : BaseDefaultDto
+{
+    public int Id { get; set; }
+    public string DoorName { get; set; }
+    public string DoorId { get; set; }
+    public string DoorType { get; set; }
+    public DoorType DoorTypeId { get; set; }
+    public AccessLevel MinimumAccessLevel{ get; set; }
+    public bool IsLocked { get; set; }
+    public bool IsOpen { get; set; }
+    public int OpenedBy { get; set; }
+    public int LockedBy { get; set; }
+    public int UnlockedBy { get; set; }
+}
+public enum AccessLevel
+{
+    Owner = 1,
+    Wife,
+    Child,
+    Relative,
+    Visitor,
+}
+This has been updated make changes to the interface. In the app, for the doors, if it is attached to another user's room, do not let the current logged in user be able to view the door even in the get all doors. Only doors that are directly attached to sections or rooms which do not have a personId should be controllable by the logged in user and also doors that the user role value is not less than the minimum access level should not be shown to the logged in user this also applies to the camera, appliances, lights, windows and externals except the Owner role which has acesss to everything.
+In the utilites, if the utility component is swimming pool, the water level and tank shouldn't show be visible. I also notices the section icon used in the sidemenu is not the same used in the sections page which the one to be used is that from the sidemenu

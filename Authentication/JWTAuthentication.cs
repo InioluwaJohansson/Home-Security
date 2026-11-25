@@ -2,13 +2,15 @@
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Home_Security.Models.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Home_Security.Entities.Identity;
 using Home_Security.Entities;
 using Microsoft.Extensions.Options;
 namespace Home_Security.Authentication;
 
-public class JWTAuthentication : IJWTAuthentication
+public class JWTAuthentication : Controller, IJWTAuthentication
 {
     public IConfiguration _key;
     public JWTAuthentication(IConfiguration config)
@@ -62,6 +64,49 @@ public class JWTAuthentication : IJWTAuthentication
         try
         {
             var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
+
+            var claims = principal.Claims;
+            var timeStamp = DateTime.Parse(claims.First(x => x.Type == "TimeStamp").Value);
+            if(timeStamp.AddDays(1) < DateTime.Now) return null;
+            return new GetUserDto
+            {
+                Id = int.Parse(claims.First(x => x.Type == "UserId").Value),
+                PersonId = int.Parse(claims.First(x => x.Type == "PersonId").Value),
+                UserName = claims.First(x => x.Type == "UserName").Value,
+                RoleName = claims.First(x => x.Type == "RoleName").Value,
+                AuthorizationCode = claims.First(x => x.Type == "AuthorizationCode").Value
+            };
+        }
+        catch
+        {
+            return null;
+        }
+    }
+    public GetUserDto? GetUserFromToken(HttpRequest token)
+    {
+        var data = token.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        Console.WriteLine("JWT TOKEN: " + data);
+        Console.WriteLine("BROWSER ID: " + token.Headers["X-Browser-Id"].ToString());
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(_key["SecretKey"] ?? "HomeSecurity1234567890");
+
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidIssuer = _key["Issuer"] ?? "Home_Security",
+            ValidAudience = _key["Audience"] ?? "Home",
+
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+
+        try
+        {
+            var principal = tokenHandler.ValidateToken(data, validationParameters, out _);
 
             var claims = principal.Claims;
             var timeStamp = DateTime.Parse(claims.First(x => x.Type == "TimeStamp").Value);

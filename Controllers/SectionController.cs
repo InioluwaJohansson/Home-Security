@@ -21,7 +21,7 @@ public class SectionController : Controller
     [HttpPost("CreateSection")]
     public async Task<IActionResult> CreateSection([FromQuery]CreateSectionDto createSectionDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -39,7 +39,7 @@ public class SectionController : Controller
     [HttpPut("UpdateSection")]
     public async Task<IActionResult> UpdateSection([FromQuery] UpdateSectionDto updateSectionDto)
     {
-       var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+       var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -57,7 +57,7 @@ public class SectionController : Controller
     [HttpPost("GetSectionById")]
     public async Task<IActionResult> GetSectionById(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -75,7 +75,7 @@ public class SectionController : Controller
     [HttpPost("GetSectionBySectionName")]
     public async Task<IActionResult> GetSectionBySectionName(string sectionName)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -93,7 +93,7 @@ public class SectionController : Controller
     [HttpPost("GetAllSections")]
     public async Task<IActionResult> GetAllSections()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -111,7 +111,7 @@ public class SectionController : Controller
     [HttpPut("DeleteSection")]
     public async Task<IActionResult> DeleteSection(int sectionId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

@@ -21,7 +21,7 @@ public class LogController : Controller
     [HttpPost("GetAllLogsByPersonId")]
     public async Task<IActionResult> GetAllLogsByPersonId(int personId, int page = 1, int pageSize = 50)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -39,7 +39,7 @@ public class LogController : Controller
     [HttpPost("GetAllLogsByDate")]
     public async Task<IActionResult> GetAllLogsByDate(DateOnly startDate, DateOnly endDate, int page = 1, int pageSize = 50)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -57,7 +57,7 @@ public class LogController : Controller
     [HttpPost("GetAllLogs")]
     public async Task<IActionResult> GetAllLogs(int page = 1, int pageSize = 50)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

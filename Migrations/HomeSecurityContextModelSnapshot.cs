@@ -930,6 +930,9 @@ namespace Home_Security.Migrations
                     b.Property<int>("LockedBy")
                         .HasColumnType("int");
 
+                    b.Property<int>("MinimumAccessLevel")
+                        .HasColumnType("int");
+
                     b.Property<int>("OpenedBy")
                         .HasColumnType("int");
 

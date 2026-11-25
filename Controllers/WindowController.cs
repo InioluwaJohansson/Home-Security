@@ -22,7 +22,7 @@ public class WindowController : Controller
     [HttpPost("CreateWindow")]
     public async Task<IActionResult> CreateWindow([FromBody] CreateWindowDto createWindowDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -40,7 +40,7 @@ public class WindowController : Controller
     [HttpPut("UpdateWindow")]
     public async Task<IActionResult> UpdateWindow([FromBody] UpdateWindowDto updateWindowDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -58,7 +58,7 @@ public class WindowController : Controller
     [HttpPut("UnlockWindow")]
     public async Task<IActionResult> UnlockWindow(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -77,7 +77,7 @@ public class WindowController : Controller
     [HttpPut("LockWindow")]
     public async Task<IActionResult> LockWindow(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -96,7 +96,7 @@ public class WindowController : Controller
     [HttpPost("GetWindowById")]
     public async Task<IActionResult> GetWindowById(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -114,7 +114,7 @@ public class WindowController : Controller
     [HttpPost("GetAllWindowsBySectionId")]
     public async Task<IActionResult> GetAllWindowsBySectionId(int sectionId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -132,7 +132,7 @@ public class WindowController : Controller
     [HttpPost("GetAllWindowsByRoomId")]
     public async Task<IActionResult> GetAllWindowsByRoomId(int roomId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -150,7 +150,7 @@ public class WindowController : Controller
     [HttpPost("GetAllWindows")]
     public async Task<IActionResult> GetAllWindows()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -168,7 +168,7 @@ public class WindowController : Controller
     [HttpPut("DeleteWindow")]
     public async Task<IActionResult> DeleteWindow(int windowId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

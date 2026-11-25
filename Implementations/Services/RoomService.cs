@@ -253,6 +253,7 @@ public class RoomService : IRoomService
             Id = door.Id,
             DoorName = door.DoorName,
             DoorType = door.DoorType.ToString(),
+            MinimumAccessLevel = door.MinimumAccessLevel,
             IsLocked = door.IsLocked,
             IsOpen = door.IsOpen,
             OpenedBy = door.OpenedBy,

@@ -15,6 +15,7 @@ public class UpdateDoorDto : CreateBaseDefaultDto
     public int Id { get; set; }
     public string DoorName { get; set; }
     public DoorType DoorType { get; set; }
+    public AccessLevel MinimumAccessLevel{ get; set; }
     public bool IsLocked { get; set; }
     public bool IsOpen { get; set; }
     public int OpenedBy { get; set; }
@@ -28,6 +29,7 @@ public class GetDoorDto : BaseDefaultDto
     public string DoorId { get; set; }
     public string DoorType { get; set; }
     public DoorType DoorTypeId { get; set; }
+    public AccessLevel MinimumAccessLevel{ get; set; }
     public bool IsLocked { get; set; }
     public bool IsOpen { get; set; }
     public int OpenedBy { get; set; }

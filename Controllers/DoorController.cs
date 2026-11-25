@@ -22,7 +22,7 @@ public class DoorController : Controller
     [HttpPost("CreateDoor")]
     public async Task<IActionResult> CreateDoor([FromBody] CreateDoorDto createDoorDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -40,7 +40,7 @@ public class DoorController : Controller
     [HttpPut("UpdateDoor")]
     public async Task<IActionResult> UpdateDoor([FromBody] UpdateDoorDto updateDoorDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -58,7 +58,7 @@ public class DoorController : Controller
     [HttpPut("UnlockDoor")]
     public async Task<IActionResult> UnlockDoor(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -77,7 +77,7 @@ public class DoorController : Controller
     [HttpPut("LockDoor")]
     public async Task<IActionResult> LockDoor(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -97,7 +97,7 @@ public class DoorController : Controller
     [HttpPost("GetDoorById")]
     public async Task<IActionResult> GetDoorById(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -115,7 +115,7 @@ public class DoorController : Controller
     [HttpPost("GetAllDoorsBySectionId")]
     public async Task<IActionResult> GetAllDoorsBySectionId(int sectionId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -133,7 +133,7 @@ public class DoorController : Controller
     [HttpPost("GetAllDoorsByRoomId")]
     public async Task<IActionResult> GetAllDoorsByRoomId(int roomId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -151,7 +151,7 @@ public class DoorController : Controller
     [HttpPost("GetAllDoorsByDoorType")]
     public async Task<IActionResult> GetAllDoorsByDoorType(DoorType doorType)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -169,7 +169,7 @@ public class DoorController : Controller
     [HttpPost("GetAllDoors")]
     public async Task<IActionResult> GetAllDoors()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -187,7 +187,7 @@ public class DoorController : Controller
     [HttpPut("DeleteDoor")]
     public async Task<IActionResult> DeleteDoor(int doorId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

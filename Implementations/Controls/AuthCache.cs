@@ -21,5 +21,6 @@ public class AuthCache : IAuthCache
     public List<Contact> _contactCache { get; } = new();
     public List<ContactCategory> _contactCategoryCache { get; } = new();
     public List<Hardware> _hardwareCache { get; } = new();
-    public List<UtilityDataMQTT> _utilityStateCache { get; }
+    public List<UtilityDataMQTT> _utilityStateCache { get; } =  new();
+    public List<BrowserCacheData> _browserCache { get; } = new();
 }

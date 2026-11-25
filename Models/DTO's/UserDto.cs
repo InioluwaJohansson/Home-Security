@@ -66,3 +66,9 @@ public class Credentials
     public string Issuer { get; set; }
     public string Audience { get; set; }
 }
+public class BrowserCacheData
+{
+    public string BrowserId { get; set;}
+    public string JwtToken { get; set; }
+    public DateTime DateTime { get; set; } = DateTime.UtcNow;
+}

@@ -66,7 +66,7 @@ public class DoorControl : IDoorControl
         if (auth.Status != false)
         {
             var getDoor = await _doorService.GetById(updateDoorDto.Id);
-            if(getDoor != null && getDoor.Data.IsOpen == true && getDoor.Data.IsLocked == false){  
+            if(getDoor != null && getDoor.Data.IsOpen == true && getDoor.Data.IsLocked == false && (int)auth.Role <= (int)getDoor.Data.MinimumAccessLevel){  
                 updateDoorDto.IsOpen = false;
                 log.ActionType = "Closed";
                 log.LogDetails = $"{updateDoorDto.DoorName} Door is Closed!";
@@ -83,6 +83,7 @@ public class DoorControl : IDoorControl
             }
             updateDoorDto.OpenedBy = auth.Id;
             updateDoorDto.DoorType = getDoor.Data.DoorTypeId;
+            updateDoorDto.MinimumAccessLevel = getDoor.Data.MinimumAccessLevel;
             var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
             if (door.Status == true)    await _logService.CreateLog(log);
             return door;
@@ -96,7 +97,7 @@ public class DoorControl : IDoorControl
         if (auth.Status != false)
         {
             var getDoor = await _doorService.GetById(updateDoorDto.Id);
-            if(getDoor != null && getDoor.Data.IsLocked == true)
+            if(getDoor != null && getDoor.Data.IsLocked == true && (int)auth.Role <= (int)getDoor.Data.MinimumAccessLevel)
             {
                 var personCheck = await _authControl.GetPersonDetails(getDoor.Data.LockedBy);
                 if(_authControl.CompareRole(personCheck.Role, auth.Role))
@@ -104,6 +105,7 @@ public class DoorControl : IDoorControl
                     updateDoorDto.UnlockedBy = auth.Id;
                     updateDoorDto.IsLocked = false;
                     updateDoorDto.DoorType = getDoor.Data.DoorTypeId;
+                    updateDoorDto.MinimumAccessLevel = getDoor.Data.MinimumAccessLevel;
                     var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
                     if (door.Status == true)
                     {
@@ -125,6 +127,7 @@ public class DoorControl : IDoorControl
                 updateDoorDto.IsLocked = true;
                 updateDoorDto.IsOpen = false;
                 updateDoorDto.DoorType = getDoor.Data.DoorTypeId;
+                updateDoorDto.MinimumAccessLevel = getDoor.Data.MinimumAccessLevel;
                 var door = await _doorService.UpdateDoor(updateDoorDto, auth.Id);
                 if (door.Status == true)
                 {

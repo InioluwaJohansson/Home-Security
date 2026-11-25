@@ -21,7 +21,7 @@ public class CameraController : Controller
     [HttpPost("CreateCamera")]
     public async Task<IActionResult> CreateCamera([FromBody] CreateCameraDto createCameraDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -39,7 +39,7 @@ public class CameraController : Controller
     [HttpPut("UpdateCamera")]
     public async Task<IActionResult> UpdateCamera([FromBody] UpdateCameraDto updateCameraDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -57,7 +57,7 @@ public class CameraController : Controller
     [HttpPut("RestartCamera")]
     public async Task<IActionResult> RestartCamera(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -75,7 +75,7 @@ public class CameraController : Controller
     [HttpPost("ToggleCamera")]
     public async Task<IActionResult> ToggleCamera(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -93,7 +93,7 @@ public class CameraController : Controller
     [HttpPost("GetCameraById")]
     public async Task<IActionResult> GetCameraById(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -111,7 +111,7 @@ public class CameraController : Controller
     [HttpPost("GetAllCamerasBySectionId")]
     public async Task<IActionResult> GetAllCamerasBySectionId(int sectionId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -129,7 +129,7 @@ public class CameraController : Controller
     [HttpPost("GetAllCamerasByRoomId")]
     public async Task<IActionResult> GetAllCamerasByRoomId(int roomId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -147,7 +147,7 @@ public class CameraController : Controller
     [HttpPost("GetAllCameras")]
     public async Task<IActionResult> GetAllCameras()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -165,7 +165,7 @@ public class CameraController : Controller
     [HttpPut("DeleteCamera")]
     public async Task<IActionResult> DeleteCamera(int cameraId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

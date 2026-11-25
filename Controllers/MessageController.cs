@@ -22,7 +22,7 @@ public class MessageController : Controller
     [HttpPost("SendMessage")]
     public async Task<IActionResult> SendMessage([FromForm] SendMessageDto sendMessageDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -36,7 +36,7 @@ public class MessageController : Controller
     [HttpPost("SendMessageChatId")]
     public async Task<IActionResult> SendMessage([FromForm] SendMessageDto sendMessageDto, int chatId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -51,7 +51,7 @@ public class MessageController : Controller
     [HttpPost("EditMessage")]
     public async Task<IActionResult> EditMessage(EditMessageDto editMessageDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -65,7 +65,7 @@ public class MessageController : Controller
     [HttpGet("GetChatMessages")]
     public async Task<IActionResult> GetChatMessages(int chatId, int page, int pageSize)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -79,7 +79,7 @@ public class MessageController : Controller
     [HttpPost("DeleteMessage")]
     public async Task<IActionResult> DeleteMessage(int messageId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -93,7 +93,7 @@ public class MessageController : Controller
     [HttpGet("MarkAsRead")]
     public async Task<IActionResult> MarkAsRead(int chatId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -107,7 +107,7 @@ public class MessageController : Controller
     [HttpPost("Typing")]
     public async Task<IActionResult> Typing(int chatId, string action)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

@@ -23,7 +23,7 @@ public class ChatController : Controller
     [HttpPost("CreateChat")]
     public async Task<IActionResult> CreateChat(int recipientPersonId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -37,7 +37,7 @@ public class ChatController : Controller
     [HttpPost("CreateGroupChat")]
     public async Task<IActionResult> CreateGroupChat(CreateGroupChatDto createGroupChatDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -51,7 +51,7 @@ public class ChatController : Controller
     [HttpPut("UpdateGroupChat")]
     public async Task<IActionResult> UpdateGroupChat(UpdateGroupChatDto createGroupChatDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -65,7 +65,7 @@ public class ChatController : Controller
     [HttpPut("DeleteChat")]
     public async Task<IActionResult> DeleteChat(int chatId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -79,7 +79,7 @@ public class ChatController : Controller
     [HttpGet("GetChatById")]
     public async Task<IActionResult> GetChatById(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -93,7 +93,7 @@ public class ChatController : Controller
     [HttpPost("AddParticipants")]
     public async Task<IActionResult> AddParticipants(int chatId, AddParticipantsDto addParticipantsDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -107,7 +107,7 @@ public class ChatController : Controller
     [HttpGet("GetMyChats")]
     public async Task<IActionResult> GetMyChats()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -121,7 +121,7 @@ public class ChatController : Controller
     [HttpPut("RemoveParticipant")]
     public async Task<IActionResult> RemoveParticipant(int chatId, int recipientId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request.Headers["Authorization"].ToString().Replace("Bearer ", ""));
+        var user = _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
