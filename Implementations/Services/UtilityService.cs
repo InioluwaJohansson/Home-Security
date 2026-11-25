@@ -46,7 +46,7 @@ public class UtilityService : IUtilityService
                 IsDeleted = false,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
-                LastModifiedOn = DateTime.Now
+                LastModifiedOn = DateTime.UtcNow
             };
             utility = await _utilityRepo.Create(utility);
             await _realtime.NotifyAll("UtilityCreated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, GetDetails(utility));
@@ -143,9 +143,9 @@ public class UtilityService : IUtilityService
             utility.IsDeleted = true;
             utility.IsActive = false;
             utility.DeletedBy = personId;
-            utility.DeletedOn = DateTime.Now;
+            utility.DeletedOn = DateTime.UtcNow;
             utility.LastModifiedBy = personId;
-            utility.LastModifiedOn = DateTime.Now;
+            utility.LastModifiedOn = DateTime.UtcNow;
             await _utilityRepo.Update(utility);
             await _realtime.NotifyAll("UtilityDeleted", new
             {

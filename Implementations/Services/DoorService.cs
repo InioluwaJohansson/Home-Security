@@ -41,7 +41,7 @@ public class DoorService : IDoorService
                 IsDeleted = false,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
-                LastModifiedOn = DateTime.Now
+                LastModifiedOn = DateTime.UtcNow
             };
             await _doorRepo.Create(door);
             var doorData = GetDetails(await _doorRepo.Get(x => x.DoorId == door.DoorId));
@@ -72,7 +72,7 @@ public class DoorService : IDoorService
             door.OpenedBy = updateDoorDto.OpenedBy;
             door.LockedBy = updateDoorDto.LockedBy;
             door.UnlockedBy = updateDoorDto.UnlockedBy;
-            door.LastModifiedOn = DateTime.Now;
+            door.LastModifiedOn = DateTime.UtcNow;
             door.DoorType = updateDoorDto.DoorType;
             door.MinimumAccessLevel = updateDoorDto.MinimumAccessLevel;
             door.SectionId = updateDoorDto.SectionId ?? door.SectionId;
@@ -209,8 +209,8 @@ public class DoorService : IDoorService
             door.IsActive = false;
             door.PowerActive = false;
             door.LastModifiedBy = personId;
-            door.LastModifiedOn = DateTime.Now;
-            door.DeletedOn = DateTime.Now;
+            door.LastModifiedOn = DateTime.UtcNow;
+            door.DeletedOn = DateTime.UtcNow;
             door.DeletedBy = personId;
             door.IsDeleted = true;
             await _doorRepo.Update(door);

@@ -42,8 +42,8 @@ public class ContactService : IContactService
                     IsDeleted = false,
                     CreatedBy = createContactDto.personId,
                     LastModifiedBy = createContactDto.personId,
-                    CreatedOn = DateTime.Now,
-                    LastModifiedOn = DateTime.Now,
+                    CreatedOn = DateTime.UtcNow,
+                    LastModifiedOn = DateTime.UtcNow,
                 };
                 contactDetailes = await _contactDetailsRepo.Create(contactDetailes);
                 contact.ContactDetails.Add(contactDetailes);
@@ -63,8 +63,8 @@ public class ContactService : IContactService
                     IsDeleted = false,
                     CreatedBy = createContactDto.personId,
                     LastModifiedBy = createContactDto.personId,
-                    CreatedOn = DateTime.Now,
-                    LastModifiedOn = DateTime.Now,
+                    CreatedOn = DateTime.UtcNow,
+                    LastModifiedOn = DateTime.UtcNow,
                 };
                 address = await _addressRepo.Create(address);
                 contact.Address.Add(address);
@@ -91,7 +91,7 @@ public class ContactService : IContactService
             contact.LastName = updateContactDto.LastName ?? contact.LastName;
             contact.ImageUrl = await GetImageUrl(updateContactDto.ImageUrl) ?? contact.ImageUrl;
             contact.Gender = updateContactDto.Gender;
-            contact.LastModifiedOn = DateTime.Now;
+            contact.LastModifiedOn = DateTime.UtcNow;
             contact.LastModifiedBy = updateContactDto.personId;
             contact.ContactCategoryId = updateContactDto.ContactCategory;
             foreach (var contactDetail in updateContactDto.ContactDetails)
@@ -107,8 +107,8 @@ public class ContactService : IContactService
                         IsDeleted = false,
                         CreatedBy = updateContactDto.personId,
                         LastModifiedBy = updateContactDto.personId,
-                        CreatedOn = DateTime.Now,
-                        LastModifiedOn = DateTime.Now,
+                        CreatedOn = DateTime.UtcNow,
+                        LastModifiedOn = DateTime.UtcNow,
                     };
                     contactDetailes = await _contactDetailsRepo.Create(contactDetailes);
                     contact.ContactDetails.Add(contactDetailes);
@@ -121,7 +121,7 @@ public class ContactService : IContactService
                         contactDetailes.PhoneNumber = contactDetail.PhoneNumber;
                         contactDetailes.Email = contactDetail.Email;
                         contactDetailes.LastModifiedBy = updateContactDto.personId;
-                        contactDetailes.LastModifiedOn = DateTime.Now;
+                        contactDetailes.LastModifiedOn = DateTime.UtcNow;
                         await _contactDetailsRepo.Update(contactDetailes);
                     };
                 }
@@ -144,8 +144,8 @@ public class ContactService : IContactService
                         IsDeleted = false,
                         CreatedBy = updateContactDto.personId,
                         LastModifiedBy = updateContactDto.personId,
-                        CreatedOn = DateTime.Now,
-                        LastModifiedOn = DateTime.Now,
+                        CreatedOn = DateTime.UtcNow,
+                        LastModifiedOn = DateTime.UtcNow,
                     };
                     address = await _addressRepo.Create(address);
                     contact.Address.Add(address);
@@ -163,7 +163,7 @@ public class ContactService : IContactService
                         address.Country = addresses.Country;
                         address.PostalCode = addresses.PostalCode;
                         address.LastModifiedBy = updateContactDto.personId;
-                        address.LastModifiedOn = DateTime.Now;
+                        address.LastModifiedOn = DateTime.UtcNow;
                         address = await _addressRepo.Update(address);
                     }
                 }
@@ -289,8 +289,8 @@ public class ContactService : IContactService
                 if (contactDetailes != null)
                 {
                     contactDetail.DeletedBy = personId;
-                    contactDetail.DeletedOn = DateTime.Now;
-                    contactDetailes.LastModifiedOn = DateTime.Now;
+                    contactDetail.DeletedOn = DateTime.UtcNow;
+                    contactDetailes.LastModifiedOn = DateTime.UtcNow;
                     contactDetail.IsDeleted = true;
                     await _contactDetailsRepo.Update(contactDetailes);
                 };
@@ -301,8 +301,8 @@ public class ContactService : IContactService
                 if (address != null)
                 {
                     address.DeletedBy = personId;
-                    address.DeletedOn = DateTime.Now;
-                    address.LastModifiedOn = DateTime.Now;
+                    address.DeletedOn = DateTime.UtcNow;
+                    address.LastModifiedOn = DateTime.UtcNow;
                     address.IsDeleted = true;
                     await _addressRepo.Update(address);
                 };
@@ -331,8 +331,8 @@ public class ContactService : IContactService
         {
             contactDetail.IsDeleted = true;
             contactDetail.DeletedBy = personId;
-            contactDetail.DeletedOn = DateTime.Now;
-            contactDetail.LastModifiedOn = DateTime.Now;
+            contactDetail.DeletedOn = DateTime.UtcNow;
+            contactDetail.LastModifiedOn = DateTime.UtcNow;
             contactDetail.IsDeleted = true;
             await _contactDetailsRepo.Update(contactDetail);
             await _realTime.NotifyAll("ContactAddressDeleted", new {
@@ -357,8 +357,8 @@ public class ContactService : IContactService
         if (address != null)
         {
             address.DeletedBy = personId;
-            address.DeletedOn = DateTime.Now;
-            address.LastModifiedOn = DateTime.Now;
+            address.DeletedOn = DateTime.UtcNow;
+            address.LastModifiedOn = DateTime.UtcNow;
             address.IsDeleted = true;
             await _addressRepo.Update(address);
             await _realTime.NotifyAll("ContactAddressDeleted", new {

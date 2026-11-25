@@ -21,7 +21,7 @@ public class ExternalController : Controller
     [HttpPost("CreateExternal")]
     public async Task<IActionResult> CreateExternal([FromBody] CreateExternalDto createExternalDto)
     {
-        var user = _jWTAuthentication.GetUserFromToken(Request);
+        var user = await _jWTAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -39,7 +39,7 @@ public class ExternalController : Controller
     [HttpPut("UpdateExternal")]
     public async Task<IActionResult> UpdateExternal([FromBody] UpdateExternalDto updateExternalDto)
     {
-        var user = _jWTAuthentication.GetUserFromToken(Request);
+        var user = await _jWTAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -57,7 +57,7 @@ public class ExternalController : Controller
     [HttpPost("GetExternalById")]
     public async Task<IActionResult> GetExternalById(int id)
     {
-        var user = _jWTAuthentication.GetUserFromToken(Request);
+        var user = await _jWTAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -75,7 +75,7 @@ public class ExternalController : Controller
     [HttpPost("GetAllExternalsBySectionId")]
     public async Task<IActionResult> GetAllExternalsBySectionId(int sectionId)
     {
-        var user = _jWTAuthentication.GetUserFromToken(Request);
+        var user = await _jWTAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -93,7 +93,7 @@ public class ExternalController : Controller
     [HttpPost("GetAllExternalsByRoomId")]
     public async Task<IActionResult> GetAllExternalsByRoomId(int roomId)
     {
-        var user = _jWTAuthentication.GetUserFromToken(Request);
+        var user = await _jWTAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -111,7 +111,7 @@ public class ExternalController : Controller
     [HttpPost("GetAllExternals")]
     public async Task<IActionResult> GetAllExternals()
     {
-        var user = _jWTAuthentication.GetUserFromToken(Request);
+        var user = await _jWTAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -129,7 +129,7 @@ public class ExternalController : Controller
     [HttpPut("DeleteExternal")]
     public async Task<IActionResult> DeleteExternal(int externalId)
     {
-        var user = _jWTAuthentication.GetUserFromToken(Request);
+        var user = await _jWTAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

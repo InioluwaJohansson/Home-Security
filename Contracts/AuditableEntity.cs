@@ -6,7 +6,7 @@ public abstract class AuditableEntity : BaseEntity, IAuditableEntity, ISoftDelet
     public DateTime CreatedOn{get; set;} = DateTime.UtcNow;
     public int LastModifiedBy{get; set;} = 0;
     public DateTime? LastModifiedOn{get; set;} = DateTime.UtcNow;
-    public DateTime? DeletedOn { get; set; } = DateTime.Now;
+    public DateTime? DeletedOn { get; set; } = DateTime.UtcNow;
     public int DeletedBy{get; set;} = 0;
     public bool IsDeleted{get; set;} = false;
 }

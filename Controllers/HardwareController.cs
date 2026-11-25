@@ -21,7 +21,7 @@ public class HardwareController : Controller
     [HttpPut("CreateHardware")]
     public async Task<IActionResult> CreateHardware(CreateHardwareDto createHardwareDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -36,7 +36,7 @@ public class HardwareController : Controller
     [HttpPut("UpdateHardware")]
     public async Task<IActionResult> UpdateHardware(UpdateHardwareDto updateHardwareDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -51,7 +51,7 @@ public class HardwareController : Controller
     [HttpGet("GetById")]
     public async Task<IActionResult> GetById(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -66,7 +66,7 @@ public class HardwareController : Controller
     [HttpGet("GetAllHardwares")]
     public async Task<IActionResult> GetAllHardwares()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

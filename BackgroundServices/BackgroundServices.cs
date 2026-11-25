@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Home_Security.Authentication;
 using Home_Security.Context;
 using Home_Security.Encryption;
 using Home_Security.Entities.Identity;
@@ -208,5 +209,19 @@ public class UtilitiesCheckBackgroundService  : BackgroundService
         using var scope = _scopeFactory.CreateScope();
         var utilitySaveCleanUpService = scope.ServiceProvider.GetRequiredService<IUtilitySaveCleanUpService>();
         await utilitySaveCleanUpService.ExecuteUtilityCheck(stoppingToken);
+    }
+}
+public class BrowserIdRefreshService  : BackgroundService
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    public BrowserIdRefreshService (IServiceScopeFactory scopeFactory)
+    {
+        _scopeFactory = scopeFactory;
+    }
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var jwtBrowserRefresh = scope.ServiceProvider.GetRequiredService<IJWTAuthentication>();
+        await jwtBrowserRefresh.RefreshBrowserId(stoppingToken);
     }
 }

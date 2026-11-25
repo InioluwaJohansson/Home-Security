@@ -43,7 +43,7 @@ public class UtilityUpdateService : IUtilityUpdateService
             utility.MinWaterLevel = updateUtilityDto.MinWaterLevel;
             utility.IsDeleted = false;
             utility.LastModifiedBy = personId;
-            utility.LastModifiedOn = DateTime.Now;
+            utility.LastModifiedOn = DateTime.UtcNow;
 
             await _utilityRepo.Update(utility);
             await _realtime.NotifyAll("UtilityUpdated", new List<Role> { Role.Owner, Role.Wife, Role.Child }, GetDetails(utility));

@@ -38,8 +38,8 @@ public class PersonService : IPersonService
                 NFIDCode = NFID,
                 NFID = BCrypt.Net.BCrypt.EnhancedHashPassword(NFID),
                 IsDeleted = false,
-                CreatedOn = DateTime.Now,
-                LastModifiedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
+                LastModifiedOn = DateTime.UtcNow,
             };
             var getUser = await _userRepo.Create(user);
             var userRole = new UserRole()
@@ -47,8 +47,8 @@ public class PersonService : IPersonService
                 UserId = getUser.Id,
                 Role = createPersonDto.CreateUserDto.Role,
                 IsDeleted = false,
-                CreatedOn = DateTime.Now,
-                LastModifiedOn = DateTime.Now
+                CreatedOn = DateTime.UtcNow,
+                LastModifiedOn = DateTime.UtcNow
             };
             getUser.UserRole = userRole;
             await _userRepo.Update(getUser);
@@ -63,15 +63,15 @@ public class PersonService : IPersonService
                     FirstName = createPersonDto.CreatePersonDetailsDto.FirstName,
                     LastName = createPersonDto.CreatePersonDetailsDto.LastName,
                     DateOfBirth = createPersonDto.CreatePersonDetailsDto.DateOfBirth,
-                    Age = DateTime.Now.Year - createPersonDto.CreatePersonDetailsDto.DateOfBirth.Year,
+                    Age = DateTime.UtcNow.Year - createPersonDto.CreatePersonDetailsDto.DateOfBirth.Year,
                     Gender = createPersonDto.CreatePersonDetailsDto.Gender,
                     ImageUrl = "",
                     IsDeleted = false,
-                    CreatedOn = DateTime.Now,
-                    LastModifiedOn = DateTime.Now,
+                    CreatedOn = DateTime.UtcNow,
+                    LastModifiedOn = DateTime.UtcNow,
                 },
-                CreatedOn = DateTime.Now,
-                LastModifiedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
+                LastModifiedOn = DateTime.UtcNow,
             };
             person = await _personRepo.Create(person);
             await _userRepo.Update(getUser);
@@ -99,8 +99,8 @@ public class PersonService : IPersonService
             person.PersonDetails.FirstName = updatePersonDto.UpdatePersonDetailsDto.FirstName ?? person.PersonDetails.FirstName;
             person.PersonDetails.LastName = updatePersonDto.UpdatePersonDetailsDto.LastName ?? person.PersonDetails.LastName;
             person.PersonDetails.ImageUrl = await GetImageUrl(updatePersonDto.UpdatePersonDetailsDto.ImageUrl) ?? person.PersonDetails.ImageUrl ?? null;
-            person.PersonDetails.Age = DateTime.Now.Year - person.PersonDetails.DateOfBirth.Year;
-            person.LastModifiedOn = DateTime.Now;
+            person.PersonDetails.Age = DateTime.UtcNow.Year - person.PersonDetails.DateOfBirth.Year;
+            person.LastModifiedOn = DateTime.UtcNow;
             await _personRepo.Update(person);
             await _realTime.NotifyAll("PersonUpdated", GetDetails(person));
             return new BaseResponse()
@@ -159,7 +159,7 @@ public class PersonService : IPersonService
                         address1.Country = addresses.Country ?? address1.Country;
                         address1.PostalCode = addresses.PostalCode ?? address1.PostalCode;
                         address1.LastModifiedBy = personId;
-                        address1.LastModifiedOn = DateTime.Now;
+                        address1.LastModifiedOn = DateTime.UtcNow;
                         await _addressRepo.Update(address1);
                     }
                 }
@@ -177,8 +177,8 @@ public class PersonService : IPersonService
                     IsDeleted = false,
                     CreatedBy = personId,
                     LastModifiedBy = personId,
-                    CreatedOn = DateTime.Now,
-                    LastModifiedOn = DateTime.Now,
+                    CreatedOn = DateTime.UtcNow,
+                    LastModifiedOn = DateTime.UtcNow,
                 };
                 await _addressRepo.Create(address);
             }
@@ -209,7 +209,7 @@ public class PersonService : IPersonService
                         contactDetailes1.PhoneNumber = contactDetail.PhoneNumber ?? contactDetailes1.PhoneNumber;
                         contactDetailes1.Email = contactDetail.Email ?? contactDetailes1.Email;
                         contactDetailes1.LastModifiedBy = personId;
-                        contactDetailes1.LastModifiedOn = DateTime.Now;
+                        contactDetailes1.LastModifiedOn = DateTime.UtcNow;
                         await _contactDetailsRepo.Update(contactDetailes1);
                     }
                 }
@@ -222,8 +222,8 @@ public class PersonService : IPersonService
                     IsDeleted = false,
                     CreatedBy = personId,
                     LastModifiedBy = personId,
-                    CreatedOn = DateTime.Now,
-                    LastModifiedOn = DateTime.Now,
+                    CreatedOn = DateTime.UtcNow,
+                    LastModifiedOn = DateTime.UtcNow,
                 };
                 await _contactDetailsRepo.Create(contactDetailes);
             }
@@ -289,8 +289,8 @@ public class PersonService : IPersonService
                 if (contactDetailes != null)
                 {
                     contactDetail.DeletedBy = personId;
-                    contactDetail.DeletedOn = DateTime.Now;
-                    contactDetailes.LastModifiedOn = DateTime.Now;
+                    contactDetail.DeletedOn = DateTime.UtcNow;
+                    contactDetailes.LastModifiedOn = DateTime.UtcNow;
                     contactDetail.IsDeleted = true;
                     await _contactDetailsRepo.Update(contactDetailes);
                 };
@@ -301,8 +301,8 @@ public class PersonService : IPersonService
                 if (address != null)
                 {
                     address.DeletedBy = personId;
-                    address.DeletedOn = DateTime.Now;
-                    address.LastModifiedOn = DateTime.Now;
+                    address.DeletedOn = DateTime.UtcNow;
+                    address.LastModifiedOn = DateTime.UtcNow;
                     address.IsDeleted = true;
                     await _addressRepo.Update(address);
                 };
@@ -338,8 +338,8 @@ public class PersonService : IPersonService
         {
             contactDetail.IsDeleted = true;
             contactDetail.DeletedBy = personId;
-            contactDetail.DeletedOn = DateTime.Now;
-            contactDetail.LastModifiedOn = DateTime.Now;
+            contactDetail.DeletedOn = DateTime.UtcNow;
+            contactDetail.LastModifiedOn = DateTime.UtcNow;
             contactDetail.IsDeleted = true;
             await _contactDetailsRepo.Update(contactDetail);
             return new BaseResponse()
@@ -360,8 +360,8 @@ public class PersonService : IPersonService
         if (address != null)
         {
             address.DeletedBy = personId;
-            address.DeletedOn = DateTime.Now;
-            address.LastModifiedOn = DateTime.Now;
+            address.DeletedOn = DateTime.UtcNow;
+            address.LastModifiedOn = DateTime.UtcNow;
             address.IsDeleted = true;
             await _addressRepo.Update(address);
             return new BaseResponse()

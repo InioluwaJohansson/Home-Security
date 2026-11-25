@@ -21,7 +21,7 @@ public class UtilityController : Controller
     [HttpPost("CreateUtility")]
     public async Task<IActionResult> CreateUtility([FromBody] CreateUtilityDto createUtilityDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -39,7 +39,7 @@ public class UtilityController : Controller
     [HttpPut("UpdateUtility")]
     public async Task<IActionResult> UpdateUtility([FromBody] UpdateUtilityDto updateUtilityDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -68,7 +68,7 @@ public class UtilityController : Controller
     [HttpPost("GetAllUtilities")]
     public async Task<IActionResult> GetAllUtilities()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -86,7 +86,7 @@ public class UtilityController : Controller
     [HttpPut("DeleteUtility")]
     public async Task<IActionResult> DeleteUtility(int utilityId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

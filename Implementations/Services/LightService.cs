@@ -33,8 +33,8 @@ public class LightService : ILightService
                 IsDeleted = false,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
-                LastModifiedOn = DateTime.Now,
-                CreatedOn = DateTime.Now,
+                LastModifiedOn = DateTime.UtcNow,
+                CreatedOn = DateTime.UtcNow,
                 BrightnessLevel = 0,
             };
             await _lightRepo.Create(light);
@@ -63,7 +63,7 @@ public class LightService : ILightService
             {
                 light.LightName = updateLightDto.LightName ?? light.LightName;
                 light.LastModifiedBy = personId;
-                light.LastModifiedOn = DateTime.Now;
+                light.LastModifiedOn = DateTime.UtcNow;
                 light.BrightnessLevel = updateLightDto.BrightnessLevel;
                 light.IsActive = updateLightDto.IsActive;
                 light.SectionId = updateLightDto.SectionId ?? light.SectionId;
@@ -182,8 +182,8 @@ public class LightService : ILightService
             light.IsActive = false;
             light.PowerActive = false;
             light.LastModifiedBy = personId;
-            light.LastModifiedOn = DateTime.Now;
-            light.DeletedOn = DateTime.Now;
+            light.LastModifiedOn = DateTime.UtcNow;
+            light.DeletedOn = DateTime.UtcNow;
             light.DeletedBy = personId;
             light.IsDeleted = true;
             await _lightRepo.Update(light);

@@ -16,12 +16,12 @@ public class TokenService : ITokenService
         var token = new Token()
         {
             TokenCode = Guid.NewGuid().ToString().Substring(0,30).Replace("-",""),
-            ExpiryTime = DateTime.Now.AddMinutes(5),
+            ExpiryTime = DateTime.UtcNow.AddMinutes(5),
             IsDeleted = false,
             CreatedBy = personId,
             LastModifiedBy = personId,
-            LastModifiedOn = DateTime.Now,
-            CreatedOn = DateTime.Now
+            LastModifiedOn = DateTime.UtcNow,
+            CreatedOn = DateTime.UtcNow
         };
         await _tokenRepo.Create(token);
         return new GetTokenDto()
@@ -61,7 +61,7 @@ public class TokenService : ITokenService
     }
     public async Task<BaseResponse> DeleteAllTokens()
     {
-        var tokens = await _tokenRepo.GetByExpression(x => x.IsDeleted == true || x.ExpiryTime <= DateTime.Now);
+        var tokens = await _tokenRepo.GetByExpression(x => x.IsDeleted == true || x.ExpiryTime <= DateTime.UtcNow);
         if(tokens != null)
         {
             foreach(var token in tokens) await _tokenRepo.Delete(token);

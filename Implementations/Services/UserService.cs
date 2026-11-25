@@ -120,7 +120,7 @@ public class UserService : IUserService
         {
             user.UserRole.Role = updateUserDto.Role;
             user.UserName = updateUserDto.UserName ?? user.UserName;
-            user.LastModifiedOn = DateTime.Now;
+            user.LastModifiedOn = DateTime.UtcNow;
             await _userRepo.Update(user);
             var log = _authControl.CreateLog(user.Id);
             log.ActionType = "User Role Updated";
@@ -146,7 +146,7 @@ public class UserService : IUserService
         if (user != null && BCrypt.Net.BCrypt.EnhancedVerify(updateUserPasswordDto.AuthorizationCode, user.AuthorizationCode) && updateUserPasswordDto.Password == updateUserPasswordDto.NewPassword)
         {
             user.Password = BCrypt.Net.BCrypt.HashPassword(updateUserPasswordDto.NewPassword);
-            user.LastModifiedOn = DateTime.Now;
+            user.LastModifiedOn = DateTime.UtcNow;
             await _userRepo.Update(user);
             var log = _authControl.CreateLog(user.Id);
             log.ActionType = "Password Changed";
@@ -172,7 +172,7 @@ public class UserService : IUserService
         if (user != null && BCrypt.Net.BCrypt.Verify(updateUserAuthorizationCode.Password, user.Password))
         {
             user.Password = BCrypt.Net.BCrypt.EnhancedHashPassword(updateUserAuthorizationCode.NewAuthorizationCode);
-            user.LastModifiedOn = DateTime.Now;
+            user.LastModifiedOn = DateTime.UtcNow;
             await _userRepo.Update(user);
             var log = _authControl.CreateLog(user.Id);
             log.ActionType = "Authorization Code Changed";

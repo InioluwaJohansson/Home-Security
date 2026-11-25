@@ -24,15 +24,15 @@ public class LogService : ILogService
             var log = new Logs()
             {
                 PersonId = createLogDto.PersonId,
-                TimeOfAction = DateTime.Now,
+                TimeOfAction = DateTime.UtcNow,
                 LogDetails = createLogDto.LogDetails,
                 ActionType = createLogDto.ActionType,
                 FacilityType = createLogDto.FacilityType,
                 FacilityId = createLogDto.FacilityId,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 CreatedBy = createLogDto.PersonId,
                 LastModifiedBy = createLogDto.PersonId,
-                LastModifiedOn = DateTime.Now,
+                LastModifiedOn = DateTime.UtcNow,
                 IsDeleted = false
             };
             log = await _logRepo.Create(log);

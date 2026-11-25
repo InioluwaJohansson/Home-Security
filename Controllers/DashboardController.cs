@@ -21,7 +21,7 @@ public class DashboardController : Controller
     [HttpPost("GetDashboardData")]
     public async Task<IActionResult> GetDashboardData()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -37,7 +37,7 @@ public class DashboardController : Controller
     [HttpPost("GetAppNamesIdList")]
     public async Task<IActionResult> GetAppNamesIdList()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

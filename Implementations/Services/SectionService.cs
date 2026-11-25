@@ -25,10 +25,10 @@ public class SectionService : ISectionService
             {
                 SectionId = $"SECTION{Guid.NewGuid().ToString().Replace("-", "").Substring(0, 5).ToUpper()}",
                 SectionName = createSectionDto.SectionName,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
-                LastModifiedOn = DateTime.Now,
+                LastModifiedOn = DateTime.UtcNow,
                 IsHidden = false,
                 IsDeleted = false,
             };
@@ -54,7 +54,7 @@ public class SectionService : ISectionService
         {
             Section.SectionName = updateSectionDto.SectionName ?? Section.SectionName;
             Section.LastModifiedBy = personId;
-            Section.LastModifiedOn = DateTime.Now;
+            Section.LastModifiedOn = DateTime.UtcNow;
             if(Section.IsHidden != updateSectionDto.IsHidden){
                 foreach(var room in Section.Room) room.IsHidden = updateSectionDto.IsHidden;
                 foreach(var appliance in Section.Appliance) appliance.IsHidden = updateSectionDto.IsHidden;
@@ -86,10 +86,10 @@ public class SectionService : ISectionService
         if (Section != null)
         {
             Section.IsDeleted = true;
-            Section.DeletedOn = DateTime.Now;
+            Section.DeletedOn = DateTime.UtcNow;
             Section.DeletedBy = personId;
             Section.LastModifiedBy = personId;
-            Section.LastModifiedOn = DateTime.Now;
+            Section.LastModifiedOn = DateTime.UtcNow;
             await _sectionRepo.Update(Section);
             await _realtime.NotifyAll("SectionDeleted", new
             {

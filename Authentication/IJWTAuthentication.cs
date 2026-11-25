@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using System.Text;
 using Home_Security.Entities;
 using Home_Security.Models.DTOs;
@@ -8,8 +9,9 @@ public interface IJWTAuthentication
 {
     public string GenerateToken(GetUserDto getUserDto);
     public GetUserDto? GetUserFromToken(string token);
-    public GetUserDto? GetUserFromToken(HttpRequest token);
-
+    public Task<GetUserDto?> GetUserFromToken(HttpRequest token);
+    public string AssignBrowserId(HttpRequest token);
     public string GenerateHardwareToken(GetHardwareDataDto getHardwareDataDto);
     public GetHardwareDataDto? ValidateHardwareToken(string token);
+    public Task RefreshBrowserId(CancellationToken cancellationToken);
 }

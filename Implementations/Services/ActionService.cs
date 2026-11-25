@@ -50,7 +50,7 @@ public class ActionService : IActionService
                 {
                     var date = DateTime.UtcNow;
                     if(((date.TimeOfDay - action.Time) <= (date.TimeOfDay + TimeSpan.FromMinutes(2))) && action.LastRunDate.Date != date.Date){
-                        action.LastRunDate = DateTime.Now;
+                        action.LastRunDate = DateTime.UtcNow;
                         await TriggerActions(action.Id);
                     }
                 }
@@ -200,7 +200,7 @@ public class ActionService : IActionService
             {
                 actionStep.IsDeleted = true;
                 actionStep.DeletedBy = personId;
-                actionStep.DeletedOn = DateTime.Now;
+                actionStep.DeletedOn = DateTime.UtcNow;
             }
             await _actionRepo.Update(action);
             await RemoveActionFromExternal(actionId, personId);
@@ -394,8 +394,8 @@ public class ActionService : IActionService
                     IsDeleted = false,
                     CreatedBy = personId,
                     LastModifiedBy = personId,
-                    CreatedOn = DateTime.Now,
-                    LastModifiedOn = DateTime.Now,
+                    CreatedOn = DateTime.UtcNow,
+                    LastModifiedOn = DateTime.UtcNow,
                 };
                 action.ActionSteps.Add(step);
             }
@@ -434,7 +434,7 @@ public class ActionService : IActionService
                     step.IsActive = actionStep.IsActive;
                     step.IsLocked = actionStep.IsLocked;
                     step.IsOpen = actionStep.IsOpen;
-                    step.LastModifiedOn = DateTime.Now;
+                    step.LastModifiedOn = DateTime.UtcNow;
                     step.LastModifiedBy = personId;
                 }
             }
@@ -467,7 +467,7 @@ public class ActionService : IActionService
             {
                 actionStep.IsDeleted = true;
                 actionStep.DeletedBy = personId;
-                actionStep.DeletedOn = DateTime.Now;
+                actionStep.DeletedOn = DateTime.UtcNow;
                 await _actionRepo.Update(action);
                 await _realtime.NotifyAll("ActionStepDeleted", new
                 {

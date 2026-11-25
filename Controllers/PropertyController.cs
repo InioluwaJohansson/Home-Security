@@ -21,7 +21,7 @@ public class PropertyController : Controller
     [HttpPost("CreateProperty")]
     public async Task<IActionResult> CreateProperty([FromBody] CreatePropertyDto createPropertyDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -39,7 +39,7 @@ public class PropertyController : Controller
     [HttpPut("UpdateProperty")]
     public async Task<IActionResult> UpdateProperty([FromBody] UpdatePropertyDto updatePropertyDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -57,7 +57,7 @@ public class PropertyController : Controller
     [HttpPost("GetPropertyById")]
     public async Task<IActionResult> GetPropertyById(int id)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -71,7 +71,7 @@ public class PropertyController : Controller
     [HttpPost("GetAllProperties")]
     public async Task<IActionResult> GetAllProperties()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -85,7 +85,7 @@ public class PropertyController : Controller
     [HttpPut("DeleteProperty")]
     public async Task<IActionResult> DeleteProperty(int propertyId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

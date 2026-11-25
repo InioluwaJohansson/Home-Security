@@ -36,8 +36,8 @@ public class ApplianceService : IApplianceService
                 IsDeleted = false,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
-                LastModifiedOn = DateTime.Now,
-                CreatedOn = DateTime.Now
+                LastModifiedOn = DateTime.UtcNow,
+                CreatedOn = DateTime.UtcNow
             };
             await _applianceRepo.Create(appliance);
             var applianceData = GetDetails(await _applianceRepo.Get(x => x.ApplianceId == appliance.ApplianceId));
@@ -66,7 +66,7 @@ public class ApplianceService : IApplianceService
             appliance.RoomId = updateApplianceDto.RoomId ?? appliance.RoomId;
             appliance.IsActive = updateApplianceDto.IsActive;
             appliance.LastModifiedBy = personId;
-            appliance.LastModifiedOn = DateTime.Now;
+            appliance.LastModifiedOn = DateTime.UtcNow;
             appliance.ApplianceType = updateApplianceDto.ApplianceType;
             var applianceData = GetDetails(await _applianceRepo.Update(appliance));
             var hardware = await _hardwareService.GetHardwareName(applianceData.Id, FacilityType.Appliance);
@@ -178,8 +178,8 @@ public class ApplianceService : IApplianceService
             appliance.IsActive = false;
             appliance.PowerActive = false;
             appliance.LastModifiedBy = personId;
-            appliance.LastModifiedOn = DateTime.Now;
-            appliance.DeletedOn = DateTime.Now;
+            appliance.LastModifiedOn = DateTime.UtcNow;
+            appliance.DeletedOn = DateTime.UtcNow;
             appliance.DeletedBy = personId;
             await _applianceRepo.Update(appliance);
             await _hardwareService.RemoveFacilityItem(appliance.Id, FacilityType.Appliance);

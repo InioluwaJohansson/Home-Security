@@ -27,10 +27,10 @@ public class RoomService : IRoomService
                 SectionId = createRoomDto.SectionId ?? null,
                 RoomName = createRoomDto.RoomName,
                 Icon = createRoomDto.Icon,
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
-                LastModifiedOn = DateTime.Now,
+                LastModifiedOn = DateTime.UtcNow,
                 IsDeleted = false,
             };
             await _roomRepo.Create(room);
@@ -69,7 +69,7 @@ public class RoomService : IRoomService
                 room.IsHidden = updateRoomDto.IsHidden;
             }
             room.LastModifiedBy = personId;
-            room.LastModifiedOn = DateTime.Now;
+            room.LastModifiedOn = DateTime.UtcNow;
             await _roomRepo.Update(room);
             if(room.IsHidden){ await _realtime.NotifyAll("RoomUpdated", new List<Role> { Role.Owner, Role.Wife }, room);}
             else await _realtime.NotifyAll("RoomUpdated", room);
@@ -186,10 +186,10 @@ public class RoomService : IRoomService
         if(room != null)
         {
             room.IsDeleted = true;
-            room.DeletedOn = DateTime.Now;
+            room.DeletedOn = DateTime.UtcNow;
             room.DeletedBy = personId;
             room.LastModifiedBy = personId;
-            room.LastModifiedOn = DateTime.Now;
+            room.LastModifiedOn = DateTime.UtcNow;
             await _roomRepo.Update(room);
             await _realtime.NotifyAll("RoomDeleted", id);
             return new BaseResponse()

@@ -62,7 +62,7 @@ public class CameraService : ICameraService
                 IsDeleted = false,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
-                LastModifiedOn = DateTime.Now
+                LastModifiedOn = DateTime.UtcNow
             };
             await _cameraRepo.Create(camera);
             var liveCamera = await _cameraStreamingService.StartStream(camera);
@@ -92,7 +92,7 @@ public class CameraService : ICameraService
             if(camera != null){
                 camera.IsActive = updateCameraDto.IsActive;
                 camera.LastModifiedBy = personId;
-                camera.LastModifiedOn = DateTime.Now;
+                camera.LastModifiedOn = DateTime.UtcNow;
                 await _cameraRepo.Update(camera);
                 if(camera.IsHidden){ await _realtime.NotifyAll("CameraUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(camera));}
                 else await _realtime.NotifyAll("CameraUpdated", GetDetails(camera));
@@ -118,7 +118,7 @@ public class CameraService : ICameraService
                 camera.CameraName = updateCameraDto.CameraName ?? camera.CameraName;
                 camera.IsActive = updateCameraDto.IsActive;
                 camera.LastModifiedBy = personId;
-                camera.LastModifiedOn = DateTime.Now;
+                camera.LastModifiedOn = DateTime.UtcNow;
                 camera.SectionId = updateCameraDto.SectionId ?? camera.SectionId;
                 camera.RoomId = updateCameraDto.RoomId ?? camera.RoomId;
                 if (!camera.IsStreaming) camera = await _cameraStreamingService.RestartStream(camera);
@@ -237,8 +237,8 @@ public class CameraService : ICameraService
             camera.PowerActive = false;
             camera.IsStreaming = false;
             camera.LastModifiedBy = personId;
-            camera.LastModifiedOn = DateTime.Now;
-            camera.DeletedOn = DateTime.Now;
+            camera.LastModifiedOn = DateTime.UtcNow;
+            camera.DeletedOn = DateTime.UtcNow;
             camera.DeletedBy = personId;
             camera.IsDeleted = true;
             await _cameraStreamingService.StopStream(camera);

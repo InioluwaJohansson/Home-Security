@@ -28,8 +28,8 @@ public class ContactCategoryService : IContactCategoryService
                 IsDeleted = false,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
-                LastModifiedOn = DateTime.Now,
-                CreatedOn = DateTime.Now,
+                LastModifiedOn = DateTime.UtcNow,
+                CreatedOn = DateTime.UtcNow,
             };
 
             await _contactCategoryRepo.Create(contactCategory);
@@ -56,7 +56,7 @@ public class ContactCategoryService : IContactCategoryService
             contactCategory.Description = updateContactCategoryDto.Description ?? contactCategory.Description;
             contactCategory.Icon = updateContactCategoryDto.Icon ?? contactCategory.Icon;
             contactCategory.LastModifiedBy = personId;
-            contactCategory.LastModifiedOn = DateTime.Now;
+            contactCategory.LastModifiedOn = DateTime.UtcNow;
             await _contactCategoryRepo.Update(contactCategory);
             await _realtime.NotifyAll("ContactCategoryUpdated", GetDetails(contactCategory));
             return new BaseResponse()
@@ -115,8 +115,8 @@ public class ContactCategoryService : IContactCategoryService
         if (contactCategory != null)
         {
             contactCategory.LastModifiedBy = personId;
-            contactCategory.LastModifiedOn = DateTime.Now;
-            contactCategory.DeletedOn = DateTime.Now;
+            contactCategory.LastModifiedOn = DateTime.UtcNow;
+            contactCategory.DeletedOn = DateTime.UtcNow;
             contactCategory.DeletedBy = personId;
             contactCategory.IsDeleted = true;
             await _contactCategoryRepo.Update(contactCategory);

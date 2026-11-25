@@ -8,13 +8,20 @@ using Microsoft.IdentityModel.Tokens;
 using Home_Security.Entities.Identity;
 using Home_Security.Entities;
 using Microsoft.Extensions.Options;
+using Home_Security.Interfaces.Controls;
+using Home_Security.RealTimeServices;
+using System.Threading.Tasks;
 namespace Home_Security.Authentication;
 
 public class JWTAuthentication : Controller, IJWTAuthentication
 {
+    private readonly IAuthCache _authCache;
+    private readonly IRealtimeNotificationService _realtimeNotificationService;
     public IConfiguration _key;
-    public JWTAuthentication(IConfiguration config)
+    public JWTAuthentication(IAuthCache authCache, IRealtimeNotificationService realtimeNotificationService, IConfiguration config)
     {
+        _authCache = authCache;
+        _realtimeNotificationService = realtimeNotificationService;
         _key = config.GetSection("Jwt");
     }
     public string GenerateToken(GetUserDto getUserDto)
@@ -33,9 +40,7 @@ public class JWTAuthentication : Controller, IJWTAuthentication
             Subject = new ClaimsIdentity(claims),
             IssuedAt = DateTime.Now,
             Expires = DateTime.UtcNow.AddDays(1),
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(tokenKey),
-                SecurityAlgorithms.HmacSha256Signature),
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(tokenKey),SecurityAlgorithms.HmacSha256Signature),
             Audience = _key["Audience"] ?? "Home",
             Issuer = _key["Issuer"] ?? "Home_Security",
         };
@@ -46,25 +51,20 @@ public class JWTAuthentication : Controller, IJWTAuthentication
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_key["SecretKey"] ?? "HomeSecurity1234567890");
-
         var validationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidIssuer = _key["Issuer"] ?? "Home_Security",
             ValidAudience = _key["Audience"] ?? "Home",
-
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(key),
-
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
-
         try
         {
             var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
-
             var claims = principal.Claims;
             var timeStamp = DateTime.Parse(claims.First(x => x.Type == "TimeStamp").Value);
             if(timeStamp.AddDays(1) < DateTime.Now) return null;
@@ -82,48 +82,47 @@ public class JWTAuthentication : Controller, IJWTAuthentication
             return null;
         }
     }
-    public GetUserDto? GetUserFromToken(HttpRequest token)
+    public async Task<GetUserDto?> GetUserFromToken(HttpRequest token)
     {
-        var data = token.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        Console.WriteLine("JWT TOKEN: " + data);
-        Console.WriteLine("BROWSER ID: " + token.Headers["X-Browser-Id"].ToString());
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_key["SecretKey"] ?? "HomeSecurity1234567890");
-
-        var validationParameters = new TokenValidationParameters
+        var browserStatus = await VerifyBrowserId(token);
+        if(browserStatus)
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidIssuer = _key["Issuer"] ?? "Home_Security",
-            ValidAudience = _key["Audience"] ?? "Home",
-
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
-        };
-
-        try
-        {
-            var principal = tokenHandler.ValidateToken(data, validationParameters, out _);
-
-            var claims = principal.Claims;
-            var timeStamp = DateTime.Parse(claims.First(x => x.Type == "TimeStamp").Value);
-            if(timeStamp.AddDays(1) < DateTime.Now) return null;
-            return new GetUserDto
+            var data = token.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            Console.WriteLine("JWT TOKEN: " + data);
+            Console.WriteLine("BROWSER ID: " + token.Headers["X-Browser-Id"].ToString());
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_key["SecretKey"] ?? "HomeSecurity1234567890");
+            var validationParameters = new TokenValidationParameters
             {
-                Id = int.Parse(claims.First(x => x.Type == "UserId").Value),
-                PersonId = int.Parse(claims.First(x => x.Type == "PersonId").Value),
-                UserName = claims.First(x => x.Type == "UserName").Value,
-                RoleName = claims.First(x => x.Type == "RoleName").Value,
-                AuthorizationCode = claims.First(x => x.Type == "AuthorizationCode").Value
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidIssuer = _key["Issuer"] ?? "Home_Security",
+                ValidAudience = _key["Audience"] ?? "Home",
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
             };
+            try
+            {
+                var claims = tokenHandler.ValidateToken(data, validationParameters, out _).Claims;
+                var timeStamp = DateTime.Parse(claims.First(x => x.Type == "TimeStamp").Value);
+                if(timeStamp.AddDays(1) < DateTime.Now) return null;
+                return new GetUserDto
+                {
+                    Id = int.Parse(claims.First(x => x.Type == "UserId").Value),
+                    PersonId = int.Parse(claims.First(x => x.Type == "PersonId").Value),
+                    UserName = claims.First(x => x.Type == "UserName").Value,
+                    RoleName = claims.First(x => x.Type == "RoleName").Value,
+                    AuthorizationCode = claims.First(x => x.Type == "AuthorizationCode").Value
+                };
+            }
+            catch
+            {
+                return null;
+            }
         }
-        catch
-        {
-            return null;
-        }
+        return null;
     }
     public string GenerateHardwareToken(GetHardwareDataDto getHardwareDataDto)
     {
@@ -138,23 +137,15 @@ public class JWTAuthentication : Controller, IJWTAuthentication
             new Claim("AuthorizationCode", getHardwareDataDto.AuthorizationCode),
             new Claim("TimeStamp", DateTime.Now.ToString())
         };
-
         var credentials = new SigningCredentials(
-        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key["SecretKey"] ?? "HomeSecurity1234567890")),
-        SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            claims: claims,
-            expires: DateTime.MaxValue,
-            signingCredentials: credentials);
-
+        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key["SecretKey"] ?? "HomeSecurity1234567890")), SecurityAlgorithms.HmacSha256);
+        var token = new JwtSecurityToken(claims: claims, expires: DateTime.MaxValue, signingCredentials: credentials);
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
     public GetHardwareDataDto ValidateHardwareToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.UTF8.GetBytes(_key["SecretKey"] ?? "HomeSecurity1234567890");
-
         var validationParameters = new TokenValidationParameters
         {
             ValidateIssuer = false,
@@ -191,6 +182,52 @@ public class JWTAuthentication : Controller, IJWTAuthentication
             return null;
         }
     }
+    public string AssignBrowserId(HttpRequest token)
+    {
+        var tokenUserData = GetUserFromToken(token);
+        if(tokenUserData != null && tokenUserData.Id != 0)
+        {
+            var browser = new BrowserCacheData()
+            {
+                BrowserId =  Guid.NewGuid().ToString().Substring(0,31).Replace("-", ""),
+                JwtToken = token.Headers["Authorization"].ToString().Replace("Bearer ", ""),
+                DateTime = DateTime.UtcNow,
+                ExpiryTime = DateTime.UtcNow.AddHours(6),
+            };
+            _authCache._browserCache.Add(browser);
+            return browser.BrowserId;
+        }
+        return "";
+    }
+    public async Task<bool> VerifyBrowserId(HttpRequest token)
+    {
+        var jwtToken = token.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        var browserId = token.Headers["X-Browser-Id"].ToString();
+        var browserData = _authCache._browserCache.FirstOrDefault(x => x.BrowserId == browserId);
+        if(browserData != null)
+        {
+            if(browserData.ExpiryTime > DateTime.UtcNow  && browserData.JwtToken == jwtToken) return true;
+            else if(browserData.ExpiryTime < DateTime.UtcNow && browserData.JwtToken == jwtToken)
+            {
+                _authCache._browserCache.Remove(browserData);
+                var newBrowserId = AssignBrowserId(token);
+                var user = GetUserFromToken(jwtToken) ?? new GetUserDto();
+                await _realtimeNotificationService.NotifyAll("RefreshedBrowserId", user.Id, new{ 
+                    BrowserId = newBrowserId
+                });
+                return true;
+            }
+        }
+        return false;
+    }
+    public async Task RefreshBrowserId(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            _authCache._browserCache.RemoveAll(x => x.ExpiryTime < DateTime.UtcNow);
+        }
+        await Task.Delay(TimeSpan.FromMinutes(3), cancellationToken);
+    }
 }
 public static class ClaimsPrincipalExtensions
 {
@@ -199,13 +236,10 @@ public static class ClaimsPrincipalExtensions
         var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var personIdClaim = user.FindFirst("PersonId")?.Value;
         var authorizationCode = user.FindFirst(ClaimTypes.Authentication)?.Value;
-
-        if (!int.TryParse(userIdClaim, out int userId) ||
-            !int.TryParse(personIdClaim, out int personId))
+        if (!int.TryParse(userIdClaim, out int userId) ||!int.TryParse(personIdClaim, out int personId))
         {
             return null;
         }
-
         return new GetAuthControlInfoDto
         {
             PersonId = personId,

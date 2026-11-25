@@ -34,10 +34,10 @@ public class HardwareService : IHardwareService
                 DoorIds = new List<int>(),
                 ExternalIds = new List<int>(),
                 UtilityIds = new List<int>(),
-                CreatedOn = DateTime.Now,
+                CreatedOn = DateTime.UtcNow,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
-                LastModifiedOn = DateTime.Now,
+                LastModifiedOn = DateTime.UtcNow,
                 IsDeleted = false,
             };
             await _hardwareRepo.Create(hardware);
@@ -69,7 +69,7 @@ public class HardwareService : IHardwareService
             hardware.ExternalIds = updateHardwareDto.ExternalIds ?? hardware.ExternalIds;
             hardware.UtilityIds = updateHardwareDto.UtilityIds ?? hardware.UtilityIds;
             hardware.LastModifiedBy = personId;
-            hardware.LastModifiedOn = DateTime.Now;
+            hardware.LastModifiedOn = DateTime.UtcNow;
             await _hardwareRepo.Update(hardware);
             await _realtime.NotifyAll("HardwareUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(hardware));
             return new BaseResponse()
@@ -129,7 +129,7 @@ public class HardwareService : IHardwareService
         {
             foreach (var hardware in hardwares)
             {
-                if (hardware.LastModifiedOn < DateTime.Now.AddMinutes(-5))
+                if (hardware.LastModifiedOn < DateTime.UtcNow.AddMinutes(-5))
                 {
                     hardware.PowerActive = false;
                     await _hardwareRepo.Update(hardware);

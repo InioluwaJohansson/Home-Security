@@ -21,7 +21,7 @@ public class ApplianceController : Controller
     [HttpPost("CreateAppliance")]
     public async Task<IActionResult> CreateAppliance([FromBody] CreateApplianceDto createApplianceDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -39,7 +39,7 @@ public class ApplianceController : Controller
     [HttpPut("UpdateAppliance")]
     public async Task<IActionResult> UpdateAppliance([FromBody] UpdateApplianceDto updateApplianceDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -68,7 +68,7 @@ public class ApplianceController : Controller
     [HttpPost("GetAllAppliancesBySectionId")]
     public async Task<IActionResult> GetAllAppliancesBySectionId(int sectionId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -86,7 +86,7 @@ public class ApplianceController : Controller
     [HttpPost("GetAllAppliancesByRoomId")]
     public async Task<IActionResult> GetAllAppliancesByRoomId(int roomId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -104,7 +104,7 @@ public class ApplianceController : Controller
     [HttpPost("GetAllAppliances")]
     public async Task<IActionResult> GetAllAppliances()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -122,7 +122,7 @@ public class ApplianceController : Controller
     [HttpPut("DeleteAppliance")]
     public async Task<IActionResult> DeleteAppliance(int applianceId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

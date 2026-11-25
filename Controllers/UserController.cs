@@ -41,7 +41,7 @@ public class UserController : Controller
     [HttpPut("UpdateUserRole")]
     public async Task<IActionResult> UpdateUserRole(UpdateUserDto updateUserDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -59,7 +59,7 @@ public class UserController : Controller
     [HttpPut("ChangePassword")]
     public async Task<IActionResult> ChangePassword(UpdateUserPasswordDto updateUserPasswordDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -82,7 +82,7 @@ public class UserController : Controller
     [HttpPut("ChangeAuthorizationCode")]
     public async Task<IActionResult> ChangeAuthorizationCode(UpdateUserAuthorizationCode updateUserAuthorizationCode)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -105,7 +105,7 @@ public class UserController : Controller
     [HttpPost("GenerateToken")]
     public async Task<IActionResult> GenerateToken()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -123,7 +123,7 @@ public class UserController : Controller
     [HttpPost("VerifyAuthCode")]
     public async Task<IActionResult> VerifyAuthCode(string authCode)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         if (user != null && BCrypt.Net.BCrypt.EnhancedVerify(authCode, user.AuthorizationCode))
@@ -134,7 +134,7 @@ public class UserController : Controller
     [HttpPost("RefreshLoginToken")]
     public async Task<IActionResult> RefreshLoginToken()
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         if (user != null){
@@ -169,5 +169,10 @@ public class UserController : Controller
             return Ok(data);
         }
         return Unauthorized();
+    }
+    [HttpGet("GetBrowserId")]
+    public async Task<IActionResult> GetBrowserId()
+    {
+        return Ok(_jwtAuthentication.AssignBrowserId(Request));
     }
 }

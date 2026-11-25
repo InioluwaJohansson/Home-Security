@@ -33,8 +33,8 @@ public class ExternalService : IExternalService
                 IsDeleted = false,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
-                LastModifiedOn = DateTime.Now,
-                CreatedOn = DateTime.Now,
+                LastModifiedOn = DateTime.UtcNow,
+                CreatedOn = DateTime.UtcNow,
                 ActionIds = createExternalDto.ActionIds ?? new List<int>(),
                 IsTriggered = false,
                 IsActive = true,
@@ -66,7 +66,7 @@ public class ExternalService : IExternalService
             {
                 Externals.ExternalName = updateExternalDto.ExternalName ?? Externals.ExternalName;
                 Externals.LastModifiedBy = personId;
-                Externals.LastModifiedOn = DateTime.Now;
+                Externals.LastModifiedOn = DateTime.UtcNow;
                 Externals.IsActive = updateExternalDto.IsActive;
                 Externals.SectionId = updateExternalDto.SectionId ?? Externals.SectionId;
                 Externals.RoomId = updateExternalDto.RoomId ?? Externals.RoomId;
@@ -195,8 +195,8 @@ public class ExternalService : IExternalService
             external.IsActive = false;
             external.PowerActive = false;
             external.LastModifiedBy = personId;
-            external.LastModifiedOn = DateTime.Now;
-            external.DeletedOn = DateTime.Now;
+            external.LastModifiedOn = DateTime.UtcNow;
+            external.DeletedOn = DateTime.UtcNow;
             external.DeletedBy = personId;
             external.IsDeleted = true;
             await _externalRepo.Update(external);

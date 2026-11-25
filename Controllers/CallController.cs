@@ -23,7 +23,7 @@ public class CallController : Controller
     [HttpPost("StartCall")]
     public async Task<IActionResult> StartCall(StartCallDto startCallDto)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -37,7 +37,7 @@ public class CallController : Controller
     [HttpPost("EndCall")]
     public async Task<IActionResult> EndCall(int callId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -51,7 +51,7 @@ public class CallController : Controller
     [HttpPost("AcceptCall")]
     public async Task<IActionResult> AcceptCall(int callId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -65,7 +65,7 @@ public class CallController : Controller
     [HttpPost("RejectCall")]
     public async Task<IActionResult> RejectCall(int callId)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){
@@ -79,7 +79,7 @@ public class CallController : Controller
     [HttpGet("GetCallLogs")]
     public async Task<IActionResult> GetCallLogs(int page, int pageSize)
     {
-        var user = _jwtAuthentication.GetUserFromToken(Request);
+        var user = await _jwtAuthentication.GetUserFromToken(Request);
         if (user == null)
             return Unauthorized();
         var getAuthControlInfoDto = new GetAuthControlInfoDto(){

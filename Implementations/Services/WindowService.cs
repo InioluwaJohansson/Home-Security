@@ -40,7 +40,7 @@ public class WindowService : IWindowService
                 IsDeleted = false,
                 CreatedBy = personId,
                 LastModifiedBy = personId,
-                LastModifiedOn = DateTime.Now
+                LastModifiedOn = DateTime.UtcNow
             };
             await _windowRepo.Create(window);
             var windowData = GetDetails(await _windowRepo.Get(x => x.WindowId == window.WindowId));
@@ -74,7 +74,7 @@ public class WindowService : IWindowService
                 window.OpenedBy = updateWindowDto.OpenedBy;
                 window.LockedBy = updateWindowDto.LockedBy;
                 window.UnlockedBy = updateWindowDto.UnlockedBy;
-                window.LastModifiedOn = DateTime.Now;
+                window.LastModifiedOn = DateTime.UtcNow;
                 await _windowRepo.Update(window);
                 await _realtime.NotifyAll("WindowUpdated", GetDetails(window));
                 if(window.IsHidden){ await _realtime.NotifyAll("WindowUpdated", new List<Role> { Role.Owner, Role.Wife }, GetDetails(window));}
@@ -192,8 +192,8 @@ public class WindowService : IWindowService
             window.IsActive = false;
             window.PowerActive = false;
             window.LastModifiedBy = personId;
-            window.LastModifiedOn = DateTime.Now;
-            window.DeletedOn = DateTime.Now;
+            window.LastModifiedOn = DateTime.UtcNow;
+            window.DeletedOn = DateTime.UtcNow;
             window.DeletedBy = personId;
             window.IsDeleted = true;
             await _windowRepo.Update(window);

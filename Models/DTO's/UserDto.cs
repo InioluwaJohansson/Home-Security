@@ -71,4 +71,5 @@ public class BrowserCacheData
     public string BrowserId { get; set;}
     public string JwtToken { get; set; }
     public DateTime DateTime { get; set; } = DateTime.UtcNow;
+    public DateTime ExpiryTime { get; set; } = DateTime.UtcNow;
 }
