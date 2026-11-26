@@ -88,8 +88,6 @@ public class JWTAuthentication : Controller, IJWTAuthentication
         if(browserStatus)
         {
             var data = token.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            Console.WriteLine("JWT TOKEN: " + data);
-            Console.WriteLine("BROWSER ID: " + token.Headers["X-Browser-Id"].ToString());
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_key["SecretKey"] ?? "HomeSecurity1234567890");
             var validationParameters = new TokenValidationParameters
