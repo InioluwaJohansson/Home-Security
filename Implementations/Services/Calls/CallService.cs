@@ -41,8 +41,6 @@ public class CallService : ICallService
         var calls = await _callRepo.GetTimedOutRingingCallsAsync(TimeSpan.FromSeconds(30));
         if(calls != null)
         {
-
-            
             foreach (var call in calls)
             {
                 foreach (var participant in call.Participants)
@@ -53,7 +51,7 @@ public class CallService : ICallService
                     }
                 }
                 bool hasConnectedParticipants = call.Participants.Any(p => p.Status == CallParticipantStatus.Connected);
-                if (!hasConnectedParticipants)
+                if (call.Participants.Where(p => p.Status == CallParticipantStatus.Connected).Count() <= 1)
                 {
                     call.Status = CallStatus.Missed;
                     call.EndedAt = DateTime.UtcNow;
